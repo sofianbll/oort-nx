@@ -196,12 +196,13 @@ final class AppViewModel: ObservableObject {
         if reset { installedVersions = [:] }
         let games = libraryGames
         let checkout = setup.nxnativePath
-        let selected = setup.activeEngineCommit
+        let versions = setup.versions
+        let selected = versions.expected
         let place = Place(UUID())
         let profile = Profile(localProfiles?.active?.id ?? UUID())
         let generation = Generation(UUID())
         let engine: any EngineAdapter = MacNXNative(place: place, checkout: checkout,
-            prescribed: pinnedEngineCommit, expected: selected, apps: games.reduce(into: [:]) { apps, game in
+            prescribed: versions.reference, expected: selected, apps: games.reduce(into: [:]) { apps, game in
                 if game.url.pathExtension.lowercased() == "app" && game.cloudImportPending != true {
                     apps[Installation(game.id)] = game.url
                 }
@@ -399,7 +400,6 @@ final class AppViewModel: ObservableObject {
 
     static let defaultPinnedEngineCommit = "99224562186a8fdb7e97afb872319a21941ec317"
     let engineOverride = SetupActions.engineOverride(in: Bundle.main.infoDictionary)
-    var pinnedEngineCommit: String { engineOverride?.commit ?? Self.defaultPinnedEngineCommit }
     let core = AppData.supportRoot
     let catalogRepository: CatalogRepository
     /// Sizes of built apps are remembered between launches, so a scan walks only new or rebuilt apps.

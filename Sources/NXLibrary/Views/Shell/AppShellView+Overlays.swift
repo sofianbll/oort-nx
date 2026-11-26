@@ -239,7 +239,7 @@ extension AppShellView {
             AppUpdateDialog(updater: updater, requirementNotes: updater.dialogRelease.map {
                 AppUpdate.requirementNotes($0.requirements,
                     installedXcode: setup.environmentStatus?.xcodeVersion,
-                    currentEngine: viewModel.pinnedEngineCommit)
+                    currentEngine: viewModel.setup.versions.reference)
             } ?? [], blockedReason: updater.blockedReason())
         }
     }

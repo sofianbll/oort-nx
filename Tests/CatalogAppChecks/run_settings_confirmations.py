@@ -51,8 +51,6 @@ def prepare(package):
     replace(model, r'SteamGridDBKey\(\)\.load\(\) != nil', "false")
     replace(model, r'        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic',
             "    }\n\n    // MARK: - Dynamic")
-    replace(model, r'engineOverride\?\.commit \?\? Self\.defaultPinnedEngineCommit',
-            'SettingsConfirmationProbe.pin ?? Self.defaultPinnedEngineCommit')
     # Direct row actions (without a mounted SwiftUI tree) read EnvironmentKey.defaultValue.
     replace(app / "Views/Theme/AppLocaleEnvironment.swift",
             r'defaultValue = AppLocale\(language: \.english, region: "US"\)', 'defaultValue = L10n.context')
@@ -156,6 +154,8 @@ extension CloudSetupAssistant {
 }
 """)
     setup = app / "ViewModels/SetupModel.swift"
+    replace(setup, r'app\.engineOverride\?\.commit \?\? AppViewModel\.defaultPinnedEngineCommit',
+            'SettingsConfirmationProbe.pin ?? AppViewModel.defaultPinnedEngineCommit')
     replace(setup, r'(func selectNxnativeFolder\([^\n]*\) \{\n        guard [^\n]*\n)        OortFilePickerPresentation\.open\(.*?'
             r'            guard let self, let url = urls\.first, !app\.isBuilding, !app\.isUpdatingApp else \{ return \}',
             lambda m: m[1] + '        if let url = SettingsConfirmationProbe.pickedEngine {')

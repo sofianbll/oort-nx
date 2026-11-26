@@ -20,7 +20,7 @@ extension PortingModel {
             keyCheckToken = nil
             return
         }
-        let keysURL = app.setup.keyStore.keyURL
+        let keysURL = app.setup.managedKeysURL
         let modified = (try? FileManager.default.attributesOfItem(atPath: keysURL.path)[.modificationDate]) as? Date
         let token = ([String(modified?.timeIntervalSince1970 ?? 0)]
             + sources.map { "\($0.url.path)|\($0.sizeBytes)" }.sorted()).joined(separator: "\n")
@@ -507,11 +507,11 @@ extension PortingModel {
             throw NXLibraryError.environmentBlocked(L10n.text("The selected NUP program no longer matches this game. Choose the source again."))
         }
         if requiresKeys {
-            guard app.setup.isProdKeysValid, FileManager.default.fileExists(atPath: app.setup.keyStore.keyURL.path) else {
+            guard app.setup.isProdKeysValid else {
                 throw NXLibraryError.missingKeys
             }
             // A few kilobytes per file: keys that cannot open the game stop here, not minutes into the extraction.
-            let keyOutcome = KeyCheck.run(keysURL: app.setup.keyStore.keyURL,
+            let keyOutcome = KeyCheck.run(keysURL: app.setup.managedKeysURL,
                                           files: KeyCheck.parts(target.sources.map { ($0.kind, $0.url) }))
             if keyOutcome.blocks, let reason = PortingFailureReason.from(keyOutcome) {
                 throw NXLibraryError.keyCheck(reason, game: target.name)
@@ -529,23 +529,18 @@ extension PortingModel {
 
         // Re-check at build time: the engine tree, Metal compiler or CLI may
         // have changed since the last Settings/launch check.
-        let checker = CompatibilityChecker(
-            repoURL: URL(fileURLWithPath: app.setup.nxnativePath),
-            toolchain: app.setup.engineToolchain,
-            developerDir: app.setup.resolvedDeveloperDir()
-        )
-        let report = try? checker.check(expectedEngineCommit: app.setup.activeEngineCommit)
+        let (workshop, report) = app.setup.engineAdapter(developerDir: app.setup.resolvedDeveloperDir())
+            .compatibility(toolchain: app.setup.engineToolchain)
         app.setup.compatibilityReport = report
-        if report?.ok != true && !app.setup.allowUntestedToolchain {
-            let reason = report?.checks.filter { $0.status == .block }
+        if !report.ok && !app.setup.allowUntestedToolchain {
+            let reason = report.checks.filter { $0.status == .block }
                 .map { "\($0.title): \($0.detail)" }.joined(separator: "; ")
-                ?? "the compatibility check is unavailable"
             throw NXLibraryError.incompatibleToolchain(reason)
         }
         app.setup.environmentCheckGeneration = UUID()
         app.setup.isCheckingEnvironment = false
-        let certified = report?.ok == true && !app.setup.allowUntestedToolchain && !app.setup.usesNewestEngine
-        activeBuildToolchain = ToolchainInfo(engineCommit: app.setup.activeEngineCommit,
+        let certified = report.ok && !app.setup.allowUntestedToolchain && !app.setup.usesNewestEngine
+        activeBuildToolchain = ToolchainInfo(engineCommit: workshop.versions.expected,
             metalVersion: environmentStatus.metalVersion, xcodeVersion: environmentStatus.xcodeVersion,
             verified: certified,
             note: certified ? "Certified toolchain"
@@ -664,7 +659,7 @@ extension PortingModel {
             toolchain: toolchain,
             workspace: workspace.directory,
             workDir: workDir,
-            keys: requiresKeys ? app.setup.keyStore.keyURL : nil,
+            keys: requiresKeys ? app.setup.managedKeysURL : nil,
             output: tempApp,
             developerDir: app.setup.resolvedDeveloperDir(),
             appName: target.name,
@@ -719,7 +714,7 @@ extension PortingModel {
                              message: L10n.format("Workspace: %@", [String(describing: workspace.directory.path)])))
         app.logs.append(LogEntry(
             level: .info,
-            message: report?.ok == true
+            message: report.ok
                 ? L10n.text("Toolchain gate: certified.")
                 : L10n.text("Toolchain gate: overridden; this build will be recorded as untested.")
         ))

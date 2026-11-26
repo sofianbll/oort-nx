@@ -104,7 +104,7 @@ struct SettingsView: View {
     }
     private var engine: EngineSelection? {
         guard setup.isNxnativeValid, !setup.nxnativePath.isEmpty else { return nil }
-        return EngineSelection(path: setup.nxnativePath, commit: setup.currentEngineCommit)
+        return EngineSelection(path: setup.nxnativePath, commit: setup.versions.selected.value)
     }
     private var supportsNextendo: Bool { nextendoEngine != nil && engine == nextendoEngine && viewModel.usesSharedNextendo }
     @Environment(\.nxAppLocale) private var localization
@@ -613,7 +613,7 @@ struct SettingsView: View {
     private func subjectValue(_ subject: SettingsSection) -> String? {
         switch subject {
         case .profileNextendo: nextendo.accountName ?? L10n.text("No account linked")
-        case .engine: seleneShort(setup.currentEngineCommit)
+        case .engine: seleneShort(setup.versions.selected.value)
         case .library: viewModel.libraryFolder?.lastPathComponent
         case .keys: L10n.text(setup.isProdKeysValid ? "Keys imported" : "No prod.keys imported")
         case .games: "\(L10n.text("Fullscreen")) · \(SettingsDraftFields.onOff(editor.settings.gameDefaults.fullscreen))"

@@ -15,7 +15,6 @@ public struct CompatibilityReport: Equatable {
     public var checks: [CompatibilityCheck]
     /// The installed Metal compiler against the engine's lock.
     public var metal: MetalStanding
-    package var selectedEngine: Identity = .unknown
 
     public init(ok: Bool, checks: [CompatibilityCheck], metal: MetalStanding = .unknown) {
         self.ok = ok
@@ -77,18 +76,18 @@ public final class CompatibilityChecker {
         return nil
     }
 
-    public func check(expectedEngineCommit: String) throws -> CompatibilityReport {
+    func check(_ versions: VersionFacts, changes: [String]?) -> CompatibilityReport {
         var checks: [CompatibilityCheck] = []
 
-        let (_, observed, dirty) = MacNXNative.checkoutState(at: repoURL.path, runner: runner, developerDir: developerDir)
-        let head = observed ?? ""
+        let head = versions.selected.value
+        let expected = versions.expected
         checks.append(.init(id: "commit", title: L10n.text("Engine commit"),
-                            status: observed == expectedEngineCommit ? .pass : .block,
-                            detail: L10n.format("current %@, expected %@", [String(describing: head), String(describing: expectedEngineCommit)])))
+                            status: head != nil && head == expected ? .pass : .block,
+                            detail: L10n.format("current %@, expected %@", [head ?? "", expected])))
 
         checks.append(.init(id: "tree", title: L10n.text("Working tree"),
-                            status: dirty?.isEmpty == true ? .pass : .block,
-                            detail: dirty?.joined(separator: "\n") ?? L10n.text("git could not run")))
+                            status: changes?.isEmpty == true ? .pass : .block,
+                            detail: changes?.joined(separator: "\n") ?? L10n.text("git could not run")))
 
         let metal = run("/usr/bin/xcrun", ["metal", "--version"]).stdout
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -119,9 +118,7 @@ public final class CompatibilityChecker {
                             status: missing.isEmpty ? .pass : .block,
                             detail: missing.isEmpty ? L10n.text("required options present") : L10n.format("missing %@", [String(describing: missing.joined(separator: ", "))])))
 
-        var report = CompatibilityReport(ok: checks.allSatisfy { $0.status != .block }, checks: checks, metal: standing)
-        report.selectedEngine = observed.map(Identity.reported) ?? .unknown
-        return report
+        return CompatibilityReport(ok: checks.allSatisfy { $0.status != .block }, checks: checks, metal: standing)
     }
 
     /// The first dotted version number in `xcrun metal --version` output or a lock line ("32023.921").

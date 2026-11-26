@@ -224,17 +224,6 @@ final class NewestEngineTests: XCTestCase {
         XCTAssertEqual(git.calls[2], ["-C", repo.path, "fetch", "--quiet", fork, pin])
     }
 
-    func testIsIncludedReadsMergeBase() {
-        let git = FakeGit()
-        let switcher = NewestEngineSwitcher(repo: repo, runner: git)
-        XCTAssertEqual(switcher.isIncluded(main, in: pin), true)
-        git.answers["merge-base"] = CommandResult(status: 1, stdout: "", stderr: "")
-        XCTAssertEqual(switcher.isIncluded(main, in: pin), false)
-        git.answers["merge-base"] = CommandResult(status: 128, stdout: "", stderr: "")
-        XCTAssertNil(switcher.isIncluded(main, in: pin))
-        XCTAssertEqual(git.calls[0], ["-C", repo.path, "merge-base", "--is-ancestor", main, pin])
-    }
-
     // MARK: - Gate
 
     private func report(ok: Bool) -> CompatibilityReport {
@@ -264,9 +253,8 @@ final class NewestEngineTests: XCTestCase {
 
     private func facts(head: String, choice: NewestEngineChoice?) -> SetupFacts {
         var facts = SetupFacts(xcodeStatus: 0, metalVersion: "32023.922", certifiedMetal: "32023.922", allowUntested: true,
-                               engine: .checkout(head: head, dirty: false), engineFolder: repo, pinnedCommit: pin,
-                               runtimeProblem: nil, keys: .required, keysError: nil, libraryReadable: true,
-                               engineBehind: false)
+                               engine: .checkout(head: head, relation: .divergent, tree: .clean), engineFolder: repo, pinnedCommit: pin,
+                               runtimeProblem: nil, keys: .required, keysError: nil, libraryReadable: true)
         facts.newestEngine = choice
         return facts
     }
@@ -280,14 +268,14 @@ final class NewestEngineTests: XCTestCase {
         XCTAssertEqual(card.actionTitle, "Back to tested")
         XCTAssertEqual(card.about, NewestEngineCopy.note)
         XCTAssertEqual(card.detail, "At 9c1d2e7, 12 commits ahead of the tested 4a0551e, chosen in Settings → Switch.")
-        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: main, dirty: false), pinned: pin, newest: main), .none)
+        XCTAssertEqual(SetupActions.engineAction(for: facts(head: main, choice: choice).engine, pinned: pin, newest: main), .none)
     }
 
     func testAnUnchosenNewerCheckoutIsStillAnotherVersion() {
         let card = SetupCheck.items(from: facts(head: main, choice: nil)).first { $0.id == .engine }!
         XCTAssertEqual(card.chip, "Other version")
         XCTAssertFalse(card.isUntested)
-        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: main, dirty: false), pinned: pin), .checkout)
+        XCTAssertEqual(SetupActions.engineAction(for: facts(head: main, choice: nil).engine, pinned: pin), .checkout)
     }
 
     func testAFreshInstallStillClonesTheTestedPin() {

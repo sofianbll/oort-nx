@@ -3,7 +3,7 @@ import XCTest
 @testable import ArcanePorting
 
 final class CompatibilityCheckerTests: XCTestCase {
-    private final class FakeRunner: CommandRunning {
+    private final class FakeRunner: CommandRunning, @unchecked Sendable {
         var outputs: [String: CommandResult] = [:]
         func run(_ executable: URL, _ arguments: [String],
                  environment: [String: String]?,
@@ -38,10 +38,9 @@ final class CompatibilityCheckerTests: XCTestCase {
 
     override func tearDownWithError() throws { try? FileManager.default.removeItem(at: dir) }
 
-    private func checker(_ runner: FakeRunner) -> CompatibilityChecker {
-        CompatibilityChecker(repoURL: repo,
-                             toolchain: EngineToolchain.resolve(runtime: nil, repo: repo),
-                             developerDir: nil, runner: runner)
+    private func read(_ runner: FakeRunner) -> (Workshop, CompatibilityReport) {
+        MacNXNative(place: Place(UUID()), checkout: repo.path, prescribed: "06b7b3e", expected: "06b7b3e", runner: runner)
+            .compatibility(toolchain: .resolve(runtime: nil, repo: repo))
     }
 
     private var cliKey: String {
@@ -58,7 +57,7 @@ final class CompatibilityCheckerTests: XCTestCase {
             stdout: "Apple metal version 32023.921 (metalfe-32023.921.6)\n", stderr: "")
         r.outputs[cliKey] = .init(status: 0,
             stdout: "--platform --progress -o -k --app-name --bundle-id\n", stderr: "")
-        let report = try checker(r).check(expectedEngineCommit: "06b7b3e")
+        let (_, report) = read(r)
         XCTAssertTrue(report.ok)
     }
 
@@ -70,7 +69,7 @@ final class CompatibilityCheckerTests: XCTestCase {
             stdout: "Apple metal version 32023.917\n", stderr: "")
         r.outputs[cliKey] = .init(status: 0,
             stdout: "--platform --progress -o -k --app-name --bundle-id\n", stderr: "")
-        let report = try checker(r).check(expectedEngineCommit: "06b7b3e")
+        let (_, report) = read(r)
         XCTAssertFalse(report.ok)
         XCTAssertTrue(report.checks.contains { $0.id == "metal" && $0.status == .block })
     }
@@ -79,8 +78,8 @@ final class CompatibilityCheckerTests: XCTestCase {
         let r = FakeRunner()
         r.outputs["git rev-parse HEAD"] = .init(status: 0, stdout: "06b7b3e\n", stderr: "")
         r.outputs["git status --porcelain"] = .init(status: 128, stdout: "", stderr: "fixture")
-        let report = try checker(r).check(expectedEngineCommit: "06b7b3e")
-        XCTAssertEqual(report.selectedEngine.value, "06b7b3e")
+        let (snapshot, report) = read(r)
+        XCTAssertEqual(snapshot.checkout, .checkout(head: "06b7b3e", relation: .current, tree: .unreadable))
         XCTAssertEqual(report.checks.first { $0.id == "tree" }?.status, .block)
     }
 
@@ -93,7 +92,7 @@ final class CompatibilityCheckerTests: XCTestCase {
             stdout: "Apple metal version 32023.921\n", stderr: "")
         r.outputs[cliKey] = .init(status: 0,
             stdout: "--platform --progress -o -k --app-name --bundle-id\n", stderr: "")
-        let report = try checker(r).check(expectedEngineCommit: "06b7b3e")
+        let (_, report) = read(r)
         XCTAssertFalse(report.ok)
         XCTAssertTrue(report.checks.contains { $0.id == "tree" && $0.status == .block })
     }
@@ -107,7 +106,7 @@ final class CompatibilityCheckerTests: XCTestCase {
         r.outputs[Self.pythonVersionKey] = .init(status: 0, stdout: "3.11\n", stderr: "")
         r.outputs[cliKey] = .init(status: 0,
             stdout: "--platform --progress -o -k --app-name --bundle-id\n", stderr: "")
-        let report = try checker(r).check(expectedEngineCommit: "06b7b3e")
+        let (_, report) = read(r)
         XCTAssertFalse(report.ok)
         XCTAssertTrue(report.checks.contains { $0.id == "python" && $0.status == .block })
     }
@@ -119,7 +118,7 @@ final class CompatibilityCheckerTests: XCTestCase {
         r.outputs["xcrun metal --version"] = .init(status: 0, stdout: metal, stderr: "")
         r.outputs[cliKey] = .init(status: 0,
             stdout: "--platform --progress -o -k --app-name --bundle-id\n", stderr: "")
-        return try checker(r).check(expectedEngineCommit: "06b7b3e")
+        return read(r).1
     }
 
     func testMetalStandingComparesWithTheLock() throws {

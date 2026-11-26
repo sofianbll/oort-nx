@@ -44,7 +44,7 @@ import SwiftUI
         app.setup.importKeys(from: rejected)
         let setup = app.setupCheck
         setup.apply(SetupFacts(xcodeStatus: nil, metalVersion: nil, certifiedMetal: "1", allowUntested: false,
-                               engine: .missing, engineFolder: support, pinnedCommit: app.pinnedEngineCommit,
+                               engine: .missing, engineFolder: support, pinnedCommit: app.setup.versions.reference,
                                runtimeProblem: nil, keys: .required, keysError: nil, libraryReadable: nil))
         precondition(setup.items.first { $0.id == .keys }?.inlineError == "Le fichier de clés ne contient pas de header_key. Choisis un autre fichier prod.keys.")
         precondition(app.settingsNotice == nil && !FileManager.default.fileExists(atPath: app.setup.keyStore.keyURL.path))

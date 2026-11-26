@@ -64,31 +64,52 @@ public struct Offer<Input: Sendable, Output: Sendable>: Sendable {
 }
 
 public struct VersionFacts: Equatable, Sendable {
-    public let reference: Identity
+    public let reference: String
     public let selected: Identity
-    public let expected: Identity
+    public let expected: String
 
-    package init(reference: Identity, selected: Identity, expected: Identity) {
+    package init(reference: String, selected: Identity, expected: String) {
         self.reference = reference; self.selected = selected; self.expected = expected
     }
 }
 
-public enum CheckoutPresence: Equatable, Sendable { case missing, notACheckout, checkout }
-public enum SetupCondition: Equatable, Sendable { case modifiedSelection }
-public enum LocalKeyStatus: Equatable, Sendable { case unavailable, required, available(applicationGenerations: Int) }
+public enum EngineCheckout: Equatable, Sendable {
+    public enum Relation: Equatable, Sendable { case current, behind, divergent, unknown }
+    public enum Tree: Equatable, Sendable { case clean, modified, unreadable }
+    case missing, notACheckout
+    case checkout(head: String, relation: Relation, tree: Tree)
+
+    public var relation: Relation {
+        if case .checkout(_, let relation, _) = self { return relation }
+        return .unknown
+    }
+}
+
+public enum KeyIssue: Error, Equatable, Sendable {
+    case missingHeaderKey, invalidLine(Int), unreadable
+}
+
+public enum LocalKeyStatus: Equatable, Sendable {
+    case required, invalid(KeyIssue)
+    case available(applicationGenerations: Int, needsPrivatePermissions: Bool = false)
+
+    public var applicationGenerations: Int? {
+        if case .available(let count, _) = self { return count }
+        return nil
+    }
+}
 
 public struct Workshop: Sendable {
     public let engineID: String
     public let versions: VersionFacts
-    public let checkout: CheckoutPresence
-    public let conditions: [SetupCondition]
+    public let checkout: EngineCheckout
     public let localKeys: LocalKeyStatus
     public let checkUpstream: Offer<Confirmed, UpstreamReview>
 
-    package init(engineID: String, versions: VersionFacts, checkout: CheckoutPresence,
-                 conditions: [SetupCondition], localKeys: LocalKeyStatus, checkUpstream: Offer<Confirmed, UpstreamReview>) {
+    package init(engineID: String, versions: VersionFacts, checkout: EngineCheckout,
+                 localKeys: LocalKeyStatus, checkUpstream: Offer<Confirmed, UpstreamReview>) {
         self.engineID = engineID; self.versions = versions; self.checkout = checkout
-        self.conditions = conditions; self.localKeys = localKeys; self.checkUpstream = checkUpstream
+        self.localKeys = localKeys; self.checkUpstream = checkUpstream
     }
 }
 

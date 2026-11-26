@@ -33,7 +33,7 @@ final class SetupCheckTests: XCTestCase {
 
     private func facts() -> SetupFacts {
         SetupFacts(xcodeStatus: 0, metalVersion: "32023.921", certifiedMetal: "32023.921", allowUntested: false,
-                   engine: .checkout(head: pin, dirty: false), engineFolder: folder, pinnedCommit: pin,
+                   engine: .checkout(head: pin, relation: .current, tree: .clean), engineFolder: folder, pinnedCommit: pin,
                    runtimeProblem: nil,
                    keys: .available(applicationGenerations: 3), keysError: nil,
                    libraryReadable: true)
@@ -106,21 +106,21 @@ final class SetupCheckTests: XCTestCase {
         XCTAssertEqual(item(.engine).state, .ready)
 
         // After an Arcane update the engine here is older than the pin: an update, not an error.
-        for behind in [true, nil] as [Bool?] {
-            let update = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: false); $0.engineBehind = behind }
+        for relation: EngineCheckout.Relation in [.behind, .unknown] {
+            let update = item(.engine) { $0.engine = .checkout(head: "ee369f0", relation: relation, tree: .clean) }
             XCTAssertEqual(update.state, .warning, "still reopens Setup; updating is explicit")
             XCTAssertEqual(update.chip, "Update ready")
             XCTAssertEqual(update.actionTitle, "Update")
             XCTAssertEqual(update.detail, "This version of Oort NX uses nxnative af616f5; the engine here is at ee369f0. Update downloads it and switches to it. Games you built keep playing.")
         }
         // A checkout ahead of the pin (or on another branch) is moved back, said as such.
-        let ahead = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: false); $0.engineBehind = false }
+        let ahead = item(.engine) { $0.engine = .checkout(head: "ee369f0", relation: .divergent, tree: .clean) }
         XCTAssertEqual(ahead.state, .warning)
         XCTAssertEqual(ahead.chip, "Other version")
         XCTAssertEqual(ahead.actionTitle, "Switch")
         XCTAssertEqual(ahead.detail, "The engine here is at ee369f0, not the af616f5 this version of Oort NX is tested with. Switch moves it to af616f5. Games you built keep playing.")
 
-        let dirty = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: true) }
+        let dirty = item(.engine) { $0.engine = .checkout(head: "ee369f0", relation: .unknown, tree: .modified) }
         XCTAssertEqual(dirty.state, .warning)
         XCTAssertEqual(dirty.chip, "Local changes")
         XCTAssertNil(dirty.actionTitle)
@@ -157,8 +157,7 @@ final class SetupCheckTests: XCTestCase {
     func testDivergedPersonalEngineNamesTheConfiguredRepositoryAndPin() {
         let fork = "https://github.com/sofianbll/nxnative"
         let card = item(.engine) {
-            $0.engine = .checkout(head: "ee369f0", dirty: false)
-            $0.engineBehind = false
+            $0.engine = .checkout(head: "ee369f0", relation: .divergent, tree: .clean)
             $0.engineRemote = fork
             $0.pinnedCommit = "a35babeade0c34b3f928e0b32310ba66eb98bc86"
         }
@@ -178,7 +177,7 @@ final class SetupCheckTests: XCTestCase {
         XCTAssertEqual(missing.chip, "Not imported")
         XCTAssertEqual(missing.actionTitle, "Choose file")
 
-        let invalid = item(.keys) { $0.keys = .unavailable; $0.keysError = "The keys file has no header_key." }
+        let invalid = item(.keys) { $0.keys = .invalid(.missingHeaderKey); $0.keysError = "The keys file has no header_key." }
         XCTAssertEqual(invalid.state, .missing)
         XCTAssertEqual(invalid.detail, "The keys file has no header_key.")
     }
@@ -276,14 +275,13 @@ final class SetupCheckTests: XCTestCase {
         f.xcodeStatus = 0
 
         // Neither a known divergence nor an update to an existing checkout is automatic.
-        f.engine = .checkout(head: "ee369f0", dirty: false)
-        for behind in [true, false, nil] as [Bool?] {
-            f.engineBehind = behind
+        for relation: EngineCheckout.Relation in [.behind, .divergent, .unknown] {
+            f.engine = .checkout(head: "ee369f0", relation: relation, tree: .clean)
             XCTAssertFalse(SetupCheck.automatic(SetupCheck.items(from: f)).contains(.engine))
         }
 
         f.certifiedMetal = "32024.5"
-        f.engine = .checkout(head: "ee369f0", dirty: true)
+        f.engine = .checkout(head: "ee369f0", relation: .unknown, tree: .modified)
         let items = SetupCheck.applying([.metal: .working("DOWNLOADING…")], to: SetupCheck.items(from: f))
         XCTAssertEqual(SetupCheck.automatic(items), [])
     }
@@ -300,7 +298,7 @@ final class SetupCheckTests: XCTestCase {
 
     // MARK: - Probe
 
-    private final class FakeRunner: CommandRunning {
+    private final class FakeRunner: CommandRunning, @unchecked Sendable {
         var responses: [String: CommandResult] = [:]
         var calls: [(executable: URL, arguments: [String])] = []
         func run(_ executable: URL, _ arguments: [String],
@@ -315,7 +313,7 @@ final class SetupCheckTests: XCTestCase {
                        library: URL? = nil, sources: URL? = nil, needsConfirmation: Bool = false) -> SetupProbe {
         SetupProbe(runner: runner, toolchain: .resolve(runtime: nil, repo: engine), developerDir: nil,
                    engineFolder: engine, pinnedCommit: pin, certifiedMetal: "32023.921", allowUntested: false,
-                   keyStore: KeyStore(directory: home.appendingPathComponent("keys")), libraryFolder: library,
+                   keysDirectory: home.appendingPathComponent("keys"), libraryFolder: library,
                    sourcesFolder: sources, libraryNeedsConfirmation: needsConfirmation)
     }
 
@@ -335,7 +333,7 @@ final class SetupCheckTests: XCTestCase {
         let facts = SetupProbe(runner: FakeRunner(), toolchain: .resolve(runtime: nil, repo: home),
                                developerDir: nil, engineFolder: home, pinnedCommit: pin,
                                certifiedMetal: "32023.921", allowUntested: false,
-                               keyStore: KeyStore(directory: home.appendingPathComponent("keys")),
+                               keysDirectory: home.appendingPathComponent("keys"),
                                libraryFolder: library).facts()
         let card = SetupCheck.items(from: facts).first { $0.id == .library }
         XCTAssertEqual(card?.state, .warning)
@@ -415,7 +413,7 @@ final class SetupCheckTests: XCTestCase {
         let toolchain = EngineToolchain(python: python, extraPath: [], isBundled: true)
         _ = SetupProbe(runner: runner, toolchain: toolchain, developerDir: nil, engineFolder: home,
                        pinnedCommit: pin, certifiedMetal: "32023.921", allowUntested: false,
-                       keyStore: KeyStore(directory: home.appendingPathComponent("keys")), libraryFolder: nil).facts()
+                       keysDirectory: home.appendingPathComponent("keys"), libraryFolder: nil).facts()
         let pythonCalls = runner.calls.filter { $0.executable == python }
         XCTAssertFalse(pythonCalls.isEmpty)
         for call in pythonCalls { XCTAssertTrue(call.arguments.contains("-B"), call.arguments.joined(separator: " ")) }
@@ -438,7 +436,7 @@ final class SetupCheckTests: XCTestCase {
 
         try FileManager.default.createDirectory(at: engine.appendingPathComponent(".git"), withIntermediateDirectories: true)
         let facts = probe(runner, engine: engine, home: home).facts()
-        XCTAssertEqual(facts.engine, .checkout(head: pin, dirty: false))
+        XCTAssertEqual(facts.engine, .checkout(head: pin, relation: .current, tree: .clean))
         XCTAssertEqual(facts.xcodeStatus, 69)
         XCTAssertNil(facts.xcodeVersion)
         XCTAssertEqual(facts.metalVersion, "32023.921")
@@ -446,7 +444,7 @@ final class SetupCheckTests: XCTestCase {
         XCTAssertNil(facts.libraryReadable)
 
         runner.responses["status --porcelain"] = CommandResult(status: 0, stdout: " M scripts/build_ipa_from_nsp.py\n", stderr: "")
-        XCTAssertEqual(probe(runner, engine: engine, home: home).facts().engine, .checkout(head: pin, dirty: true))
+        XCTAssertEqual(probe(runner, engine: engine, home: home).facts().engine, .checkout(head: pin, relation: .current, tree: .modified))
 
         runner.responses["xcodebuild -version"] = CommandResult(status: 0, stdout: "Xcode 27.1\nBuild version 27A9275\n", stderr: "")
         XCTAssertEqual(probe(runner, engine: engine, home: home).facts().xcodeVersion, "27.1")
@@ -474,10 +472,22 @@ final class SetupCheckTests: XCTestCase {
         _ = try git(["-c", "commit.gpgsign=false", "-c", "user.name=Fixture",
                      "-c", "user.email=fixture@users.noreply.github.com", "commit", "--allow-empty", "-qm", "Fixture"])
         let checkout = try await engine.workshop(place)
-        XCTAssertEqual(checkout.checkout, .checkout)
-        XCTAssertEqual(checkout.versions.selected.value, try git(["rev-parse", "HEAD"]))
-        XCTAssertEqual(checkout.versions.expected.value, "badcafe")
-        XCTAssertEqual(checkout.versions.reference.value, pin)
+        let head = try git(["rev-parse", "HEAD"])
+        XCTAssertEqual(checkout.checkout, .checkout(head: head, relation: .unknown, tree: .clean))
+        XCTAssertEqual(checkout.versions.selected.value, head)
+        XCTAssertEqual(checkout.versions.expected, "badcafe")
+        XCTAssertEqual(checkout.versions.reference, pin)
+
+        let commit = ["-c", "commit.gpgsign=false", "-c", "user.name=Fixture",
+                      "-c", "user.email=fixture@users.noreply.github.com", "commit", "--allow-empty", "-qm"]
+        _ = try git(commit + ["Second fixture"])
+        let tip = try git(["rev-parse", "HEAD"])
+        func snapshot(reference: String) -> Workshop {
+            MacNXNative(place: place, checkout: folder.path, prescribed: reference, expected: "badcafe").workshop()
+        }
+        XCTAssertEqual(snapshot(reference: head).checkout, .checkout(head: tip, relation: .divergent, tree: .clean))
+        _ = try git(["checkout", "--detach", head])
+        XCTAssertEqual(snapshot(reference: tip).checkout, .checkout(head: head, relation: .behind, tree: .clean))
     }
 
 }

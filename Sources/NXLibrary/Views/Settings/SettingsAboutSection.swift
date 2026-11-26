@@ -48,7 +48,7 @@ struct SettingsAboutSection: View {
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
-                Text(L10n.format("Version %@ · Build %@ · Engine %@", [version, buildLabel, seleneShort(viewModel.pinnedEngineCommit)]))
+                Text(L10n.format("Version %@ · Build %@ · Engine %@", [version, buildLabel, seleneShort(viewModel.setup.versions.reference)]))
                     .seleneFont(.badge, .regular, design: .monospaced)
                     .foregroundColor(SeleneTheme.ink60)
                 Text(L10n.format("Based on %@ %@, by %@", [AppIdentity.name, "0.2.1", "Bium23"], context: localization))

@@ -13,6 +13,7 @@ Rules:
    (AppKit, SwiftUI, Metal, MetalKit, GameController), except the files in
    UI_BASELINE. That baseline can only shrink: a listed file that no longer
    imports the framework is also reported, so the entry gets removed.
+4. Only the engine adapter reads checkout HEAD, bundle stamps or managed key status.
 
 Run from the repository root, or pass --root. Exit status 1 on any violation.
 """
@@ -32,6 +33,8 @@ UI_BASELINE = {
     "Sources/NXLibraryCore/Artwork/ArtworkStore.swift": {"AppKit"},
 }
 IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
+ENGINE_READ = re.compile(r'"DMCommit"|"\brev-parse"\s*,\s*"HEAD"|"\-\-format=%h %s"|\.readStatus\(\)|'
+                         r'fileExists\(atPath:[^\n]*(?:managedKeysURL|keyURL)\.path')
 
 
 def imports_of(path):
@@ -69,6 +72,12 @@ def check(root):
         found = seen_ui.get(relative, set())
         for name in sorted(names - found):
             violations.append(f"{relative}: baseline lists {name}, but the file no longer imports it; remove the entry")
+    for file in (root / "Sources").rglob("*.swift"):
+        relative = file.relative_to(root).as_posix()
+        if relative != "Sources/ArcanePorting/Setup/MacNXNative.swift":
+            for line, text in enumerate(file.read_text(encoding="utf-8").splitlines(), 1):
+                if ENGINE_READ.search(text):
+                    violations.append(f"{relative}:{line}: read engine facts through MacNXNative")
     return violations
 
 

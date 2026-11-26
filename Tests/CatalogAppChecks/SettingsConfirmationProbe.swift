@@ -548,7 +548,7 @@ import ArcanePorting
         precondition(engineWrites == 0 && settings.editingSettings.launcherChoices.enginePath == enginePath)
         try settings.commitDraft()
         setup.useSavedEnginePath(settings.settings.launcherChoices.enginePath!)
-        precondition(engineWrites == 1 && setup.nxnativePath == enginePath && vm.pinnedEngineCommit == pin)
+        precondition(engineWrites == 1 && setup.nxnativePath == enginePath && setup.versions.reference == pin)
         setup.compatibilityReport = .init(ok: false, checks: [])
         settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))
         var overrideWrites = 0

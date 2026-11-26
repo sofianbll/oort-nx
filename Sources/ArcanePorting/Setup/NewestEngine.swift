@@ -227,15 +227,6 @@ public struct NewestEngineSwitcher {
         return lock.status == 0 ? NewestEngine.lockMetal(lock.stdout) : nil
     }
 
-    /// Whether `commit` is an ancestor of (or equal to) `pinned`; nil when git cannot tell.
-    public func isIncluded(_ commit: String, in pinned: String) -> Bool? {
-        switch git(["merge-base", "--is-ancestor", commit, pinned]).status {
-        case 0: return true
-        case 1: return false
-        default: return nil
-        }
-    }
-
     private func checkout(_ commit: String) throws {
         let result = git(["checkout", "--quiet", "--detach", commit])
         guard result.status == 0 else { throw NewestEngineError.switchFailed(Self.firstLine(result.stderr)) }

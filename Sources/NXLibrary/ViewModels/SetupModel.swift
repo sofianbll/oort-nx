@@ -18,7 +18,11 @@ final class SetupModel: ObservableObject {
         }
     }
     @Published var isNxnativeValid: Bool = false
-    @Published var currentEngineCommit: String? = nil
+    @Published var observedEngine: Identity = .unknown
+    private let prescribedCommit: String
+    var versions: VersionFacts {
+        .init(reference: prescribedCommit, selected: observedEngine, expected: newestEngineChoice?.commit ?? prescribedCommit)
+    }
     @Published var upstreamState: UpstreamCheckState = .idle
     /// The newest nxnative the player chose in Settings → Setup and engine; nil while the tested engine is in use.
     @Published var newestEngineChoice: NewestEngineChoice? = nil {
@@ -45,12 +49,11 @@ final class SetupModel: ObservableObject {
     // MARK: - Keys
     @Published var localKeyStatus: LocalKeyStatus = .required
     var isProdKeysValid: Bool { keyGenerationCount != nil }
-    var keyGenerationCount: Int? {
-        if case .available(let count) = localKeyStatus { return count }
-        return nil
-    }
+    var keyGenerationCount: Int? { localKeyStatus.applicationGenerations }
     private(set) var keyImportError: String?
-    lazy var keyStore = KeyStore(directory: app.core.appendingPathComponent("keys"))
+    var keysDirectory: URL { app.core.appendingPathComponent("keys") }
+    private lazy var keyStore = KeyStore(directory: keysDirectory)
+    var managedKeysURL: URL { keyStore.keyURL }
 
     // MARK: - Environment and the Metal gate
     @Published var environmentStatus: EnvironmentStatus? = nil
@@ -66,28 +69,32 @@ final class SetupModel: ObservableObject {
 
     init(app: AppViewModel) {
         self.app = app
+        prescribedCommit = app.engineOverride?.commit ?? AppViewModel.defaultPinnedEngineCommit
         if let data = AppData.preferences.data(forKey: AppViewModel.StorageKeys.newestEngineChoice) {
             // Restoring through the setter would refresh versions via app.setup while it is still being initialized.
             _newestEngineChoice = Published(initialValue: try? JSONDecoder().decode(NewestEngineChoice.self, from: data))
         }
-        if let cached = MacNXNative.cachedReview(from: app.pinnedEngineCommit) {
+        if let cached = MacNXNative.cachedReview(from: prescribedCommit) {
             upstreamState = .loaded(cached)
         }
+    }
+
+    func engineAdapter(developerDir: URL? = nil, checkout: String? = nil, persistReview: Bool = false) -> MacNXNative {
+        MacNXNative(place: Place(UUID()), checkout: checkout ?? nxnativePath, prescribed: prescribedCommit,
+                    expected: versions.expected, keys: keysDirectory,
+                    developerDir: developerDir, persistReview: persistReview)
     }
 
     // MARK: - Engine folder and upstream
     func checkUpstreamChangelog() {
         if case .checking = upstreamState { return }
         // Always against the tested pin, so the newest engine stays measurable from the engine Arcane tested.
-        let base = app.pinnedEngineCommit
         upstreamState = .checking
-        let place = Place(UUID())
-        let engine: any EngineAdapter = MacNXNative(place: place, checkout: nxnativePath, prescribed: base,
-                                                     expected: activeEngineCommit, persistReview: true)
+        let engine = engineAdapter(developerDir: resolvedDeveloperDir(), persistReview: true)
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                let workshop = try await engine.workshop(place)
+                let workshop = await Task.detached { engine.workshop() }.value
                 let status = try await workshop.checkUpstream.run(Confirmed(UUID()), request: RequestID(UUID()))
                 self.upstreamState = .loaded(status)
                 self.checkNewestEngineReadiness(status)
@@ -98,7 +105,7 @@ final class SetupModel: ObservableObject {
     }
 
     func openUpstreamCompare() {
-        guard case .loaded = upstreamState, let url = MacNXNative.compareURL(from: app.pinnedEngineCommit) else { return }
+        guard case .loaded = upstreamState, let url = MacNXNative.compareURL(from: prescribedCommit) else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -149,12 +156,12 @@ final class SetupModel: ObservableObject {
     // MARK: - Keys import
     func ensureKeysImported(customRyujinxDir: String? = nil) {
         let fm = FileManager.default
-        let read = keyStore.readStatus()
-        localKeyStatus = read.status
-        if read.status != .required {
-            if let error = read.error {
+        let keys = engineAdapter(checkout: "").workshop().localKeys
+        localKeyStatus = keys
+        if keys != .required {
+            if case .invalid(let issue) = keys {
                 app.logs.append(LogEntry(level: .error,
-                                     message: L10n.format("Stored prod.keys is invalid: %@", [String(describing: error.localizedDescription)])))
+                                     message: L10n.format("Stored prod.keys is invalid: %@", [issue.message])))
             }
             return
         }
@@ -180,22 +187,22 @@ final class SetupModel: ObservableObject {
             return
         }
         do {
-            let summary = try keyStore.importKey(from: url)
+            let count = try keyStore.importKey(from: url)
             keyImportError = nil
-            localKeyStatus = .available(applicationGenerations: summary.applicationKeyGenerations.count)
+            localKeyStatus = .available(applicationGenerations: count)
             app.porting.refreshKeyCheck()
             if let folder = app.porting.selectedGameFolder { app.porting.scanGameFolder(folder) }
             app.lastError = nil
             app.logs.append(LogEntry(
                 level: .success,
-                message: L10n.format("prod.keys imported: header key present, %@ application key generations.", [String(describing: summary.applicationKeyGenerations.count)])
+                message: L10n.format("prod.keys imported: header key present, %@ application key generations.", [String(count)])
             ))
         } catch {
-            localKeyStatus = keyStore.readStatus().status
+            localKeyStatus = engineAdapter(checkout: "").workshop().localKeys
             let failure = isProdKeysValid
                 ? L10n.text("The key file could not be imported. Your previous copy is kept.")
                 : L10n.text("The key file could not be imported. Choose a valid prod.keys file.")
-            keyImportError = (error as? KeyStoreError)?.localizedDescription ?? failure
+            keyImportError = (error as? KeyIssue)?.message ?? failure
             app.lastError = keyImportError
             if !app.showSetupCheck {
                 app.showSettingsNotice(title: L10n.text("Keys not changed"), message: failure)
@@ -203,6 +210,12 @@ final class SetupModel: ObservableObject {
             app.logs.append(LogEntry(level: .error,
                                  message: L10n.format("Could not import prod.keys: %@", [keyImportError ?? ""])))
         }
+    }
+
+    func secureKeysDuringInstallation() {
+        // Do not add a prompt or re-import. The next snapshot reflects any failed repair.
+        guard !app.isBuilding, !app.isUpdatingApp else { return }
+        try? keyStore.secureManagedCopy()
     }
 
     func selectProdKeysFile(onPick: (() -> Void)? = nil) {
@@ -258,33 +271,29 @@ final class SetupModel: ObservableObject {
         let repo = URL(fileURLWithPath: self.nxnativePath)
         let toolchain = engineToolchain
         let developerDir = resolvedDeveloperDir()
-        let expected = self.activeEngineCommit
-        let pinned = app.pinnedEngineCommit
+        let engine = engineAdapter(developerDir: developerDir)
         let choice = self.newestEngineChoice
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let environment = NXNativeEnvironment(repoURL: repo, toolchain: toolchain,
                                                   developerDir: developerDir)
             let status = environment.inspect()
-            let includedInPin = choice.flatMap { NewestEngineSwitcher(repo: repo).isIncluded($0.commit, in: pinned) }
-            let checker = CompatibilityChecker(repoURL: repo, toolchain: toolchain,
-                                               developerDir: developerDir)
-            let report = try? checker.check(expectedEngineCommit: expected)
+            let (workshop, report) = engine.compatibility(toolchain: toolchain)
             DispatchQueue.main.async {
                 guard let self, self.environmentCheckGeneration == generation,
                       self.nxnativePath == repo.path else { return }
                 self.isCheckingEnvironment = false
                 self.environmentStatus = status
                 self.compatibilityReport = report
-                self.currentEngineCommit = report?.selectedEngine.value
-                if let choice, !NewestEngine.keeps(choice, head: self.currentEngineCommit, pinned: pinned,
-                                                    includedInPin: includedInPin) {
+                self.observedEngine = workshop.versions.selected
+                if let choice, !NewestEngine.keeps(choice, head: workshop.versions.selected.value,
+                                                  pinned: workshop.versions.reference, includedInPin: workshop.checkout.relation == .behind) {
                     // The checkout moved (Setup, Back to tested, by hand) or an Arcane update tested this
                     // commit: the tested engine is in charge again.
                     self.forgetNewestEngine()
                     self.refreshCompatibility()
                     return
                 }
-                if let report, !report.ok {
+                if !report.ok {
                     let blocked = report.checks.filter { $0.status == .block }
                         .map { "\($0.title): \($0.detail)" }.joined(separator: " | ")
                     self.app.logs.append(LogEntry(level: .warning, message: L10n.format("Toolchain gate: %@", [String(describing: blocked)])))

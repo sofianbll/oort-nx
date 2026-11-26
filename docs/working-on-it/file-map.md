@@ -593,7 +593,7 @@ Cartella `Sources/ArcanePorting/Setup/`.
 | [Sources/ArcanePorting/Setup/SetupProbe.swift](../../Sources/ArcanePorting/Setup/SetupProbe.swift) | Raccoglie i fatti del Setup, compresi runtime attivo e stato del checkout; rilegge il checkout prima di cambiarlo. |
 | [Sources/ArcanePorting/Setup/MacNXNative.swift](../../Sources/ArcanePorting/Setup/MacNXNative.swift) | Adapter: legge il checkout e `DMCommit`, compara le versioni e presenta data e stato localizzati. |
 | [Sources/ArcanePorting/Setup/SetupActions.swift](../../Sources/ArcanePorting/Setup/SetupActions.swift) | Legge il pin facoltativo dal plist e costruisce i comandi Git per installare o allineare il motore al pin. |
-| [Sources/ArcanePorting/Setup/KeyStore.swift](../../Sources/ArcanePorting/Setup/KeyStore.swift) | Valida `header_key` e pubblica atomicamente gli stessi dati letti con permessi 0600; espone solo il riepilogo. |
+| [Sources/ArcanePorting/Setup/KeyStore.swift](../../Sources/ArcanePorting/Setup/KeyStore.swift) | Valida chiavi in sola lettura; importa atomicamente in 0600 e ripristina 0700/0600 solo in installazione. |
 | [Sources/ArcanePorting/Setup/KeyCheck.swift](../../Sources/ArcanePorting/Setup/KeyCheck.swift) | Verifica le chiavi contro le intestazioni NCA, con intervalli di lettura limitati dalla dimensione del pacchetto. |
 | [Sources/ArcanePorting/Setup/UpstreamChecker.swift](../../Sources/ArcanePorting/Setup/UpstreamChecker.swift) | Consulta i commit upstream tramite HTTP e produce stato e collegamento di confronto. |
 

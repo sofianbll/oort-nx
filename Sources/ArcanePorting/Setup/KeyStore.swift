@@ -2,21 +2,8 @@ import Foundation
 import Darwin
 import NXLibraryCore
 
-public struct KeySummary: Equatable {
-    public var hasHeaderKey: Bool
-    public var applicationKeyGenerations: [Int]
-
-    public init(hasHeaderKey: Bool, applicationKeyGenerations: [Int]) {
-        self.hasHeaderKey = hasHeaderKey
-        self.applicationKeyGenerations = applicationKeyGenerations
-    }
-}
-
-public enum KeyStoreError: Error, LocalizedError, Sendable {
-    case unreadable
-    case missingHeaderKey
-    case invalidLine(Int)
-    public var errorDescription: String? {
+extension KeyIssue {
+    public var message: String {
         switch self {
         case .unreadable: return L10n.text("The key file could not be read.")
         case .missingHeaderKey: return L10n.text("The key file has no header_key.")
@@ -40,25 +27,39 @@ public final class KeyStore {
         self.keyURL = directory.appendingPathComponent("prod.keys")
     }
 
-    package func readStatus() -> (status: LocalKeyStatus, error: KeyStoreError?) {
-        guard fm.fileExists(atPath: keyURL.path) else { return (.required, nil) }
+    func readStatus() -> LocalKeyStatus {
         do {
-            return (.available(applicationGenerations: try readValidated(at: keyURL).summary.applicationKeyGenerations.count), nil)
+            guard let mode = try permissions(at: keyURL, kind: S_IFREG) else { return .required }
+            let parent = try permissions(at: keyURL.deletingLastPathComponent(), kind: S_IFDIR)
+            let count = try readValidated(at: keyURL).count
+            return .available(applicationGenerations: count, needsPrivatePermissions: mode != 0o600 || parent != 0o700)
+        } catch let issue as KeyIssue {
+            return .invalid(issue)
         } catch {
-            return (.unavailable, (error as? KeyStoreError) ?? .unreadable)
+            return .invalid(.unreadable)
         }
     }
 
-    private func readValidated(at url: URL) throws -> (summary: KeySummary, data: Data) {
+    private func permissions(at url: URL, kind: mode_t) throws -> mode_t? {
+        var info = stat()
+        guard lstat(url.path, &info) == 0 else {
+            if errno == ENOENT { return nil }
+            throw KeyIssue.unreadable
+        }
+        guard info.st_mode & S_IFMT == kind else { throw KeyIssue.unreadable }
+        return info.st_mode & 0o7777
+    }
+
+    private func readValidated(at url: URL) throws -> (count: Int, data: Data) {
         if url.standardizedFileURL == keyURL.standardizedFileURL {
             let values = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
-            guard values.isRegularFile == true, values.isSymbolicLink != true else { throw KeyStoreError.unreadable }
+            guard values.isRegularFile == true, values.isSymbolicLink != true else { throw KeyIssue.unreadable }
         }
         guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .utf8) else {
-            throw KeyStoreError.unreadable
+            throw KeyIssue.unreadable
         }
         var hasHeader = false
-        var generations: [Int] = []
+        var generations: Set<Int> = []
         for (index, raw) in text.components(separatedBy: "\n").enumerated() {
             let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
             if line.isEmpty || line.hasPrefix("#") { continue }
@@ -66,28 +67,47 @@ public final class KeyStore {
                 $0.trimmingCharacters(in: .whitespaces)
             }
             guard parts.count == 2, !parts[1].isEmpty else {
-                throw KeyStoreError.invalidLine(index + 1)
+                throw KeyIssue.invalidLine(index + 1)
             }
             if parts[0] == "header_key" {
-                guard KeyCheck.hex(parts[1])?.count == 32 else { throw KeyStoreError.invalidLine(index + 1) }
+                guard KeyCheck.hex(parts[1])?.count == 32 else { throw KeyIssue.invalidLine(index + 1) }
                 hasHeader = true
             }
             if parts[0].hasPrefix("key_area_key_application_"),
                let n = Int(parts[0].suffix(2), radix: 16) {
-                generations.append(n)
+                generations.insert(n)
             }
         }
-        guard hasHeader else { throw KeyStoreError.missingHeaderKey }
-        return (KeySummary(hasHeaderKey: true,
-                           applicationKeyGenerations: Array(Set(generations)).sorted()), data)
+        guard hasHeader else { throw KeyIssue.missingHeaderKey }
+        return (generations.count, data)
+    }
+
+    /// Only the existing install/import paths may tighten a managed copy. Never follow a symlink.
+    package func secureManagedCopy() throws {
+        try restrict(keyURL.deletingLastPathComponent(), to: 0o700, kind: S_IFDIR)
+        try restrict(keyURL, to: 0o600, kind: S_IFREG)
+    }
+
+    private func restrict(_ url: URL, to mode: mode_t, kind: mode_t) throws {
+        let fd = open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK)
+        guard fd >= 0 else {
+            if errno == ENOENT { return }
+            throw CocoaError(.fileWriteNoPermission)
+        }
+        defer { close(fd) }
+        var info = stat()
+        guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == kind,
+              kind != S_IFREG || info.st_nlink == 1 else { throw CocoaError(.fileWriteNoPermission) }
+        if info.st_mode & 0o7777 != mode, fchmod(fd, mode) != 0 { throw CocoaError(.fileWriteNoPermission) }
     }
 
     @discardableResult
-    public func importKey(from source: URL) throws -> KeySummary {
-        let (summary, data) = try readValidated(at: source)
+    public func importKey(from source: URL) throws -> Int {
+        let (count, data) = try readValidated(at: source)
         try fm.createDirectory(at: keyURL.deletingLastPathComponent(),
                                withIntermediateDirectories: true,
                                attributes: [.posixPermissions: 0o700])
+        try restrict(keyURL.deletingLastPathComponent(), to: 0o700, kind: S_IFDIR)
         let tmp = keyURL.deletingLastPathComponent()
             .appendingPathComponent(".prod.keys-\(UUID()).tmp")
         defer { try? fm.removeItem(at: tmp) }
@@ -100,6 +120,6 @@ public final class KeyStore {
         try handle.close()
         try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: tmp.path)
         try publish(tmp, keyURL)
-        return summary
+        return count
     }
 }

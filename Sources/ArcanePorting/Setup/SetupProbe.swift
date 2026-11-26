@@ -9,19 +9,18 @@ public struct SetupProbe {
     private let toolchain: EngineToolchain
     private let developerDir: URL?
     private let engineFolder: URL
-    private let pinnedCommit: String
     private let certifiedMetal: String
     private let allowUntested: Bool
-    private let keyStore: KeyStore
     private let libraryFolder: URL?
     private let sourcesFolder: URL?
     private let libraryNeedsConfirmation: Bool
     private let newestEngine: NewestEngineChoice?
     private let engineRemote: String?
+    private let engine: MacNXNative
 
-    public init(runner: CommandRunning, fileManager: FileManager = .default, toolchain: EngineToolchain,
+    package init(runner: any CommandRunning & Sendable, fileManager: FileManager = .default, toolchain: EngineToolchain,
                 developerDir: URL?, engineFolder: URL, pinnedCommit: String, certifiedMetal: String,
-                allowUntested: Bool, keyStore: KeyStore, libraryFolder: URL?,
+                allowUntested: Bool, keysDirectory: URL, libraryFolder: URL?,
                 sourcesFolder: URL? = nil, libraryNeedsConfirmation: Bool = false,
                 newestEngine: NewestEngineChoice? = nil, engineRemote: String? = nil) {
         self.runner = runner
@@ -29,10 +28,11 @@ public struct SetupProbe {
         self.toolchain = toolchain
         self.developerDir = developerDir
         self.engineFolder = engineFolder
-        self.pinnedCommit = pinnedCommit
+        self.engine = MacNXNative(place: Place(UUID()), checkout: engineFolder.path, prescribed: pinnedCommit,
+                                  expected: newestEngine?.commit ?? pinnedCommit, keys: keysDirectory,
+                                  developerDir: developerDir, runner: runner)
         self.certifiedMetal = certifiedMetal
         self.allowUntested = allowUntested
-        self.keyStore = keyStore
         self.libraryFolder = libraryFolder
         self.sourcesFolder = sourcesFolder
         self.libraryNeedsConfirmation = libraryNeedsConfirmation
@@ -40,19 +40,20 @@ public struct SetupProbe {
         self.engineRemote = engineRemote
     }
 
+    package func workshop() -> Workshop { engine.workshop() }
+
     public func facts() -> SetupFacts {
-        let keyRead = keyStore.readStatus()
+        let snapshot = workshop()
         let xcode = xcode()
-        let engine = checkoutFacts()
         var facts = SetupFacts(
             xcodeStatus: xcode.status,
             metalVersion: MetalVersion.parse(run("/usr/bin/xcrun", ["metal", "--version"]).stdout),
             certifiedMetal: certifiedMetal, allowUntested: allowUntested,
-            engine: engine, engineFolder: engineFolder, pinnedCommit: pinnedCommit,
+            engine: snapshot.checkout, engineFolder: engineFolder, pinnedCommit: snapshot.versions.reference,
             runtimeProblem: runtimeProblem(),
-            keys: keyRead.status, keysError: keyRead.error?.localizedDescription,
+            keys: snapshot.localKeys, keysError: nil,
             libraryReadable: libraryFolder.map { readableDirectory($0) },
-            xcodeVersion: xcode.version, engineBehind: behind(engine))
+            xcodeVersion: xcode.version)
         let capabilities = EngineSourceCapabilities(repo: engineFolder)
         facts.keysOptional = capabilities.extractedFolders
         facts.libraryFolder = libraryFolder
@@ -73,18 +74,6 @@ public struct SetupProbe {
             && isDirectory.boolValue && fileManager.isReadableFile(atPath: url.path)
     }
 
-    /// Whether the checkout's HEAD is an ancestor of the pin (`git merge-base --is-ancestor`); nil when git cannot
-    /// tell, as when the pin is not fetched yet.
-    private func behind(_ engine: EngineFacts) -> Bool? {
-        guard case .checkout(let head, _) = engine, head != pinnedCommit else { return nil }
-        switch MacNXNative.git(["merge-base", "--is-ancestor", head, pinnedCommit], at: engineFolder.path,
-                               runner: runner, developerDir: developerDir)?.status {
-        case 0: return true
-        case 1: return false
-        default: return nil
-        }
-    }
-
     private func run(_ executable: String, _ args: [String], in directory: URL? = nil) -> CommandResult {
         let env = toolchain.environment(base: ProcessInfo.processInfo.environment, developerDir: developerDir)
         return (try? runner.run(URL(fileURLWithPath: executable), args, environment: env, currentDirectory: directory))
@@ -97,14 +86,6 @@ public struct SetupProbe {
         // 69 (EX_UNAVAILABLE) is xcodebuild's answer before the licence is accepted.
         guard result.status == 0 || result.status == 69 else { return (nil, nil) }
         return (result.status, ToolchainRequirements.xcodeVersion(from: result.stdout))
-    }
-
-    package func checkoutFacts() -> EngineFacts {
-        switch MacNXNative.checkoutState(at: engineFolder.path, runner: runner, developerDir: developerDir) {
-        case (.checkout, let head?, let changes): .checkout(head: head, dirty: changes?.isEmpty != true)
-        case (.missing, _, _): .missing
-        default: .notACheckout
-        }
     }
 
     private func runtimeProblem() -> String? {

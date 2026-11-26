@@ -110,32 +110,47 @@ package actor MacNXNative: EngineAdapter {
     private let expected: String
     private let apps: [Installation: URL]
     private let keys: URL?
+    private let developerDir: URL?
     private let runner: any CommandRunning & Sendable
     private let client: any UpstreamHTTPClient & Sendable
     private let persistReview: Bool
     private lazy var installed = InstalledEngineVersionReader(checkout: checkout, selected: expected, runner: runner)
 
     package init(place: Place, checkout: String, prescribed: String, expected: String,
-                 apps: [Installation: URL] = [:], keys: URL? = nil,
+                 apps: [Installation: URL] = [:], keys: URL? = nil, developerDir: URL? = nil,
                  runner: any CommandRunning & Sendable = SystemCommandRunner(),
                  client: any UpstreamHTTPClient & Sendable = URLSessionUpstreamClient(), persistReview: Bool = false) {
         self.place = place; self.checkout = checkout; self.prescribed = prescribed; self.expected = expected
-        self.apps = apps; self.keys = keys; self.runner = runner; self.client = client; self.persistReview = persistReview
+        self.apps = apps; self.keys = keys; self.developerDir = developerDir
+        self.runner = runner; self.client = client; self.persistReview = persistReview
     }
 
-    package func workshop(_ place: Place) async throws(Refusal) -> Workshop {
+    package nonisolated func workshop(_ place: Place) throws(Refusal) -> Workshop {
         guard place == self.place else { throw .differentOwner }
-        let (presence, head, changes) = Self.checkoutState(at: checkout, runner: runner)
-        let status = keys.map { KeyStore(directory: $0).readStatus().status } ?? .unavailable
+        return workshop()
+    }
+
+    package nonisolated func workshop() -> Workshop { capture().0 }
+
+    package nonisolated func compatibility(toolchain: EngineToolchain) -> (Workshop, CompatibilityReport) {
+        let (snapshot, changes) = capture()
+        let checker = CompatibilityChecker(repoURL: URL(fileURLWithPath: checkout), toolchain: toolchain,
+                                           developerDir: developerDir, runner: runner)
+        return (snapshot, checker.check(snapshot.versions, changes: changes))
+    }
+
+    private nonisolated func capture() -> (Workshop, [String]?) {
+        let (checkout, head, changes) = readCheckout()
+        let status = keys.map { KeyStore(directory: $0).readStatus() } ?? .required
         let prescribed = self.prescribed
         let client = self.client
         let persistReview = self.persistReview
-        return .init(engineID: "nxnative", versions: .init(reference: .reported(prescribed),
-                     selected: head.map(Identity.reported) ?? .unknown, expected: .reported(expected)),
-                     checkout: presence, conditions: changes?.isEmpty == false ? [.modifiedSelection] : [], localKeys: status,
+        return (.init(engineID: "nxnative", versions: .init(reference: prescribed,
+                     selected: head.map(Identity.reported) ?? .unknown, expected: expected),
+                     checkout: checkout, localKeys: status,
                      checkUpstream: Offer { (_: Confirmed, _: RequestID) throws(Refusal) -> UpstreamReview in
             try await UpstreamChecker(client: client).review(from: prescribed, persist: persistReview)
-        })
+        }), changes)
     }
 
     package func game(_ binding: EngineBinding) async throws(Refusal) -> GameDesk {
@@ -151,29 +166,31 @@ package actor MacNXNative: EngineAdapter {
         UpstreamChecker.compareURL(from: base)
     }
 
-    static func checkoutState(at path: String, runner: any CommandRunning, developerDir: URL? = nil)
-        -> (CheckoutPresence, String?, [String]?) {
+    private nonisolated func readCheckout() -> (EngineCheckout, String?, [String]?) {
+        let path = checkout
         var directory: ObjCBool = false
         guard !path.isEmpty, FileManager.default.fileExists(atPath: path, isDirectory: &directory),
               directory.boolValue else { return (.missing, nil, nil) }
-        let head = git(["rev-parse", "HEAD"], at: path, runner: runner, developerDir: developerDir)
-        let status = git(["status", "--porcelain"], at: path, runner: runner, developerDir: developerDir)
-        let changes = status.flatMap { $0.status == 0 ? CompatibilityChecker.relevantChanges($0.stdout) : nil }
-        if let head, head.status == 0 {
-            let revision = head.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !revision.isEmpty { return (.checkout, revision, changes) }
+        func git(_ args: [String]) -> CommandResult? {
+            InstalledEngineVersionReader.run(args, checkout: path, runner: runner, developerDir: developerDir)
         }
-        return (.notACheckout, nil, changes)
-    }
-
-    package nonisolated static func headDescription(at path: String) -> String? {
-        guard let result = git(["log", "-1", "--format=%h %s"], at: path, runner: SystemCommandRunner()),
-              result.status == 0 else { return nil }
-        let value = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        return value.isEmpty ? nil : value
-    }
-
-    static func git(_ args: [String], at path: String, runner: any CommandRunning, developerDir: URL? = nil) -> CommandResult? {
-        InstalledEngineVersionReader.run(args, checkout: path, runner: runner, developerDir: developerDir)
+        let head = git(["rev-parse", "HEAD"])
+        let status = git(["status", "--porcelain"])
+        let changes = status.flatMap { $0.status == 0 ? CompatibilityChecker.relevantChanges($0.stdout) : nil }
+        guard let head, head.status == 0 else { return (.notACheckout, nil, changes) }
+        let revision = head.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !revision.isEmpty else { return (.notACheckout, nil, changes) }
+        let relation: EngineCheckout.Relation
+        if revision == prescribed {
+            relation = .current
+        } else {
+            switch git(["merge-base", "--is-ancestor", revision, prescribed])?.status {
+            case 0: relation = .behind
+            case 1: relation = .divergent
+            default: relation = .unknown
+            }
+        }
+        return (.checkout(head: revision, relation: relation,
+                          tree: changes.map { $0.isEmpty ? .clean : .modified } ?? .unreadable), revision, changes)
     }
 }

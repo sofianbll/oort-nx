@@ -313,7 +313,7 @@ extension AppViewModel {
         let catalog = sourceCatalog
         let repo = URL(fileURLWithPath: setup.nxnativePath)
         let toolchain = setup.engineToolchain
-        let keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
+        let keys = setup.isProdKeysValid ? setup.managedKeysURL : nil
         let developer = setup.resolvedDeveloperDir()
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let urls = isFolder ? (ExtractedSourceCatalog.recognizes(folder) ? [] : PortingModel.sourceFileURLs(in: folder)) : selected

@@ -9,9 +9,12 @@ extension AppViewModel {
     func copyDiagnostics() {
         Task { @MainActor in
             if let game = diagnosticsGame { await cheats.prepare(for: game) }
+            let developerDir = setup.resolvedDeveloperDir()
+            let engine = setup.engineAdapter(developerDir: developerDir)
+            let snapshot = await Task.detached { engine.workshop() }.value
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
-            pasteboard.setString(DiagnosticsReport.markdown(diagnosticsInputs()), forType: .string)
+            pasteboard.setString(DiagnosticsReport.markdown(diagnosticsInputs(snapshot, developerDir: developerDir)), forType: .string)
             SoundEffectService.shared.play(.success)
         }
     }
@@ -22,7 +25,7 @@ extension AppViewModel {
         return libraryGames.first { $0.id == id }
     }
 
-    private func diagnosticsInputs() -> DiagnosticsReport.Inputs {
+    private func diagnosticsInputs(_ workshop: Workshop, developerDir: URL) -> DiagnosticsReport.Inputs {
         var i = DiagnosticsReport.Inputs()
         let info = Bundle.main.infoDictionary
         i.appVersion = info?["CFBundleShortVersionString"] as? String ?? "?"
@@ -32,10 +35,10 @@ extension AppViewModel {
         i.bundleID = Bundle.main.bundleIdentifier ?? "?"
         i.macOS = ProcessInfo.processInfo.operatingSystemVersionString
         i.chip = Self.sysctlString("machdep.cpu.brand_string") ?? "?"
-        i.pinnedCommit = pinnedEngineCommit
+        i.pinnedCommit = workshop.versions.reference
         i.newestEngine = setup.newestEngineChoice.map { "\($0.commit) (\(NewestEngineCopy.ahead($0.aheadBy)))" }
-        i.engineHead = MacNXNative.headDescription(at: setup.nxnativePath)
-        i.xcodePath = setup.resolvedDeveloperDir().path
+        i.engineHead = workshop.versions.selected.value
+        i.xcodePath = developerDir.path
         i.xcodeVersion = setup.environmentStatus?.xcodeVersion
         i.metalFound = setup.environmentStatus?.metalVersion
         i.metalCertified = ToolchainRequirements.current.metalAssets.keys.sorted().joined(separator: ", ")
@@ -43,9 +46,9 @@ extension AppViewModel {
         let tools = setup.environmentStatus?.tools ?? []
         i.python = setup.engineToolchain.python.path
         i.setupRows = tools.map { ($0.name, $0.ok) }
-        i.keysImported = FileManager.default.fileExists(atPath: setup.keyStore.keyURL.path)
-        i.hasHeaderKey = setup.isProdKeysValid
-        i.keyGenerations = setup.keyGenerationCount ?? 0
+        i.keysImported = workshop.localKeys != .required
+        i.hasHeaderKey = workshop.localKeys.applicationGenerations != nil
+        i.keyGenerations = workshop.localKeys.applicationGenerations ?? 0
         if let game = diagnosticsGame {
             let failure = game.portingFailure.map { failure in
                 failure == .cancelled ? "cancelled" : "failed (\(game.portingFailureReason?.kind.rawValue ?? "unknown"))"
@@ -63,7 +66,7 @@ extension AppViewModel {
         } else {
             i.log = logs.suffix(60).map(\.message)
         }
-        let keyPath = setup.keyStore.keyURL.path
+        let keyPath = setup.managedKeysURL.path
         i.lastCommand = i.lastCommand.map { $0 == keyPath ? "<private keys>" : $0 }
         i.log = i.log.map { $0.replacingOccurrences(of: keyPath, with: "<private keys>") }
         return i

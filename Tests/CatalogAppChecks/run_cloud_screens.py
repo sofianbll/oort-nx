@@ -1547,10 +1547,13 @@ extension ActivityCenterView {
 ''')
             change(build, r'        \} else if !app\.setup\.engineSourceCapabilities\.extractedFolders \{',
                    '        } else if !requiresKeys && !app.setup.engineSourceCapabilities.extractedFolders {')
-            change(build, r'        let report = try\? checker\.check\(expectedEngineCommit: app\.setup\.activeEngineCommit\)',
-                   '        let report = syntheticEngine ? nil : try? checker.check(expectedEngineCommit: app.setup.activeEngineCommit)')
-            change(build, r'        if report\?\.ok != true && !app\.setup\.allowUntestedToolchain \{',
-                   '        if !syntheticEngine && report?.ok != true && !app.setup.allowUntestedToolchain {')
+            change(build, r'        let \(workshop, report\) = app\.setup\.engineAdapter\(developerDir: app\.setup\.resolvedDeveloperDir\(\)\)\n'
+                          r'            \.compatibility\(toolchain: app\.setup\.engineToolchain\)',
+                   '''        let (workshop, report) = syntheticEngine
+            ? (app.setup.engineAdapter(checkout: "").workshop(), CompatibilityReport(ok: false, checks: []))
+            : app.setup.engineAdapter(developerDir: app.setup.resolvedDeveloperDir()).compatibility(toolchain: app.setup.engineToolchain)''')
+            change(build, r'        if !report\.ok && !app\.setup\.allowUntestedToolchain \{',
+                   '        if !syntheticEngine && !report.ok && !app.setup.allowUntestedToolchain {')
             change(build, r'        NotificationService\.shared\.requestAuthorization\(\)',
                    '        if !syntheticEngine { NotificationService.shared.requestAuthorization() }')
             with (package / "Sources/ArcanePorting/Setup/NXNativeEnvironment.swift").open("a") as swift:

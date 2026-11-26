@@ -2736,7 +2736,7 @@ extension AppViewModel {
                 throw CloudArchiveError.localChanged
             }
             let engine = URL(fileURLWithPath: setup.nxnativePath)
-            let keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
+            let keys = setup.isProdKeysValid ? setup.managedKeysURL : nil
             let verify: CloudGameSources.VerifySources = { url, files in
               try await SystemCommandRunner().withCancellableCommands { runner in
                 let toolchain = EngineToolchain.resolve(runtime: .locate(), repo: engine)

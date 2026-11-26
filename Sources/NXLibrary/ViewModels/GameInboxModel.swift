@@ -207,7 +207,7 @@ final class GameInboxModel: ObservableObject {
     private func packageReader() -> EnginePackageReader? {
         guard app.setup.isProdKeysValid else { return nil }
         return EnginePackageReader(repo: URL(fileURLWithPath: app.setup.nxnativePath), toolchain: app.setup.engineToolchain,
-                                   keys: app.setup.keyStore.keyURL, developerDir: app.setup.resolvedDeveloperDir())
+                                   keys: app.setup.managedKeysURL, developerDir: app.setup.resolvedDeveloperDir())
     }
 }
 

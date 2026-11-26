@@ -7,9 +7,10 @@ final class SetupActionsTests: XCTestCase {
 
     func testEngineAction() {
         XCTAssertEqual(SetupActions.engineAction(for: .missing, pinned: pin), .clone)
-        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: "ee369f0", dirty: false), pinned: pin), .checkout)
-        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: "ee369f0", dirty: true), pinned: pin), .none)
-        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: pin, dirty: false), pinned: pin), .none)
+        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: "ee369f0", relation: .behind, tree: .clean), pinned: pin), .checkout)
+        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: "ee369f0", relation: .behind, tree: .modified), pinned: pin), .none)
+        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: "ee369f0", relation: .behind, tree: .unreadable), pinned: pin), .none)
+        XCTAssertEqual(SetupActions.engineAction(for: .checkout(head: pin, relation: .current, tree: .clean), pinned: pin), .none)
         XCTAssertEqual(SetupActions.engineAction(for: .notACheckout, pinned: pin), .none)
     }
 
@@ -51,7 +52,7 @@ final class SetupActionsTests: XCTestCase {
         let folder = URL(fileURLWithPath: "/tmp/nx native")
         let checkout = ["-C", folder.path, "checkout", "--detach", pin]
         let clone = SetupActions.engineAction(for: .missing, pinned: pin)
-        let update = SetupActions.engineAction(for: .checkout(head: "ee369f0", dirty: false), pinned: pin)
+        let update = SetupActions.engineAction(for: .checkout(head: "ee369f0", relation: .behind, tree: .clean), pinned: pin)
         XCTAssertEqual(SetupActions.gitCommands(for: clone, folder: folder, pinned: pin, remote: repo),
                        [["clone", "--progress", repo, folder.path], checkout])
         XCTAssertEqual(SetupActions.gitCommands(for: update, folder: folder, pinned: pin, remote: repo),

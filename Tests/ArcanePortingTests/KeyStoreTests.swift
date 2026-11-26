@@ -21,19 +21,27 @@ final class KeyStoreTests: XCTestCase {
         let source = dir.appendingPathComponent("prod.keys")
         try fakeKeys().write(to: source, atomically: true, encoding: .utf8)
         let store = KeyStore(directory: dir.appendingPathComponent("keys"))
-        let summary = try store.importKey(from: source)
-        XCTAssertTrue(summary.hasHeaderKey)
+        XCTAssertEqual(try store.importKey(from: source), 1)
         let attrs = try FileManager.default.attributesOfItem(atPath: store.keyURL.path)
         XCTAssertEqual((attrs[.posixPermissions] as? NSNumber)?.intValue, 0o600)
         let parent = try FileManager.default.attributesOfItem(atPath: store.keyURL.deletingLastPathComponent().path)
         XCTAssertEqual((parent[.posixPermissions] as? NSNumber)?.intValue, 0o700)
-        XCTAssertFalse(String(describing: summary).contains("1111"))
     }
 
     func testMissingHeaderKeyThrows() throws {
         let source = dir.appendingPathComponent("bad.keys")
         try fakeKeys(header: false).write(to: source, atomically: true, encoding: .utf8)
         XCTAssertThrowsError(try KeyStore(directory: dir.appendingPathComponent("k2")).importKey(from: source))
+    }
+
+    func testWorkshopDistinguishesMissingAndInvalidKeys() throws {
+        let store = KeyStore(directory: dir)
+        let engine = MacNXNative(place: Place(UUID()), checkout: "", prescribed: "a123456", expected: "a123456", keys: dir)
+        XCTAssertEqual(engine.workshop().localKeys, .required)
+        try fakeKeys(header: false).write(to: store.keyURL, atomically: true, encoding: .utf8)
+        XCTAssertEqual(engine.workshop().localKeys, .invalid(.missingHeaderKey))
+        try (fakeKeys() + "malformed\n").write(to: store.keyURL, atomically: true, encoding: .utf8)
+        XCTAssertEqual(engine.workshop().localKeys, .invalid(.invalidLine(3)))
     }
 
     func testMalformedHeaderDoesNotReplaceManagedKey() throws {
@@ -54,14 +62,25 @@ final class KeyStoreTests: XCTestCase {
         try store.importKey(from: source)
         let before = try Data(contentsOf: store.keyURL)
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: store.keyURL.path)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: store.keyURL.deletingLastPathComponent().path)
         let place = Place(UUID())
         let engine: any EngineAdapter = MacNXNative(place: place, checkout: "", prescribed: "a123456",
             expected: "a123456", keys: store.keyURL.deletingLastPathComponent())
         let workshop = try await engine.workshop(place)
-        XCTAssertEqual(workshop.localKeys, .available(applicationGenerations: 1))
+        XCTAssertEqual(workshop.localKeys, .available(applicationGenerations: 1, needsPrivatePermissions: true))
         let mode = try FileManager.default.attributesOfItem(atPath: store.keyURL.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(mode?.intValue, 0o644)
         XCTAssertEqual(try Data(contentsOf: store.keyURL), before)
+        for _ in 0..<2 {
+            try store.secureManagedCopy()
+            let repaired = try await engine.workshop(place)
+            XCTAssertEqual(repaired.localKeys, .available(applicationGenerations: 1))
+            let fm = FileManager.default
+            for (url, mode) in [(store.keyURL, 0o600), (store.keyURL.deletingLastPathComponent(), 0o700)] {
+                XCTAssertEqual((try fm.attributesOfItem(atPath: url.path)[.posixPermissions] as? NSNumber)?.intValue, mode)
+            }
+            XCTAssertEqual(try Data(contentsOf: store.keyURL), before)
+        }
     }
 
     func testImportDoesNotChangeTheOriginalFilesPermissions() throws {
@@ -79,7 +98,7 @@ final class KeyStoreTests: XCTestCase {
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: source.path)
         let store = KeyStore(directory: dir)
         try FileManager.default.createSymbolicLink(at: store.keyURL, withDestinationURL: source)
-        XCTAssertEqual(store.readStatus().status, .unavailable)
+        XCTAssertEqual(store.readStatus(), .invalid(.unreadable))
         let mode = try FileManager.default.attributesOfItem(atPath: source.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(mode?.intValue, 0o644)
     }
@@ -107,7 +126,7 @@ final class KeyStoreTests: XCTestCase {
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: store.keyURL.path)
         let updated = fakeKeys() + "key_area_key_application_01 = " + String(repeating: "22", count: 16) + "\n"
         try updated.write(to: source, atomically: true, encoding: .utf8)
-        XCTAssertEqual(try store.importKey(from: source).applicationKeyGenerations, [0, 1])
+        XCTAssertEqual(try store.importKey(from: source), 2)
         XCTAssertEqual(try Data(contentsOf: store.keyURL), try Data(contentsOf: source))
         let permissions = try FileManager.default.attributesOfItem(atPath: store.keyURL.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(permissions?.intValue, 0o600)
@@ -118,7 +137,7 @@ final class KeyStoreTests: XCTestCase {
         try (fakeKeys() + "TOP_SECRET_KEY_MATERIAL\n")
             .write(to: source, atomically: true, encoding: .utf8)
         XCTAssertThrowsError(try KeyStore(directory: dir.appendingPathComponent("k3")).importKey(from: source)) { error in
-            XCTAssertFalse(error.localizedDescription.contains("TOP_SECRET"))
+            XCTAssertEqual(error as? KeyIssue, .invalidLine(3))
         }
     }
 
@@ -127,7 +146,7 @@ final class KeyStoreTests: XCTestCase {
         try (fakeKeys().replacingOccurrences(of: "\n", with: "\r\n") + "BAD\r\n")
             .write(to: source, atomically: true, encoding: .utf8)
         XCTAssertThrowsError(try KeyStore(directory: dir.appendingPathComponent("k4")).importKey(from: source)) { error in
-            XCTAssertTrue(error.localizedDescription.contains("3"), error.localizedDescription)
+            XCTAssertEqual(error as? KeyIssue, .invalidLine(3))
         }
     }
 }

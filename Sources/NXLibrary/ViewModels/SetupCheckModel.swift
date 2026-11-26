@@ -31,14 +31,14 @@ final class SetupCheckModel: ObservableObject {
 
     // MARK: - Checking
 
-    private static func makeProbe(_ viewModel: AppViewModel, runner: CommandRunning, developerDir: URL) -> SetupProbe {
+    private static func makeProbe(_ viewModel: AppViewModel, runner: any CommandRunning & Sendable, developerDir: URL) -> SetupProbe {
         SetupProbe(runner: runner, toolchain: viewModel.setup.engineToolchain,
                    developerDir: developerDir,
                    engineFolder: URL(fileURLWithPath: viewModel.setup.nxnativePath),
-                   pinnedCommit: viewModel.pinnedEngineCommit,
+                   pinnedCommit: viewModel.setup.versions.reference,
                    certifiedMetal: viewModel.setup.requiredMetalVersion ?? requirements.fallbackMetal,
                    allowUntested: viewModel.setup.allowUntestedToolchain,
-                   keyStore: viewModel.setup.keyStore, libraryFolder: viewModel.libraryFolder,
+                   keysDirectory: viewModel.setup.keysDirectory, libraryFolder: viewModel.libraryFolder,
                    sourcesFolder: viewModel.porting.gameFilesFolder,
                    libraryNeedsConfirmation: viewModel.requiresGameAppsFolderChoice,
                    newestEngine: viewModel.setup.newestEngineChoice, engineRemote: viewModel.engineOverride?.remote)
@@ -232,6 +232,7 @@ final class SetupCheckModel: ObservableObject {
         viewModel.logs.append(LogEntry(level: result.status == 0 ? .success : .error,
                                        message: "\(name): \(output.trimmingCharacters(in: .whitespacesAndNewlines).suffix(2000))"))
         if result.status == 0 {
+            viewModel.setup.secureKeysDuringInstallation()
             setOverride(id, nil)
         } else {
             let last = output.split(whereSeparator: { $0 == "\n" || $0 == "\r" }).last.map(String.init) ?? "exit \(result.status)"
@@ -296,7 +297,7 @@ final class SetupCheckModel: ObservableObject {
         guard let facts, viewModel.setup.canMutateEngine,
               facts.engineFolder.path == viewModel.setup.nxnativePath else { completion(false); return }
         if case .checkout = facts.engine, !approvedCheckout { completion(false); return }
-        if case .checkout(let head, false) = facts.engine, head == facts.newestEngine?.commit {
+        if case .checkout(let head, _, .clean) = facts.engine, head == facts.newestEngine?.commit {
             guard viewModel.setup.canSwitchEngine else { completion(false); return }
             backToTestedEngine(completion)
             return
@@ -313,7 +314,7 @@ final class SetupCheckModel: ObservableObject {
         let env = environment
         queue.async { [weak self] in
             guard let self else { return }
-            guard probe.checkoutFacts() == facts.engine else {
+            guard probe.workshop().checkout == facts.engine else {
                 DispatchQueue.main.async {
                     self.viewModel.setup.isSwitchingEngine = false
                     self.setOverride(.engine, nil)

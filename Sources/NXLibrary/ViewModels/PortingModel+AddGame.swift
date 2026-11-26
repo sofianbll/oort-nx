@@ -22,7 +22,7 @@ extension PortingModel {
         let catalog = app.sourceCatalog
         let repo = URL(fileURLWithPath: app.setup.nxnativePath)
         let toolchain = app.setup.engineToolchain
-        let keys = app.setup.isProdKeysValid ? app.setup.keyStore.keyURL : nil
+        let keys = app.setup.isProdKeysValid ? app.setup.managedKeysURL : nil
         let developer = app.setup.resolvedDeveloperDir()
         let explicitFiles = selectedPackageURLs
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in

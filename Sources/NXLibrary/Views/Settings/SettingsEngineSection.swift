@@ -47,8 +47,8 @@ struct SettingsEngineSection: View {
                 }
             }
 
-            SeleneValueRow("Pinned commit", value: seleneShort(viewModel.pinnedEngineCommit))
-            SeleneValueRow("Current commit", value: seleneShort(setup.currentEngineCommit))
+            SeleneValueRow("Pinned commit", value: seleneShort(setup.versions.reference))
+            SeleneValueRow("Current commit", value: seleneShort(setup.versions.selected.value))
 
             SelenePanel(L10n.text("Compatibility"),
                         info: L10n.text("Audits the local engine commit, working tree cleanliness, installed Metal compiler, and required CLI flags against the certified toolchain lock."), infoRow: "Compatibility") {
@@ -294,7 +294,7 @@ struct SettingsEngineSection: View {
         if setup.isSwitchingEngine { return L10n.text("Switching the engine…") }
         if let choice = setup.newestEngineChoice {
             var base = L10n.format("%@ In use: %@, ", [String(describing: NewestEngineCopy.note), String(describing: choice.shortCommit)])
-                + L10n.format("%@ of the tested %@.", [String(describing: NewestEngineCopy.ahead(choice.aheadBy)), String(describing: seleneShort(viewModel.pinnedEngineCommit))])
+                + L10n.format("%@ of the tested %@.", [String(describing: NewestEngineCopy.ahead(choice.aheadBy)), String(describing: seleneShort(setup.versions.reference))])
             if setup.newestEngineActions.contains(.update), let offer = setup.newestEngineOffer {
                 base += " " + NewestEngineCopy.update(choice: choice, main: offer.targetSHA,
                                                       aheadBy: offer.newCommitsCount)
@@ -321,7 +321,7 @@ struct SettingsEngineSection: View {
         guard setup.canSwitchEngine, setup.newestEngineActions.contains(action) else { return }
         let path = setup.nxnativePath
         let reviewed = setup.newestEngineOffer
-        let target = action == .backToTested ? viewModel.pinnedEngineCommit : reviewed?.targetSHA
+        let target = action == .backToTested ? setup.versions.reference : reviewed?.targetSHA
         guard let target else { return }
         let message = action == .backToTested
             ? "Future builds will use the tested engine (%@), but installed games will stay as they are."

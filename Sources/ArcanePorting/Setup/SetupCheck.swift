@@ -30,11 +30,6 @@ public struct SetupItem: Identifiable, Equatable {
     public var isUntested: Bool = false
 }
 
-public enum EngineFacts: Equatable {
-    case missing, notACheckout
-    case checkout(head: String, dirty: Bool)
-}
-
 /// What a probe found; `SetupCheck.items(from:)` turns it into cards.
 public struct SetupFacts: Equatable {
     /// nil: no usable Xcode; 69: its licence or first launch is not done.
@@ -42,7 +37,7 @@ public struct SetupFacts: Equatable {
     public var metalVersion: String?
     public var certifiedMetal: String
     public var allowUntested: Bool
-    public var engine: EngineFacts
+    public var engine: EngineCheckout
     public var engineFolder: URL
     public var pinnedCommit: String
     public var engineRemote: String? = nil
@@ -66,17 +61,14 @@ public struct SetupFacts: Equatable {
     /// "27.1"; nil when xcodebuild did not say.
     public var xcodeVersion: String?
     public var requirements: ToolchainRequirements
-    /// The checkout's HEAD is an ancestor of the pin (an Arcane update brought a newer engine); false when it
-    /// is ahead or elsewhere; nil when git cannot tell (the pin is not fetched yet, so it is newer).
-    public var engineBehind: Bool?
     /// The newest nxnative the player chose in Settings → Setup and engine; nil while the tested engine is in use.
     public var newestEngine: NewestEngineChoice? = nil
 
     public init(xcodeStatus: Int32?, metalVersion: String?, certifiedMetal: String, allowUntested: Bool,
-                engine: EngineFacts, engineFolder: URL, pinnedCommit: String,
+                engine: EngineCheckout, engineFolder: URL, pinnedCommit: String,
                 runtimeProblem: String?, keys: LocalKeyStatus, keysError: String?, libraryReadable: Bool?,
                 xcodeVersion: String? = nil,
-                requirements: ToolchainRequirements = .current, engineBehind: Bool? = nil) {
+                requirements: ToolchainRequirements = .current) {
         self.xcodeStatus = xcodeStatus
         self.metalVersion = metalVersion
         self.certifiedMetal = certifiedMetal
@@ -90,7 +82,6 @@ public struct SetupFacts: Equatable {
         self.libraryReadable = libraryReadable
         self.xcodeVersion = xcodeVersion
         self.requirements = requirements
-        self.engineBehind = engineBehind
     }
 }
 
@@ -214,11 +205,14 @@ public enum SetupCheck {
                 return SetupItem(id: id, title: L10n.text("nxnative engine"), state: .warning, chip: L10n.text("NOT A CHECKOUT"), about: about,
                                  detail: L10n.format("%@ is not a git checkout of nxnative. Move it away, then check again.", [String(describing: f.engineFolder.path)]),
                                  actionTitle: nil)
-            case .checkout(_, true):
+            case .checkout(_, _, .unreadable):
+                return SetupItem(id: id, title: L10n.text("nxnative engine"), state: .warning, chip: L10n.text("Working tree"),
+                                 about: about, detail: L10n.text("git could not run"), actionTitle: nil)
+            case .checkout(_, _, .modified):
                 return SetupItem(id: id, title: L10n.text("nxnative engine"), state: .warning, chip: L10n.text("LOCAL CHANGES"), about: about,
                                  detail: L10n.format("%@ has changed files. Arcane never touches them: put them aside, then check again.", [String(describing: f.engineFolder.path)]),
                                  actionTitle: nil)
-            case .checkout(let head, false) where head == f.newestEngine?.commit && head != f.pinnedCommit:
+            case .checkout(let head, _, .clean) where head == f.newestEngine?.commit && head != f.pinnedCommit:
                 // The player's own choice: ready, never "other version", and A goes back to the tested engine.
                 var card = ready(id, L10n.text("nxnative engine"), NewestEngineCopy.note,
                                  NewestEngineCopy.setupDetail(choice: f.newestEngine!, tested: f.pinnedCommit))
@@ -226,9 +220,9 @@ public enum SetupCheck {
                 card.isUntested = true
                 card.actionTitle = L10n.text("Back to tested")
                 return card
-            case .checkout(let head, false) where head != f.pinnedCommit:
+            case .checkout(let head, let relation, .clean) where head != f.pinnedCommit:
                 // Setup reopens for it; changing a checkout requires confirmation.
-                if f.engineBehind == false {
+                if relation == .divergent {
                     return SetupItem(id: id, title: L10n.text("nxnative engine"), state: .warning, chip: L10n.text("OTHER VERSION"), about: about,
                                      detail: L10n.format("The engine here is at %@, not the %@ this version of Arcane is tested with. Switch moves it to %@. Games you built keep playing.", [String(describing: head.prefix(7)), String(describing: short), String(describing: short)]),
                                      actionTitle: L10n.text("Switch"))
@@ -258,18 +252,22 @@ public enum SetupCheck {
                              detail: L10n.text("Nothing to install."), actionTitle: nil)
         case .keys:
             let about = L10n.text("Your console's prod.keys, which unlock your own games. They stay on this Mac.")
-            if case .available(let count) = f.keys {
+            let error = f.keysError ?? {
+                if case .invalid(let issue) = f.keys { return issue.message }
+                return nil
+            }()
+            if let count = f.keys.applicationGenerations {
                 return SetupItem(id: id, title: L10n.text("Keys"), state: .ready, chip: L10n.text("✓ IMPORTED"), about: about,
                                  detail: L10n.format("Header key and %@ application key generations.", [String(describing: count)]),
-                                 inlineError: f.keysError, actionTitle: L10n.text("Replace"))
+                                 inlineError: error, actionTitle: L10n.text("Replace"))
             }
             if f.keysOptional {
                 return SetupItem(id: id, title: L10n.text("Keys"), state: .ready, chip: L10n.text("OPTIONAL"), about: about,
                                  detail: L10n.text("Needed for NSP/XCI packages. Extracted folders do not use keys."),
-                                 inlineError: f.keysError, actionTitle: L10n.text("Choose file"))
+                                 inlineError: error, actionTitle: L10n.text("Choose file"))
             }
             return SetupItem(id: id, title: L10n.text("Keys"), state: .missing, chip: L10n.text("NOT IMPORTED"), about: about,
-                             detail: f.keysError ?? L10n.text("Choose your prod.keys file."), inlineError: f.keysError,
+                             detail: error ?? L10n.text("Choose your prod.keys file."), inlineError: error,
                              actionTitle: L10n.text("Choose file"))
         case .library:
             let about = GameFoldersCopy.appsAbout

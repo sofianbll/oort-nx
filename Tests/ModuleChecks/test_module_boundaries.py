@@ -63,6 +63,10 @@ class ModuleBoundaryTests(unittest.TestCase):
         boundaries.UI_BASELINE.update(self.saved_baseline)
         self.assertEqual(boundaries.check(ROOT), [])
 
+    def test_view_cannot_read_engine_storage(self):
+        write(self.root, "Sources/NXLibrary/App.swift", 'let head = git(["rev-parse", "HEAD"])\n')
+        self.assertTrue(any("read engine facts through MacNXNative" in line for line in boundaries.check(self.root)))
+
 
 if __name__ == "__main__":
     unittest.main()

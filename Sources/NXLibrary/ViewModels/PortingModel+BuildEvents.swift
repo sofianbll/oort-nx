@@ -185,7 +185,7 @@ extension PortingModel {
         // but is never serialized as a replacement catalog.
         var activityFailure: String?
         if var game = app.libraryGames.first(where: { $0.id == gameID }) {
-            let toolchain = activeBuildToolchain ?? ToolchainInfo(engineCommit: app.setup.activeEngineCommit, verified: false)
+            let toolchain = activeBuildToolchain ?? ToolchainInfo(engineCommit: app.setup.versions.expected, verified: false)
             let verified = toolchain.verified
             let record = BuildRecord(
                 startedAt: buildStartedAt ?? Date(),
@@ -193,7 +193,7 @@ extension PortingModel {
                 exitCode: result.exitCode,
                 logPath: result.logURL.path,
                 outputPath: result.success || result.installationFailed ? finalApp.path : nil,
-                engineCommit: toolchain.engineCommit ?? app.setup.activeEngineCommit,
+                engineCommit: toolchain.engineCommit,
                 metalVersion: toolchain.metalVersion,
                 xcodeVersion: toolchain.xcodeVersion,
                 toolchainVerified: verified,
@@ -257,7 +257,7 @@ extension PortingModel {
             } else {
                 let reason = PortingFailureClassifier.classify(
                     log: buildLogTail(result.logURL),
-                    keysPath: SourceSelection.requiresKeys(game.sources) ? app.setup.keyStore.keyURL.path : "",
+                    keysPath: SourceSelection.requiresKeys(game.sources) ? app.setup.managedKeysURL.path : "",
                     sourcePaths: game.sources.map(\.url.path),
                     exitCode: result.exitCode
                 )

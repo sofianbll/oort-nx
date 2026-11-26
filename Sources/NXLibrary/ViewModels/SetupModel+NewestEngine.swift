@@ -5,9 +5,6 @@ import ArcanePorting
 /// Settings → Setup and engine, Newest engine: the player may build with nxnative main before Arcane has tested it.
 /// Never automatic (AGENTS.md): only these two actions move the checkout away from, or back to, the tested pin.
 extension SetupModel {
-    /// The commit the gate expects and builds record: the player's newest engine, else the tested pin.
-    var activeEngineCommit: String { newestEngineChoice?.commit ?? app.pinnedEngineCommit }
-
     var usesNewestEngine: Bool { newestEngineChoice != nil }
 
     /// Upstream main, when it is ahead of the tested pin and not already the engine in use.
@@ -22,7 +19,7 @@ extension SetupModel {
         newestEngineReadiness = nil
         guard status.newCommitsCount > 0 else { return }
         let repo = URL(fileURLWithPath: nxnativePath)
-        let pinned = app.pinnedEngineCommit
+        let pinned = versions.reference
         Task { @MainActor [weak self] in
             let lock = await NewestEngine.fetchLock(commit: status.targetSHA)
             let tested = await Task.detached { NewestEngineSwitcher(repo: repo).lockMetal(at: pinned) }.value
@@ -51,7 +48,7 @@ extension SetupModel {
         guard canSwitchEngine, let status = newestEngineOffer else { return }
         if case .needsNewerApp = newestEngineReadiness { return }
         let repo = URL(fileURLWithPath: nxnativePath)
-        let pinned = app.pinnedEngineCommit
+        let pinned = versions.reference
         let commit = status.targetSHA
         let ahead = status.newCommitsCount
         let upstream = app.engineOverride.map { _ in SetupActions.engineRemote }
@@ -95,7 +92,7 @@ extension SetupModel {
     func useTestedEngine() {
         guard canSwitchEngine, usesNewestEngine else { return }
         let repo = URL(fileURLWithPath: nxnativePath)
-        let pinned = app.pinnedEngineCommit
+        let pinned = versions.reference
         let remote = app.engineOverride?.remote
         isSwitchingEngine = true
         newestEngineProblem = nil
