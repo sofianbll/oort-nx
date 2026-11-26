@@ -26,13 +26,37 @@ extension AppViewModel {
     /// Flips the favorite heart and saves the library.
     func toggleFavorite(_ game: PortedGame) {
         if toggleLocalFavorite(game.id) { return }
-        updateStoredGame(game) { $0.isFavorite.toggle() }
+        let removing = libraryGames.first { $0.id == game.id }?.isFavorite == true
+        guard updateStoredGame(game, { $0.isFavorite.toggle() }), removing else { return }
+        offerFavoriteUndo(game.id)
+    }
+
+    /// Leaving a favorites list is easy to do by mistake; adding shows itself on the heart.
+    func offerFavoriteUndo(_ id: UUID) {
+        guard let game = catalogGames.first(where: { $0.id == id }) else { return }
+        let profile = localProfiles?.active?.id
+        undoOffers.offer(L10n.format("%@ left your favorites", [game.name])) { [weak self] in
+            guard let self, self.localProfiles?.active?.id == profile,
+                  let game = self.catalogGames.first(where: { $0.id == id }), !game.isFavorite else { return }
+            self.setCatalogFavorite(game)
+        }
+    }
+
+    func offerHiddenUndo(_ id: UUID) {
+        guard let game = catalogGames.first(where: { $0.id == id }) else { return }
+        undoOffers.offer(L10n.format("%@ is hidden", [game.name])) { [weak self] in
+            guard let self, let game = self.catalogGames.first(where: { $0.id == id }), game.isHidden else { return }
+            self.setCatalogHidden(false, game: game)
+        }
     }
 
     func toggleLocalFavorite(_ id: UUID) -> Bool {
         guard let profiles = localProfiles, let active = profiles.active, active.id != profiles.originalID else { return false }
-        if profiles.toggleFavorite(id) { refreshProfileFavorites() }
-        else {
+        let removing = profiles.active?.favorites.contains(id) == true
+        if profiles.toggleFavorite(id) {
+            refreshProfileFavorites()
+            if removing { offerFavoriteUndo(id) }
+        } else {
             showSettingsNotice(title: L10n.text("Profiles could not be saved."),
                                message: L10n.text("Your changes could not be saved. Try again."))
         }
@@ -42,13 +66,14 @@ extension AppViewModel {
     /// Flips the hidden flag and saves the library. Hidden games leave Spotlight,
     /// Collection and Surprise me; the screens reconcile their selection on the change.
     func toggleHidden(_ game: PortedGame) {
-        updateStoredGame(game) { $0.isHidden.toggle() }
+        let hiding = libraryGames.first { $0.id == game.id }?.isHidden == false
+        if updateStoredGame(game, { $0.isHidden.toggle() }), hiding { offerHiddenUndo(game.id) }
     }
 
     /// Applies one change to the stored game and saves the library, the same way for every flag.
-    private func updateStoredGame(_ game: PortedGame, _ change: (inout PortedGame) -> Void) {
-        do { applyCatalog(try catalogRepository.updateNXNative(id: game.id, change)) }
-        catch { reportCatalogFailure(error) }
+    @discardableResult private func updateStoredGame(_ game: PortedGame, _ change: (inout PortedGame) -> Void) -> Bool {
+        do { applyCatalog(try catalogRepository.updateNXNative(id: game.id, change)); return true }
+        catch { reportCatalogFailure(error); return false }
     }
 
     /// Opens the Close Game confirmation for a running game (Spotlight and Details).

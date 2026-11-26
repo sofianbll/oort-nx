@@ -95,7 +95,13 @@ import NXLibraryCore
     }
 
     func remove(_ id: UUID) {
-        updateCatalog { try app.catalogRepository.removeMacShortcut(id: id) }
+        guard let index = app.catalogSnapshot.games.firstIndex(where: { $0.id == id }) else { return }
+        let game = app.catalogSnapshot.games[index], profile = app.playProfile
+        guard updateCatalog({ try app.catalogRepository.removeMacShortcut(id: id) }) else { return }
+        app.undoOffers.offer(L10n.format("%@ left your library", [game.name])) { [weak self] in
+            guard let self, self.app.playProfile == profile else { return }
+            self.updateCatalog { try self.app.catalogRepository.restoreMacShortcut(game, at: index) }
+        }
     }
 
     @discardableResult private func updateCatalog(_ change: () throws -> CatalogDocument) -> Bool {
@@ -121,14 +127,10 @@ import NXLibraryCore
         let profile = app.playProfile
         let key = game.personalizationKey
         let picks = ArtworkPicks.shared
-        let remove: (title: String, run: () -> Void) = ("Remove tile…", { [weak self] in
+        // The tile comes back with Undo and the app never moves: no question first.
+        let remove: (title: String, run: () -> Void) = ("Remove tile", { [weak self] in
             guard let self, self.app.playProfile == profile else { return }
-            self.app.showSettingsNotice(title: "Remove this tile?",
-                                        message: L10n.text("The tile is removed from the library. The app stays where it is."),
-                                        actionTitle: "Remove tile", cancelTitle: "Cancel", destructive: ["Remove tile"]) { [weak self] in
-                guard self?.app.playProfile == profile else { return }
-                self?.remove(game.id)
-            }
+            self.remove(game.id)
         })
         app.showSettingsNotice(title: "Tile options", message: game.name, actionTitle: "Choose image…",
                                cancelTitle: "Back", alternatives: [remove], primaryFirst: true, destructive: [remove.title]) { [weak self] in

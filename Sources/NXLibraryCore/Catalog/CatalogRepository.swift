@@ -73,6 +73,18 @@ extension CatalogRepository {
         }
     }
 
+    /// Puts a removed tile back where it was. Its place may have moved; its app may have been added again since.
+    public func restoreMacShortcut(_ game: CatalogGame, at index: Int) throws -> CatalogDocument {
+        guard let shortcut = game.macShortcut else { throw CatalogRepositoryError.gameNotFound }
+        return try transactionIfChanged { document in
+            guard !document.games.contains(where: { $0.id == game.id || $0.macShortcut?.url.path == shortcut.url.path }) else {
+                return false
+            }
+            document.games.insert(game, at: min(max(index, 0), document.games.count))
+            return true
+        }
+    }
+
     @discardableResult
     public func configureSource(_ integration: CatalogIntegration, enabled: Bool, root: URL?) throws -> CatalogDocument {
         try transaction { document in

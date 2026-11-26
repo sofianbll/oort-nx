@@ -43,6 +43,13 @@ final class GameOptionsFiles: ObservableObject {
         cheatsValue = viewModel.cheats.cheatRowValue(for: game)
         modsValue = viewModel.modsRowValue(for: game)
     }
+
+    /// After Undo or a copy changed the choices from outside the rows.
+    func reload(viewModel: AppViewModel, game: PortedGame) {
+        config = viewModel.runtimeSettings.loadRuntimeConfig(for: game)
+        snapshot = viewModel.runtimeSettings.settingsSnapshot(for: game)
+        gameDisplayOverride = game.titleId.flatMap { viewModel.settingsStore?.settings.gameDisplayOverrides[$0.uppercased()] }
+    }
 }
 
 struct GameOptionsView: View {
@@ -101,6 +108,8 @@ struct GameOptionsView: View {
         modsRevision = UUID()
     }
     @State var moreOpen = false
+    /// The games these settings can be copied to, read when the panel opens.
+    @State var copyTargets: [CopySettingsPanel.Target]?
     @State var fullSettingsOpen = false
     @State var fullSettingsEnvironment: String?
     @State var playersOpen = false
@@ -109,7 +118,7 @@ struct GameOptionsView: View {
         nonmutating set { files.cheatsValue = newValue }
     }
     /// A panel over the list has the input.
-    private var quickPanelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen }
+    private var quickPanelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen || copyTargets != nil }
     var panelOpen: Bool { quickPanelOpen || (fullSettingsOpen && confirm == nil) }
     @State var confirmFocus: SeleneConfirmButton = .cancel
     /// The row whose explanation is open beside its info button (a click on it, or Y on the focused row).
@@ -267,6 +276,12 @@ struct GameOptionsView: View {
                     .zIndex(2)
             }
 
+            if let copyTargets {
+                CopySettingsPanel(viewModel: viewModel, game: current, targets: copyTargets) { self.copyTargets = nil }
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
+
             if moreOpen {
                 MoreSettingsPanel(viewModel: viewModel, game: current) {
                     moreOpen = false
@@ -332,6 +347,9 @@ struct GameOptionsView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
             gameDisplays = NSScreen.screens.compactMap(GameDisplay.init(screen:))
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nxGameSettingsRestored)) { note in
+            if note.object as? UUID == game.id { files.reload(viewModel: viewModel, game: game) }
         }
         .onChange(of: config) { _, newValue in
             viewModel.runtimeSettings.saveRuntimeConfig(newValue, for: game)

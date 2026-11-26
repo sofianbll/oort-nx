@@ -85,7 +85,7 @@ extension CollectionView {
             router.isMenuPresented = true
         case .menuHold:
             router.openSettings(.startUp)
-        case .profiles, .controlCenter, .fullMenu:
+        case .profiles, .controlCenter, .fullMenu, .notice:
             break // The shell owns the picker.
         }
         if moved { SoundEffectService.shared.play(.focus) }

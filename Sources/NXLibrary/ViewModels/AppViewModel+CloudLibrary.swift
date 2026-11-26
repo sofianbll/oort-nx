@@ -336,6 +336,10 @@ final class CloudLibraryModel: ObservableObject {
     var driveToolTask: Task<Void, Never>?
     let driveTool = RcloneDownload(supportRoot: AppData.supportRoot)
     private(set) var driveToolOfferSeen = false
+    /// A connection signed out with its Google client kept in rclone, offered first when connecting again.
+    @Published var keptConnection: String? {
+        didSet { AppData.preferences.set(keptConnection, forKey: CloudLibraryPreference.keptConnectionKey) }
+    }
     var resolvedDriveTool: URL? {
         if let chosenExecutable, RcloneStorageBackend.isExecutable(chosenExecutable),
            canChooseDriveTool(chosenExecutable) { return chosenExecutable }
@@ -561,6 +565,7 @@ final class CloudLibraryModel: ObservableObject {
         }
         chosenExecutable = defaults.string(forKey: CloudLibraryPreference.executableKey).map { URL(fileURLWithPath: $0) }
         driveToolOfferSeen = defaults.bool(forKey: CloudLibraryPreference.toolOfferKey)
+        keptConnection = defaults.string(forKey: CloudLibraryPreference.keptConnectionKey)
         needsDriveToolChoice = preference.remote != nil
             && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
             // 0.3.0 recorded no account: nothing is read from Drive before the player agrees to reconnect.

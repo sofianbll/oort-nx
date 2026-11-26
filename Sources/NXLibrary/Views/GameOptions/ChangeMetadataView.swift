@@ -549,7 +549,7 @@ struct ChangeMetadataView: View {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard viewModel.optionsGameID == subject.id, viewModel.settingsNotice == nil,
-                  !viewModel.cloudQuitRequested,
+                  !viewModel.cloudQuitRequested, !viewModel.noticeFocus.isActive,
                   let window = event.window, !window.isSheet, window.attachedSheet == nil,
                   NSApp.modalWindow == nil else { return event }
             if editing {

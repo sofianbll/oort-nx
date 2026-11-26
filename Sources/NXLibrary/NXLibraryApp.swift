@@ -27,6 +27,8 @@ extension Notification.Name {
     static let nxLibraryOpenLibrary = Notification.Name("NXLibraryOpenLibrary")
     static let nxLibraryOpenAddGame = Notification.Name("NXLibraryOpenAddGame")
     static let nxLibraryAddMacApp = Notification.Name("NXLibraryAddMacApp")
+    static let nxGameSettingsRestored = Notification.Name("NXGameSettingsRestored")
+    static let nxLibraryUndoChange = Notification.Name("NXLibraryUndoChange")
     static let nxLibraryOpenDetails = Notification.Name("NXLibraryOpenDetails")
     static let nxLibraryOpenGameOptions = Notification.Name("NXLibraryOpenGameOptions")
 }
@@ -88,6 +90,10 @@ struct NXLibraryApp: App {
                     Button(L10n.text("Retry saving library")) { NativeMenuCommands.shared.post(.nxLibraryRetryCatalogSave) }
                         .keyboardShortcut("s", modifiers: [.command])
                 }
+            }
+            CommandGroup(after: .undoRedo) {
+                Button(L10n.text("Undo Last Change")) { NativeMenuCommands.shared.post(.nxLibraryUndoChange) }
+                    .disabled(availability?.undo != true)
             }
             CommandGroup(after: .appInfo) {
                 Button(L10n.text("Check for Updates…")) { NativeMenuCommands.shared.post(.nxLibraryCheckAppUpdates) }

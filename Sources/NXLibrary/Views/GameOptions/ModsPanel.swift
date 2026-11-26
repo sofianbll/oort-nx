@@ -469,7 +469,7 @@ struct ModsPanel: View {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard embedding?.active.wrappedValue != false, viewModel.gameForSettingsSheet?.id == game.id,
-                  !viewModel.cloudQuitRequested,
+                  !viewModel.cloudQuitRequested, !viewModel.noticeFocus.isActive,
                   viewModel.gameWithInstallFailure == nil, viewModel.settingsNotice == nil,
                   let window = event.window, !window.isSheet, window.attachedSheet == nil,
                   NSApp.modalWindow == nil, !(window.firstResponder is NSText) else { return event }

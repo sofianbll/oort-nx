@@ -47,6 +47,8 @@ final class GameControllerService: ObservableObject {
         didSet { if layout != oldValue { resetInput() } }
     }
     var isBrowsing: () -> Bool = { false }
+    /// A notice shows and its keys can be reached.
+    var showsNotice: () -> Bool = { false }
 
     private let deadzoneKey = "NXNative_ControllerDeadzone"
     @Published private(set) var deadzone: Float = 0.35
@@ -478,13 +480,17 @@ final class GameControllerService: ObservableObject {
                 return
             }
             if pressed { activity.send(()) }
-            guard let binding = layout.binding(button, browsing: isBrowsing()) else { return }
-            if binding.release {
+            guard let binding = binding(for: button) else { return }
+            if binding.release || holds[button] != nil {
                 handleHold(binding, pressed: pressed)
             } else if pressed {
                 triggerAction(binding.tap)
             }
         }
+    }
+
+    private func binding(for button: ControllerButton) -> GamepadLayout.Binding? {
+        layout.binding(button, browsing: isBrowsing()).map { showsNotice() ? GamepadLayout.noticeBinding(over: $0) : $0 }
     }
 
     private static let directions: [ControllerButton: ControllerDirection] = [.up: .up, .down: .down, .left: .left, .right: .right]
@@ -532,8 +538,10 @@ final class GameControllerService: ObservableObject {
         guard pressed else {
             var pending = holds.removeValue(forKey: button)
             stopHoldTimer(button)
-            guard pending?.binding.tap == binding.tap, pending?.binding.hold == binding.hold else { return }
             let gesture = pending?.detector.release(at: now)
+            // The notice left between the press and the release: the tap is still the screen's own.
+            let outlived = pending?.binding.hold == .notice && binding.hold == nil && gesture == .tap
+            guard pending?.binding.tap == binding.tap, pending?.binding.hold == binding.hold || outlived else { return }
             let action = gesture.flatMap { $0 == .tap ? binding.tap : binding.hold }
             if let action { triggerAction(action) }
             return
@@ -549,7 +557,7 @@ final class GameControllerService: ObservableObject {
         let timer = Timer(timeInterval: HoldDetector.defaultThreshold, repeats: false) { [weak self] _ in
             guard let self, self.holds[button]?.detector.tick(at: ProcessInfo.processInfo.systemUptime) != nil else { return }
             self.stopHoldTimer(button)
-            if self.layout.binding(button, browsing: self.isBrowsing())?.hold == action {
+            if self.binding(for: button)?.hold == action {
                 self.triggerAction(action)
             }
         }

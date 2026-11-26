@@ -64,6 +64,7 @@ struct SettingsView: View {
     /// The help that is open, and the focused row's when it has one (`I`).
     @State private var openHelp: String?
     @State private var focusedHelp: String?
+    @State private var rowUndo: UndoOffers.Offer.ID?
     @State private var pageActions: [SettingsSection: [SettingsRowAction]] = [:]
     @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
@@ -209,6 +210,7 @@ struct SettingsView: View {
             changePage(to: SettingsPage.opening(value))
             showingPlayers = false
         }
+        .onDisappear(perform: dropRowUndo)
         .onChange(of: router.settingsRowID) { _, id in
             guard let id else { return }
             showingControls = false
@@ -631,7 +633,9 @@ struct SettingsView: View {
     private var commandHints: [HintItem] {
         var hints = [HintItem(.lb, "Previous") { moveSection(by: -1) },
                      HintItem(.rb, "Next") { moveSection(by: 1) }]
-        if canResetSection {
+        if resettableRow != nil {
+            hints.append(HintItem(.x, L10n.text("Reset this setting")) { reset() })
+        } else if canResetSection {
             hints.append(HintItem(.x, L10n.text("Reset group")) { askToReset() })
         }
         if hasPendingChanges {
@@ -781,7 +785,63 @@ struct SettingsView: View {
         return SettingsReset.canReset(section)
     }
 
-    /// X resets nothing by itself: it opens a sheet everywhere else, so a press out of habit must be taken back.
+    /// The focused row's own setting, when it differs from its default. From the sidebar, or on a row already at its
+    /// default, X resets the group as before.
+    private var resettableRow: SettingDescriptor? {
+        guard focusArea == .rows, let row = focusedRow, row.isEnabled,
+              let setting = SettingsCatalog.all.first(where: { $0.id == row.id })
+                ?? SettingsCatalog.all.first(where: { page.inlineSections.contains($0.group) && [row.rowID, row.title].contains($0.title) })
+        else { return nil }
+        switch setting.id {
+        case "iconAppearance": return SettingsLookSection.iconMode(editor.settings.launcherChoices.dockIconAppearance ?? AppViewModel.legacyDockIcon) == .auto ? nil : setting
+        case "controllerDeadzone": return abs(editedDeadzone - Self.defaultDeadzone) > 0.001 ? setting : nil
+        default: return setting.reset != nil && setting.isChanged(editor.settings) ? setting : nil
+        }
+    }
+
+    /// The draft it belongs to is gone with the screen.
+    private func dropRowUndo() {
+        if let rowUndo, viewModel.undoOffers.offer?.id == rowUndo { viewModel.undoOffers.drop() }
+    }
+
+    private static let defaultDeadzone = 0.35
+    private var editedDeadzone: Double {
+        editor.settings.launcherChoices.controllerDeadzone ?? GameControllerService.shared.legacyDeadzone
+    }
+
+    private func reset() {
+        guard let setting = resettableRow else { askToReset(); return }
+        let before = editor.settings
+        switch setting.id {
+        case "iconAppearance": resetDockIcon()
+        case "controllerDeadzone": resetDeadzone()
+        default: setting.reset?(&editor.settings)
+        }
+        // A press out of habit is taken back in one gesture, as long as this draft is open.
+        viewModel.undoOffers.offer(L10n.format("%@ is back to its default", [L10n.text(setting.title, context: localization)])) {
+            switch setting.id {
+            case "iconAppearance": editor.settings.launcherChoices.dockIconAppearance = before.launcherChoices.dockIconAppearance
+            case "controllerDeadzone": editor.settings.launcherChoices.controllerDeadzone = before.launcherChoices.controllerDeadzone
+            default: setting.copy?(before, &editor.settings)
+            }
+        }
+        rowUndo = viewModel.undoOffers.offer?.id
+        SoundEffectService.shared.play(.focus)
+    }
+
+    private func resetDockIcon() {
+        let unset = settings.settings.launcherChoices.dockIconAppearance == nil
+        editor.settings.launcherChoices.dockIconAppearance = unset && SettingsLookSection.iconMode(AppViewModel.legacyDockIcon) == .auto
+            ? nil : AppIconAppearanceMode.auto.rawValue
+    }
+
+    private func resetDeadzone() {
+        let unset = settings.settings.launcherChoices.controllerDeadzone == nil
+        editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == Self.defaultDeadzone
+            ? nil : Self.defaultDeadzone
+    }
+
+    /// X resets no group by itself: it opens a sheet everywhere else, so a press out of habit must be taken back.
     private func askToReset() {
         guard canResetSection, let section else { return }
         guard let ask = SettingsReset.question(section, title: L10n.text(section.title, context: localization)) else {
@@ -794,10 +854,7 @@ struct SettingsView: View {
     /// kept outside it are reset here.
     private func resetSection(_ section: SettingsSection) {
         switch section {
-        case .look:
-            let unset = settings.settings.launcherChoices.dockIconAppearance == nil
-            editor.settings.launcherChoices.dockIconAppearance = unset && SettingsLookSection.iconMode(AppViewModel.legacyDockIcon) == .auto
-                ? nil : AppIconAppearanceMode.auto.rawValue
+        case .look: resetDockIcon()
         case .profileIdentity:
             if let profiles, var profile = profiles.active {
                 profile.name = profile.defaultName
@@ -818,10 +875,7 @@ struct SettingsView: View {
                 profile.pageCards = nil
                 saveProfileSetting(profile, in: profiles, notifying: viewModel)
             }
-        case .controllers:
-            let unset = settings.settings.launcherChoices.controllerDeadzone == nil
-            editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == 0.35
-                ? nil : 0.35
+        case .controllers: resetDeadzone()
         default:
             break
         }
@@ -1047,7 +1101,7 @@ struct SettingsView: View {
         case .cancel:
             handleBack()
         case .secondaryAction:
-            askToReset()
+            reset()
         case .contextAction:
             router.requestSettingsSave()
         case .menu:

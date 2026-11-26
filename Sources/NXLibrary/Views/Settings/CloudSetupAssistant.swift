@@ -51,6 +51,7 @@ struct CloudSetupAssistant: View {
     @State var draft = CloudSetupAssistantDraft()
     @State var tool: URL?
     @State var remotes: [RcloneRemote]?
+    @State var kept: RcloneAccount?
     @State var accountPage: AccountPage = .choose
     @State var client = ""
     @State var secret = ""
@@ -110,9 +111,12 @@ struct CloudSetupAssistant: View {
     /// Opened for one folder only: choosing it is the whole task.
     var isDirect: Bool { entry == .sources || entry == .library }
     var existing: RcloneRemote? {
-        remotes?.first { $0.type == "drive" && $0.name == model.preference.remote }
-            ?? (model.preference.remote == nil ? remotes?.first { $0.type == "drive" } : nil)
+        let drives = remotes?.filter { $0.type == "drive" }
+        let selected = drives?.first { $0.name == (model.preference.remote ?? model.keptConnection) }
+        return selected ?? (model.preference.remote == nil ? drives?.first : nil)
     }
+    var keepsAccount: Bool { existing != nil && kept?.isSignedIn != false }
+    var reusesClient: Bool { !accountNeedsClient && existing?.name == model.keptConnection && kept?.keepsClient == true }
     var validID: Bool { CloudSetupAssistantDraft.validGoogleClientID(client) }
     var validSecret: Bool { RcloneConfiguration.validCredential(secret) }
     var defaultSourcesPath: String { CloudDriveFolders.joining(draft.path, "GameFiles") }
@@ -145,7 +149,7 @@ struct CloudSetupAssistant: View {
     var primaryTitle: String {
         if browsing != nil { return typedPath == nil ? "Choose this folder" : "Continue" }
         switch draft.step {
-        case .account: return accountNeedsClient || existing == nil ? "Sign in" : "Keep this account"
+        case .account: return accountNeedsClient || !keepsAccount ? "Sign in" : "Keep this account"
         case .folder: return "Continue"
         case .verify: return "See my games"
         }
@@ -162,7 +166,7 @@ struct CloudSetupAssistant: View {
         switch draft.step {
         case .account:
             guard work == nil, remotes != nil else { return false }
-            return accountNeedsClient ? validID && validSecret : existing != nil || bundledClient != nil
+            return accountNeedsClient ? validID && validSecret : keepsAccount || reusesClient || bundledClient != nil
         case .folder:
             return work?.kind != .discover && work?.kind != .create && !checkingMove
                 && (library == nil ? newLibrary != nil : draft.candidate != nil)
@@ -173,7 +177,7 @@ struct CloudSetupAssistant: View {
         guard !movePaused, !waitingForGoogle, move == nil else { return false }
         if browsing != nil { return true }
         switch draft.step {
-        case .account: return remotes != nil && (accountNeedsClient || existing != nil || bundledClient != nil)
+        case .account: return remotes != nil && (accountNeedsClient || keepsAccount || reusesClient || bundledClient != nil)
         case .folder: return work?.kind != .discover
         case .verify: return true
         }

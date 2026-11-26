@@ -31,6 +31,8 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Ordinamento | RS | RS | R3 | S (o F3) |
 | Cerca | LS | LS | L3 | ⌘F |
 | Cambia vista | View | − | Clic del touchpad | V |
+| Sceglie l’avviso a schermo (Undo, suggerimento) | X per 0,5 s | X per 0,5 s | □ per 0,5 s | Tab |
+| Annulla l’ultimo gesto reversibile | Centro attività, A | Centro attività, A | Centro attività, ✕ | ⌘Z |
 | Pulsante Menu | ≡ | + | Options | ⇧⌘K / ⌘, |
 | Cerca ovunque | Y in Cerca | Y in Cerca | △ in Cerca | ⌘K |
 | Cerca | View per 0,5 s | − per 0,5 s | Clic del touchpad per 0,5 s | ⌘F |
@@ -45,6 +47,7 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Cerca ovunque (⌘K) | Il campo tiene sempre le lettere. Su/Giù o croce spostano la riga; Tab/⇧Tab o LB/RB passano al gruppo; Inizio/Fine o LT/RT vanno agli estremi. Invio o A esegue; ⌘Invio, Y o + apre Opzioni di un gioco. Esc o B esce da «Vedi tutto», poi chiude; ⌘K chiude. I comandi della barra dei menu restano attivi. Non si apre sopra una domanda, il Setup, la scelta del profilo, le opzioni di un gioco, il visore di immagini o un avvio. |
 | Centro di controllo | LB/RB scorrono le icone o passano al pannello adiacente, fermandosi alle estremità. Settings richiede conferma. A seleziona; B chiude un pannello o il centro. Con Oort Home chiude il centro. |
 | Settings | LB/RB cambiano sezione; non prendono le lettere da un campo di testo. |
+| Settings, riga modificata | X (o ⌫) riporta quella sola riga al valore iniziale, con Undo; su una riga già iniziale o dalla barra laterale X chiede se ripristinare il gruppo. |
 | Pagina profilo e Obiettivi | LB/RB spostano il focus nel profilo e nella raccolta della scheda. In Obiettivi cambiano filtro, o scorrono gli elementi nel dettaglio aperto. |
 | Selettore profili | A sceglie, Menu aggiunge, Y modifica; B (o Home con Arcane) chiude la sovrapposizione e torna al focus precedente. |
 | Editor profilo | B torna al passo precedente o esce dal primo. Dal nome Menu corto salva un profilo esistente o prosegue per un profilo nuovo. |

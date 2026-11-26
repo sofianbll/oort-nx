@@ -354,7 +354,7 @@ extension AppViewModel {
             canCreateDirectories: stage == nil) { [weak self] urls in
             guard let self, let url = urls.first else { return }
             guard url.standardizedFileURL.path != "/" else {
-                self.alertMessage = "Choose the folder containing your game apps, rather than a whole disk."
+                self.alertMessage = L10n.text("Choose the folder containing your game apps, rather than a whole disk.")
                 return
             }
             if let stage { stage(url.standardizedFileURL); return }

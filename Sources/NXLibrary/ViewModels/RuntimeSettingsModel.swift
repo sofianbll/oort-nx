@@ -32,6 +32,7 @@ final class RuntimeSettingsModel {
         guard let settings = gameSettings(for: game) else { return false }
         do {
             try settings.set(env, to: value)
+            app.tips.settingChanged(for: game.id, enabled: app.settingsStore?.settings.showsTips ?? false)
             return true
         } catch {
             settingsNotSaved(game, error)
@@ -54,6 +55,47 @@ final class RuntimeSettingsModel {
             try settings.apply(app.settingsStore?.settings.gameDefaults ?? GameRuntimeConfig(), changedFrom: base)
         } catch {
             settingsNotSaved(game, error)
+        }
+    }
+
+    /// The other games with saved choices, and what each would take from this one.
+    func copyTargets(for game: PortedGame) -> [CopySettingsPanel.Target] {
+        guard let source = settingsSnapshot(for: game) else { return [] }
+        return app.libraryGames.compactMap { other in
+            guard other.id != game.id, let snapshot = settingsSnapshot(for: other) else { return nil }
+            return .init(game: other, copy: GameSettingsCopy(from: source, to: snapshot))
+        }
+    }
+
+    /// Computed again at the last moment: the other game's own window may have changed a choice since the preview.
+    @discardableResult func copySettings(from game: PortedGame, to other: PortedGame) -> Bool {
+        guard let source = settingsSnapshot(for: game), let target = settingsSnapshot(for: other),
+              let settings = gameSettings(for: other) else { return false }
+        let wayBack = wayBack(for: other)
+        do { try settings.apply(GameSettingsCopy(from: source, to: target)) }
+        catch {
+            settingsNotSaved(other, error)
+            return false
+        }
+        app.undoOffers.offer(L10n.format("Settings copied to %@", [other.name]), undo: wayBack)
+        NotificationCenter.default.post(name: .nxGameSettingsRestored, object: other.id)
+        return true
+    }
+
+    /// Puts this game's choices back exactly as they are now, whatever changes them next.
+    func wayBack(for game: PortedGame) -> () -> Void {
+        let saved = gameSettings(for: game)?.savedChoices()
+        let config = saved == nil ? GameRuntimeConfig.load(for: game) : nil
+        let key = game.titleId?.uppercased()
+        let display = key.flatMap { app.settingsStore?.settings.gameDisplayOverrides[$0] }
+        return { [weak self] in
+            guard let self, self.app.libraryGames.contains(where: { $0.id == game.id }) else { return }
+            if let saved {
+                do { try self.gameSettings(for: game)?.restore(saved) }
+                catch { self.settingsNotSaved(game, error); return }
+            } else if let config { self.saveRuntimeConfig(config, for: game) }
+            if let key { self.app.settingsStore?.settings.gameDisplayOverrides[key] = display }
+            NotificationCenter.default.post(name: .nxGameSettingsRestored, object: game.id)
         }
     }
 

@@ -29,7 +29,7 @@ final class SettingsCatalogTests: XCTestCase {
     private static let rowIDs = Set([
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch", "onboarding",
         "refreshLibraryAtLaunch", "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames",
-        "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
+        "showsTips", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
         "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
         "wallpaperBrightness", "animatedBackground", "keepWallpaperOnGames", "backgroundShade", "readableText",
         "showClock", "reduceMotion", "iconAppearance", "boxCovers", "igdb", "steamGridDB", "librarySort", "launchStyle",
@@ -201,7 +201,7 @@ final class SettingsCatalogTests: XCTestCase {
         "backgroundSizing", "profileLock", "appearsOnline", "showsCurrentGame", "nextendo", "nextendoFriends", "nextendoAddFriend",
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",
-        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
+        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "showsTips", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
         "platformCardInfo", "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds",
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",
@@ -439,5 +439,25 @@ final class SettingsCatalogTests: XCTestCase {
                 XCTAssertTrue(groups.contains(section), "\(section) has no rows")
             }
         }
+    }
+
+    func testOneRowGoesBackAloneAndEveryRowTogetherGivesTheDefaults() throws {
+        var changed = AppSettings()
+        changed.soundVolume = 0.1
+        changed.reduceMotion = true
+        changed.showClock.toggle()
+        changed.gameDefaults.enable60FPS.toggle()
+        let before = Set(SettingsCatalog.changed(in: changed).map(\.id))
+        XCTAssertTrue(before.isSuperset(of: ["soundVolume", "reduceMotion", "showClock"]))
+        var one = changed
+        try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.reset)(&one)
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before.subtracting(["reduceMotion"]))
+        XCTAssertEqual(one.soundVolume, 0.1)
+        try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.copy)(changed, &one)
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before)
+        for row in SettingsCatalog.all { row.reset?(&one) }
+        XCTAssertEqual(SettingsCatalog.changed(in: one).map(\.id), [])
+        // An action keeps no value to put back.
+        XCTAssertNil(SettingsCatalog.all.first { $0.id == "onboarding" }?.reset)
     }
 }

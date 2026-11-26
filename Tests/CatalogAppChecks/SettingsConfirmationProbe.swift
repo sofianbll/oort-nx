@@ -30,7 +30,12 @@ import ArcanePorting
         throw RcloneDownload.Failure.network
     }
 
-    static func disconnect(_ tool: URL, _ name: String) throws {
+    static var account: RcloneAccount?
+    static var kept: [Bool] = []
+    nonisolated(unsafe) static let choices = MemorySavedChoices()
+
+    static func disconnect(_ tool: URL, _ name: String, keepingClient: Bool) throws {
+        kept.append(keepingClient)
         precondition(tool.path == "/fixture/rclone" && name == "fixture")
         disconnects += 1
     }
@@ -193,8 +198,14 @@ import ArcanePorting
         L10n.setContext(locale)
         let root = AppData.supportRoot.appendingPathComponent("settings-confirmation-probe", isDirectory: true)
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
+        settings.settings.soundVolume = 0
+        SoundEffectService.shared.bind(to: settings)
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
+        }
+        if ProcessInfo.processInfo.environment["OORT_CAPTURE_ATTENTIONS"] == "1" {
+            try checkAttentions(vm: makeModel(), settings: settings, output: output, locale: locale, capturesOnly: true)
+            return
         }
         let toolVM = makeModel()
         let tool = SettingsCloudLibrarySection(viewModel: toolVM, model: toolVM.cloudLibrary,
@@ -231,6 +242,11 @@ import ArcanePorting
         let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+        if ProcessInfo.processInfo.environment["OORT_ATTENTIONS_ONLY"] == "1" {
+            try await checkNoticeHold()
+            try checkAttentions(vm: vm, settings: settings, output: output, locale: locale)
+            return
+        }
         let router = AppRouter()
         router.openSettings(.look)
         let dialogHost = SettingsView(initialSection: .look, viewModel: vm, settings: settings, router: router, artwork: ArtworkStore())
@@ -275,6 +291,9 @@ import ArcanePorting
         L10n.setContext(locale)
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
+            // Cancel on the left in the dialogs that follow the agreed order, on the right in the others.
+            func toAction() { input.settingsNoticeInput(vm.settingsNotice!.cancelFirst ? .navigateRight : .navigateLeft) }
+            func toCancel() { input.settingsNoticeInput(vm.settingsNotice!.cancelFirst ? .navigateLeft : .navigateRight) }
             let before = count()
             open()
             let notice = vm.settingsNotice!
@@ -357,6 +376,50 @@ import ArcanePorting
         try confirm("cloud-disconnect", cloud.confirmDisconnect, count: { disconnects })
         for _ in 0..<20 where model.isChangingConnection { await Task.yield() }
         precondition(disconnects == 1 && model.preference.remote == nil && cloudWrites == 7)
+        precondition(kept == [false] && model.keptConnection == nil)
+
+        // The client is there: Erase has its own role and keeping the ID and secret takes initial focus.
+        func section() -> SettingsCloudLibrarySection {
+            SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
+                advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
+        }
+        func settle() async { for _ in 0..<20 where model.isChangingConnection { await Task.yield() } }
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+        section().confirmDisconnect()
+        let question = vm.settingsNotice!
+        precondition(question.choices == ["Erase everything", "Cancel", "Disconnect and keep the ID and secret"]
+                     && question.role(at: 0) == .destructive && question.cancelIndex == 1
+                     && vm.settingsNoticeFocus == 2)
+        precondition(question.choiceDetails["Disconnect and keep the ID and secret"]?.contains("Seule la connexion Google") == true
+                     && question.choiceDetails["Erase everything"]?.contains("l’ID et le secret") == true)
+        try render("cloud-disconnect-choice", input.settingsNoticeOverlay(question))
+        input.settingsNoticeInput(.navigateLeft)
+        precondition(vm.settingsNoticeFocus == question.cancelIndex)
+        input.settingsNoticeInput(.confirm)
+        precondition(kept == [false] && model.preference.remote == "fixture")
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.cancel)
+        precondition(kept == [false] && model.preference.remote == "fixture")
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.confirm)
+        await settle()
+        precondition(kept == [false, true] && model.preference.remote == nil && model.keptConnection == "fixture")
+        account = RcloneAccount(hasClient: true, isSignedIn: false)
+        try render("cloud-kept-client", section().advancedRows.frame(width: 1060).padding(40), height: 700)
+        try confirm("cloud-erase-kept", section().confirmEraseKept, count: { kept.count })
+        await settle()
+        precondition(kept == [false, true, false] && model.keptConnection == nil)
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.navigateLeft)
+        input.settingsNoticeInput(.navigateUp)
+        precondition(vm.settingsNoticeFocus == 0)
+        input.settingsNoticeInput(.confirm)
+        await settle()
+        precondition(kept.last == false && model.preference.remote == nil && model.keptConnection == nil)
+        account = nil
 
         // Upgrade from the embedded helper: do not touch the preference or retry automatically after Cancel.
         AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)

@@ -1121,7 +1121,9 @@
   "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
    "lb Previous": "the sidebar is clickable",
    "rb Next": "the sidebar is clickable",
-   "y Save": "the hints stay shown while changes wait",
+   "x Reset this setting": "the hint is a button and stays visible while the focused setting differs from its default",
+   "y Save": "the hints stay shown while changes wait"
+,
    "x Reset group": "the page's last row"
   },
   "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {

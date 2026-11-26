@@ -8,14 +8,23 @@ public struct SettingDescriptor: Identifiable, Sendable {
     public let title: String
     public let about: String
     public let isChanged: @Sendable (AppSettings) -> Bool
+    /// Copies this row alone from other settings; nil for an action, or a value kept outside `AppSettings`.
+    public let copy: (@Sendable (AppSettings, inout AppSettings) -> Void)?
+    /// Puts this row alone back at its default.
+    public var reset: ((inout AppSettings) -> Void)? {
+        guard let copy else { return nil }
+        return { settings in copy(SettingsCatalog.defaults, &settings) }
+    }
 
     public init(id: String, group: SettingsSection, title: String, about: String,
-                isChanged: @escaping @Sendable (AppSettings) -> Bool = { _ in false }) {
+                isChanged: @escaping @Sendable (AppSettings) -> Bool = { _ in false },
+                copy: (@Sendable (AppSettings, inout AppSettings) -> Void)? = nil) {
         self.id = id
         self.group = group
         self.title = title
         self.about = about
         self.isChanged = isChanged
+        self.copy = copy
     }
 }
 
@@ -28,8 +37,10 @@ public enum SettingsCatalog {
 
     package static func row<Value: Equatable & SendableMetatype>(_ id: String, _ group: SettingsSection, _ title: String,
                                       _ about: String,
-                                      _ value: @escaping @Sendable (AppSettings) -> Value) -> SettingDescriptor {
-        SettingDescriptor(id: id, group: group, title: title, about: about) { value($0) != value(defaults) }
+                                      _ value: WritableKeyPath<AppSettings, Value> & Sendable) -> SettingDescriptor {
+        SettingDescriptor(id: id, group: group, title: title, about: about,
+                          isChanged: { $0[keyPath: value] != defaults[keyPath: value] },
+                          copy: { $1[keyPath: value] = $0[keyPath: value] })
     }
 
     package static func action(_ id: String, _ group: SettingsSection, _ title: String,
@@ -61,107 +72,109 @@ public enum SettingsCatalog {
         action("appearsOnline", .profileNextendo, "Appear online", "Share your Nextendo presence."),
         action("showsCurrentGame", .profileNextendo, "Show current game", "Applies the next time you start a game."),
         // Start-up
-        row("appLanguage", .startUp, "App language", "Menus, genres and available game descriptions. The games’ own language stays separate.") { $0.appLanguage },
-        row("appRegion", .startUp, "Regional formats", "Dates, numbers and sizes only. Game descriptions follow the app language.") { $0.appRegion },
+        row("appLanguage", .startUp, "App language", "Menus, genres and available game descriptions. The games’ own language stays separate.", \.appLanguage),
+        row("appRegion", .startUp, "Regional formats", "Dates, numbers and sizes only. Game descriptions follow the app language.", \.appRegion),
         row("startOn", .startUp, "Start on",
-            "The screen Arcane opens on: Spotlight, Collection, or where you left it.") { $0.startOn },
+            "The screen Arcane opens on: Spotlight, Collection, or where you left it.", \.startOn),
         row("restoreLastGame", .startUp, "Restore last game",
-            "Opens with the game you had selected last time.") { $0.restoreLastGame },
+            "Opens with the game you had selected last time.", \.restoreLastGame),
         row("startInFullscreen", .startUp, "Start in fullscreen",
-            "Open Arcane in fullscreen. Applies at the next launch.") { $0.startInFullscreen },
+            "Open Arcane in fullscreen. Applies at the next launch.", \.startInFullscreen),
         row("checkAppUpdatesAtLaunch", .startUp, "Check for app updates",
-            "Looks for a newer Arcane release at launch, at most once a day.") { $0.checkAppUpdatesAtLaunch },
+            "Looks for a newer Arcane release at launch, at most once a day.", \.checkAppUpdatesAtLaunch),
         row("introAnimation", .startUp, "Entrance animation",
-            "The library's tiles fly in with the boot sound when the app opens.") { $0.introAnimation },
+            "The library's tiles fly in with the boot sound when the app opens.", \.introAnimation),
         row("showProfilePicker", .startUp, "At startup",
-            "Choose who plays when Arcane opens.") { $0.profileStartup },
+            "Choose who plays when Arcane opens.", \.profileStartup),
         action("onboarding", .startUp, "Welcome setup", "Reopen the guided setup without resetting your library."),
 
         // Navigation
         row("showButtonHints", .navigation, "Button hints",
-            "Shows the button prompts along the bottom of the screen.") { $0.showButtonHints },
+            "Shows the button prompts along the bottom of the screen.", \.showButtonHints),
         row("buttonNames", .navigation, "Button names",
-            "Which letters the prompts use: Nintendo, Xbox or PlayStation. Automatic follows the connected controller.") { $0.buttonNames },
+            "Which letters the prompts use: Nintendo, Xbox or PlayStation. Automatic follows the connected controller.", \.buttonNames),
+        row("showsTips", .navigation, "Tips",
+            "Tells a shortcut once, when it would help.", \.showsTips),
         row("viewButtonSwitches", .navigation, "View button switches screens",
-            "Pressing View flips between Spotlight and Collection; holding it opens Find a game.") { $0.viewButtonSwitches },
+            "Pressing View flips between Spotlight and Collection; holding it opens Find a game.", \.viewButtonSwitches),
 
         // Spotlight
         row("spotlightCards", .spotlight, "Cards",
-            "Which cards sit in the Spotlight row: Collection, Surprise me, Activity, Mods and Add game.") { $0.visibleSpotlightCards },
+            "Which cards sit in the Spotlight row: Collection, Surprise me, Activity, Mods and Add game.", \.visibleSpotlightCards),
         row("libraryTabs", .spotlight, "Top tabs",
-            "The tabs above your games. All games is always there.") { $0.libraryTabs },
+            "The tabs above your games. All games is always there.", \.libraryTabs),
         row("startingTab", .spotlight, "Starting tab",
-            "The filter Spotlight and Collection open on.") { $0.startingTab },
+            "The filter Spotlight and Collection open on.", \.startingTab),
         row("platformCardInfo", .spotlight, "Platform card",
-            "What shows beside the platform card.") { $0.platformCardInfo },
+            "What shows beside the platform card.", \.platformCardInfo),
         row("spotlightOrder", .spotlight, "Tile order",
-            "Your own order of games and cards on Spotlight. Reset puts everything back in place.") { $0.spotlightOrder },
+            "Your own order of games and cards on Spotlight. Reset puts everything back in place.", \.spotlightOrder),
 
         // Sound & music
         row("interfaceSounds", .soundMusic, "Interface sounds",
-            "Plays a short sound when you move, select, go back or launch a game.") { $0.interfaceSounds },
+            "Plays a short sound when you move, select, go back or launch a game.", \.interfaceSounds),
         row("soundVolume", .soundMusic, "Sound volume",
-            "How loud the interface sounds are.") { $0.soundVolume },
+            "How loud the interface sounds are.", \.soundVolume),
         row("quietLaunch", .soundMusic, "Quiet launch screen",
-            "Game cues only during launch; movement and selection sounds stay quiet.") { $0.quietLaunch },
-        row("soundPack", .soundMusic, "Sound pack", "Choose the interface sound pack.") { $0.soundPackID },
-        row("noteFigure", .soundMusic, "Note sequence", "The notes you hear as you move. The Oort voices play it from start to end.") { $0.noteFigure },
-        row("noteOctave", .soundMusic, "Octave", "Plays the note sequence lower or higher.") { $0.noteOctave },
-        row("customNotes", .soundMusic, "Your notes", "Eight notes of your own.") { $0.customNotes },
-        row("placeNotes", .soundMusic, "Place", "Where this sequence is heard. A place without its own follows Everywhere.") { $0.placeNotes },
+            "Game cues only during launch; movement and selection sounds stay quiet.", \.quietLaunch),
+        row("soundPack", .soundMusic, "Sound pack", "Choose the interface sound pack.", \.soundPackID),
+        row("noteFigure", .soundMusic, "Note sequence", "The notes you hear as you move. The Oort voices play it from start to end.", \.noteFigure),
+        row("noteOctave", .soundMusic, "Octave", "Plays the note sequence lower or higher.", \.noteOctave),
+        row("customNotes", .soundMusic, "Your notes", "Eight notes of your own.", \.customNotes),
+        row("placeNotes", .soundMusic, "Place", "Where this sequence is heard. A place without its own follows Everywhere.", \.placeNotes),
         action("importSoundPack", .soundMusic, "Import sound pack", "Choose a folder or .oortsound file."),
         action("importSeleneSounds", .soundMusic, "Import sounds and wallpapers from Selene",
                "Copies optional sounds and wallpapers from a local Selene folder you own."),
 
         // Look
         row("interfaceZoom", .profileLook, "Interface size",
-            "Makes text, buttons and covers larger or smaller.") { $0.interfaceZoom },
+            "Makes text, buttons and covers larger or smaller.", \.interfaceZoom),
         row("colorThemeID", .profileLook, "Color theme",
-            "The palette for focus, text and backgrounds.") { $0.colorThemeID },
+            "The palette for focus, text and backgrounds.", \.colorThemeID),
         row("wallpaperID", .profileLook, "Wallpaper",
-            "The picture behind the base gradient, per theme or none.") { $0.wallpaperID },
+            "The picture behind the base gradient, per theme or none.", \.wallpaperID),
         row("settingsWallpaperID", .profileLook, "Settings wallpaper",
-            "The picture behind Settings: the same as the app's, or one of its own.") { $0.settingsWallpaperID },
+            "The picture behind Settings: the same as the app's, or one of its own.", \.settingsWallpaperID),
         row("backgroundSizing", .profileLook, "Wallpaper sizing",
-            "Fill crops the picture to cover the screen, Fit shows all of it, Stretch distorts it to fit.") { $0.backgroundSizing },
+            "Fill crops the picture to cover the screen, Fit shows all of it, Stretch distorts it to fit.", \.backgroundSizing),
         row("wallpaperBrightness", .look, "Wallpaper brightness",
-            "How dark a wallpaper or live background is: dim evenly, bright on the right away from the text, or bright everywhere.") { $0.wallpaperBrightness },
+            "How dark a wallpaper or live background is: dim evenly, bright on the right away from the text, or bright everywhere.", \.wallpaperBrightness),
         row("animatedBackground", .look, "Background motion",
-            "The moonlight's beam and motes move and a live background plays; off, they hold still.") { $0.animatedBackground },
+            "The moonlight's beam and motes move and a live background plays; off, they hold still.", \.animatedBackground),
         row("keepWallpaperOnGames", .look, "Game backgrounds",
-            "On shows the selected game's art in Spotlight and Collection; Off keeps your wallpaper. Details keeps the game's art.") { $0.keepWallpaperOnGames },
+            "On shows the selected game's art in Spotlight and Collection; Off keeps your wallpaper. Details keeps the game's art.", \.keepWallpaperOnGames),
         row("backgroundShade", .look, "Library shade",
-            "Shading behind library text, over game artwork or your wallpaper.") { $0.backgroundShade },
+            "Shading behind library text, over game artwork or your wallpaper.", \.backgroundShade),
         row("readableText", .look, "Text shadow",
-            "Adds a soft shadow under text so it reads over bright art.") { $0.readableText },
+            "Adds a soft shadow under text so it reads over bright art.", \.readableText),
         row("showClock", .look, "Clock",
-            "Shows the time in the top bar.") { $0.showClock },
+            "Shows the time in the top bar.", \.showClock),
         row("reduceMotion", .look, "Reduce motion",
-            "Replaces slides and zooms with fades.") { $0.reduceMotion },
+            "Replaces slides and zooms with fades.", \.reduceMotion),
         action("iconAppearance", .look, "App icon", "The icon appearance in the Dock."),
         // Optional connections shared by all library platforms.
         action("igdb", .apiServices, "IGDB", "Personal IGDB credentials for critic scores. Wikidata remains available without a key."),
         action("steamGridDB", .apiServices, "SteamGridDB", "Add your API key to find covers, backgrounds, logos and icons in Change artwork."),
-        row("multiplayerVPN", .multiplayer, "Private network (VPN)", multiplayerVPNHelp) { $0.multiplayerVPN },
-        row("multiplayerDefault", .multiplayer, "Default for games", "Applies to games without their own multiplayer choice.") { $0.multiplayerDefault },
-        row("multiplayerLocalMode", .multiplayer, "Local network mode", "Force LAN or local wireless instead of letting the game choose.") { $0.multiplayerLocalMode },
-        row("multiplayerAdapter", .multiplayer, "Network adapter", "Select an interface manually if Arcane cannot identify your VPN.") { $0.multiplayerAdapter },
+        row("multiplayerVPN", .multiplayer, "Private network (VPN)", multiplayerVPNHelp, \.multiplayerVPN),
+        row("multiplayerDefault", .multiplayer, "Default for games", "Applies to games without their own multiplayer choice.", \.multiplayerDefault),
+        row("multiplayerLocalMode", .multiplayer, "Local network mode", "Force LAN or local wireless instead of letting the game choose.", \.multiplayerLocalMode),
+        row("multiplayerAdapter", .multiplayer, "Network adapter", "Select an interface manually if Arcane cannot identify your VPN.", \.multiplayerAdapter),
 
         // Games (Library)
         row("librarySort", .libraryGames, "Sort games",
-            "Order of games in Spotlight and Collection.") { $0.librarySort },
+            "Order of games in Spotlight and Collection.", \.librarySort),
         row("launchStyle", .libraryGames, "Launch screen style",
-            "What shows while a game starts: art and logo, art only, logo on black, or minimal.") { $0.launchStyle },
+            "What shows while a game starts: art and logo, art only, logo on black, or minimal.", \.launchStyle),
         row("launchMotion", .libraryGames, "Launch screen motion",
-            "A slow drift of the art while the game starts.") { $0.launchMotion },
+            "A slow drift of the art while the game starts.", \.launchMotion),
         row("launchShade", .libraryGames, "Launch screen shade",
-            "How much the launch art is darkened.") { $0.launchShade },
+            "How much the launch art is darkened.", \.launchShade),
         row("tileBadgePosition", .libraryGames, "Badge position",
-            "The corner of game covers that holds the badge.") { $0.tileBadgePosition },
+            "The corner of game covers that holds the badge.", \.tileBadgePosition),
         row("surprisePool", .libraryGames, "Surprise me pool",
-            "Which games Surprise me picks from.") { $0.surprisePool },
+            "Which games Surprise me picks from.", \.surprisePool),
         row("showsSessionCard", .libraryGames, "Session card",
-            "When you close a game, a card shows how long you played this time and in total.") { $0.showsSessionCard },
+            "When you close a game, a card shows how long you played this time and in total.", \.showsSessionCard),
         action("hiddenGames", .libraryGames, "Hidden game apps",
                "Game apps you hid from Game options; Show puts one back in your lists."),
 
@@ -170,11 +183,11 @@ public enum SettingsCatalog {
                "The connected controller and how its buttons map."),
         action("buttonLayout", .controllers, "Button layout", "View the library controls."),
         row("controllerLayout", .controllers, "Controller layout",
-            "While browsing") { $0.launcherChoices.gamepadLayout },
+            "While browsing", \.launcherChoices.gamepadLayout),
         action("controllerDeadzone", .controllers, "Stick navigation deadzone",
                "Thumbstick threshold for library navigation; does not alter game input."),
         row("inGameHomeButton", .controllers, "Home button in games",
-            "Auto follows the controller layout.") { $0.inGameHomeButton },
+            "Auto follows the controller layout.", \.inGameHomeButton),
 
         // Steam
         action("integrations", .sources, "All integrations", "See what each one reads, writes and sends."),
@@ -183,7 +196,7 @@ public enum SettingsCatalog {
         action("steamRefresh", .sources, "Refresh Steam", "Check enabled Steam libraries without changing your game files."),
         action("steamFolder", .sources, "Steam folder", "Choose the Steam folder containing steamapps."),
         row("steamInBackground", .sources, "Keep Steam in the background",
-            "Steam starts quietly when possible and comes forward if it needs you.") { $0.steamInBackground },
+            "Steam starts quietly when possible and comes forward if it needs you.", \.steamInBackground),
 
         // Storage
         action("storageUsage", .storage, "Storage usage", "See per-game app, cache and log sizes and free disk space."),

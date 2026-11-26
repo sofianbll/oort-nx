@@ -3337,6 +3337,56 @@
         }
       }
     },
+    "Disconnect and keep the ID and secret": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Disconnect and keep the ID and secret"}},"it":{"stringUnit":{"state":"translated","value":"Scollega e conserva ID e segreto"}},"fr":{"stringUnit":{"state":"translated","value":"Déconnecter et garder l’ID et le secret"}},"de":{"stringUnit":{"state":"translated","value":"Trennen, ID und Secret behalten"}},"es":{"stringUnit":{"state":"translated","value":"Desconectar y conservar ID y secreto"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desconectar e manter ID e segredo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"断开连接并保留 ID 和密钥"}}}},
+    "Erase everything": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Erase everything"}},"it":{"stringUnit":{"state":"translated","value":"Cancella tutto"}},"fr":{"stringUnit":{"state":"translated","value":"Tout effacer"}},"de":{"stringUnit":{"state":"translated","value":"Alles löschen"}},"es":{"stringUnit":{"state":"translated","value":"Borrar todo"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Apagar tudo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"全部清除"}}}},
+    "Only the Google sign-in is erased. You reconnect without entering them again.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Only the Google sign-in is erased. You reconnect without entering them again."}},"it":{"stringUnit":{"state":"translated","value":"Viene cancellato solo l’accesso a Google. Ti ricolleghi senza reinserirli."}},"fr":{"stringUnit":{"state":"translated","value":"Seule la connexion Google est effacée. Tu te reconnectes sans les ressaisir."}},"de":{"stringUnit":{"state":"translated","value":"Nur die Google-Anmeldung wird gelöscht. Du verbindest dich ohne erneute Eingabe."}},"es":{"stringUnit":{"state":"translated","value":"Solo se borra el inicio de sesión de Google. Te reconectas sin volver a escribirlos."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Só o login do Google é apagado. Você reconecta sem digitar de novo."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"仅清除 Google 登录。重新连接时无需再次输入。"}}}},
+    "The Google sign-in, the ID and the secret are erased. You enter them again to reconnect.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The Google sign-in, the ID and the secret are erased. You enter them again to reconnect."}},"it":{"stringUnit":{"state":"translated","value":"Vengono cancellati accesso a Google, ID e segreto. Li reinserisci per ricollegarti."}},"fr":{"stringUnit":{"state":"translated","value":"La connexion Google, l’ID et le secret sont effacés. Tu les ressaisis pour te reconnecter."}},"de":{"stringUnit":{"state":"translated","value":"Google-Anmeldung, ID und Secret werden gelöscht. Zum Verbinden gibst du sie neu ein."}},"es":{"stringUnit":{"state":"translated","value":"Se borran el inicio de sesión de Google, el ID y el secreto. Los escribes de nuevo para reconectarte."}},"pt-BR":{"stringUnit":{"state":"translated","value":"O login do Google, o ID e o segredo são apagados. Você digita de novo para reconectar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将清除 Google 登录、ID 和密钥。重新连接时需再次输入。"}}}},
+    "Google ID and secret": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Google ID and secret"}},"it":{"stringUnit":{"state":"translated","value":"ID e segreto Google"}},"fr":{"stringUnit":{"state":"translated","value":"ID et secret Google"}},"de":{"stringUnit":{"state":"translated","value":"Google-ID und Secret"}},"es":{"stringUnit":{"state":"translated","value":"ID y secreto de Google"}},"pt-BR":{"stringUnit":{"state":"translated","value":"ID e segredo do Google"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Google ID 和密钥"}}}},
+    "Kept on this Mac, in rclone’s own settings.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Kept on this Mac, in rclone’s own settings."}},"it":{"stringUnit":{"state":"translated","value":"Conservati su questo Mac, nelle impostazioni di rclone."}},"fr":{"stringUnit":{"state":"translated","value":"Gardés sur ce Mac, dans les réglages de rclone."}},"de":{"stringUnit":{"state":"translated","value":"Auf diesem Mac behalten, in den Einstellungen von rclone."}},"es":{"stringUnit":{"state":"translated","value":"Conservados en este Mac, en los ajustes de rclone."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mantidos neste Mac, nos ajustes do rclone."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"保留在此 Mac 上的 rclone 设置中。"}}}},
+    "The Google ID and secret kept on this Mac will be used.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The Google ID and secret kept on this Mac will be used."}},"it":{"stringUnit":{"state":"translated","value":"Verranno usati l’ID e il segreto Google conservati su questo Mac."}},"fr":{"stringUnit":{"state":"translated","value":"L’ID et le secret Google gardés sur ce Mac seront utilisés."}},"de":{"stringUnit":{"state":"translated","value":"Die auf diesem Mac behaltene Google-ID und das Secret werden verwendet."}},"es":{"stringUnit":{"state":"translated","value":"Se usarán el ID y el secreto de Google conservados en este Mac."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Serão usados o ID e o segredo do Google mantidos neste Mac."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将使用保留在此 Mac 上的 Google ID 和密钥。"}}}},
+    "Erase the Google ID and secret?": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Erase the Google ID and secret?"}},"it":{"stringUnit":{"state":"translated","value":"Cancellare ID e segreto Google?"}},"fr":{"stringUnit":{"state":"translated","value":"Effacer l’ID et le secret Google ?"}},"de":{"stringUnit":{"state":"translated","value":"Google-ID und Secret löschen?"}},"es":{"stringUnit":{"state":"translated","value":"¿Borrar el ID y el secreto de Google?"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Apagar o ID e o segredo do Google?"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"要清除 Google ID 和密钥吗？"}}}},
+    "You will enter them again to reconnect. Cloud files stay where they are.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"You will enter them again to reconnect. Cloud files stay where they are."}},"it":{"stringUnit":{"state":"translated","value":"Li reinserirai per ricollegarti. I file nel cloud restano dove sono."}},"fr":{"stringUnit":{"state":"translated","value":"Tu les ressaisiras pour te reconnecter. Les fichiers cloud restent en place."}},"de":{"stringUnit":{"state":"translated","value":"Zum Verbinden gibst du sie neu ein. Cloud-Dateien bleiben, wo sie sind."}},"es":{"stringUnit":{"state":"translated","value":"Los escribirás de nuevo para reconectarte. Los archivos en la nube siguen en su sitio."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Você vai digitar de novo para reconectar. Os arquivos na nuvem ficam onde estão."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"重新连接时需再次输入。云端文件保持不变。"}}}},
+    "Choose what stays on this Mac. Cloud files stay where they are.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose what stays on this Mac. Cloud files stay where they are."}},"it":{"stringUnit":{"state":"translated","value":"Scegli cosa resta su questo Mac. I file nel cloud restano dove sono."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis ce qui reste sur ce Mac. Les fichiers cloud restent en place."}},"de":{"stringUnit":{"state":"translated","value":"Wähle, was auf diesem Mac bleibt. Cloud-Dateien bleiben, wo sie sind."}},"es":{"stringUnit":{"state":"translated","value":"Elige qué se queda en este Mac. Los archivos en la nube siguen en su sitio."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha o que fica neste Mac. Os arquivos na nuvem ficam onde estão."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择在此 Mac 上保留的内容。云端文件保持不变。"}}}},
+    "Cloud files stay where they are.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Cloud files stay where they are."}},"it":{"stringUnit":{"state":"translated","value":"I file nel cloud restano dove sono."}},"fr":{"stringUnit":{"state":"translated","value":"Les fichiers cloud restent en place."}},"de":{"stringUnit":{"state":"translated","value":"Cloud-Dateien bleiben, wo sie sind."}},"es":{"stringUnit":{"state":"translated","value":"Los archivos en la nube siguen en su sitio."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os arquivos na nuvem ficam onde estão."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"云端文件保持不变。"}}}},
+    "Undo": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Undo"}},"it":{"stringUnit":{"state":"translated","value":"Annulla"}},"fr":{"stringUnit":{"state":"translated","value":"Annuler"}},"de":{"stringUnit":{"state":"translated","value":"Rückgängig"}},"es":{"stringUnit":{"state":"translated","value":"Deshacer"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desfazer"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"撤销"}}}},
+    "Undo Last Change": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Undo Last Change"}},"it":{"stringUnit":{"state":"translated","value":"Annulla l’ultima modifica"}},"fr":{"stringUnit":{"state":"translated","value":"Annuler la dernière modification"}},"de":{"stringUnit":{"state":"translated","value":"Letzte Änderung rückgängig machen"}},"es":{"stringUnit":{"state":"translated","value":"Deshacer el último cambio"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desfazer a última alteração"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"撤销上次更改"}}}},
+    "Undo: ⌘Z or Activity center": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Undo: ⌘Z or Activity center"}},"it":{"stringUnit":{"state":"translated","value":"Annulla: ⌘Z o centro attività"}},"fr":{"stringUnit":{"state":"translated","value":"Annuler : ⌘Z ou centre d’activité"}},"de":{"stringUnit":{"state":"translated","value":"Rückgängig: ⌘Z oder Aktivitätszentrale"}},"es":{"stringUnit":{"state":"translated","value":"Deshacer: ⌘Z o centro de actividad"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desfazer: ⌘Z ou central de atividades"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"撤销：⌘Z 或活动中心"}}}},
+    "Undo: Activity center": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Undo: Activity center"}},"it":{"stringUnit":{"state":"translated","value":"Annulla: centro attività"}},"fr":{"stringUnit":{"state":"translated","value":"Annuler : centre d’activité"}},"de":{"stringUnit":{"state":"translated","value":"Rückgängig: Aktivitätszentrale"}},"es":{"stringUnit":{"state":"translated","value":"Deshacer: centro de actividad"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desfazer: central de atividades"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"撤销：活动中心"}}}},
+    "%@ left your favorites": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ left your favorites"}},"it":{"stringUnit":{"state":"translated","value":"%@ non è più tra i preferiti"}},"fr":{"stringUnit":{"state":"translated","value":"%@ n’est plus dans tes favoris"}},"de":{"stringUnit":{"state":"translated","value":"%@ ist nicht mehr in deinen Favoriten"}},"es":{"stringUnit":{"state":"translated","value":"%@ ya no está en tus favoritos"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ saiu dos seus favoritos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 已移出收藏"}}}},
+    "%@ is hidden": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ is hidden"}},"it":{"stringUnit":{"state":"translated","value":"%@ è nascosto"}},"fr":{"stringUnit":{"state":"translated","value":"%@ est masqué"}},"de":{"stringUnit":{"state":"translated","value":"%@ ist ausgeblendet"}},"es":{"stringUnit":{"state":"translated","value":"%@ está oculto"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ está oculto"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 已隐藏"}}}},
+    "%@ left your library": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ left your library"}},"it":{"stringUnit":{"state":"translated","value":"%@ non è più nella libreria"}},"fr":{"stringUnit":{"state":"translated","value":"%@ n’est plus dans ta bibliothèque"}},"de":{"stringUnit":{"state":"translated","value":"%@ ist nicht mehr in deiner Bibliothek"}},"es":{"stringUnit":{"state":"translated","value":"%@ ya no está en tu biblioteca"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ saiu da sua biblioteca"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 已移出资料库"}}}},
+    "%@: default settings restored": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@: default settings restored"}},"it":{"stringUnit":{"state":"translated","value":"%@: impostazioni predefinite ripristinate"}},"fr":{"stringUnit":{"state":"translated","value":"%@ : réglages par défaut remis"}},"de":{"stringUnit":{"state":"translated","value":"%@: Standardeinstellungen wiederhergestellt"}},"es":{"stringUnit":{"state":"translated","value":"%@: ajustes predeterminados restaurados"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@: ajustes padrão restaurados"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@：已恢复默认设置"}}}},
+    "Choose the folder containing your game apps, rather than a whole disk.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose the folder containing your game apps, rather than a whole disk."}},"it":{"stringUnit":{"state":"translated","value":"Scegli la cartella con le app dei giochi, non un intero disco."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis le dossier qui contient tes jeux, pas un disque entier."}},"de":{"stringUnit":{"state":"translated","value":"Wähle den Ordner mit deinen Spiele-Apps, nicht das ganze Laufwerk."}},"es":{"stringUnit":{"state":"translated","value":"Elige la carpeta que contiene tus juegos, no un disco entero."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha a pasta com seus jogos, não um disco inteiro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"请选择包含游戏应用的文件夹，而不是整个磁盘。"}}}},
+    "This game’s save needs recovery. Wait for recovery to finish, then press Play again. Backups are in %@.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"This game’s save needs recovery. Wait for recovery to finish, then press Play again. Backups are in %@."}},"it":{"stringUnit":{"state":"translated","value":"Il salvataggio di questo gioco va recuperato. Attendi la fine, poi premi di nuovo Gioca. I backup sono in %@."}},"fr":{"stringUnit":{"state":"translated","value":"La sauvegarde de ce jeu doit être récupérée. Attends la fin, puis appuie à nouveau sur Jouer. Les copies sont dans %@."}},"de":{"stringUnit":{"state":"translated","value":"Der Spielstand muss wiederhergestellt werden. Warte, bis das fertig ist, und drücke erneut auf Spielen. Sicherungen liegen in %@."}},"es":{"stringUnit":{"state":"translated","value":"La partida de este juego debe recuperarse. Espera a que termine y pulsa Jugar de nuevo. Las copias están en %@."}},"pt-BR":{"stringUnit":{"state":"translated","value":"O save deste jogo precisa ser recuperado. Espere terminar e pressione Jogar de novo. Os backups estão em %@."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此游戏的存档需要恢复。请等待恢复完成后再次点按“开始游戏”。备份位于 %@。"}}}},
+    "This game’s saves are being managed or need recovery. Finish that operation, then press Play.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"This game’s saves are being managed or need recovery. Finish that operation, then press Play."}},"it":{"stringUnit":{"state":"translated","value":"I salvataggi di questo gioco sono in uso o vanno recuperati. Completa l’operazione, poi premi Gioca."}},"fr":{"stringUnit":{"state":"translated","value":"Les sauvegardes de ce jeu sont en cours d’utilisation ou à récupérer. Termine cette opération, puis appuie sur Jouer."}},"de":{"stringUnit":{"state":"translated","value":"Die Spielstände werden gerade verwendet oder müssen wiederhergestellt werden. Schließe das ab und drücke dann auf Spielen."}},"es":{"stringUnit":{"state":"translated","value":"Las partidas de este juego están en uso o deben recuperarse. Termina esa operación y pulsa Jugar."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os saves deste jogo estão em uso ou precisam ser recuperados. Conclua a operação e pressione Jogar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此游戏的存档正在处理或需要恢复。完成该操作后再点按“开始游戏”。"}}}},
+    "%@ is not the nxnative engine folder. Choose the folder that contains scripts and dm.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ is not the nxnative engine folder. Choose the folder that contains scripts and dm."}},"it":{"stringUnit":{"state":"translated","value":"%@ non è la cartella del motore nxnative. Scegli la cartella che contiene scripts e dm."}},"fr":{"stringUnit":{"state":"translated","value":"%@ n’est pas le dossier du moteur nxnative. Choisis le dossier qui contient scripts et dm."}},"de":{"stringUnit":{"state":"translated","value":"%@ ist nicht der Ordner der nxnative-Engine. Wähle den Ordner mit scripts und dm."}},"es":{"stringUnit":{"state":"translated","value":"%@ no es la carpeta del motor nxnative. Elige la carpeta que contiene scripts y dm."}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ não é a pasta do motor nxnative. Escolha a pasta que contém scripts e dm."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 不是 nxnative 引擎文件夹。请选择包含 scripts 和 dm 的文件夹。"}}}},
+    "Recent searches": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Recent searches"}},"it":{"stringUnit":{"state":"translated","value":"Ricerche recenti"}},"fr":{"stringUnit":{"state":"translated","value":"Recherches récentes"}},"de":{"stringUnit":{"state":"translated","value":"Letzte Suchen"}},"es":{"stringUnit":{"state":"translated","value":"Búsquedas recientes"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Buscas recentes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"最近搜索"}}}},
+    "Clear recent searches": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Clear recent searches"}},"it":{"stringUnit":{"state":"translated","value":"Cancella le ricerche recenti"}},"fr":{"stringUnit":{"state":"translated","value":"Effacer les recherches récentes"}},"de":{"stringUnit":{"state":"translated","value":"Letzte Suchen löschen"}},"es":{"stringUnit":{"state":"translated","value":"Borrar las búsquedas recientes"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Apagar buscas recentes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"清除最近搜索"}}}},
+    "Recent searches cleared": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Recent searches cleared"}},"it":{"stringUnit":{"state":"translated","value":"Ricerche recenti cancellate"}},"fr":{"stringUnit":{"state":"translated","value":"Recherches récentes effacées"}},"de":{"stringUnit":{"state":"translated","value":"Letzte Suchen gelöscht"}},"es":{"stringUnit":{"state":"translated","value":"Búsquedas recientes borradas"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Buscas recentes apagadas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"最近搜索已清除"}}}},
+    "Drop game files here, or put them in the Inbox folder and refresh.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Drop game files here, or put them in the Inbox folder and refresh."}},"it":{"stringUnit":{"state":"translated","value":"Trascina qui i file dei giochi o mettili nella cartella Inbox e aggiorna."}},"fr":{"stringUnit":{"state":"translated","value":"Dépose des fichiers de jeux ici, ou mets-les dans le dossier Inbox et actualise."}},"de":{"stringUnit":{"state":"translated","value":"Lege Spieledateien hier ab oder in den Inbox-Ordner und aktualisiere."}},"es":{"stringUnit":{"state":"translated","value":"Suelta archivos de juegos aquí, o ponlos en la carpeta Inbox y actualiza."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Solte arquivos de jogos aqui ou coloque-os na pasta Inbox e atualize."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将游戏文件拖到此处，或放入 Inbox 文件夹并刷新。"}}}},
+    "%lld settings change": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld setting changes"}},"other":{"stringUnit":{"state":"translated","value":"%lld settings change"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"Cambia %lld impostazione"}},"other":{"stringUnit":{"state":"translated","value":"Cambiano %lld impostazioni"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld réglage change"}},"other":{"stringUnit":{"state":"translated","value":"%lld réglages changent"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Einstellung ändert sich"}},"other":{"stringUnit":{"state":"translated","value":"%lld Einstellungen ändern sich"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"Cambia %lld ajuste"}},"other":{"stringUnit":{"state":"translated","value":"Cambian %lld ajustes"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld ajuste muda"}},"other":{"stringUnit":{"state":"translated","value":"%lld ajustes mudam"}}}}},"zh-Hans":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld 项设置会更改"}},"other":{"stringUnit":{"state":"translated","value":"%lld 项设置会更改"}}}}}}},
+    "and %lld more": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"and %lld more"}},"other":{"stringUnit":{"state":"translated","value":"and %lld more"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"e %lld altra"}},"other":{"stringUnit":{"state":"translated","value":"e altre %lld"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"et %lld autre"}},"other":{"stringUnit":{"state":"translated","value":"et %lld autres"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"und %lld weitere"}},"other":{"stringUnit":{"state":"translated","value":"und %lld weitere"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"y %lld más"}},"other":{"stringUnit":{"state":"translated","value":"y %lld más"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"e mais %lld"}},"other":{"stringUnit":{"state":"translated","value":"e mais %lld"}}}}},"zh-Hans":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"以及另外 %lld 项"}},"other":{"stringUnit":{"state":"translated","value":"以及另外 %lld 项"}}}}}}},
+    "Reset this setting": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Reset this setting"}},"it":{"stringUnit":{"state":"translated","value":"Ripristina questa impostazione"}},"fr":{"stringUnit":{"state":"translated","value":"Remettre ce réglage"}},"de":{"stringUnit":{"state":"translated","value":"Diese Einstellung zurücksetzen"}},"es":{"stringUnit":{"state":"translated","value":"Restablecer este ajuste"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Restaurar este ajuste"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"重置此设置"}}}},
+    "No other game takes these settings.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No other game takes these settings."}},"it":{"stringUnit":{"state":"translated","value":"Nessun altro gioco accetta queste impostazioni."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun autre jeu ne prend ces réglages."}},"de":{"stringUnit":{"state":"translated","value":"Kein anderes Spiel nimmt diese Einstellungen an."}},"es":{"stringUnit":{"state":"translated","value":"Ningún otro juego admite estos ajustes."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum outro jogo aceita estes ajustes."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有其他游戏支持这些设置。"}}}},
+    "Build another game, then copy them to it.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Build another game, then copy them to it."}},"it":{"stringUnit":{"state":"translated","value":"Compila un altro gioco, poi copiale lì."}},"fr":{"stringUnit":{"state":"translated","value":"Compile un autre jeu, puis copie-les."}},"de":{"stringUnit":{"state":"translated","value":"Kompiliere ein weiteres Spiel und kopiere sie dann."}},"es":{"stringUnit":{"state":"translated","value":"Compila otro juego y cópialos."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Compile outro jogo e copie-os."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"编译另一个游戏后再拷贝。"}}}},
+    "Preview": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Preview"}},"it":{"stringUnit":{"state":"translated","value":"Anteprima"}},"fr":{"stringUnit":{"state":"translated","value":"Aperçu"}},"de":{"stringUnit":{"state":"translated","value":"Vorschau"}},"es":{"stringUnit":{"state":"translated","value":"Vista previa"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Prévia"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"预览"}}}},
+    "Already the same": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Already the same"}},"it":{"stringUnit":{"state":"translated","value":"Già uguali"}},"fr":{"stringUnit":{"state":"translated","value":"Déjà les mêmes"}},"de":{"stringUnit":{"state":"translated","value":"Bereits gleich"}},"es":{"stringUnit":{"state":"translated","value":"Ya son iguales"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Já são iguais"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已相同"}}}},
+    "Copy settings to %@?": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Copy settings to %@?"}},"it":{"stringUnit":{"state":"translated","value":"Copiare le impostazioni su %@?"}},"fr":{"stringUnit":{"state":"translated","value":"Copier les réglages vers %@ ?"}},"de":{"stringUnit":{"state":"translated","value":"Einstellungen nach %@ kopieren?"}},"es":{"stringUnit":{"state":"translated","value":"¿Copiar los ajustes a %@?"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Copiar os ajustes para %@?"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"要将设置拷贝到 %@ 吗？"}}}},
+    "Settings copied to %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Settings copied to %@"}},"it":{"stringUnit":{"state":"translated","value":"Impostazioni copiate su %@"}},"fr":{"stringUnit":{"state":"translated","value":"Réglages copiés vers %@"}},"de":{"stringUnit":{"state":"translated","value":"Einstellungen nach %@ kopiert"}},"es":{"stringUnit":{"state":"translated","value":"Ajustes copiados a %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ajustes copiados para %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"设置已拷贝到 %@"}}}},
+    "Copy settings to another game…": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Copy settings to another game…"}},"it":{"stringUnit":{"state":"translated","value":"Copia le impostazioni su un altro gioco…"}},"fr":{"stringUnit":{"state":"translated","value":"Copier les réglages vers un autre jeu…"}},"de":{"stringUnit":{"state":"translated","value":"Einstellungen auf ein anderes Spiel kopieren …"}},"es":{"stringUnit":{"state":"translated","value":"Copiar los ajustes a otro juego…"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Copiar os ajustes para outro jogo…"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将设置拷贝到其他游戏…"}}}},
+    "You see what changes first. Undo puts the other game back.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"You see what changes first. Undo puts the other game back."}},"it":{"stringUnit":{"state":"translated","value":"Prima vedi cosa cambia. Annulla ripristina l’altro gioco."}},"fr":{"stringUnit":{"state":"translated","value":"Tu vois d’abord ce qui change. Annuler remet l’autre jeu comme avant."}},"de":{"stringUnit":{"state":"translated","value":"Du siehst zuerst, was sich ändert. Rückgängig stellt das andere Spiel wieder her."}},"es":{"stringUnit":{"state":"translated","value":"Primero ves qué cambia. Deshacer restaura el otro juego."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Você vê antes o que muda. Desfazer restaura o outro jogo."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"先查看会更改的内容。撤销可恢复另一个游戏。"}}}},
+    "Tips": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Tips"}},"it":{"stringUnit":{"state":"translated","value":"Suggerimenti"}},"fr":{"stringUnit":{"state":"translated","value":"Astuces"}},"de":{"stringUnit":{"state":"translated","value":"Tipps"}},"es":{"stringUnit":{"state":"translated","value":"Consejos"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Dicas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"提示"}}}},
+    "Tells a shortcut once, when it would help.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Tells a shortcut once, when it would help."}},"it":{"stringUnit":{"state":"translated","value":"Mostra una scorciatoia una volta, quando serve."}},"fr":{"stringUnit":{"state":"translated","value":"Montre un raccourci une fois, quand il peut servir."}},"de":{"stringUnit":{"state":"translated","value":"Zeigt eine Abkürzung einmal, wenn sie hilft."}},"es":{"stringUnit":{"state":"translated","value":"Muestra un atajo una vez, cuando ayuda."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mostra um atalho uma vez, quando ajuda."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在有用时提示一次快捷方式。"}}}},
+    "Got it": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Got it"}},"it":{"stringUnit":{"state":"translated","value":"Ho capito"}},"fr":{"stringUnit":{"state":"translated","value":"Compris"}},"de":{"stringUnit":{"state":"translated","value":"Verstanden"}},"es":{"stringUnit":{"state":"translated","value":"Entendido"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Entendi"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"知道了"}}}},
+    "No more tips": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No more tips"}},"it":{"stringUnit":{"state":"translated","value":"Basta suggerimenti"}},"fr":{"stringUnit":{"state":"translated","value":"Couper les astuces"}},"de":{"stringUnit":{"state":"translated","value":"Keine Tipps mehr"}},"es":{"stringUnit":{"state":"translated","value":"No más consejos"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Sem mais dicas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"不再提示"}}}},
+    "Find a game by its name": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Find a game by its name"}},"it":{"stringUnit":{"state":"translated","value":"Trova un gioco per nome"}},"fr":{"stringUnit":{"state":"translated","value":"Trouve un jeu par son nom"}},"de":{"stringUnit":{"state":"translated","value":"Finde ein Spiel nach Namen"}},"es":{"stringUnit":{"state":"translated","value":"Encuentra un juego por su nombre"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Encontre um jogo pelo nome"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"按名称查找游戏"}}}},
+    "Search opens from anywhere in your library.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Search opens from anywhere in your library."}},"it":{"stringUnit":{"state":"translated","value":"La ricerca si apre ovunque nella libreria."}},"fr":{"stringUnit":{"state":"translated","value":"La recherche s’ouvre partout dans ta bibliothèque."}},"de":{"stringUnit":{"state":"translated","value":"Die Suche öffnet sich überall in deiner Bibliothek."}},"es":{"stringUnit":{"state":"translated","value":"La búsqueda se abre desde cualquier lugar de tu biblioteca."}},"pt-BR":{"stringUnit":{"state":"translated","value":"A busca abre em qualquer lugar da sua biblioteca."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"可在资料库任意位置打开搜索。"}}}},
+    "Copy these settings to another game": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Copy these settings to another game"}},"it":{"stringUnit":{"state":"translated","value":"Copia queste impostazioni su un altro gioco"}},"fr":{"stringUnit":{"state":"translated","value":"Copie ces réglages vers un autre jeu"}},"de":{"stringUnit":{"state":"translated","value":"Kopiere diese Einstellungen auf ein anderes Spiel"}},"es":{"stringUnit":{"state":"translated","value":"Copia estos ajustes a otro juego"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Copie estes ajustes para outro jogo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将这些设置拷贝到其他游戏"}}}},
+    "In Options, All settings, General.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In Options, All settings, General."}},"it":{"stringUnit":{"state":"translated","value":"In Opzioni, Tutte le impostazioni, Generali."}},"fr":{"stringUnit":{"state":"translated","value":"Dans Options, Tous les réglages, Général."}},"de":{"stringUnit":{"state":"translated","value":"In Optionen, Alle Einstellungen, Allgemein."}},"es":{"stringUnit":{"state":"translated","value":"En Opciones, Todos los ajustes, General."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Em Opções, Todos os ajustes, Geral."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在“选项”>“所有设置”>“通用”中。"}}}},
+    "Copy the settings of": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Copy the settings of"}},"it":{"stringUnit":{"state":"translated","value":"Copia le impostazioni di"}},"fr":{"stringUnit":{"state":"translated","value":"Copier les réglages de"}},"de":{"stringUnit":{"state":"translated","value":"Einstellungen kopieren von"}},"es":{"stringUnit":{"state":"translated","value":"Copiar los ajustes de"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Copiar os ajustes de"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"拷贝以下游戏的设置"}}}},
+    "To another game": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"To another game"}},"it":{"stringUnit":{"state":"translated","value":"Su un altro gioco"}},"fr":{"stringUnit":{"state":"translated","value":"Vers un autre jeu"}},"de":{"stringUnit":{"state":"translated","value":"Auf ein anderes Spiel"}},"es":{"stringUnit":{"state":"translated","value":"A otro juego"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Para outro jogo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"到其他游戏"}}}},
+    "%@ is back to its default": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ is back to its default"}},"it":{"stringUnit":{"state":"translated","value":"%@ è tornata al valore iniziale"}},"fr":{"stringUnit":{"state":"translated","value":"« %@ » est remis comme au départ"}},"de":{"stringUnit":{"state":"translated","value":"%@ ist auf den Standard zurückgesetzt"}},"es":{"stringUnit":{"state":"translated","value":"%@ vuelve a su valor inicial"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ voltou ao padrão"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 已恢复默认值"}}}},
+    "Choose the notice": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose the notice"}},"it":{"stringUnit":{"state":"translated","value":"Scegli l’avviso"}},"fr":{"stringUnit":{"state":"translated","value":"Choisir l’avis"}},"de":{"stringUnit":{"state":"translated","value":"Hinweis wählen"}},"es":{"stringUnit":{"state":"translated","value":"Elegir el aviso"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolher o aviso"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择通知"}}}},
     "Top tabs": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Top tabs"}},"fr":{"stringUnit":{"state":"translated","value":"Onglets du haut"}},"de":{"stringUnit":{"state":"translated","value":"Tabs oben"}},"es":{"stringUnit":{"state":"translated","value":"Pestañas superiores"}},"it":{"stringUnit":{"state":"translated","value":"Schede in alto"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abas do topo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"顶部标签"}}}},
     "The tabs above your games. All games is always there.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The tabs above your games. All games is always there."}},"fr":{"stringUnit":{"state":"translated","value":"Les onglets au-dessus de tes jeux. « Tous les jeux » y est toujours."}},"de":{"stringUnit":{"state":"translated","value":"Die Tabs über deinen Spielen. „Alle Spiele“ ist immer dabei."}},"es":{"stringUnit":{"state":"translated","value":"Las pestañas sobre tus juegos. «Todos los juegos» siempre está."}},"it":{"stringUnit":{"state":"translated","value":"Le schede sopra i tuoi giochi. «Tutti i giochi» c’è sempre."}},"pt-BR":{"stringUnit":{"state":"translated","value":"As abas acima dos seus jogos. “Todos os jogos” está sempre lá."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏上方的标签。“所有游戏”始终显示。"}}}},
     "Sort and filter": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Sort and filter"}},"fr":{"stringUnit":{"state":"translated","value":"Trier et filtrer"}},"de":{"stringUnit":{"state":"translated","value":"Sortieren und filtern"}},"es":{"stringUnit":{"state":"translated","value":"Ordenar y filtrar"}},"it":{"stringUnit":{"state":"translated","value":"Ordina e filtra"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ordenar e filtrar"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"排序和筛选"}}}},
@@ -3367,7 +3417,7 @@
     "Choose %lld files": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose %lld files"}},"fr":{"stringUnit":{"state":"translated","value":"Choisir les fichiers (%lld)"}},"de":{"stringUnit":{"state":"translated","value":"Dateien wählen (%lld)"}},"es":{"stringUnit":{"state":"translated","value":"Elegir archivos (%lld)"}},"it":{"stringUnit":{"state":"translated","value":"Scegli file (%lld)"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolher arquivos (%lld)"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择 %lld 个文件"}}}},
     "Choose this folder": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose this folder"}},"fr":{"stringUnit":{"state":"translated","value":"Choisir ce dossier"}},"de":{"stringUnit":{"state":"translated","value":"Diesen Ordner wählen"}},"es":{"stringUnit":{"state":"translated","value":"Elegir esta carpeta"}},"it":{"stringUnit":{"state":"translated","value":"Scegli questa cartella"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolher esta pasta"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择此文件夹"}}}},
     "In this folder": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In this folder"}},"fr":{"stringUnit":{"state":"translated","value":"Dans ce dossier"}},"de":{"stringUnit":{"state":"translated","value":"In diesem Ordner"}},"es":{"stringUnit":{"state":"translated","value":"En esta carpeta"}},"it":{"stringUnit":{"state":"translated","value":"In questa cartella"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nesta pasta"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此文件夹中的项目"}}}},
-    "No matching files or folders.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No matching files or folders."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun fichier ni dossier correspondant."}},"de":{"stringUnit":{"state":"translated","value":"Keine passenden Dateien oder Ordner."}},"es":{"stringUnit":{"state":"translated","value":"No hay archivos ni carpetas que coincidan."}},"it":{"stringUnit":{"state":"translated","value":"Nessun file o cartella corrispondente."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum arquivo ou pasta correspondente."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有匹配的文件或文件夹。"}}}},
+    "No matching files or folders.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No matching files or folders. Open another folder."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun fichier ni dossier correspondant. Ouvre un autre dossier."}},"de":{"stringUnit":{"state":"translated","value":"Keine passenden Dateien oder Ordner. Öffne einen anderen Ordner."}},"es":{"stringUnit":{"state":"translated","value":"No hay archivos ni carpetas que coincidan. Abre otra carpeta."}},"it":{"stringUnit":{"state":"translated","value":"Nessun file o cartella corrispondente. Apri un’altra cartella."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum arquivo ou pasta correspondente. Abra outra pasta."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有匹配的文件或文件夹。请打开其他文件夹。"}}}},
     "Reading folder…": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Reading folder…"}},"fr":{"stringUnit":{"state":"translated","value":"Lecture du dossier…"}},"de":{"stringUnit":{"state":"translated","value":"Ordner wird gelesen…"}},"es":{"stringUnit":{"state":"translated","value":"Leyendo la carpeta…"}},"it":{"stringUnit":{"state":"translated","value":"Lettura della cartella…"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Lendo a pasta…"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"正在读取文件夹…"}}}},
     "Places": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Places"}},"fr":{"stringUnit":{"state":"translated","value":"Emplacements"}},"de":{"stringUnit":{"state":"translated","value":"Orte"}},"es":{"stringUnit":{"state":"translated","value":"Ubicaciones"}},"it":{"stringUnit":{"state":"translated","value":"Posizioni"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Locais"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"位置"}}}},
     "Search this folder": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Search this folder"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher ici"}},"de":{"stringUnit":{"state":"translated","value":"Hier suchen"}},"es":{"stringUnit":{"state":"translated","value":"Buscar aquí"}},"it":{"stringUnit":{"state":"translated","value":"Cerca qui"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Buscar aqui"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在此文件夹内搜索"}}}},
@@ -3472,7 +3522,7 @@
     "Settings subject: apiServices": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Services"}},"fr":{"stringUnit":{"state":"translated","value":"Services"}},"de":{"stringUnit":{"state":"translated","value":"Dienste"}},"es":{"stringUnit":{"state":"translated","value":"Servicios"}},"it":{"stringUnit":{"state":"translated","value":"Servizi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Serviços"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"服务"}}}},
     "Settings subject: storage": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Usage"}},"fr":{"stringUnit":{"state":"translated","value":"Utilisation"}},"de":{"stringUnit":{"state":"translated","value":"Nutzung"}},"es":{"stringUnit":{"state":"translated","value":"Uso"}},"it":{"stringUnit":{"state":"translated","value":"Utilizzo"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Uso"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"使用情况"}}}},
     "No games match this filter.": {"localizations": {
-      "en":{"stringUnit":{"state":"translated","value":"No games match this filter."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun jeu ne correspond à ce filtre."}},"it":{"stringUnit":{"state":"translated","value":"Nessun gioco corrisponde al filtro."}},"de":{"stringUnit":{"state":"translated","value":"Keine Spiele entsprechen diesem Filter."}},"es":{"stringUnit":{"state":"translated","value":"Ningún juego coincide con este filtro."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum jogo corresponde a este filtro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有符合此筛选条件的游戏。"}}
+      "en":{"stringUnit":{"state":"translated","value":"No games match this filter. Change the search or the filter."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun jeu ne correspond à ce filtre. Change la recherche ou le filtre."}},"it":{"stringUnit":{"state":"translated","value":"Nessun gioco corrisponde al filtro. Cambia la ricerca o il filtro."}},"de":{"stringUnit":{"state":"translated","value":"Keine Spiele entsprechen diesem Filter. Ändere die Suche oder den Filter."}},"es":{"stringUnit":{"state":"translated","value":"Ningún juego coincide con este filtro. Cambia la búsqueda o el filtro."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum jogo corresponde a este filtro. Mude a busca ou o filtro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有符合此筛选条件的游戏。请更改搜索或筛选。"}}
     }},
     "Next platform": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"Next platform"}},"fr":{"stringUnit":{"state":"translated","value":"Plateforme suivante"}},"it":{"stringUnit":{"state":"translated","value":"Piattaforma successiva"}},"de":{"stringUnit":{"state":"translated","value":"Nächste Plattform"}},"es":{"stringUnit":{"state":"translated","value":"Plataforma siguiente"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Próxima plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"下一个平台"}}
@@ -4135,7 +4185,7 @@
       "en": {"stringUnit":{"state":"translated","value":"The rclone download could not be verified. Nothing was installed."}}, "fr": {"stringUnit":{"state":"translated","value":"Le téléchargement de rclone n’a pas pu être vérifié. Rien n’a été installé."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile verificare il download di rclone. Non è stato installato nulla."}}, "de": {"stringUnit":{"state":"translated","value":"Der rclone-Download konnte nicht geprüft werden. Es wurde nichts installiert."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo verificar la descarga de rclone. No se instaló nada."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível verificar o download do rclone. Nada foi instalado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法验证下载的 rclone，未安装任何内容。"}}
     }},
     "There is not enough space on this Mac to install rclone.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"There is not enough space on this Mac to install rclone."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce Mac n’a pas assez d’espace pour installer rclone."}}, "it": {"stringUnit":{"state":"translated","value":"Su questo Mac non c’è spazio sufficiente per installare rclone."}}, "de": {"stringUnit":{"state":"translated","value":"Auf diesem Mac ist nicht genug Speicherplatz für rclone."}}, "es": {"stringUnit":{"state":"translated","value":"No hay espacio suficiente en este Mac para instalar rclone."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não há espaço suficiente neste Mac para instalar o rclone."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 Mac 上没有足够的空间来安装 rclone。"}}
+      "en": {"stringUnit":{"state":"translated","value":"There is not enough space on this Mac to install rclone. Free some space on this Mac, then try again."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce Mac n’a pas assez d’espace pour installer rclone. Libère de la place sur ce Mac, puis réessaie."}}, "it": {"stringUnit":{"state":"translated","value":"Su questo Mac non c’è spazio sufficiente per installare rclone. Libera spazio su questo Mac, poi riprova."}}, "de": {"stringUnit":{"state":"translated","value":"Auf diesem Mac ist nicht genug Speicherplatz für rclone. Schaffe Platz auf diesem Mac und versuche es erneut."}}, "es": {"stringUnit":{"state":"translated","value":"No hay espacio suficiente en este Mac para instalar rclone. Libera espacio en este Mac e inténtalo de nuevo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não há espaço suficiente neste Mac para instalar o rclone. Libere espaço neste Mac e tente de novo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 Mac 上没有足够的空间来安装 rclone。请释放此 Mac 上的空间，然后重试。"}}
     }},
     "Could not change Oort NX’s copy of rclone. Retry.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Could not change Oort NX’s copy of rclone. Retry."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible de modifier la copie de rclone d’Oort NX. Réessaie."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile modificare la copia di rclone di Oort NX. Riprova."}}, "de": {"stringUnit":{"state":"translated","value":"Die rclone-Kopie von Oort NX konnte nicht geändert werden. Versuche es erneut."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo modificar la copia de rclone de Oort NX. Vuelve a intentarlo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível alterar a cópia do rclone do Oort NX. Tente novamente."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法更改 Oort NX 的 rclone 副本，请重试。"}}
@@ -4257,7 +4307,7 @@
       "en": {"stringUnit":{"state":"translated","value":"No button was pressed. Try assigning the controller again."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune pression détectée. Réessaie d’attribuer la manette."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun tasto premuto. Riprova ad assegnare il controller."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Taste gedrückt. Versuche erneut, den Controller zuzuweisen."}}, "es": {"stringUnit":{"state":"translated","value":"No se ha pulsado ningún botón. Intenta asignar el mando otra vez."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum botão foi pressionado. Tente atribuir o controle novamente."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未检测到按键。请重新分配手柄。"}}
     }},
     "No controllers connected": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No controllers connected"}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune manette connectée"}}, "it": {"stringUnit":{"state":"translated","value":"Nessun controller connesso"}}, "de": {"stringUnit":{"state":"translated","value":"Keine Controller verbunden"}}, "es": {"stringUnit":{"state":"translated","value":"No hay mandos conectados"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum controle conectado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未连接手柄"}}
+      "en": {"stringUnit":{"state":"translated","value":"No controllers connected. Turn one on or plug it in."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune manette connectée. Allumes-en une ou branche-la."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun controller connesso. Accendine uno o collegalo."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Controller verbunden. Schalte einen ein oder schließe ihn an."}}, "es": {"stringUnit":{"state":"translated","value":"No hay mandos conectados. Enciende uno o conéctalo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum controle conectado. Ligue um ou conecte."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未连接手柄。请打开或插入一个。"}}
     }},
     "On hold while controllers are combined": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"On hold while controllers are combined"}}, "fr": {"stringUnit":{"state":"translated","value":"En attente tant que les manettes sont regroupées"}}, "it": {"stringUnit":{"state":"translated","value":"In attesa finché i controller sono riuniti"}}, "de": {"stringUnit":{"state":"translated","value":"Pausiert, solange Controller gebündelt sind"}}, "es": {"stringUnit":{"state":"translated","value":"En espera mientras los mandos estén agrupados"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Em espera enquanto os controles estiverem agrupados"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"手柄合并期间暂停"}}
@@ -4308,7 +4358,7 @@
       "en": {"stringUnit":{"state":"translated","value":"The game cannot keep the order for this controller."}}, "fr": {"stringUnit":{"state":"translated","value":"Le jeu ne peut pas conserver l’ordre pour cette manette."}}, "it": {"stringUnit":{"state":"translated","value":"Il gioco non può mantenere l’ordine per questo controller."}}, "de": {"stringUnit":{"state":"translated","value":"Das Spiel kann die Reihenfolge für diesen Controller nicht beibehalten."}}, "es": {"stringUnit":{"state":"translated","value":"El juego no puede mantener el orden para este mando."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O jogo não consegue manter a ordem para este controle."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏无法保留此手柄的顺序。"}}
     }},
     "The game does not read this controller.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"The game does not read this controller."}}, "fr": {"stringUnit":{"state":"translated","value":"Le jeu ne détecte pas cette manette."}}, "it": {"stringUnit":{"state":"translated","value":"Il gioco non rileva questo controller."}}, "de": {"stringUnit":{"state":"translated","value":"Das Spiel erkennt diesen Controller nicht."}}, "es": {"stringUnit":{"state":"translated","value":"El juego no detecta este mando."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O jogo não detecta este controle."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏无法读取此手柄。"}}
+      "en": {"stringUnit":{"state":"translated","value":"The game does not read this controller. Use another controller for this player."}}, "fr": {"stringUnit":{"state":"translated","value":"Le jeu ne détecte pas cette manette. Prends une autre manette pour ce joueur."}}, "it": {"stringUnit":{"state":"translated","value":"Il gioco non rileva questo controller. Usa un altro controller per questo giocatore."}}, "de": {"stringUnit":{"state":"translated","value":"Das Spiel erkennt diesen Controller nicht. Nimm einen anderen Controller für diesen Spieler."}}, "es": {"stringUnit":{"state":"translated","value":"El juego no detecta este mando. Usa otro mando para este jugador."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O jogo não detecta este controle. Use outro controle para este jogador."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏无法读取此手柄。请为该玩家使用其他手柄。"}}
     }},
     "The game's env.txt could not be read.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"The game's env.txt could not be read."}}, "fr": {"stringUnit":{"state":"translated","value":"Le fichier env.txt du jeu n’a pas pu être lu."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile leggere il file env.txt del gioco."}}, "de": {"stringUnit":{"state":"translated","value":"Die env.txt des Spiels konnte nicht gelesen werden."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo leer el archivo env.txt del juego."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível ler o env.txt do jogo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法读取游戏的 env.txt。"}}
@@ -4326,7 +4376,7 @@
       "en": {"stringUnit":{"state":"translated","value":"The player setup could not be read. Nothing was changed."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible de lire les réglages des joueurs. Rien n’a changé."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile leggere le impostazioni dei giocatori. Nessuna modifica."}}, "de": {"stringUnit":{"state":"translated","value":"Die Spielereinstellungen konnten nicht gelesen werden. Es wurde nichts geändert."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudieron leer los ajustes de jugadores. No se cambió nada."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível ler os ajustes dos jogadores. Nada foi alterado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法读取玩家设置。未作任何更改。"}}
     }},
     "The player setup could not be saved.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"The player setup could not be saved."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible d’enregistrer les réglages des joueurs."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile salvare le impostazioni dei giocatori."}}, "de": {"stringUnit":{"state":"translated","value":"Die Spielereinstellungen konnten nicht gespeichert werden."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudieron guardar los ajustes de jugadores."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível salvar os ajustes dos jogadores."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法保存玩家设置。"}}
+      "en": {"stringUnit":{"state":"translated","value":"The player setup could not be saved. Free some space on this Mac, then try again."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible d’enregistrer les réglages des joueurs. Libère de la place sur ce Mac, puis réessaie."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile salvare le impostazioni dei giocatori. Libera spazio su questo Mac, poi riprova."}}, "de": {"stringUnit":{"state":"translated","value":"Die Spielereinstellungen konnten nicht gespeichert werden. Schaffe Platz auf diesem Mac und versuche es erneut."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudieron guardar los ajustes de jugadores. Libera espacio en este Mac e inténtalo de nuevo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível salvar os ajustes dos jogadores. Libere espaço neste Mac e tente de novo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法保存玩家设置。请释放此 Mac 上的空间，然后重试。"}}
     }},
     "The profile is still locked.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"The profile is still locked."}}, "fr": {"stringUnit":{"state":"translated","value":"Le profil est toujours verrouillé."}}, "it": {"stringUnit":{"state":"translated","value":"Il profilo è ancora bloccato."}}, "de": {"stringUnit":{"state":"translated","value":"Das Profil ist noch gesperrt."}}, "es": {"stringUnit":{"state":"translated","value":"El perfil sigue bloqueado."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O perfil ainda está bloqueado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"个人资料仍处于锁定状态。"}}
@@ -4356,7 +4406,7 @@
       "en": {"stringUnit":{"state":"translated","value":"This game's app is too old: rebuild it to keep the order."}}, "fr": {"stringUnit":{"state":"translated","value":"L’application de ce jeu est trop ancienne : recompile-la pour conserver l’ordre."}}, "it": {"stringUnit":{"state":"translated","value":"L’app di questo gioco è troppo vecchia: ricompilala per mantenere l’ordine."}}, "de": {"stringUnit":{"state":"translated","value":"Diese Spiel-App ist zu alt: Erstelle sie neu, um die Reihenfolge beizubehalten."}}, "es": {"stringUnit":{"state":"translated","value":"La aplicación de este juego es demasiado antigua: recompílala para mantener el orden."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O app deste jogo é antigo demais: recompile-o para manter a ordem."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此游戏应用的版本太旧：请重新构建以保留顺序。"}}
     }},
     "This profile name cannot be used in the game.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"This profile name cannot be used in the game."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce nom de profil ne peut pas être utilisé dans le jeu."}}, "it": {"stringUnit":{"state":"translated","value":"Questo nome del profilo non si può usare nel gioco."}}, "de": {"stringUnit":{"state":"translated","value":"Dieser Profilname kann im Spiel nicht verwendet werden."}}, "es": {"stringUnit":{"state":"translated","value":"Este nombre de perfil no se puede usar en el juego."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este nome de perfil não pode ser usado no jogo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法在游戏中使用此个人资料名称。"}}
+      "en": {"stringUnit":{"state":"translated","value":"This profile name cannot be used in the game. Choose another name in your profile."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce nom de profil ne peut pas être utilisé dans le jeu. Choisis un autre nom dans ton profil."}}, "it": {"stringUnit":{"state":"translated","value":"Questo nome del profilo non si può usare nel gioco. Scegli un altro nome nel tuo profilo."}}, "de": {"stringUnit":{"state":"translated","value":"Dieser Profilname kann im Spiel nicht verwendet werden. Wähle einen anderen Namen in deinem Profil."}}, "es": {"stringUnit":{"state":"translated","value":"Este nombre de perfil no se puede usar en el juego. Elige otro nombre en tu perfil."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este nome de perfil não pode ser usado no jogo. Escolha outro nome no seu perfil."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法在游戏中使用此个人资料名称。请在个人资料中选择其他名称。"}}
     }},
     "There’s not enough space for the copy. Free some space, then try again.": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"There’s not enough space for the copy. Free some space, then try again."}},"fr":{"stringUnit":{"state":"translated","value":"Il n’y a pas assez de place pour la copie. Libère de l’espace, puis réessaie."}},"it":{"stringUnit":{"state":"translated","value":"Non c’è abbastanza spazio per la copia. Libera spazio e riprova."}},"de":{"stringUnit":{"state":"translated","value":"Für die Kopie ist nicht genug Platz vorhanden. Gib Speicherplatz frei und versuche es erneut."}},"es":{"stringUnit":{"state":"translated","value":"No hay espacio para la copia. Libera espacio y vuelve a intentarlo."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Não há espaço para a cópia. Libere espaço e tente novamente."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"空间不足，无法创建副本。请释放一些存储空间后重试。"}}
@@ -4473,13 +4523,13 @@
       "en": {"stringUnit":{"state":"translated","value":"A sound is too loud, too long or not a supported WAV. Use 24 kHz, 16-bit mono PCM."}}, "fr": {"stringUnit":{"state":"translated","value":"Un son est trop fort, trop long ou incompatible. Utilise du WAV PCM mono 16 bits à 24 kHz."}}, "it": {"stringUnit":{"state":"translated","value":"Un suono è troppo forte, lungo o incompatibile. Usa WAV PCM mono a 24 kHz e 16 bit."}}, "de": {"stringUnit":{"state":"translated","value":"Ein Klang ist zu laut, zu lang oder inkompatibel. Verwende WAV PCM, Mono, 24 kHz, 16 Bit."}}, "es": {"stringUnit":{"state":"translated","value":"Un sonido es demasiado fuerte, largo o incompatible. Usa WAV PCM mono de 24 kHz y 16 bits."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Um som é muito alto, longo ou incompatível. Use WAV PCM mono de 24 kHz e 16 bits."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"有声音过响、过长或不受支持。请使用 24 kHz、16 位单声道 PCM WAV。"}}
     }},
     "This sound pack ZIP is invalid or uses an unsupported ZIP option.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"This sound pack ZIP is invalid or uses an unsupported ZIP option."}}, "fr": {"stringUnit":{"state":"translated","value":"Le ZIP est invalide ou utilise une option non prise en charge."}}, "it": {"stringUnit":{"state":"translated","value":"Lo ZIP non è valido o usa un’opzione non supportata."}}, "de": {"stringUnit":{"state":"translated","value":"Die ZIP-Datei ist ungültig oder nutzt eine nicht unterstützte Option."}}, "es": {"stringUnit":{"state":"translated","value":"El ZIP no es válido o usa una opción incompatible."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O ZIP é inválido ou usa uma opção incompatível."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"ZIP 文件无效或包含不受支持的选项。"}}
+      "en": {"stringUnit":{"state":"translated","value":"This sound pack ZIP is invalid or uses an unsupported ZIP option. Choose another ZIP, or make it again with its sounds at the top level."}}, "fr": {"stringUnit":{"state":"translated","value":"Le ZIP est invalide ou utilise une option non prise en charge. Choisis un autre ZIP, ou refais-le avec les sons au premier niveau."}}, "it": {"stringUnit":{"state":"translated","value":"Lo ZIP non è valido o usa un’opzione non supportata. Scegli un altro ZIP o ricrealo con i suoni al primo livello."}}, "de": {"stringUnit":{"state":"translated","value":"Die ZIP-Datei ist ungültig oder nutzt eine nicht unterstützte Option. Wähle ein anderes ZIP oder erstelle es neu mit den Tönen auf oberster Ebene."}}, "es": {"stringUnit":{"state":"translated","value":"El ZIP no es válido o usa una opción incompatible. Elige otro ZIP o vuelve a crearlo con los sonidos en el primer nivel."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O ZIP é inválido ou usa uma opção incompatível. Escolha outro ZIP ou refaça-o com os sons no primeiro nível."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"ZIP 文件无效或包含不受支持的选项。请选择其他 ZIP，或将声音放在顶层后重新制作。"}}
     }},
     "This sound pack is too large. Use up to 40 files and 4 MB.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"This sound pack is too large. Use up to 40 files and 4 MB."}}, "fr": {"stringUnit":{"state":"translated","value":"Le pack est trop volumineux. Limites : 40 fichiers et 4 Mio."}}, "it": {"stringUnit":{"state":"translated","value":"Il pacchetto è troppo grande. Limiti: 40 file e 4 MiB."}}, "de": {"stringUnit":{"state":"translated","value":"Das Paket ist zu groß. Maximal 40 Dateien und 4 MiB."}}, "es": {"stringUnit":{"state":"translated","value":"El paquete es demasiado grande. Máximo: 40 archivos y 4 MiB."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O pacote é grande demais. Limites: 40 arquivos e 4 MiB."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包过大。最多 40 个文件，总大小不超过 4 MiB。"}}
     }},
     "This sound pack is unavailable.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"This sound pack is unavailable."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce pack est indisponible."}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto non disponibile."}}, "de": {"stringUnit":{"state":"translated","value":"Dieses Soundpaket ist nicht verfügbar."}}, "es": {"stringUnit":{"state":"translated","value":"El paquete no está disponible."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O pacote não está disponível."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此声音包不可用。"}}
+      "en": {"stringUnit":{"state":"translated","value":"This sound pack is unavailable. Choose another sound pack, or import it again."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce pack est indisponible. Choisis un autre pack de sons, ou importe-le à nouveau."}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto non disponibile. Scegli un altro pack audio o importalo di nuovo."}}, "de": {"stringUnit":{"state":"translated","value":"Dieses Soundpaket ist nicht verfügbar. Wähle ein anderes Soundpaket oder importiere es erneut."}}, "es": {"stringUnit":{"state":"translated","value":"El paquete no está disponible. Elige otro paquete de sonidos o impórtalo de nuevo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O pacote não está disponível. Escolha outro pacote de sons ou importe-o de novo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此声音包不可用。请选择其他声音包，或重新导入。"}}
     }},
     "A sound pack with this ID is already installed. Remove the old copy before importing another.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"A sound pack with this ID is already installed. Remove the old copy before importing another."}}, "fr": {"stringUnit":{"state":"translated","value":"Un pack porte déjà cet identifiant. Retire sa copie avant d’en importer une autre."}}, "it": {"stringUnit":{"state":"translated","value":"Esiste già un pacchetto con questo ID. Rimuovi la vecchia copia prima di importarne un’altra."}}, "de": {"stringUnit":{"state":"translated","value":"Diese ID ist bereits installiert. Entferne die Kopie vor dem erneuten Import."}}, "es": {"stringUnit":{"state":"translated","value":"Ya existe un paquete con este ID. Quita la copia anterior antes de importar otra."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Já existe um pacote com este ID. Remova a cópia anterior antes de importar outra."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"相同 ID 的声音包已存在。请移除旧副本再导入。"}}
@@ -5128,7 +5178,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Could not open the Mac app"}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile aprire l’app Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible d’ouvrir l’app Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-App konnte nicht geöffnet werden"}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo abrir la app de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível abrir o app do Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法打开 Mac 应用"}}
     }},
     "macOS did not accept the request. The app was not changed.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"macOS did not accept the request. The app was not changed."}}, "it": {"stringUnit":{"state":"translated","value":"macOS non ha accettato la richiesta. L’app non è stata modificata."}}, "fr": {"stringUnit":{"state":"translated","value":"macOS n’a pas accepté la demande. L’app n’a pas été modifiée."}}, "de": {"stringUnit":{"state":"translated","value":"macOS hat die Anfrage abgelehnt. Die App wurde nicht geändert."}}, "es": {"stringUnit":{"state":"translated","value":"macOS no aceptó la solicitud. La app no se ha modificado."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O macOS não aceitou a solicitação. O app não foi alterado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"macOS 未接受请求。应用未被修改。"}}
+      "en": {"stringUnit":{"state":"translated","value":"macOS did not accept the request. The app was not changed. Open the app once from the Finder, then try again."}}, "it": {"stringUnit":{"state":"translated","value":"macOS non ha accettato la richiesta. L’app non è stata modificata. Apri una volta l’app dal Finder, poi riprova."}}, "fr": {"stringUnit":{"state":"translated","value":"macOS n’a pas accepté la demande. L’app n’a pas été modifiée. Ouvre l’app une fois depuis le Finder, puis réessaie."}}, "de": {"stringUnit":{"state":"translated","value":"macOS hat die Anfrage abgelehnt. Die App wurde nicht geändert. Öffne die App einmal im Finder und versuche es erneut."}}, "es": {"stringUnit":{"state":"translated","value":"macOS no aceptó la solicitud. La app no se ha modificado. Abre la app una vez desde el Finder e inténtalo de nuevo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O macOS não aceitou a solicitação. O app não foi alterado. Abra o app uma vez pelo Finder e tente de novo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"macOS 未接受请求。应用未被修改。请先从访达打开该应用一次，然后重试。"}}
     }},
     "Tile options": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Tile options"}}, "it": {"stringUnit":{"state":"translated","value":"Opzioni della tessera"}}, "fr": {"stringUnit":{"state":"translated","value":"Options de la tuile"}}, "de": {"stringUnit":{"state":"translated","value":"Kacheloptionen"}}, "es": {"stringUnit":{"state":"translated","value":"Opciones de la ficha"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Opções do bloco"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"磁贴选项"}}
@@ -5368,19 +5418,19 @@
       "zh-Hans": {"stringUnit":{"state":"translated","value":"无法检查云端游戏库。请在设置中检查连接。"}}
     }},
     "No cloud games to download.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No cloud games to download."}},
-      "it": {"stringUnit":{"state":"translated","value":"Nessun gioco da scaricare dal cloud."}},
-      "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu à télécharger dans le cloud."}},
-      "de": {"stringUnit":{"state":"translated","value":"Keine Cloud-Spiele zum Herunterladen."}},
-      "es": {"stringUnit":{"state":"translated","value":"No hay juegos que descargar de la nube."}},
-      "pt-BR": {"stringUnit":{"state":"translated","value":"Não há jogos para baixar da nuvem."}},
-      "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可下载的云端游戏。"}}
+      "en": {"stringUnit":{"state":"translated","value":"No cloud games to download. Send one with Cloud on a game’s Details page."}},
+      "it": {"stringUnit":{"state":"translated","value":"Nessun gioco da scaricare dal cloud. Inviane uno con Cloud dai Dettagli di un gioco."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu à télécharger dans le cloud. Envoies-en un avec Cloud dans les Détails d’un jeu."}},
+      "de": {"stringUnit":{"state":"translated","value":"Keine Cloud-Spiele zum Herunterladen. Sende eines mit Cloud in den Details eines Spiels."}},
+      "es": {"stringUnit":{"state":"translated","value":"No hay juegos que descargar de la nube. Envía uno con Nube en los Detalles de un juego."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Não há jogos para baixar da nuvem. Envie um com Nuvem nos Detalhes de um jogo."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可下载的云端游戏。在游戏“详细信息”中用“云端”发送。"}}
     }},
     "No games in this view.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No games in this view."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun gioco in questa vista."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu dans cette vue."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Spiele in dieser Ansicht."}}, "es": {"stringUnit":{"state":"translated","value":"No hay juegos en esta vista."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum jogo nesta visualização."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此视图中没有游戏。"}}
+      "en": {"stringUnit":{"state":"translated","value":"No games in this view. Play or add a game and it shows up here."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun gioco in questa vista. Gioca o aggiungi un gioco e comparirà qui."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu dans cette vue. Joue ou ajoute un jeu et il s’affiche ici."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Spiele in dieser Ansicht. Spiele oder füge ein Spiel hinzu, dann erscheint es hier."}}, "es": {"stringUnit":{"state":"translated","value":"No hay juegos en esta vista. Juega o añade un juego y aparecerá aquí."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum jogo nesta visualização. Jogue ou adicione um jogo e ele aparece aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此视图中没有游戏。玩游戏或添加游戏后会显示在此处。"}}
     }},
     "No local achievements available.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No local achievements available."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun obiettivo locale disponibile."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun succès local disponible."}}, "de": {"stringUnit":{"state":"translated","value":"Keine lokalen Erfolge verfügbar."}}, "es": {"stringUnit":{"state":"translated","value":"No hay logros locales disponibles."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhuma conquista local disponível."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可用的本地成就。"}}
+      "en": {"stringUnit":{"state":"translated","value":"No local achievements available. Play a game that has some to see them here."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun obiettivo locale disponibile. Gioca a un titolo che ne ha per vederli qui."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun succès local disponible. Joue à un jeu qui en a pour les voir ici."}}, "de": {"stringUnit":{"state":"translated","value":"Keine lokalen Erfolge verfügbar. Spiele ein Spiel mit Erfolgen, um sie hier zu sehen."}}, "es": {"stringUnit":{"state":"translated","value":"No hay logros locales disponibles. Juega a un juego que los tenga para verlos aquí."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhuma conquista local disponível. Jogue um jogo que tenha conquistas para vê-las aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可用的本地成就。玩带有成就的游戏后会显示在此处。"}}
     }},
     "Overall progress": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Overall progress"}}, "it": {"stringUnit":{"state":"translated","value":"Progresso totale"}}, "fr": {"stringUnit":{"state":"translated","value":"Progression globale"}}, "de": {"stringUnit":{"state":"translated","value":"Gesamtfortschritt"}}, "es": {"stringUnit":{"state":"translated","value":"Progreso global"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Progresso geral"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"总体进度"}}
@@ -5389,7 +5439,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Playing"}}, "it": {"stringUnit":{"state":"translated","value":"In gioco"}}, "fr": {"stringUnit":{"state":"translated","value":"En jeu"}}, "de": {"stringUnit":{"state":"translated","value":"Spielt gerade"}}, "es": {"stringUnit":{"state":"translated","value":"Jugando"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Jogando"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏中"}}
     }},
     "Friends list unavailable.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Friends list unavailable."}}, "it": {"stringUnit":{"state":"translated","value":"Elenco amici non disponibile."}}, "fr": {"stringUnit":{"state":"translated","value":"Liste d’amis indisponible."}}, "de": {"stringUnit":{"state":"translated","value":"Freundesliste nicht verfügbar."}}, "es": {"stringUnit":{"state":"translated","value":"Lista de amigos no disponible."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Lista de amigos indisponível."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"好友列表不可用。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Friends list unavailable. Try again in a moment."}}, "it": {"stringUnit":{"state":"translated","value":"Elenco amici non disponibile. Riprova tra poco."}}, "fr": {"stringUnit":{"state":"translated","value":"Liste d’amis indisponible. Réessaie dans un instant."}}, "de": {"stringUnit":{"state":"translated","value":"Freundesliste nicht verfügbar. Versuche es gleich noch einmal."}}, "es": {"stringUnit":{"state":"translated","value":"Lista de amigos no disponible. Inténtalo de nuevo en un momento."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Lista de amigos indisponível. Tente de novo em instantes."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"好友列表不可用。请稍后重试。"}}
     }},
     "My profile": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"My profile"}}, "it": {"stringUnit":{"state":"translated","value":"Il mio profilo"}}, "fr": {"stringUnit":{"state":"translated","value":"Mon profil"}}, "de": {"stringUnit":{"state":"translated","value":"Mein Profil"}}, "es": {"stringUnit":{"state":"translated","value":"Mi perfil"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Meu perfil"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"我的个人资料"}}
@@ -9240,13 +9290,13 @@
     },
     "Arcane could not encrypt the rclone configuration with the login keychain.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Arcane could not encrypt the rclone configuration with the login keychain."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Arcane non ha potuto cifrare la configurazione di rclone con il portachiavi di login."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Arcane n’a pas pu chiffrer la configuration rclone à l’aide du trousseau de session."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Arcane konnte die rclone-Konfiguration nicht mit dem Anmeldeschlüsselbund verschlüsseln."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Arcane no pudo cifrar la configuración de rclone con el llavero de inicio de sesión."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Arcane não conseguiu criptografar a configuração do rclone usando as Chaves de início de sessão."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Arcane 无法使用登录钥匙串加密 rclone 配置。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Arcane could not encrypt the rclone configuration with the login keychain. Unlock the login keychain in Keychain Access, then try again."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Arcane non ha potuto cifrare la configurazione di rclone con il portachiavi di login. Sblocca il portachiavi login in Accesso Portachiavi, poi riprova."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Arcane n’a pas pu chiffrer la configuration rclone à l’aide du trousseau de session. Déverrouille le trousseau session dans Trousseaux d’accès, puis réessaie."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Arcane konnte die rclone-Konfiguration nicht mit dem Anmeldeschlüsselbund verschlüsseln. Entsperre den Anmeldeschlüsselbund in der Schlüsselbundverwaltung und versuche es erneut."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Arcane no pudo cifrar la configuración de rclone con el llavero de inicio de sesión. Desbloquea el llavero de inicio de sesión en Acceso a Llaveros e inténtalo de nuevo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Arcane não conseguiu criptografar a configuração do rclone usando as Chaves de início de sessão. Desbloqueie as chaves de login no Acesso às Chaves e tente de novo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Arcane 无法使用登录钥匙串加密 rclone 配置。在“钥匙串访问”中解锁登录钥匙串，然后重试。"}}
       }
     },
     "Google Drive could not be connected. Check your credentials and try again.": {
@@ -9273,13 +9323,13 @@
     },
     "Arcane could not remove the local rclone connection.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Arcane could not remove the local rclone connection."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Arcane non ha potuto rimuovere la connessione locale di rclone."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Arcane n’a pas pu supprimer la connexion rclone sur ce Mac."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Arcane konnte die lokale rclone-Verbindung nicht entfernen."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Arcane no pudo eliminar la conexión local de rclone."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Arcane não conseguiu remover a conexão local do rclone."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Arcane 无法移除本机的 rclone 连接。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Arcane could not remove the local rclone connection. Close other apps that use rclone, then try again."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Arcane non ha potuto rimuovere la connessione locale di rclone. Chiudi le altre app che usano rclone, poi riprova."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Arcane n’a pas pu supprimer la connexion rclone sur ce Mac. Ferme les autres apps qui utilisent rclone, puis réessaie."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Arcane konnte die lokale rclone-Verbindung nicht entfernen. Schließe andere Apps, die rclone verwenden, und versuche es erneut."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Arcane no pudo eliminar la conexión local de rclone. Cierra las demás apps que usan rclone e inténtalo de nuevo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Arcane não conseguiu remover a conexão local do rclone. Feche os outros apps que usam o rclone e tente de novo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Arcane 无法移除本机的 rclone 连接。请关闭其他使用 rclone 的应用，然后重试。"}}
       }
     },
     "The cloud library is turned off.": {
@@ -9306,13 +9356,13 @@
     },
     "This game has no valid title ID.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "This game has no valid title ID."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Questo gioco non ha un ID titolo valido."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ce jeu n’a pas d’identifiant de titre valide."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Dieses Spiel hat keine gültige Titel-ID."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Este juego no tiene un ID de título válido."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Este jogo não tem um ID de título válido."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此游戏没有有效的标题 ID。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "This game has no valid title ID. Build the game again, or attach its sources in Options."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Questo gioco non ha un ID titolo valido. Compila di nuovo il gioco o collega i sorgenti nelle Opzioni."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ce jeu n’a pas d’identifiant de titre valide. Recompile le jeu, ou rattache ses fichiers dans Options."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dieses Spiel hat keine gültige Titel-ID. Kompiliere das Spiel neu oder füge seine Dateien in den Optionen hinzu."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Este juego no tiene un ID de título válido. Compila el juego de nuevo o adjunta sus archivos en Opciones."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Este jogo não tem um ID de título válido. Compile o jogo de novo ou anexe os arquivos em Opções."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此游戏没有有效的标题 ID。请重新编译游戏，或在“选项”中附加其文件。"}}
       }
     },
     "Open settings": {
@@ -10013,13 +10063,13 @@
     },
     "A local folder is missing, unavailable or shared with another game.": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Ein lokaler Ordner fehlt, ist nicht verfügbar oder gehört auch zu einem anderen Spiel."}},
-        "en": {"stringUnit": {"state": "translated", "value": "A local folder is missing, unavailable or shared with another game."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Una carpeta local falta, no está disponible o se comparte con otro juego."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Un dossier local est absent, inaccessible ou partagé avec un autre jeu."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Una cartella locale manca, non è disponibile o è condivisa con un altro gioco."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Uma pasta local está ausente, indisponível ou é compartilhada com outro jogo."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "本机文件夹缺失、不可用，或由其他游戏共用。"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Ein lokaler Ordner fehlt, ist nicht verfügbar oder gehört auch zu einem anderen Spiel. Öffne den Finder, prüfe, ob der Ordner existiert und dir gehört, und versuche es erneut."}},
+        "en": {"stringUnit": {"state": "translated", "value": "A local folder is missing, unavailable or shared with another game. Open Finder, check that this folder exists and is yours, then try again."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Una carpeta local falta, no está disponible o se comparte con otro juego. Abre el Finder, comprueba que la carpeta existe y es tuya, e inténtalo de nuevo."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Un dossier local est absent, inaccessible ou partagé avec un autre jeu. Ouvre le Finder, vérifie que ce dossier existe et est à toi, puis réessaie."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Una cartella locale manca, non è disponibile o è condivisa con un altro gioco. Apri il Finder, controlla che la cartella esista e sia tua, poi riprova."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Uma pasta local está ausente, indisponível ou é compartilhada com outro jogo. Abra o Finder, confira se a pasta existe e é sua, e tente de novo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "本机文件夹缺失、不可用，或由其他游戏共用。打开访达，确认该文件夹存在且归你所有，然后重试。"}}
       }
     },
     "The cloud copy could not be verified.": {
@@ -10035,13 +10085,13 @@
     },
     "The cloud operation could not be completed.": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Der Cloud-Vorgang konnte nicht abgeschlossen werden."}},
-        "en": {"stringUnit": {"state": "translated", "value": "The cloud operation could not be completed."}},
-        "es": {"stringUnit": {"state": "translated", "value": "No se pudo completar la operación en la nube."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "L’opération cloud n’a pas pu aboutir."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Impossibile completare l’operazione cloud."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível concluir a operação na nuvem."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法完成云端操作。"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Der Cloud-Vorgang konnte nicht abgeschlossen werden. Versuche es gleich noch einmal."}},
+        "en": {"stringUnit": {"state": "translated", "value": "The cloud operation could not be completed. Try again in a moment."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo completar la operación en la nube. Inténtalo de nuevo en un momento."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "L’opération cloud n’a pas pu aboutir. Réessaie dans un instant."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile completare l’operazione cloud. Riprova tra poco."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível concluir a operação na nuvem. Tente de novo em instantes."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法完成云端操作。请稍后重试。"}}
       }
     },
     "Accept": {
@@ -10156,13 +10206,13 @@
     },
     "Friend requests unavailable": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Freundschaftsanfragen nicht verfügbar"}},
-        "en": {"stringUnit": {"state": "translated", "value": "Friend requests unavailable"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Solicitudes de amistad no disponibles"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Demandes d’ami indisponibles"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Richieste di amicizia non disponibili"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Solicitações de amizade indisponíveis"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法获取好友请求"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Freundschaftsanfragen nicht verfügbar. Versuche es gleich noch einmal."}},
+        "en": {"stringUnit": {"state": "translated", "value": "Friend requests unavailable. Try again in a moment."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Solicitudes de amistad no disponibles. Inténtalo de nuevo en un momento."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Demandes d’ami indisponibles. Réessaie dans un instant."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Richieste di amicizia non disponibili. Riprova tra poco."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Solicitações de amizade indisponíveis. Tente de novo em instantes."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法获取好友请求。请稍后重试。"}}
       }
     },
     "No player has that friend code.": {
@@ -10178,13 +10228,13 @@
     },
     "No recent players.": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Keine kürzlichen Mitspieler."}},
-        "en": {"stringUnit": {"state": "translated", "value": "No recent players."}},
-        "es": {"stringUnit": {"state": "translated", "value": "No has jugado con nadie recientemente."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Aucun joueur croisé récemment."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Nessun giocatore incontrato di recente."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogador encontrado recentemente."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最近没有一起游玩过的玩家。"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Keine kürzlichen Mitspieler. Spiele online, dann erscheinen sie hier."}},
+        "en": {"stringUnit": {"state": "translated", "value": "No recent players. Play online and they show up here."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No has jugado con nadie recientemente. Juega en línea y aparecerán aquí."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun joueur croisé récemment. Joue en ligne et ils s’affichent ici."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun giocatore incontrato di recente. Gioca online e compariranno qui."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogador encontrado recentemente. Jogue online e eles aparecem aqui."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最近没有一起游玩过的玩家。联机游戏后会显示在此处。"}}
       }
     },
     "One of the friend lists is full.": {
@@ -10211,13 +10261,13 @@
     },
     "Recent players unavailable": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Letzte Mitspieler nicht verfügbar"}},
-        "en": {"stringUnit": {"state": "translated", "value": "Recent players unavailable"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Jugadores recientes no disponibles"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Joueurs récents indisponibles"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Giocatori recenti non disponibili"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Jogadores recentes indisponíveis"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法获取最近一起游玩的玩家"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Letzte Mitspieler nicht verfügbar. Versuche es gleich noch einmal."}},
+        "en": {"stringUnit": {"state": "translated", "value": "Recent players unavailable. Try again in a moment."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Jugadores recientes no disponibles. Inténtalo de nuevo en un momento."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Joueurs récents indisponibles. Réessaie dans un instant."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Giocatori recenti non disponibili. Riprova tra poco."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Jogadores recentes indisponíveis. Tente de novo em instantes."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法获取最近一起游玩的玩家。请稍后重试。"}}
       }
     },
     "Recently played with": {
@@ -10348,13 +10398,13 @@
     "Code mods can't build in a path containing a comma, colon or line break.": {
       "comment": "BuildService.swift",
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Code-Mods lassen sich nicht in einem Pfad mit Komma, Doppelpunkt oder Zeilenumbruch bauen."}},
-        "en": {"stringUnit": {"state": "translated", "value": "Code mods can't build in a path containing a comma, colon or line break."}},
-        "es": {"stringUnit": {"state": "translated", "value": "No se pueden compilar mods de código en una ruta con comas, dos puntos o saltos de línea."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Impossible de compiler des mods de code dans un chemin contenant une virgule, deux-points ou un saut de ligne."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Non puoi compilare le mod di codice in un percorso con virgole, due punti o ritorni a capo."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não é possível compilar mods de código em um caminho com vírgula, dois-pontos ou quebra de linha."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "路径中包含逗号、冒号或换行符时，无法构建代码模组。"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Code-Mods lassen sich nicht in einem Pfad mit Komma, Doppelpunkt oder Zeilenumbruch bauen. Verschiebe den Ordner oder benenne ihn ohne diese Zeichen um."}},
+        "en": {"stringUnit": {"state": "translated", "value": "Code mods can't build in a path containing a comma, colon or line break. Move the folder or rename it without these characters."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pueden compilar mods de código en una ruta con comas, dos puntos o saltos de línea. Mueve la carpeta o cámbiale el nombre sin esos caracteres."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible de compiler des mods de code dans un chemin contenant une virgule, deux-points ou un saut de ligne. Déplace le dossier ou renomme-le sans ces caractères."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Non puoi compilare le mod di codice in un percorso con virgole, due punti o ritorni a capo. Sposta la cartella o rinominala senza questi caratteri."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não é possível compilar mods de código em um caminho com vírgula, dois-pontos ou quebra de linha. Mova a pasta ou renomeie sem esses caracteres."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "路径中包含逗号、冒号或换行符时，无法构建代码模组。请移动文件夹，或重命名去掉这些字符。"}}
       }
     },
     "File and code mods both use the folder name %@. Rename one folder.": {
@@ -31105,43 +31155,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not load the library entry for %@."
+            "value": "Could not load the library entry for %@. Refresh the library, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile caricare la voce di %@ nella libreria."
+            "value": "Impossibile caricare la voce di %@ nella libreria. Aggiorna la libreria, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de charger l’entrée de %@ dans la bibliothèque."
+            "value": "Impossible de charger l’entrée de %@ dans la bibliothèque. Actualise la bibliothèque, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Bibliothekseintrag für %@ konnte nicht geladen werden."
+            "value": "Der Bibliothekseintrag für %@ konnte nicht geladen werden. Aktualisiere die Bibliothek und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se pudo cargar la entrada de %@ en la biblioteca."
+            "value": "No se pudo cargar la entrada de %@ en la biblioteca. Actualiza la biblioteca e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível carregar a entrada de %@ na biblioteca."
+            "value": "Não foi possível carregar a entrada de %@ na biblioteca. Atualize a biblioteca e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法载入 %@ 的游戏库条目。"
+            "value": "无法载入 %@ 的游戏库条目。请刷新资料库，然后重试。"
           }
         }
       }
@@ -31152,43 +31202,43 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Nextendo-Anmeldefenster konnte nicht geöffnet werden."
+            "value": "Das Nextendo-Anmeldefenster konnte nicht geöffnet werden. Versuche es erneut oder melde dich zuerst auf der Nextendo-Website an."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not open the Nextendo sign-in window."
+            "value": "Could not open the Nextendo sign-in window. Try again, or sign in from the Nextendo website first."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se pudo abrir la ventana de inicio de sesión de Nextendo."
+            "value": "No se pudo abrir la ventana de inicio de sesión de Nextendo. Inténtalo de nuevo o inicia sesión antes en la web de Nextendo."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d’ouvrir la fenêtre de connexion à Nextendo."
+            "value": "Impossible d’ouvrir la fenêtre de connexion à Nextendo. Réessaie, ou connecte-toi d’abord sur le site Nextendo."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile aprire la finestra di accesso a Nextendo."
+            "value": "Impossibile aprire la finestra di accesso a Nextendo. Riprova o accedi prima dal sito Nextendo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível abrir a janela de entrada do Nextendo."
+            "value": "Não foi possível abrir a janela de entrada do Nextendo. Tente de novo ou entre antes pelo site do Nextendo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法打开 Nextendo 登录窗口。"
+            "value": "无法打开 Nextendo 登录窗口。请重试，或先在 Nextendo 网站登录。"
           }
         }
       }
@@ -31481,43 +31531,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not use %@ for cloud saves."
+            "value": "Could not use %@ for cloud saves. Open Finder, check that this folder exists and is yours, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile usare %@ per i salvataggi cloud."
+            "value": "Impossibile usare %@ per i salvataggi cloud. Apri il Finder, controlla che la cartella esista e sia tua, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d’utiliser %@ pour les sauvegardes dans le cloud."
+            "value": "Impossible d’utiliser %@ pour les sauvegardes dans le cloud. Ouvre le Finder, vérifie que ce dossier existe et est à toi, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ konnte nicht für Cloud-Spielstände verwendet werden."
+            "value": "%@ konnte nicht für Cloud-Spielstände verwendet werden. Öffne den Finder, prüfe, ob der Ordner existiert und dir gehört, und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido usar %@ para las partidas en la nube."
+            "value": "No se ha podido usar %@ para las partidas en la nube. Abre el Finder, comprueba que la carpeta existe y es tuya, e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível usar %@ para os dados salvos na nuvem."
+            "value": "Não foi possível usar %@ para os dados salvos na nuvem. Abra o Finder, confira se a pasta existe e é sua, e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法将 %@ 用于云存档。"
+            "value": "无法将 %@ 用于云存档。打开访达，确认该文件夹存在且归你所有，然后重试。"
           }
         }
       }
@@ -39604,43 +39654,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Game apps volume unavailable."
+            "value": "Game apps volume unavailable. Connect its drive or choose another folder in Settings → Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volume di App dei giochi non disponibile."
+            "value": "Volume di App dei giochi non disponibile. Collega il disco o scegli un’altra cartella in Impostazioni → Switch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volume des apps de jeux indisponible."
+            "value": "Volume des apps de jeux indisponible. Branche son disque ou choisis un autre dossier dans Réglages → Switch."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volume für Spiele-Apps nicht verfügbar."
+            "value": "Volume für Spiele-Apps nicht verfügbar. Schließe das Laufwerk an oder wähle einen anderen Ordner in Einstellungen → Switch."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El volumen de Apps de juegos no está disponible."
+            "value": "El volumen de Apps de juegos no está disponible. Conecta su disco o elige otra carpeta en Ajustes → Switch."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volume de Apps de jogos indisponível."
+            "value": "Volume de Apps de jogos indisponível. Conecte o disco ou escolha outra pasta em Ajustes → Switch."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "游戏 App 所在宗卷不可用。"
+            "value": "游戏 App 所在宗卷不可用。请连接其磁盘，或在“设置 → Switch”中选择其他文件夹。"
           }
         }
       }
@@ -53046,43 +53096,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane could not restart: %@"
+            "value": "Arcane could not restart: %@ Quit Oort NX, then open it again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane non ha potuto riavviarsi: %@"
+            "value": "Arcane non ha potuto riavviarsi: %@ Esci da Oort NX e riaprilo."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane n’a pas pu redémarrer : %@"
+            "value": "Arcane n’a pas pu redémarrer : %@ Quitte Oort NX, puis rouvre-le."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane konnte nicht neu gestartet werden: %@"
+            "value": "Arcane konnte nicht neu gestartet werden: %@ Beende Oort NX und öffne es wieder."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane no ha podido reiniciarse: %@"
+            "value": "Arcane no ha podido reiniciarse: %@ Sal de Oort NX y vuelve a abrirlo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível reiniciar o Arcane: %@"
+            "value": "Não foi possível reiniciar o Arcane: %@ Saia do Oort NX e abra de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane 无法重新启动：%@"
+            "value": "Arcane 无法重新启动：%@请退出 Oort NX 后重新打开。"
           }
         }
       }
@@ -55014,43 +55064,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nintendo Store returned a response this app could not read."
+            "value": "Nintendo Store returned a response this app could not read. Try again in a moment."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il Nintendo Store ha restituito una risposta non leggibile da questa app."
+            "value": "Il Nintendo Store ha restituito una risposta non leggibile da questa app. Riprova tra poco."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le Nintendo Store a renvoyé une réponse illisible par cette app."
+            "value": "Le Nintendo Store a renvoyé une réponse illisible par cette app. Réessaie dans un instant."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nintendo Store hat eine Antwort zurückgegeben, die diese App nicht lesen konnte."
+            "value": "Nintendo Store hat eine Antwort zurückgegeben, die diese App nicht lesen konnte. Versuche es gleich noch einmal."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nintendo Store ha devuelto una respuesta que esta app no ha podido leer."
+            "value": "Nintendo Store ha devuelto una respuesta que esta app no ha podido leer. Inténtalo de nuevo en un momento."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A Nintendo Store retornou uma resposta que este app não conseguiu ler."
+            "value": "A Nintendo Store retornou uma resposta que este app não conseguiu ler. Tente de novo em instantes."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nintendo 商店返回了此 App 无法读取的响应。"
+            "value": "Nintendo 商店返回了此 App 无法读取的响应。请稍后重试。"
           }
         }
       }
@@ -55343,43 +55393,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No achievements here yet."
+            "value": "No achievements here yet. Choose another filter, or play to unlock some."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ancora nessun obiettivo qui."
+            "value": "Ancora nessun obiettivo qui. Scegli un altro filtro o gioca per sbloccarne."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun succès ici pour l’instant."
+            "value": "Aucun succès ici pour l’instant. Choisis un autre filtre, ou joue pour en débloquer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hier noch keine Erfolge."
+            "value": "Hier noch keine Erfolge. Wähle einen anderen Filter oder spiele, um welche freizuschalten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay logros aquí."
+            "value": "Aún no hay logros aquí. Elige otro filtro o juega para desbloquearlos."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma conquista aqui ainda."
+            "value": "Nenhuma conquista aqui ainda. Escolha outro filtro ou jogue para desbloquear."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这里还没有成就。"
+            "value": "这里还没有成就。请选择其他筛选，或开始游戏来解锁。"
           }
         }
       }
@@ -55946,43 +55996,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No games match."
+            "value": "No games match. Try a shorter name."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun gioco corrispondente."
+            "value": "Nessun gioco corrispondente. Prova un nome più corto."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun jeu correspondant."
+            "value": "Aucun jeu correspondant. Essaie un nom plus court."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Spiele."
+            "value": "Keine passenden Spiele. Versuche einen kürzeren Namen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ningún juego coincide."
+            "value": "Ningún juego coincide. Prueba con un nombre más corto."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhum jogo corresponde à busca."
+            "value": "Nenhum jogo corresponde à busca. Tente um nome mais curto."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的游戏。"
+            "value": "没有匹配的游戏。请尝试更短的名称。"
           }
         }
       }
@@ -56228,43 +56278,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No lines match"
+            "value": "No lines match. Change the search or the filter."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna riga corrispondente"
+            "value": "Nessuna riga corrispondente. Cambia la ricerca o il filtro."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune ligne correspondante"
+            "value": "Aucune ligne correspondante. Change la recherche ou le filtre."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Zeilen"
+            "value": "Keine passenden Zeilen. Ändere die Suche oder den Filter."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ninguna línea coincide"
+            "value": "Ninguna línea coincide. Cambia la búsqueda o el filtro."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma linha corresponde"
+            "value": "Nenhuma linha corresponde. Mude a busca ou o filtro."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的行"
+            "value": "没有匹配的行。请更改搜索或筛选。"
           }
         }
       }
@@ -56416,43 +56466,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No matching regions."
+            "value": "No matching regions. Try a shorter name."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna zona corrispondente."
+            "value": "Nessuna zona corrispondente. Prova un nome più corto."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune région correspondante."
+            "value": "Aucune région correspondante. Essaie un nom plus court."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Regionen."
+            "value": "Keine passenden Regionen. Versuche einen kürzeren Namen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ninguna región coincide."
+            "value": "Ninguna región coincide. Prueba con un nombre más corto."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma região corresponde à busca."
+            "value": "Nenhuma região corresponde à busca. Tente um nome mais curto."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的地区。"
+            "value": "没有匹配的地区。请尝试更短的名称。"
           }
         }
       }
@@ -56792,43 +56842,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No settings match."
+            "value": "No settings match. Try another word."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna impostazione corrispondente."
+            "value": "Nessuna impostazione corrispondente. Prova un’altra parola."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun réglage correspondant."
+            "value": "Aucun réglage correspondant. Essaie un autre mot."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Einstellungen."
+            "value": "Keine passenden Einstellungen. Versuche ein anderes Wort."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ningún ajuste coincide."
+            "value": "Ningún ajuste coincide. Prueba con otra palabra."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhum ajuste corresponde à busca."
+            "value": "Nenhum ajuste corresponde à busca. Tente outra palavra."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的设置。"
+            "value": "没有匹配的设置。请尝试其他词语。"
           }
         }
       }
@@ -57967,43 +58017,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing changed yet."
+            "value": "Nothing changed yet. Settings you change appear here."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ancora nessuna modifica."
+            "value": "Ancora nessuna modifica. Qui compaiono le impostazioni che modifichi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune modification pour le moment."
+            "value": "Aucune modification pour le moment. Les réglages que tu changes s’affichent ici."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch nichts geändert."
+            "value": "Noch nichts geändert. Geänderte Einstellungen erscheinen hier."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no se ha cambiado nada."
+            "value": "Aún no se ha cambiado nada. Aquí aparecen los ajustes que cambias."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nada foi alterado ainda."
+            "value": "Nada foi alterado ainda. Os ajustes que você muda aparecem aqui."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚无更改。"
+            "value": "尚无更改。你更改的设置会显示在此处。"
           }
         }
       }
@@ -59063,13 +59113,13 @@
     },
     "No friends yet.": {
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Freunde." } },
-        "en": { "stringUnit": { "state": "translated", "value": "No friends yet." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Aún no tienes amigos." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Pas encore d’amis." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Non ci sono ancora amici." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhum amigo ainda." } },
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "还没有好友。"}}
+        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Freunde. Füge einen mit einem Freundescode in Einstellungen → Konto hinzu." } },
+        "en": { "stringUnit": { "state": "translated", "value": "No friends yet. Add one with a friend code in Settings → Account." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aún no tienes amigos. Añade uno con un código de amigo en Ajustes → Cuenta." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pas encore d’amis. Ajoutes-en un avec un code ami dans Réglages → Compte." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Non ci sono ancora amici. Aggiungine uno con un codice amico in Impostazioni → Account." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhum amigo ainda. Adicione um com código de amigo em Ajustes → Conta." } },
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "还没有好友。在“设置 → 账户”中用好友代码添加。"}}
       }
     },
     "Open my profile": {
@@ -76277,43 +76327,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That file could not be read."
+            "value": "That file could not be read. Choose a PNG or JPEG picture."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile leggere il file."
+            "value": "Non è stato possibile leggere il file. Scegli un’immagine PNG o JPEG."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce fichier n’a pas pu être lu."
+            "value": "Ce fichier n’a pas pu être lu. Choisis une image PNG ou JPEG."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Datei konnte nicht gelesen werden."
+            "value": "Diese Datei konnte nicht gelesen werden. Wähle ein PNG- oder JPEG-Bild."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido leer ese archivo."
+            "value": "No se ha podido leer ese archivo. Elige una imagen PNG o JPEG."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível ler esse arquivo."
+            "value": "Não foi possível ler esse arquivo. Escolha uma imagem PNG ou JPEG."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法读取该文件。"
+            "value": "无法读取该文件。请选择 PNG 或 JPEG 图片。"
           }
         }
       }
@@ -76324,43 +76374,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That file is not an image Arcane can read."
+            "value": "That file is not an image Arcane can read. Choose a PNG or JPEG picture."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il file non è un’immagine leggibile da Arcane."
+            "value": "Il file non è un’immagine leggibile da Arcane. Scegli un’immagine PNG o JPEG."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce fichier n’est pas une image lisible par Arcane."
+            "value": "Ce fichier n’est pas une image lisible par Arcane. Choisis une image PNG ou JPEG."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Datei ist kein für Arcane lesbares Bild."
+            "value": "Diese Datei ist kein für Arcane lesbares Bild. Wähle ein PNG- oder JPEG-Bild."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ese archivo no es una imagen que Arcane pueda leer."
+            "value": "Ese archivo no es una imagen que Arcane pueda leer. Elige una imagen PNG o JPEG."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esse arquivo não é uma imagem que o Arcane consiga ler."
+            "value": "Esse arquivo não é uma imagem que o Arcane consiga ler. Escolha uma imagem PNG ou JPEG."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "该文件不是 Arcane 能读取的图片。"
+            "value": "该文件不是 Arcane 能读取的图片。请选择 PNG 或 JPEG 图片。"
           }
         }
       }
@@ -76653,43 +76703,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The app bundle is missing: %@"
+            "value": "The app bundle is missing: %@. Build the game again or choose its folder in Settings → Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il bundle dell’app non è disponibile: %@"
+            "value": "Il bundle dell’app non è disponibile: %@. Compila di nuovo il gioco o scegli la sua cartella in Impostazioni → Switch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le paquet de l’app est introuvable : %@"
+            "value": "Le paquet de l’app est introuvable : %@. Recompile le jeu ou choisis son dossier dans Réglages → Switch."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das App-Bundle fehlt: %@"
+            "value": "Das App-Bundle fehlt: %@. Kompiliere das Spiel neu oder wähle seinen Ordner in Einstellungen → Switch."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falta el paquete de la app: %@"
+            "value": "Falta el paquete de la app: %@. Compila el juego de nuevo o elige su carpeta en Ajustes → Switch."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O pacote do app não foi encontrado: %@"
+            "value": "O pacote do app não foi encontrado: %@. Compile o jogo de novo ou escolha a pasta em Ajustes → Switch."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "App 包缺失：%@"
+            "value": "App 包缺失：%@。请重新编译游戏，或在“设置 → Switch”中选择其文件夹。"
           }
         }
       }
@@ -76982,43 +77032,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The backup folder could not be opened."
+            "value": "The backup folder could not be opened. Open Finder, check that this folder exists and is yours, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile aprire la cartella dei backup."
+            "value": "Non è stato possibile aprire la cartella dei backup. Apri il Finder, controlla che la cartella esista e sia tua, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le dossier des copies de sauvegarde n’a pas pu être ouvert."
+            "value": "Le dossier des copies de sauvegarde n’a pas pu être ouvert. Ouvre le Finder, vérifie que ce dossier existe et est à toi, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Backup-Ordner konnte nicht geöffnet werden."
+            "value": "Der Backup-Ordner konnte nicht geöffnet werden. Öffne den Finder, prüfe, ob der Ordner existiert und dir gehört, und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido abrir la carpeta de copias de seguridad."
+            "value": "No se ha podido abrir la carpeta de copias de seguridad. Abre el Finder, comprueba que la carpeta existe y es tuya, e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível abrir a pasta de backups."
+            "value": "Não foi possível abrir a pasta de backups. Abra o Finder, confira se a pasta existe e é sua, e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法打开备份文件夹。"
+            "value": "无法打开备份文件夹。打开访达，确认该文件夹存在且归你所有，然后重试。"
           }
         }
       }
@@ -79003,43 +79053,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The game's app was not found."
+            "value": "The game's app was not found. Refresh the library, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’app del gioco non è stata trovata."
+            "value": "L’app del gioco non è stata trovata. Aggiorna la libreria, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’app du jeu est introuvable."
+            "value": "L’app du jeu est introuvable. Actualise la bibliothèque, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die App des Spiels wurde nicht gefunden."
+            "value": "Die App des Spiels wurde nicht gefunden. Aktualisiere die Bibliothek und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha encontrado la app del juego."
+            "value": "No se ha encontrado la app del juego. Actualiza la biblioteca e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O app do jogo não foi encontrado."
+            "value": "O app do jogo não foi encontrado. Atualize a biblioteca e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "找不到游戏的 App。"
+            "value": "找不到游戏的 App。请刷新资料库，然后重试。"
           }
         }
       }
@@ -79191,43 +79241,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The game's save configuration could not be read."
+            "value": "The game's save configuration could not be read. Open the game once, close it, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile leggere la configurazione dei salvataggi del gioco."
+            "value": "Non è stato possibile leggere la configurazione dei salvataggi del gioco. Apri il gioco una volta, chiudilo, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La configuration des sauvegardes du jeu n’a pas pu être lue."
+            "value": "La configuration des sauvegardes du jeu n’a pas pu être lue. Ouvre le jeu une fois, ferme-le, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Spielstandkonfiguration des Spiels konnte nicht gelesen werden."
+            "value": "Die Spielstandkonfiguration des Spiels konnte nicht gelesen werden. Öffne das Spiel einmal, schließe es und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido leer la configuración de partidas guardadas del juego."
+            "value": "No se ha podido leer la configuración de partidas guardadas del juego. Abre el juego una vez, ciérralo e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível ler a configuração de dados salvos do jogo."
+            "value": "Não foi possível ler a configuração de dados salvos do jogo. Abra o jogo uma vez, feche-o e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法读取游戏的存档配置。"
+            "value": "无法读取游戏的存档配置。打开游戏一次并关闭，然后重试。"
           }
         }
       }
@@ -79332,43 +79382,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The icon is not an image Arcane can read."
+            "value": "The icon is not an image Arcane can read. Choose a PNG or JPEG picture."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’icona non è un’immagine leggibile da Arcane."
+            "value": "L’icona non è un’immagine leggibile da Arcane. Scegli un’immagine PNG o JPEG."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’icône n’est pas une image lisible par Arcane."
+            "value": "L’icône n’est pas une image lisible par Arcane. Choisis une image PNG ou JPEG."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Symbol ist kein für Arcane lesbares Bild."
+            "value": "Das Symbol ist kein für Arcane lesbares Bild. Wähle ein PNG- oder JPEG-Bild."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El icono no es una imagen que Arcane pueda leer."
+            "value": "El icono no es una imagen que Arcane pueda leer. Elige una imagen PNG o JPEG."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O ícone não é uma imagem que o Arcane consiga ler."
+            "value": "O ícone não é uma imagem que o Arcane consiga ler. Escolha uma imagem PNG ou JPEG."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "该图标不是 Arcane 能读取的图片。"
+            "value": "该图标不是 Arcane 能读取的图片。请选择 PNG 或 JPEG 图片。"
           }
         }
       }
@@ -79379,43 +79429,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The key could not be saved on this Mac."
+            "value": "The key could not be saved on this Mac. Free some space on this Mac, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile salvare la chiave su questo Mac."
+            "value": "Non è stato possibile salvare la chiave su questo Mac. Libera spazio su questo Mac, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La clé n’a pas pu être enregistrée sur ce Mac."
+            "value": "La clé n’a pas pu être enregistrée sur ce Mac. Libère de la place sur ce Mac, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Schlüssel konnte auf diesem Mac nicht gespeichert werden."
+            "value": "Der Schlüssel konnte auf diesem Mac nicht gespeichert werden. Schaffe Platz auf diesem Mac und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido guardar la clave en este Mac."
+            "value": "No se ha podido guardar la clave en este Mac. Libera espacio en este Mac e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível salvar a chave neste Mac."
+            "value": "Não foi possível salvar a chave neste Mac. Libere espaço neste Mac e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法在这台 Mac 上保存密钥。"
+            "value": "无法在这台 Mac 上保存密钥。请释放此 Mac 上的空间，然后重试。"
           }
         }
       }
@@ -79473,43 +79523,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The key file could not be imported. Your previous copy is kept."
+            "value": "The key file could not be imported. Your previous copy is kept. Choose another prod.keys file."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile importare il file delle chiavi. La copia precedente viene conservata."
+            "value": "Non è stato possibile importare il file delle chiavi. La copia precedente viene conservata. Scegli un altro file prod.keys."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le fichier de clés n’a pas pu être importé. Ta copie précédente est conservée."
+            "value": "Le fichier de clés n’a pas pu être importé. Ta copie précédente est conservée. Choisis un autre fichier prod.keys."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Schlüsseldatei konnte nicht importiert werden. Deine bisherige Kopie bleibt erhalten."
+            "value": "Die Schlüsseldatei konnte nicht importiert werden. Deine bisherige Kopie bleibt erhalten. Wähle eine andere prod.keys-Datei."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido importar el archivo de claves. Se conserva la copia anterior."
+            "value": "No se ha podido importar el archivo de claves. Se conserva la copia anterior. Elige otro archivo prod.keys."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível importar o arquivo de chaves. A cópia anterior foi mantida."
+            "value": "Não foi possível importar o arquivo de chaves. A cópia anterior foi mantida. Escolha outro arquivo prod.keys."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法导入密钥文件。你之前的副本已保留。"
+            "value": "无法导入密钥文件。你之前的副本已保留。请选择其他 prod.keys 文件。"
           }
         }
       }
@@ -79520,43 +79570,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The key file could not be read."
+            "value": "The key file could not be read. Choose another prod.keys file."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile leggere il file delle chiavi."
+            "value": "Non è stato possibile leggere il file delle chiavi. Scegli un altro file prod.keys."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le fichier de clés n’a pas pu être lu."
+            "value": "Le fichier de clés n’a pas pu être lu. Choisis un autre fichier prod.keys."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Schlüsseldatei konnte nicht gelesen werden."
+            "value": "Die Schlüsseldatei konnte nicht gelesen werden. Wähle eine andere prod.keys-Datei."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido leer el archivo de claves."
+            "value": "No se ha podido leer el archivo de claves. Elige otro archivo prod.keys."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível ler o arquivo de chaves."
+            "value": "Não foi possível ler o arquivo de chaves. Escolha outro arquivo prod.keys."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法读取密钥文件。"
+            "value": "无法读取密钥文件。请选择其他 prod.keys 文件。"
           }
         }
       }
@@ -79567,43 +79617,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The key file has no header_key."
+            "value": "The key file has no header_key. Choose another prod.keys file."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il file delle chiavi non contiene header_key."
+            "value": "Il file delle chiavi non contiene header_key. Scegli un altro file prod.keys."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le fichier de clés ne contient pas de header_key."
+            "value": "Le fichier de clés ne contient pas de header_key. Choisis un autre fichier prod.keys."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Schlüsseldatei enthält keinen header_key."
+            "value": "Die Schlüsseldatei enthält keinen header_key. Wähle eine andere prod.keys-Datei."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El archivo de claves no contiene header_key."
+            "value": "El archivo de claves no contiene header_key. Elige otro archivo prod.keys."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O arquivo de chaves não contém header_key."
+            "value": "O arquivo de chaves não contém header_key. Escolha outro arquivo prod.keys."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "密钥文件中没有 header_key。"
+            "value": "密钥文件中没有 header_key。请选择其他 prod.keys 文件。"
           }
         }
       }
@@ -82876,43 +82926,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This archive can't be opened."
+            "value": "This archive can't be opened. Download it again, or choose another version of the mod."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è possibile aprire questo archivio."
+            "value": "Non è possibile aprire questo archivio. Scaricalo di nuovo o scegli un’altra versione della mod."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette archive ne peut pas être ouverte."
+            "value": "Cette archive ne peut pas être ouverte. Télécharge-la à nouveau, ou choisis une autre version du mod."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dieses Archiv kann nicht geöffnet werden."
+            "value": "Dieses Archiv kann nicht geöffnet werden. Lade es erneut herunter oder wähle eine andere Version der Mod."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se puede abrir este archivo comprimido."
+            "value": "No se puede abrir este archivo comprimido. Descárgalo de nuevo o elige otra versión del mod."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não é possível abrir este arquivo compactado."
+            "value": "Não é possível abrir este arquivo compactado. Baixe de novo ou escolha outra versão do mod."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法打开此归档。"
+            "value": "无法打开此归档。请重新下载，或选择该模组的其他版本。"
           }
         }
       }
@@ -85622,43 +85672,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Updates are currently unavailable."
+            "value": "Updates are currently unavailable. Try again in a moment."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli aggiornamenti non sono al momento disponibili."
+            "value": "Gli aggiornamenti non sono al momento disponibili. Riprova tra poco."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les mises à jour sont actuellement indisponibles."
+            "value": "Les mises à jour sont actuellement indisponibles. Réessaie dans un instant."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Updates sind derzeit nicht verfügbar."
+            "value": "Updates sind derzeit nicht verfügbar. Versuche es gleich noch einmal."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las actualizaciones no están disponibles en este momento."
+            "value": "Las actualizaciones no están disponibles en este momento. Inténtalo de nuevo en un momento."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "As atualizações estão indisponíveis no momento."
+            "value": "As atualizações estão indisponíveis no momento. Tente de novo em instantes."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "目前无法更新。"
+            "value": "目前无法更新。请稍后重试。"
           }
         }
       }
@@ -94423,43 +94473,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB credentials could not be saved on this Mac."
+            "value": "IGDB credentials could not be saved on this Mac. Free some space on this Mac, then try again."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile salvare le credenziali IGDB su questo Mac."
+            "value": "Non è stato possibile salvare le credenziali IGDB su questo Mac. Libera spazio su questo Mac, poi riprova."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d’enregistrer les identifiants IGDB sur ce Mac."
+            "value": "Impossible d’enregistrer les identifiants IGDB sur ce Mac. Libère de la place sur ce Mac, puis réessaie."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die IGDB-Zugangsdaten konnten auf diesem Mac nicht gespeichert werden."
+            "value": "Die IGDB-Zugangsdaten konnten auf diesem Mac nicht gespeichert werden. Schaffe Platz auf diesem Mac und versuche es erneut."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se han podido guardar las credenciales de IGDB en este Mac."
+            "value": "No se han podido guardar las credenciales de IGDB en este Mac. Libera espacio en este Mac e inténtalo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível salvar as credenciais do IGDB neste Mac."
+            "value": "Não foi possível salvar as credenciais do IGDB neste Mac. Libere espaço neste Mac e tente de novo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法在这台 Mac 上保存 IGDB 凭据。"
+            "value": "无法在这台 Mac 上保存 IGDB 凭据。请释放此 Mac 上的空间，然后重试。"
           }
         }
       }
@@ -98805,13 +98855,13 @@
     },
     "No completed builds yet.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "No completed builds yet."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Nessuna compilazione completata."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Aucune compilation terminée."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Kompilierung abgeschlossen."}},
-        "es": {"stringUnit": {"state": "translated", "value": "No hay compilaciones completadas."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma compilação concluída."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚无完成的编译。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "No completed builds yet. Add a game to build your first one."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna compilazione completata. Aggiungi un gioco per compilare il primo."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune compilation terminée. Ajoute un jeu pour compiler le premier."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Kompilierung abgeschlossen. Füge ein Spiel hinzu, um dein erstes zu kompilieren."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay compilaciones completadas. Añade un juego para compilar el primero."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma compilação concluída. Adicione um jogo para compilar o primeiro."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚无完成的编译。添加游戏来编译第一个。"}}
       }
     },
     "Show builds": {

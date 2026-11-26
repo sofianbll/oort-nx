@@ -23,6 +23,8 @@ struct SettingsCloudLibrarySection: View {
     @State private var tool: URL?
     @State private var version: String?
     @State private var remotes: [RcloneRemote]?
+    /// What rclone keeps for the connection, or for the one signed out with its Google client kept.
+    @State private var account: RcloneAccount?
     @State private var issue: RcloneConfiguration.Failure?
     @State private var inspecting = true
     @State private var inspection = 0
@@ -47,6 +49,10 @@ struct SettingsCloudLibrarySection: View {
         if case .connected(let remote) = connection { return remote }
         return nil
     }
+    private var keptConnection: String? {
+        selection.remote == nil && account?.keepsClient == true ? model.keptConnection : nil
+    }
+    private var canEraseKept: Bool { editable && !inspecting && keptConnection != nil }
     private var editable: Bool { viewModel.canConfigureCloudLibrary && testTask == nil }
     private var canPrepareTool: Bool { viewModel.canStartLibraryMove && testTask == nil }
     private var showToolRecovery: Bool {
@@ -152,7 +158,7 @@ struct SettingsCloudLibrarySection: View {
         }
         .onChange(of: recoveryFailure) { publishActions() }
         .onChange(of: model.sourcesNeedConfirmation) { publishActions() }
-        .onChange(of: [model.connectionCheck?.scopeCheck == true, canRecover, hasKnownConnection]) { publishActions() }
+        .onChange(of: [model.connectionCheck?.scopeCheck == true, canRecover, hasKnownConnection, canEraseKept]) { publishActions() }
         .onChange(of: model.driveToolProgress != nil) { publishActions() }
         .onChange(of: model.driveToolFailure) { publishActions() }
         .onChange(of: model.needsDriveToolChoice) { publishActions() }
@@ -181,7 +187,7 @@ struct SettingsCloudLibrarySection: View {
                 .disabled(!canRecover)
         }
         if hasAccount {
-            SeleneButtonRow("Disconnect", subtitle: "Removes only the local connection. Cloud files stay where they are.",
+            SeleneButtonRow("Disconnect", subtitle: "Choose what stays on this Mac. Cloud files stay where they are.",
                             buttonTitle: "Disconnect", action: confirmDisconnect)
                 .disabled(!hasKnownConnection)
         }
@@ -244,6 +250,12 @@ struct SettingsCloudLibrarySection: View {
             if let issue {
                 Text(text(issue.key)).seleneFont(.text).foregroundColor(SeleneTheme.danger)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if keptConnection != nil {
+                SeleneButtonRow("Google ID and secret", id: "cloudKeptClient",
+                                subtitle: "Kept on this Mac, in rclone’s own settings.", buttonTitle: "Erase", action: confirmEraseKept)
+                    .disabled(!canEraseKept)
             }
 
             if hasAccount {
@@ -324,7 +336,11 @@ struct SettingsCloudLibrarySection: View {
                 actions.append(.init(id: "driveToolOwned", title: "Oort NX’s copy of rclone",
                                      isEnabled: canPrepareTool && !selection.enabled, activate: confirmTrashTool))
             }
-            if hasAccount {
+            if keptConnection != nil {
+                actions.append(.init(id: "cloudKeptClient", title: "Google ID and secret", isEnabled: canEraseKept,
+                                     activate: confirmEraseKept))
+            }
+            if selection.remote != nil {
                 actions.append(.init(id: "cloudLibraryTest", title: "Test connection", isEnabled: canTest, activate: test))
                 actions.append(.init(id: "cloudReferenceFolder", title: "Reference library", rowID: "cloudReferenceFolder",
                                      isEnabled: canFollow, activate: onEditReference))
@@ -468,7 +484,7 @@ struct SettingsCloudLibrarySection: View {
 
     private func inspect() async {
         inspecting = true
-        version = nil; remotes = nil; issue = nil
+        version = nil; remotes = nil; account = nil; issue = nil
         defer { if !Task.isCancelled { inspecting = false } }
         do {
             let found = model.resolvedDriveTool
@@ -482,6 +498,12 @@ struct SettingsCloudLibrarySection: View {
             let listed = try await config.remotes()
             try Task.checkCancellation()
             remotes = listed
+            // An rclone too old to answer leaves only the complete disconnection.
+            if let name = selection.remote ?? model.keptConnection, listed.contains(where: { $0.name == name && $0.type == "drive" }) {
+                let found = try? await config.account(name)
+                try Task.checkCancellation()
+                account = found
+            }
         } catch is CancellationError {
         } catch {
             if !Task.isCancelled { issue = (error as? RcloneConfiguration.Failure) ?? .configuration }
@@ -502,29 +524,66 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private func confirmDisconnect() {
-        guard hasKnownConnection, let tool, let name = connected?.name else { return }
-        viewModel.confirmSetting(text("Disconnect cloud service?"),
-            message: "\(name)\n\n\(text("Removes only the local connection. Cloud files stay where they are."))",
-            action: "Disconnect", destructive: true) {
-                guard hasKnownConnection, model.preference.remote == name else { return }
-                model.isChangingConnection = true
-                Task { @MainActor in
-                    var disconnected = false
-                    defer {
-                        model.isChangingConnection = false
-                        if disconnected && model.canTrashDriveTool { confirmTrashTool() }
-                    }
-                    model.keepFolders()
-                    do {
-                        try await RcloneConfiguration(executable: tool).disconnect(name)
-                        model.configure(remote: nil, root: selection.root, enabled: false, sourcesRoot: selection.sourcesRootOverride)
-                        disconnected = true
-                    } catch {
-                        viewModel.showSettingsNotice(title: text("Disconnect"),
-                                                     message: text(RcloneConfiguration.Failure.disconnect.key))
-                    }
+        guard hasKnownConnection, viewModel.settingsNotice == nil, let name = connected?.name else { return }
+        let erase = { disconnect(name, keepingClient: false) }
+        guard account?.hasClient == true else {
+            viewModel.confirmSetting(text("Disconnect cloud service?"),
+                message: "\(name)\n\n\(text("Removes only the local connection. Cloud files stay where they are."))",
+                action: "Disconnect", destructive: true, apply: erase)
+            return
+        }
+        viewModel.showSettingsNotice(title: text("Disconnect cloud service?"),
+            message: "\(name)\n\n\(text("Cloud files stay where they are."))",
+            actionTitle: "Disconnect and keep the ID and secret", cancelTitle: "Cancel",
+            alternatives: [("Erase everything", erase)], primaryFirst: true, choiceDetails: [
+                "Disconnect and keep the ID and secret": text("Only the Google sign-in is erased. You reconnect without entering them again."),
+                "Erase everything": text("The Google sign-in, the ID and the secret are erased. You enter them again to reconnect."),
+            ], destructive: ["Erase everything"]) { disconnect(name, keepingClient: true) }
+    }
+
+    private func disconnect(_ name: String, keepingClient: Bool) {
+        guard hasKnownConnection, model.preference.remote == name else { return }
+        changeConnection {
+            model.keepFolders()
+            try await removeConnection(name, keepingClient: keepingClient)
+            model.keptConnection = keepingClient ? name : nil
+            model.configure(remote: nil, root: selection.root, enabled: false, sourcesRoot: selection.sourcesRootOverride)
+        }
+    }
+
+    private func confirmEraseKept() {
+        guard canEraseKept, let name = keptConnection else { return }
+        viewModel.confirmSetting(text("Erase the Google ID and secret?"),
+            message: text("You will enter them again to reconnect. Cloud files stay where they are."), action: "Erase", destructive: true) {
+                guard canEraseKept, keptConnection == name else { return }
+                changeConnection {
+                    try await removeConnection(name, keepingClient: false)
+                    model.keptConnection = nil
                 }
             }
+    }
+
+    private func removeConnection(_ name: String, keepingClient: Bool) async throws {
+        guard let tool else { throw RcloneConfiguration.Failure.tool }
+        try await RcloneConfiguration(executable: tool).disconnect(name, keepingClient: keepingClient)
+    }
+
+    private func changeConnection(_ change: @escaping @MainActor () async throws -> Void) {
+        model.isChangingConnection = true
+        Task { @MainActor in
+            var changed = false
+            defer {
+                model.isChangingConnection = false
+                if changed && model.canTrashDriveTool { confirmTrashTool() }
+            }
+            do {
+                try await change()
+                changed = true
+            } catch {
+                viewModel.showSettingsNotice(title: text("Disconnect"),
+                                             message: text(((error as? RcloneConfiguration.Failure) ?? .disconnect).key))
+            }
+        }
     }
 
     private func text(_ key: String) -> String { L10n.text(key, context: localization) }

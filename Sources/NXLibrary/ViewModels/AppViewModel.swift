@@ -30,6 +30,7 @@ struct SettingsNotice: Identifiable {
     }
     var initialFocus: Int { primaryFirst && retry != nil && !destructive.contains(actionTitle) ? choices.count - 1 : cancelIndex }
     var cancelIndex: Int { keys.firstIndex { $0.role == .back } ?? 0 }
+    func role(at index: Int) -> ActionBarRole { keys[index].role }
     var choices: [String] { keys.map(\.item.title) }
     var destructiveIndexes: Set<Int> { Set(choices.indices.filter { $0 != cancelIndex && destructive.contains(choices[$0]) }) }
 
@@ -71,6 +72,11 @@ final class AppViewModel: ObservableObject {
         }
     }
     @Published var settingsNoticeFocus = 0
+    /// The last reversible gesture, for its notice, ⌘Z and Activity.
+    let undoOffers = UndoOffers()
+    let tips = Tips(defaults: AppData.preferences)
+    /// The keys of the notice on screen, while they were asked for.
+    @Published var noticeFocus = NoticeFocus()
     /// A SteamGridDB API key is saved (Settings → Online services → SteamGridDB), so Change artwork searches it.
     @Published var hasSteamGridDBKey = SteamGridDBKey().load() != nil
     @Published var isEditingSteamGridDBKey = false
@@ -133,7 +139,8 @@ final class AppViewModel: ObservableObject {
     /// The shell's update dialog owns input; screens leave the keyboard to it.
     var appUpdateDialogOwnsInput = false
     @Published var profileOwnsInput = false
-    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true || launchOverlay != nil }
+    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true
+        || noticeFocus.isActive || launchOverlay != nil }
     /// "Welcome to Arcane" is on screen, until its fade has ended: screens' own keyboard monitors let Return and
     /// the arrows go to it, and Spotlight holds its entrance until it has gone.
     @Published var isWelcomeOpen = false

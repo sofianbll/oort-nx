@@ -241,6 +241,20 @@ extension AppShellView {
             SessionCardLayer(presenter: sessionCard, refresh: viewModel.libraryRefresh, game: playedGame,
                              metadata: store.storeMetadata, artwork: artwork)
         }
+        .seleneOverlayOwnership(!viewModel.noticeFocus.isActive)
+        .overlay {
+            UndoNoticeLayer(offers: viewModel.undoOffers, tips: viewModel.tips,
+                            isBlocked: !leavesNoticesRoom,
+                            isBelowCard: sessionCard.shown != nil || !sessionCard.achievementNames.isEmpty,
+                            focus: $viewModel.noticeFocus,
+                            onUndo: undoLastChange,
+                            onTurnOffTips: turnOffTips)
+            // After the library has settled, never over a screen that covers it.
+            .task(id: [isHomeRoute && leavesNoticesRoom && !viewModel.isGameOptionsOpen && !router.isSearchPresented, viewModel.visibleCatalogGames.count >= Tips.longLibrary]) {
+                guard isHomeRoute, leavesNoticesRoom, !viewModel.isGameOptionsOpen, !router.isSearchPresented, (try? await Task.sleep(for: .seconds(3))) != nil else { return }
+                viewModel.tips.libraryAppeared(games: viewModel.visibleCatalogGames.count, enabled: settings.settings.showsTips)
+            }
+        }
         .background { launchCover }
         .overlay {
             if viewModel.cloudQuitRequested { cloudQuitOverlay() }
@@ -349,7 +363,7 @@ extension AppShellView {
         .onReceive(viewModel.localAchievementUnlocks) { unlocks in
             if profiles.active?.id == unlocks.profile { sessionCard.unlocked(unlocks.names) }
         }
-        .onChange(of: profiles.active?.id) { sessionCard.profileDidChange() }
+        .onChange(of: profiles.active?.id) { sessionCard.profileDidChange(); viewModel.undoOffers.drop() }
         .onReceive(runningGames.$pausedGameIDs) { ids in
             // A game can reach Home before the launch cover has faded, especially across Spaces.
             if let launch = viewModel.launchOverlay, ids.contains(launch.game.id) { viewModel.dismissLaunchOverlay() }
@@ -492,6 +506,7 @@ extension AppShellView {
                                          message: L10n.text("Your changes could not be saved. Try again."))
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxToggleProfilePicker)) { _ in toggleProfilePicker() }
+        .onReceive(NotificationCenter.default.publisher(for: .nxLibraryUndoChange)) { _ in undoLastChange() }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryPlayFocused)) { _ in
             guard !router.isMenuPresented,
                   nativeMenuAvailability.play,

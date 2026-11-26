@@ -129,7 +129,7 @@ final class SetupModel: ObservableObject {
                                         startingAt: start) { [weak self] urls in
             guard let self, let url = urls.first, !app.isBuilding, !app.isUpdatingApp else { return }
             guard EngineLocation.isEngine(url) else {
-                app.alertMessage = "\(url.path) is not an nxnative checkout: it has no scripts/build_ipa_from_nsp.py and dm folder."
+                app.alertMessage = L10n.format("%@ is not the nxnative engine folder. Choose the folder that contains scripts and dm.", [url.path])
                 SoundEffectService.shared.play(.error)
                 return
             }

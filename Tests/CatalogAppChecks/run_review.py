@@ -105,6 +105,7 @@ struct SpotlightPageModel { var links = [1]; var more: [Int] = [] }
 }
 @MainActor final class ViewModel {
     let macShortcuts = Shortcuts()
+    var noticeFocus = NoticeFocus()
     struct Shortcuts { let canEdit = false }
     var spotlight = SpotlightState(focus: .actions)
     var showSetupCheck = false
@@ -320,6 +321,8 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     let viewModel = ViewModel()
     let nativeMenus = NativeMenus()
     var isCloseGameOpen = false
+    var canUndoLastChange = false
+    func undoLastChange() {}
     var showsWelcome = false
     var profileFlow: ProfileFlow?
     var launcherIsFrontmost = true
@@ -341,6 +344,8 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     func removeGameInput(_ action: GamepadAction) { dialogActions.append(action) }
     func updateOfferInput(_ action: GamepadAction) { dialogActions.append(action) }
     func cloudQuitInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func noticeInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func chooseNotice() {}
     func postProfileAction(_ action: GamepadAction) { dialogActions.append(action) }
     func menuInput(_ action: GamepadAction) { dialogActions.append(action) }
     func paletteInput(_ action: GamepadAction) { dialogActions.append(action) }

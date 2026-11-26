@@ -33,16 +33,26 @@ extension AppShellView {
     // MARK: - Retry a ready build
 
     func settingsNoticeOverlay(_ notice: SettingsNotice) -> some View {
-        SeleneOverlay(style: .dialog, onOutside: {
+        let cancel = {
             if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() }
-        }) {
-            SeleneChoiceDialog(title: notice.title, message: notice.message,
-                               choices: notice.choices,
-                               focus: $viewModel.settingsNoticeFocus,
-                               cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil,
-                               destructive: notice.destructiveIndexes, details: notice.choiceDetails,
-                               onCancel: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() } },
-                               onChoose: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(choice: $0) } })
+        }
+        let choose: (Int) -> Void = { index in
+            if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(choice: index) }
+        }
+        return SeleneOverlay(style: .dialog, onOutside: cancel) {
+            if !notice.destructive.isEmpty && !notice.choiceDetails.isEmpty {
+                OortQuestion(title: notice.title, message: notice.message,
+                    actions: notice.choices.enumerated().map { index, title in
+                        .init(id: index, title: title, role: notice.role(at: index), detail: notice.choiceDetails[title],
+                              perform: { choose(index) })
+                    }, focused: viewModel.settingsNoticeFocus,
+                    onFocus: { if let index = $0.base as? Int { viewModel.settingsNoticeFocus = index } },
+                    onCancel: cancel, onConfirm: { choose(viewModel.settingsNoticeFocus) }, separateDanger: true)
+            } else {
+                SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
+                    focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil,
+                    destructive: notice.destructiveIndexes, details: notice.choiceDetails, onCancel: cancel, onChoose: choose)
+            }
         }
     }
 
@@ -117,7 +127,10 @@ extension AppShellView {
     func presentLegacyNotice() {
         guard viewModel.settingsNotice == nil, let message = viewModel.alertMessage else { return }
         viewModel.alertMessage = nil
-        viewModel.showSettingsNotice(title: AppIdentity.displayName, message: message)
+        // The message is also in the log only when there is more to read there.
+        let logged = viewModel.logs.last { $0.level == .error }?.message == message
+        viewModel.showSettingsNotice(title: AppIdentity.displayName, message: message, actionTitle: "Open log",
+                                     retry: logged ? { [viewModel] in viewModel.router?.openSettings(.console) } : nil)
     }
 
     func presentCloudNotice() {

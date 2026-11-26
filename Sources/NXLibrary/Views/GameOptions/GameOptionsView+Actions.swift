@@ -149,6 +149,8 @@ extension GameOptionsView {
             config.rumble.toggle()
         case .restoreDefaults:
             SoundEffectService.shared.play(.click)
+            let wayBack = viewModel.runtimeSettings.wayBack(for: current)
+            defer { viewModel.undoOffers.offer(L10n.format("%@: default settings restored", [current.name]), undo: wayBack) }
             setGameDisplay(nil)
             if snapshot != nil {
                 viewModel.runtimeSettings.restoreGameDefaults(for: current)

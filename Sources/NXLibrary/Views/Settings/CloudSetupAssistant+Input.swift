@@ -133,7 +133,7 @@ extension CloudSetupAssistant {
         if browsing != nil { chooseFolder(); return }
         switch draft.step {
         case .account:
-            if !accountNeedsClient, let existing { selectAccount(existing.name) }
+            if !accountNeedsClient, keepsAccount, let existing { selectAccount(existing.name) }
             else { connect() }
         case .folder:
             if let wrong = firstAdvice { doubt = wrong; focus.reset() }
@@ -236,6 +236,7 @@ extension CloudSetupAssistant {
         do {
             let replaced = replacement != nil
             try replacement?.apply()
+            if preference.remote == model.keptConnection { model.keptConnection = nil }
             let rom = onboarding || sourcesChanged ? sourcesOverride : model.preference.sourcesRootOverride
             model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: rom,
                             reload: replaced, confirmLibrary: true)
@@ -318,7 +319,7 @@ extension CloudSetupAssistant {
             guard let window = event.window, window.attachedSheet == nil, !window.isSheet,
                   NSApp.modalWindow == nil, !NativeMenuCommands.shared.isTracking,
                   viewModel.router?.isMenuPresented != true, viewModel.router?.isPalettePresented != true,
-                  !viewModel.cloudQuitRequested else { return event }
+                  !viewModel.cloudQuitRequested, !viewModel.noticeFocus.isActive else { return event }
             return handleKey(event, typing: window.firstResponder is NSText) ? nil : event
         }
     }

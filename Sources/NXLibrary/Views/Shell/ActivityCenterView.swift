@@ -30,7 +30,7 @@ struct ActivityCenterView: View {
             activeBuild: viewModel.portingGameID ?? porting.activeBuildRequest?.gameID,
             queuedBuilds: viewModel.buildQueue, activeCloud: cloud.active?.request.token,
             queuedCloud: cloud.queue.map(\.token), move: cloud.libraryMove?.id,
-            refresh: viewModel.libraryRefresh.current?.id, results: results)
+            refresh: viewModel.libraryRefresh.current?.id, results: results, undo: viewModel.undoOffers.offer != nil)
         return results.count == 1 && results.first == cloud.pendingMove?.id ? rows.filter { $0 != .clearAll } : rows
     }
 
@@ -90,7 +90,7 @@ struct ActivityCenterView: View {
             }, focused: focused)
             section("Library", rows: rows.filter { if case .refresh = $0 { true } else { false } }, focused: focused)
             section("Results", rows: rows.filter {
-                switch $0 { case .result, .clearAll: return true; default: return false }
+                switch $0 { case .undo, .result, .clearAll: return true; default: return false }
             }, focused: focused)
         }
     }
@@ -102,6 +102,8 @@ struct ActivityCenterView: View {
                 result(id)?.canRetry == true ? HintItem(.a, "Retry", action: { onOpen(row) }) : nil,
                 cloudLibrary.pendingMove?.id != id ? HintItem(.x, "Clear", action: { onCancel(row) }) : nil
             ].compactMap { $0 }
+        case .undo:
+            return [HintItem(.a, "Undo", action: { onOpen(row) })]
         case .clearAll:
             return [HintItem(.a, "Clear all", action: { onOpen(row) })]
         case .refresh:
@@ -165,6 +167,12 @@ struct ActivityCenterView: View {
                                         cancel: current.isRunning ? { onCancel(row) } : nil,
                                         retry: { onOpen(row) }, retryTitle: refreshCommand,
                                         clear: current.isRunning ? nil : { onCancel(row) }, detailLines: 8)
+                        }
+                    case .undo:
+                        if let offer = viewModel.undoOffers.offer {
+                            ActivityRow(title: offer.message, detail: nil, fraction: nil, status: text("Succeeded"),
+                                        color: CloudLibraryStatus.synchronized.color, focused: focused == row,
+                                        open: nil, cancel: nil, retry: { onOpen(row) }, retryTitle: "Undo", clear: nil)
                         }
                     case .result(let id):
                         if let item = result(id) {
@@ -251,7 +259,7 @@ struct ActivityCenterView: View {
             return (title(.move(move.request), name: move.request.destination),
                     detail(text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"), move.fraction, nil),
                     move.fraction, true)
-        case .refresh, .result, .clearAll, .close: return ("", nil, nil, false)
+        case .refresh, .undo, .result, .clearAll, .close: return ("", nil, nil, false)
         }
     }
 

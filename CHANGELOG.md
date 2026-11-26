@@ -8,6 +8,11 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - **⌘K** opens a search over everything: start a game or open its options, go to a setting, run an action. It shows recent and suggested choices before you type, forgives accents and small typing mistakes, and works offline. With a controller, press Y in **Find a game**.
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
+- **Undo**: removing a favorite, hiding a game, removing a Mac app tile, restoring a game's default settings or clearing searches shows a notice with Undo. ⌘Z does the same; Activity keeps the last one. Hold X, or press Tab, to choose the notice or a tip without losing your place; it stays 15 seconds, and as long as it is chosen.
+- Search shows your four last searches, kept on this Mac per profile, and a row that clears them.
+- X on a changed row in Settings puts back that row alone, with Undo. The group still asks first.
+- **Copy settings to another game**, in a game's All settings → General: choose the game, see what changes, copy, undo.
+- Two tips, shown once when they would help. **Tips**, in Settings → Controllers, turns them off.
 - Three more sound packs made by the app, in Settings → Sound: **Frost** (lively and crisp), **Mist** (wide and soft) and **Nucleus** (low and clean). They play the notes of the Oort voices, follow **Compose** and are set to the measured loudness of **Oort**. The default does not change.
 - **Sound pack** now steps through **Oort**, **Frost**, **Mist**, **Nucleus** and **Other**. Selene, Pollen, Umbra, Impulsion and imported packs are chosen on the **Other pack** row shown under Other. Nothing is removed, and a pack already chosen stays chosen.
 
@@ -16,6 +21,9 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - **Library refresh** now checks the game apps, the enabled sources and the cloud together, from the + card, ⌘K and Settings, and says what changed or what could not be read. In Settings it replaces Scan game apps. Pressing it again starts over.
 - The cloud library is read from one rclone, many folders at a time, and records already read are kept: a refresh takes seconds instead of minutes.
 - **Settings → Multiplayer → Nextendo players** lets you choose where to show the count: on covers, on the selected game, in Details or on the game page. Turn off all four to stop the requests.
+- **Disconnect** (Cloud library) says what is erased and can keep the Google ID and secret: reconnecting does not ask for them again.
+- Removing a Mac app tile no longer asks first: Undo puts it back.
+- Error messages read on their own say what to do, and empty screens say what fills them. An error that is in the log offers **Open log**.
 - The control center opens with **⇧⌘K**; ⌘K is now the search.
 - In French, making a game’s app is always “compiler”.
 - A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.

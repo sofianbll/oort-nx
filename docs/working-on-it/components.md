@@ -13,7 +13,8 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortCard` (`SelenePanel`) | Superficie condivisa per informazioni o controlli correlati | Titolo e info facoltativi | Comporre righe · non annidare schede per creare margini. |
 | `OortGameTile` | Tessera con arte fornita dal chiamante | `spotlight`, `collection`; selezionata o no | Separare selezione da attivazione · non aggiungere un secondo anello. |
 | `oortSecondaryClick` | Clic destro o Ctrl-clic: le opzioni del pezzo | Azione o nessuna | Raddoppia un comando già visibile · mai l'unica via. |
-| `OortButton` | Azione isolata nella pillola Selene | `action`, `compact`; pronto, bloccato, in corso, focus | Dare un verbo al titolo · non attivare un lavoro già in corso. |
+| `OortButton` | Azione isolata nella pillola Selene | `action`, `card`, `compact`; pronto, bloccato, in corso, focus, tono distruttivo | Dare un verbo al titolo · non attivare un lavoro già in corso. |
+| `OortActionBar`, `OortQuestion` | Azioni di un pannello o di una domanda | Annulla a sinistra, azione principale a destra, distruttiva su una riga separata | Usare lo stesso ordine a schermo e con le frecce. |
 | `SeleneConfirmDialog`, `SeleneChoiceDialog`, `SeleneSuccessNotice` | Conferma, scelta o messaggio | Conferma, lista di scelte, messaggio | Azione primaria a sinistra, focus iniziale sicuro · nascondere l'aiuto sottostante. |
 | `OortActionBar`, `OortQuestion` | Piede di un pannello o di una domanda | Ruoli `destructive`, `back`, `secondary`, `primary` | Dare il ruolo, non la posizione: ritorno a sinistra, azione principale ultima a destra · per ora solo l'assistente cloud. |
 | `OortAssistantPanel`, `OortFolderCard` | Compito in pochi passi; una cartella con domanda, percorso e contenuto | Passo fatto, corrente, futuro | Un compito lungo · non una semplice domanda. |
