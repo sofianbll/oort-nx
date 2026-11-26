@@ -98,12 +98,12 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
 
     /// Ends the game's running sessions and returns them, ended.
     @discardableResult
-    public func end(bundleID: String?) -> [PlaySession] {
+    public func end(bundleID: String?, preserving gameIDs: Set<UUID> = []) -> [PlaySession] {
         guard let bundleID else { return [] }
         let date = now()
         var ended: [PlaySession] = []
         for index in history.indices
-        where history[index].bundleID == bundleID && history[index].isActive {
+        where history[index].bundleID == bundleID && history[index].isActive && !gameIDs.contains(history[index].gameID) {
             history[index].endedAt = date
             history[index].lastHeartbeatAt = date
             ended.append(history[index])

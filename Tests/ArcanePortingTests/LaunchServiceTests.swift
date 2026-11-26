@@ -11,7 +11,7 @@ final class LaunchServiceTests: XCTestCase {
         var shouldSucceed = true
         var onExit: (() -> Void)?
         func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
-                  begin: Date, onExit: (@Sendable () -> Void)?,
+                  begin: Date, expectedArtifact: String?, onExit: (@Sendable () -> Void)?,
                   completion: @escaping @Sendable (AppOpenResult) -> Void) {
             opened = url
             self.environment = environment

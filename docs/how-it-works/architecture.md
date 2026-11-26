@@ -531,7 +531,7 @@ Quando la schermata di avvio è inattiva e offre la chiusura, `LaunchScreenView`
 
 `AppViewModel.play` e Resume passano da `engine.play`. Il catalogo sceglie l'installazione; `PlayEngine` in `NXLibraryCore` ammette un solo adapter e conserva il ricevuto del gesto. Gli adapter nxnative, Steam e raccorciatoie Mac conservano i controlli dei rispettivi percorsi. La preparazione, la consegna e l'apertura osservata sono fatti distinti; il timeout della schermata non dimostra la prontezza.
 
-Prima dell'effetto `PlayGesture` registra una riserva per la destinazione, non per l'UUID della scheda. Il giornale è in `PlayRequests/` del profilo AppData, una registrazione per richiesta e un'esclusione per destinazione. Una consegna sospesa senza esito verificato non si ripete; se il processo non c'è più, Play rifiuta con `outcomeUnknown`. Non è lo storico delle partite.
+Prima dell'effetto `PlayGesture` registra fuori dal main actor una riserva per il bundle esatto, comune anche per un'app Steam collegata come scorciatoia. Il giornale è in `PlayRequests/` del profilo AppData, una registrazione per richiesta e un'esclusione per destinazione. Il ricevuto e i fatti numerati si rileggono senza un nuovo effetto. Una consegna sospesa senza esito verificato non si ripete; se il processo non c'è più, Play rifiuta con `outcomeUnknown`. Non è lo storico delle partite.
 
 `MacShortcutAdapter` rifiuta profili bloccati e ospiti e controlla percorso e bundle ID subito prima della consegna all'URL esatto in `NSWorkspace`. La risposta di macOS significa consegna, non una partita osservata: nessun monitor, sessione, tempo oppure configurazione del bundle.
 

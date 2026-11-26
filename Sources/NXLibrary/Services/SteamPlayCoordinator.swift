@@ -51,7 +51,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
     private var games: [CatalogGame] = []
     private var steamEnabled = false
     let source = CatalogIntegration.steam
-    private var playObservers: [UUID: PlayObserver] = [:]
+    private var playGestures: [UUID: PlayGesture] = [:]
     private var sessions: PlaySessionStore?
     private var settings: AppSettingsStore?
     /// Background launches in progress, with whether Steam was in view before Play.
@@ -159,6 +159,10 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
         return requestPlay(target, gesture: gesture)
     }
 
+    func artifact(of target: PlayTarget) -> String? {
+        target.installation?.applicationURL.flatMap { NativePlayTarget($0)?.artifact }
+    }
+
     /// Steam is coming back for the player: the game is late and Steam may be asking for something.
     func mayNeedSteam(_ game: CatalogGame) -> Bool { late.contains(game.id) }
 
@@ -200,7 +204,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
         // A later start re-reads the processes: `RunningGameMonitor.start` closes open Steam sessions
         // at their last heartbeat, and a game still running must start a new one, not stay "running".
         states = [:]
-        playObservers = [:]
+        playGestures = [:]
         canonicalProcesses = [:]
         returnFocus = SteamReturnFocus()
         hideAgain?.cancel(); hideAgain = nil
@@ -250,7 +254,13 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
             if let app = NSRunningApplication(processIdentifier: pid) { RunningGameMonitor.activate(app) }
             return .accepted(.gameOpened)
         case .handOff(let url, let generation):
-            guard let client, let appID = game.steamGame?.appID else { return .refused(.launcherMissing) }
+            guard let client else { return .refused(.launcherMissing) }
+            guard let app = target.installation?.applicationURL, let native = NativePlayTarget(app),
+                  !gesture.hasUnsettledHandoff(native.scope) else {
+                state.handoffFinished(accepted: false, generation: generation)
+                states[game.id] = state
+                return .refused(.outcomeUnknown)
+            }
             sessions?.expectStart(gameID: game.id)
             returnFocus.playPressed(game.id)
             hideAgain?.cancel(); hideAgain = nil
@@ -259,7 +269,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
             let configuration = NativePlayTarget.openConfiguration()
             configuration.activates = false
             let id = game.id
-            playObservers[id] = gesture.emit
+            playGestures[id] = gesture
             let background = settings?.settings.steamInBackground ?? false
             let steam = Self.steamApplication
             // Launch arguments reach only a Steam that this request starts.
@@ -269,27 +279,35 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
             patience[id] = wait
             readiness?.cancel(); readiness = nil
             prepareHandOff(for: id, generation: generation) { [weak self] in
-                guard let self else { return }
-                if let reason = gesture.reserve("steam-\(appID)") {
-                    self.finishHandOff(id, accepted: false, generation: generation, refusal: reason)
-                    return
-                }
-                self.watchQuestions(for: game)
-                Timer.scheduledTimer(withTimeInterval: wait + 0.5, repeats: false) { [weak self] _ in
-                    Task { @MainActor in self?.followBackground() }
-                }
-                if background {
-                    self.backgrounds[id] = self.backgrounds[id] ?? (steam.map { !$0.isHidden } ?? false)
-                }
-                self.followBackground()
-                NSWorkspace.shared.open([url], withApplicationAt: client, configuration: configuration) { [weak self] _, error in
-                    let accepted = error == nil
-                    Task { @MainActor in
-                        guard let self else {
-                            gesture.finish(accepted ? .accepted(.handedOff) : .refused(.handoffRejected))
-                            return
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    let reserved = await gesture.reserve(native.scope)
+                    guard self.states[id]?.generation == generation, case .starting = self.states[id]?.phase else {
+                        if self.playGestures[id] === gesture { self.playGestures[id] = nil }
+                        gesture.finish(.refused(.notStarted))
+                        return
+                    }
+                    if let refusal = reserved ?? (NativePlayTarget(app)?.artifact == native.artifact ? nil : .stale) {
+                        self.finishHandOff(id, accepted: false, generation: generation, refusal: refusal, gesture: gesture)
+                        return
+                    }
+                    self.watchQuestions(for: game)
+                    Timer.scheduledTimer(withTimeInterval: wait + 0.5, repeats: false) { [weak self] _ in
+                        Task { @MainActor in self?.followBackground() }
+                    }
+                    if background {
+                        self.backgrounds[id] = self.backgrounds[id] ?? (steam.map { !$0.isHidden } ?? false)
+                    }
+                    self.followBackground()
+                    NSWorkspace.shared.open([url], withApplicationAt: client, configuration: configuration) { [weak self] _, error in
+                        let accepted = error == nil
+                        Task { @MainActor in
+                            guard let self else {
+                                gesture.finish(accepted ? .accepted(.handedOff) : .refused(.handoffRejected))
+                                return
+                            }
+                            self.finishHandOff(id, accepted: accepted, generation: generation, gesture: gesture)
                         }
-                        self.finishHandOff(id, accepted: accepted, generation: generation, gesture: gesture)
                     }
                 }
             }
@@ -344,7 +362,8 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
         }
         state.cancel(); states[game.id] = state
         if !isRunning(game) {
-            playObservers[game.id] = nil
+            // Once sent, only a conclusive native result can release the exact-app reservation.
+            if playGestures[game.id]?.hasSubmitted != true { playGestures[game.id] = nil }
             returnFocus.playAbandoned(game.id)
         }
         followBackground()
@@ -353,16 +372,22 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
     private func finishHandOff(_ id: UUID, accepted: Bool, generation: Int, refusal: PlayRefusal = .handoffRejected,
                                gesture: PlayGesture? = nil) {
         let result: PlayResult = accepted ? .accepted(.handedOff) : .refused(refusal)
-        guard var state = states[id], state.generation == generation else { gesture?.finish(result); return }
+        guard var state = states[id], state.generation == generation else {
+            if !accepted { gesture?.finish(result) }
+            return
+        }
         let wasWaiting: Bool
         if case .starting = state.phase { wasWaiting = true } else { wasWaiting = false }
         if !accepted { sessions?.abandonStart(gameID: id) }
         state.handoffFinished(accepted: accepted, generation: generation)
         states[id] = state
-        let observe = playObservers[id]
-        if wasWaiting, !accepted { playObservers[id] = nil }
-        if let gesture { gesture.finish(result) }
-        else if wasWaiting { observe?(.result(result)) }
+        let action = gesture ?? playGestures[id]
+        if !accepted {
+            if wasWaiting { playGestures[id] = nil }
+            action?.finish(result)
+        } else if wasWaiting {
+            action?.emit(.result(result))
+        }
         refresh()
     }
 
@@ -384,7 +409,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
         let now = Date()
         var next = states
         var ended: [UUID] = []
-        var playEvents: [(PlayObserver, PlayEvent)] = []
+        var playEvents: [() -> Void] = []
         let followed = Set(games.map(\.id)).union(states.keys)
         for id in followed {
             let game = games.first { $0.id == id }
@@ -392,7 +417,9 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
             var state = next[id] ?? SteamPlayState()
             switch state.observe(processes, application: app, now: now) {
             case .started(let pid):
-                if let observe = playObservers[id] { playEvents.append((observe, .result(.accepted(.gameOpened)))) }
+                if let gesture = playGestures[id] {
+                    playEvents.append { gesture.finish(.accepted(.gameOpened), run: RunRef(UUID())) }
+                }
                 if let appID = game?.steamGame?.appID {
                     // A game already running when Arcane began watching (a relaunch) keeps its Spotlight place.
                     let launched = NSRunningApplication(processIdentifier: pid)?.launchDate
@@ -402,7 +429,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
                 // The game may have come forward before its process was seen.
                 if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { returnFocus.gameCameForward(id) }
             case .ended:
-                if let observe = playObservers.removeValue(forKey: id) { playEvents.append((observe, .exited)) }
+                if let gesture = playGestures.removeValue(forKey: id) { playEvents.append { gesture.emit(.exited) } }
                 for session in sessions?.end(gameID: id) ?? [] {
                     guard let game, let sessions,
                           let summary = SessionSummary(session: session, game: game,
@@ -414,8 +441,8 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
                 if heartbeat, case .running = state.phase { sessions?.heartbeat(for: id) }
             }
             if case .failed = state.phase {
-                if let observe = playObservers.removeValue(forKey: id) {
-                    playEvents.append((observe, .result(.refused(.notStarted))))
+                if let gesture = playGestures[id], !gesture.reported(.result(.refused(.notStarted))) {
+                    playEvents.append { gesture.emit(.result(.refused(.notStarted))) }
                 }
                 sessions?.abandonStart(gameID: id)
                 returnFocus.playAbandoned(id)
@@ -430,7 +457,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
         }
         for id in ended { gameEnded(id) }
         followBackground()
-        for (observe, event) in playEvents { observe(event) }
+        for send in playEvents { send() }
     }
 
     // MARK: - Back to Arcane
@@ -612,7 +639,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
             }
             self.launchScreen?.ready = true
             self.readiness = nil
-            if visible { self.playObservers[id]?(.ready) }
+            if visible { self.playGestures[id]?.emit(.ready) }
         }
     }
 

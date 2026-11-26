@@ -27,6 +27,7 @@ final class RunningGameMonitor: ObservableObject {
         var session: HomeMenu.Session?
         var notifications: [NSObjectProtocol] = []
         var exit: DispatchSourceProcess?
+        var attributedExit: (() -> Void)?
 
         init(app: NSRunningApplication) { self.app = app }
 
@@ -189,17 +190,35 @@ final class RunningGameMonitor: ObservableObject {
             let others = libraryBundleIDs.intersection(tracker.running).subtracting(ended)
             let othersRunning = !others.isEmpty || SteamPlayCoordinator.shared.hasRunningGame
             if focus.gameEnded(bundleID, othersRunning: othersRunning) { comesForward = true }
-            for session in sessions?.end(bundleID: bundleID) ?? [] {
-                guard let game = games.first(where: { $0.id == session.gameID }),
-                      let summary = SessionSummary(session: session, game: game,
-                                                   total: sessions?.totalDuration(for: game.id) ?? 0) else { continue }
-                endedSession = summary
+            let survivingHosts = Set(homeMenus.compactMap { id, watch in watch.host?.isAlive == true ? id : nil })
+            for session in sessions?.end(bundleID: bundleID, preserving: survivingHosts) ?? [] {
+                if let game = games.first(where: { $0.id == session.gameID }) {
+                    showEnded(session, game: game, store: sessions)
+                }
             }
             closeTasks[bundleID]?.cancel()
             closeTasks[bundleID] = nil
         }
         recompute()
         if comesForward { comeForward() }
+    }
+
+    func endAttributedPlay(_ game: PortedGame, store: PlaySessionStore?, onExit: @escaping () -> Void) {
+        let finish = { [weak self] in
+            for session in store?.end(gameID: game.id) ?? [] { self?.showEnded(session, game: game, store: store) }
+            onExit()
+        }
+        if let watch = homeMenus[game.id], watch.host?.isAlive == true {
+            watch.attributedExit = finish
+        } else {
+            finish()
+        }
+    }
+
+    private func showEnded(_ session: PlaySession, game: PortedGame, store: PlaySessionStore?) {
+        if let summary = SessionSummary(session: session, game: game, total: store?.totalDuration(for: game.id) ?? 0) {
+            endedSession = summary
+        }
     }
 
     private var libraryBundleIDs: Set<String> { Set(games.compactMap(\.effectiveBundleId)) }
@@ -325,6 +344,7 @@ final class RunningGameMonitor: ObservableObject {
     private func stopHomeMenu(_ id: UUID) {
         if let watch = homeMenus.removeValue(forKey: id), let host = watch.host {
             watch.session?.receive(.exited, from: host.pid)
+            watch.attributedExit?()
         }
         if pausedGameIDs.contains(id) { pausedGameIDs.remove(id) }
     }

@@ -6,14 +6,22 @@ package struct NativePlayTarget: Sendable {
     package let url: URL
     package let scope: String
     package let bundleID: String
+    package let artifact: String
 
     package init?(_ requested: URL) {
         guard requested.isFileURL else { return nil }
         let url = requested.resolvingSymlinksInPath()
-        guard let scope = Self.identity(url), let id = Bundle(url: url)?.bundleIdentifier, !id.isEmpty else { return nil }
+        guard let scope = Self.identity(url), let bundle = Bundle(url: url),
+              let id = bundle.bundleIdentifier, !id.isEmpty else { return nil }
         self.url = url
         self.scope = scope
         self.bundleID = id
+        var executable = stat()
+        if let path = bundle.executableURL?.path, stat(path, &executable) == 0 {
+            artifact = "\(scope)-\(executable.st_ino)-\(executable.st_ctimespec.tv_sec)-\(executable.st_ctimespec.tv_nsec)"
+        } else {
+            artifact = scope
+        }
     }
 
     private static func identity(_ url: URL) -> String? {

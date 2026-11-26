@@ -17,19 +17,22 @@ final class PlayEngineTests: XCTestCase {
 
         let extended = PlayEngine([steam, native, third], directory: directory)
         let request = RequestID(UUID())
-        var events: [PlayEvent] = []
+        var events: [PlayFact] = []
         XCTAssertEqual(extended.availability(of: target), .available)
         let received = extended.play(target, profile: profile, request: request, observe: { events.append($0) })
         XCTAssertEqual(received.admission, .accepted(.gameOpened))
         XCTAssertEqual(extended.play(target, profile: profile, request: request), received)
+        let persisted = await third.waiting?.backedByJournal()
+        XCTAssertEqual(persisted, true)
         let restarted = PlayEngine([steam, native, third], directory: directory)
-        var replayed: [PlayEvent] = []
+        var replayed: [PlayFact] = []
         XCTAssertEqual(restarted.play(target, profile: profile, request: request, observe: { replayed.append($0) }), received)
         XCTAssertEqual(replayed, events)
         XCTAssertEqual(third.gameID, record.id)
         XCTAssertEqual(third.installation, "fixture-installation")
         XCTAssertEqual(third.profile, profile)
-        XCTAssertEqual(events, [.ready, .exited])
+        XCTAssertEqual(events.map(\.event), [.ready, .exited])
+        XCTAssertEqual(events.map(\.sequence), [1, 2])
         XCTAssertNil(steam.gameID)
         XCTAssertNil(native.gameID)
 
@@ -73,6 +76,8 @@ final class PlayEngineTests: XCTestCase {
         let request = RequestID(UUID())
         let received = original.play(target, profile: profile, request: request)
         XCTAssertEqual(received.admission, .accepted(.pending))
+        let reserved = await adapter.submission?.value
+        XCTAssertEqual(reserved, true)
         XCTAssertEqual(original.play(target, profile: profile, request: request), received)
         XCTAssertEqual(original.play(alias, profile: profile, request: RequestID(UUID())).admission, .refused(.outcomeUnknown))
         let restarted = PlayEngine([adapter], directory: directory)
@@ -89,7 +94,8 @@ final class PlayEngineTests: XCTestCase {
     var installation: String?
     var profile: PlayProfile?
     var attempts = 0
-    private var waiting: PlayGesture?
+    var waiting: PlayGesture?
+    var submission: Task<Bool, Never>?
 
     init(source: CatalogIntegration, acceptance: PlayAcceptance) {
         self.source = source
@@ -100,8 +106,11 @@ final class PlayEngineTests: XCTestCase {
 
     func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult {
         if case .unavailable(let reason) = availability(of: target) { return .refused(reason) }
-        if acceptance == .pending, let reason = gesture.reserve("fixture-app") { return .refused(reason) }
-        if acceptance == .pending { waiting = gesture }
+        if acceptance == .pending {
+            if gesture.hasUnsettledHandoff("fixture-app") { return .refused(.outcomeUnknown) }
+            submission = Task { await gesture.reserve("fixture-app") == nil }
+        }
+        waiting = gesture
         attempts += 1
         gameID = target.game.id
         installation = target.installation?.id

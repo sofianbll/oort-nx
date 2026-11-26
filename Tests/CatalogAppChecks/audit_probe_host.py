@@ -85,7 +85,7 @@ func suppressProbeNotifications() {
                 # LaunchServices strips the environment of a launch requested from seatbelt.
                 # Only the isolated, windowless Play fixture exercises that production capability.
                 fixture = Path((environment or {}).get("OORT_PLAY_FIXTURE_DIR", "")).resolve()
-                if fixture.parent != Path("/private/tmp") or not fixture.name.startswith("oort-lot2-native-"):
+                if fixture.parent != Path("/private/tmp") or not fixture.name.startswith("oort-native-play-"):
                     raise ValueError("Expected a disposable native Play fixture")
                 command = [str(binary)]
                 env = {key: env[key] for key in ("HOME", "CFFIXED_USER_HOME", "PACKAGE_RESOURCE_BUNDLE_PATH")}

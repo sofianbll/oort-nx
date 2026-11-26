@@ -10,7 +10,7 @@ import ArcanePorting
     let source = CatalogIntegration.macShortcut
     private unowned let app: AppViewModel
     private let open: Opener
-    private var opening = false
+    private(set) var isOpening = false
 
     init(app: AppViewModel, open: Opener? = nil) {
         self.app = app
@@ -25,13 +25,17 @@ import ArcanePorting
         return shortcut.verifiedURL() == nil ? .unavailable(.installationMissing) : .available
     }
 
+    func artifact(of target: PlayTarget) -> String? {
+        target.game.macShortcut.flatMap { NativePlayTarget($0.url)?.artifact }
+    }
+
     func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult {
         guard !profile.blocksPlay, profile == app.playProfile else { return .refused(.profileLocked) }
         guard !profile.isGuest else {
             app.showSettingsNotice(title: "Mac app shortcut", message: L10n.text("Switch to a regular profile to open Mac apps from the library."))
             return .refused(.guestUnsupported)
         }
-        guard !opening, app.launchingGameId == nil, app.launchOverlay == nil else { return .refused(.launchInProgress) }
+        guard !isOpening, app.launchingGameId == nil, app.launchOverlay == nil else { return .refused(.launchInProgress) }
         guard target.installationAvailability != .unavailable(.sourceDisabled) else { return .refused(.sourceDisabled) }
         guard let shortcut = app.visibleCatalogGames.first(where: { $0.id == target.game.id })?.macShortcut else {
             return .refused(.missingTarget)
@@ -47,15 +51,27 @@ import ArcanePorting
         }
         guard let native = NativePlayTarget(url), native.bundleID == shortcut.bundleIdentifier
         else { return .refused(.outcomeUnknown) }
-        if let reason = gesture.reserve(native.scope) { return .refused(reason) }
-        opening = true
-        open(native.url) { [weak self] handedOff in
-            gesture.finish(handedOff ? .accepted(.handedOff) : .refused(.handoffRejected))
+        if gesture.hasUnsettledHandoff(native.scope) { return .refused(.outcomeUnknown) }
+        isOpening = true
+        Task { @MainActor [weak self] in
             guard let self else { return }
-            self.opening = false
-            if !handedOff, self.app.playProfile == profile {
-                self.app.showSettingsNotice(title: "Could not open the Mac app",
-                                            message: L10n.text("macOS did not accept the request. The app was not changed."))
+            let refusal: PlayRefusal? = if let refusal = await gesture.reserve(native.scope) { refusal }
+                else if self.app.playProfile != profile { .profileLocked }
+                else if NativePlayTarget(url)?.artifact != native.artifact { .stale }
+                else { nil }
+            if let refusal {
+                gesture.finish(.refused(refusal)) { [weak self] in self?.isOpening = false }
+                return
+            }
+            self.open(native.url) { [weak self] handedOff in
+                gesture.finish(handedOff ? .accepted(.handedOff) : .refused(.handoffRejected)) {
+                    [weak self] in
+                    self?.isOpening = false
+                    if let self, !handedOff, self.app.playProfile == profile {
+                        self.app.showSettingsNotice(title: "Could not open the Mac app",
+                                                    message: L10n.text("macOS did not accept the request. The app was not changed."))
+                    }
+                }
             }
         }
         return .accepted(.pending)

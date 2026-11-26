@@ -1335,6 +1335,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug; home temporanea, sandbox salvo la fixture locale di LaunchServices. |
+| [run_native_play.py](../../Tests/CatalogAppChecks/run_native_play.py) | Costruisce un'app accessoria muta e prova il riaggancio in concorrenza nel percorso Play reale. |
+| [NativePlayFixture.swift](../../Tests/CatalogAppChecks/NativePlayFixture.swift) | Témoin AppKit senza finestre o dati di gioco. |
+| [NativePlayRace.swift](../../Tests/CatalogAppChecks/NativePlayRace.swift) | Intercala la fixture esterna prima della consegna e verifica zero storico e durata. |
 | [run_platform_cards.py](../../Tests/CatalogAppChecks/run_platform_cards.py) | Lancia Spotlight isolato e conserva i PNG e, con ffmpeg, lo scorrimento video. |
 | [run_credits.py](../../Tests/CatalogAppChecks/run_credits.py) | Apre About isolata, conserva i PNG e prova i crediti con il controller. |
 | [CreditsProbe.swift](../../Tests/CatalogAppChecks/CreditsProbe.swift) | Host della prova di About: tre lingue, tutte le schede, ordine delle righe e destinazione localizzata del finanziamento con browser simulato. |

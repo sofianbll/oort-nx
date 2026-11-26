@@ -408,7 +408,7 @@ final class AppViewModel: ObservableObject {
     weak var runningGameMonitor: RunningGameMonitor?
     let developmentOperations = DevelopmentOperationStore()
     lazy var storageManager = StorageManager()
-    var gameSaveLaunches: [UUID: (pid: pid_t, date: Date?, profile: UUID?)] = [:]
+    var gameSaveLaunches: [UUID: (pid: pid_t, date: Date?, profile: UUID?, run: RunRef)] = [:]
     let sourceCatalog = SourceCatalog()
     lazy var workspaceManager = WorkspaceManager(root: core.appendingPathComponent("workspaces"))
     var libraryScanRequest = LibraryScanRequest.standalone

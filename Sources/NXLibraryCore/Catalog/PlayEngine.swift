@@ -4,7 +4,12 @@ import Foundation
 @MainActor package protocol PlayAdapter {
     var source: CatalogIntegration { get }
     func availability(of target: PlayTarget) -> PlayAvailability
+    func artifact(of target: PlayTarget) -> String?
     func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult
+}
+
+extension PlayAdapter {
+    package func artifact(of target: PlayTarget) -> String? { target.installation?.id }
 }
 
 @MainActor package final class PlayEngine {
@@ -29,32 +34,33 @@ import Foundation
     }
 
     package func play(_ target: PlayTarget?, profile: PlayProfile, request: RequestID,
-                      observe: PlayObserver? = nil) -> PlayReceipt {
+                      observe: PlayFactObserver? = nil) -> PlayReceipt {
         func refusal(_ reason: PlayRefusal) -> PlayReceipt { PlayReceipt(request, .refused(reason)) }
+        let selected = target.flatMap { adapter(for: $0.game.integration) }
         let input = PlayJournal.Input(game: target?.game.id, source: target?.game.integration.rawValue,
                                       installation: target?.installation?.id, profile: profile,
-                                      available: target?.installationAvailability, resumeOnly: target?.resumeOnly)
+                                      available: target?.installationAvailability, resumeOnly: target?.resumeOnly,
+                                      artifact: target.flatMap { selected?.artifact(of: $0) })
         if let gesture = gestures[request]?.gesture {
             return gesture.input == input ? gesture.replay(to: observe) : refusal(.stale)
         }
         do {
             if let saved = try journal.read(request) {
                 guard saved.input == input else { return refusal(.stale) }
-                if saved.scope != nil || saved.admission == nil ||
-                    saved.admission == .accepted(.pending) && saved.events.isEmpty {
+                if let scope = saved.scope, journal.held(scope) { return refusal(.outcomeUnknown) }
+                if saved.admission == nil || saved.admission == .accepted(.pending) && saved.facts.isEmpty {
                     return refusal(.outcomeUnknown)
                 }
-                saved.events.forEach { observe?($0) }
-                return PlayReceipt(request, saved.admission!)
+                saved.facts.forEach { observe?($0) }
+                return PlayReceipt(request, saved.admission!, run: saved.admissionRun.map(RunRef.init))
             }
             let gesture = PlayGesture(request, input: input, journal: journal, observe: observe)
-            try gesture.register()
+            gesture.register()
             gestures = gestures.filter { $0.value.gesture != nil }
             gestures[request] = Live(gesture: gesture)
             let admission: PlayResult
             if let target {
-                admission = adapter(for: target.game.integration)?.admit(target, profile: profile, gesture: gesture)
-                    ?? .refused(.unsupportedSource)
+                admission = selected?.admit(target, profile: profile, gesture: gesture) ?? .refused(.unsupportedSource)
             } else {
                 admission = .refused(.missingTarget)
             }
@@ -77,85 +83,141 @@ import Foundation
     fileprivate var input: PlayJournal.Input { record.input }
     private var record: PlayJournal.Record
     private let journal: PlayJournal
-    private var observers: [PlayObserver]
+    private var observers: [PlayFactObserver]
     private var receipt: PlayReceipt?
+    private var writes: Task<Bool, Never>?
+    private var deliveries: Task<Void, Never>?
+    private var run: RunRef?
 
-    fileprivate init(_ request: RequestID, input: PlayJournal.Input, journal: PlayJournal, observe: PlayObserver?) {
+    fileprivate init(_ request: RequestID, input: PlayJournal.Input, journal: PlayJournal, observe: PlayFactObserver?) {
         self.request = request
         self.record = .init(input: input)
         self.journal = journal
         self.observers = observe.map { [$0] } ?? []
     }
 
-    fileprivate func register() throws { try journal.write(record, for: request, replacing: false) }
+    fileprivate func register() { save(replacing: false) }
 
     fileprivate func admit(_ result: PlayResult) -> PlayReceipt {
         record.admission = result
-        let accepted = (try? journal.write(record, for: request)) != nil
-        let result = PlayReceipt(request, accepted ? result : .refused(.outcomeUnknown))
+        record.admissionRun = run?.id
+        save()
+        let result = PlayReceipt(request, result, run: run)
         receipt = result
         return result
     }
 
-    fileprivate func replay(to observe: PlayObserver?) -> PlayReceipt {
+    fileprivate func replay(to observe: PlayFactObserver?) -> PlayReceipt {
         if let observe {
-            record.events.forEach(observe)
-            if record.events.last != .exited { observers.append(observe) }
+            record.facts.forEach(observe)
+            if record.facts.last?.event != .exited { observers.append(observe) }
         }
         return receipt ?? PlayReceipt(request, .accepted(.pending))
     }
 
     /// This is called at submission, not when a cover or a request for confirmation is displayed.
-    package func reserve(_ scope: String) -> PlayRefusal? {
+    package func reserve(_ scope: String) async -> PlayRefusal? {
         guard record.scope == nil else { return .outcomeUnknown }
-        do {
+        record.scope = scope
+        let accepted = await persist { journal, record, request in
             try journal.claim(scope, for: request)
-            record.scope = scope
-            try journal.write(record, for: request)
-            return nil
-        } catch { return .outcomeUnknown }
+            do { try journal.write(record, for: request) }
+            catch {
+                // No request was sent. It is safe to undo our own claim.
+                try? journal.release(scope, for: request)
+                throw error
+            }
+        }.value
+        if !accepted { record.scope = nil }
+        return accepted ? nil : .outcomeUnknown
     }
 
     package func hasUnsettledHandoff(_ scope: String) -> Bool { journal.held(scope) }
 
+    package var hasSubmitted: Bool { record.scope != nil }
+    package func reported(_ event: PlayEvent) -> Bool { record.facts.contains { $0.event == event } }
+
+    package func acceptResume(run: RunRef?) { self.run = run }
+
+    package func backedByJournal() async -> Bool {
+        let written = await writes?.value ?? false
+        await deliveries?.value
+        return written
+    }
+
     package func emit(_ event: PlayEvent) {
-        record.events.append(event)
-        try? journal.write(record, for: request)
-        for observe in observers { observe(event) }
-        if event == .exited { observers.removeAll() }
+        let fact = append(event)
+        publish(fact, after: save())
     }
 
     /// Only a definitive response to the effect can release the native reservation.
-    package func finish(_ result: PlayResult) {
-        guard let scope = record.scope else { emit(.result(result)); return }
-        record.events.append(.result(result))
-        do {
+    package func finish(_ result: PlayResult, run: RunRef? = nil,
+                        afterSettled: @escaping @MainActor () -> Void = {}) {
+        self.run = run
+        let fact = append(.result(result))
+        let scope = record.scope
+        record.scope = nil
+        let job = persist { journal, record, request in
             try journal.write(record, for: request)
-            try journal.release(scope, for: request)
-            record.scope = nil
-            try journal.write(record, for: request)
-        } catch {
-            // The effect already happened (or was refused). Do not send it again to repair a receipt.
+            if let scope { try journal.release(scope, for: request) }
         }
-        for observe in observers { observe(.result(result)) }
+        publish(fact, after: job, settled: afterSettled)
+    }
+
+    private func append(_ event: PlayEvent) -> PlayFact {
+        let fact = PlayFact(sequence: record.facts.count + 1, event: event, run: run)
+        record.facts.append(fact)
+        return fact
+    }
+
+    private func publish(_ fact: PlayFact, after job: Task<Bool, Never>, settled: @escaping @MainActor () -> Void = {}) {
+        let previous = deliveries
+        deliveries = Task {
+            await previous?.value
+            _ = await job.value
+            settled()
+            for observe in observers { observe(fact) }
+            if fact.event == .exited { observers.removeAll() }
+        }
+    }
+
+    @discardableResult private func save(replacing: Bool = true) -> Task<Bool, Never> {
+        persist { try $0.write($1, for: $2, replacing: replacing) }
+    }
+
+    @discardableResult private func persist(
+        _ operation: @escaping @Sendable (PlayJournal, PlayJournal.Record, RequestID) throws -> Void
+    ) -> Task<Bool, Never> {
+        let previous = writes
+        let job = Task.detached { [journal, record, request] in
+            if let previous, !(await previous.value) { return false }
+            do { try operation(journal, record, request); return true }
+            catch { return false }
+        }
+        writes = job
+        // An immediate replay must see this gesture until its receipt is on disk.
+        Task { _ = await job.value; withExtendedLifetime(self) {} }
+        return job
     }
 }
 
-fileprivate struct PlayJournal {
-    struct Input: Equatable, Codable {
+fileprivate struct PlayJournal: Sendable {
+    struct Input: Equatable, Codable, Sendable {
         let game: UUID?
         let source: String?
         let installation: String?
         let profile: PlayProfile
         let available: PlayAvailability?
         let resumeOnly: Bool?
+        let artifact: String?
     }
 
-    struct Record: Codable {
+    struct Record: Codable, Sendable {
         let input: Input
         var admission: PlayResult?
+        var admissionRun: UUID?
         var scope: String?
-        var events: [PlayEvent] = []
+        var facts: [PlayFact] = []
     }
 
     let directory: URL

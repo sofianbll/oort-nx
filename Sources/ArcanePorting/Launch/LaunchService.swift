@@ -4,7 +4,7 @@ import NXLibraryCore
 
 public protocol AppLaunching {
     func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
-              begin: Date, onExit: (@Sendable () -> Void)?,
+              begin: Date, expectedArtifact: String?, onExit: (@Sendable () -> Void)?,
               completion: @escaping @Sendable (AppOpenResult) -> Void)
 }
 
@@ -30,7 +30,7 @@ public final class NSWorkspaceLauncher: AppLaunching {
     public init() {}
 
     public func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
-                     begin: Date, onExit: (@Sendable () -> Void)?,
+                     begin: Date, expectedArtifact: String?, onExit: (@Sendable () -> Void)?,
                      completion: @escaping @Sendable (AppOpenResult) -> Void) {
         guard let target = NativePlayTarget(url) else {
             completion(.failed(L10n.format("The app bundle is missing: %@", [url.path])))
@@ -42,6 +42,10 @@ public final class NSWorkspaceLauncher: AppLaunching {
         let origin = UUID().uuidString
         configuration.environment[NativePlayTarget.originKey] = origin
         let proof = PlayAttribution(startedAt: begin, before: Set(target.running().map(\.processIdentifier)))
+        guard expectedArtifact == nil || expectedArtifact == NativePlayTarget(target.url)?.artifact else {
+            completion(.failed(nil))
+            return
+        }
         NSWorkspace.shared.openApplication(at: target.url, configuration: configuration) { app, error in
             if let error {
                 completion(.failed(error.localizedDescription))
@@ -163,15 +167,17 @@ public final class LaunchService {
     static let overlayHomeSwapKey = "DM_OVERLAY_HOME_SWAP"
 
     package func launch(appURL: URL, environment: [String: String] = [:], beganAt: Date = .now,
+                       expectedArtifact: String? = nil,
                        homeButton: InGameHomeButton = .auto,
                        overlay: GameOverlayLaunch? = nil, snapshot: GameOverlaySnapshot? = nil,
                        players: PlayersLaunch? = nil, onExit: (@Sendable () -> Void)? = nil,
                        completion: @escaping @Sendable (AppOpenResult) -> Void) {
-        launch(appURL: appURL, environment: environment, beganAt: beganAt, homeButton: homeButton, overlay: overlay, snapshot: snapshot,
+        launch(appURL: appURL, environment: environment, beganAt: beganAt, expectedArtifact: expectedArtifact,
+               homeButton: homeButton, overlay: overlay, snapshot: snapshot,
                temporaryDirectory: FileManager.default.temporaryDirectory, players: players, onExit: onExit, completion: completion)
     }
 
-    func launch(appURL: URL, environment: [String: String] = [:], beganAt: Date = .now,
+    func launch(appURL: URL, environment: [String: String] = [:], beganAt: Date = .now, expectedArtifact: String? = nil,
                 homeButton: InGameHomeButton = .auto,
                 overlay: GameOverlayLaunch?, snapshot: GameOverlaySnapshot?, temporaryDirectory: URL,
                 players: PlayersLaunch? = nil, onExit: (@Sendable () -> Void)? = nil,
@@ -199,7 +205,7 @@ public final class LaunchService {
         }
         let afterExit = (cleanup == nil && portraits == nil && onExit == nil) ? nil : cleanThenReport
         launcher.open(appURL, environment: values, suppressInheritedPlayerMode: players?.status.plan == .active,
-                      begin: beganAt, onExit: afterExit) { result in
+                      begin: beganAt, expectedArtifact: expectedArtifact, onExit: afterExit) { result in
             switch result {
             case .joined, .failed: cleanup?(); portraits?.clean()
             case .started, .handedOff: break

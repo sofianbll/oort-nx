@@ -73,6 +73,16 @@ extension ProfileScreenProbe {
         var sent: [URL] = []
         var complete: (@MainActor (Bool) -> Void)?
         vm.macShortcuts = MacShortcutAdapter(app: vm) { url, done in sent.append(url); complete = done }
+        func waitForSubmission(_ number: Int) async throws {
+            let end = ContinuousClock.now + .seconds(3)
+            while sent.count < number && .now < end { try await Task.sleep(for: .milliseconds(20)) }
+            guard sent.count == number else { throw CocoaError(.fileWriteUnknown) }
+        }
+        func waitForReceipt() async throws {
+            let end = ContinuousClock.now + .seconds(3)
+            while vm.macShortcuts.isOpening && .now < end { try await Task.sleep(for: .milliseconds(20)) }
+            guard !vm.macShortcuts.isOpening else { throw CocoaError(.fileWriteUnknown) }
+        }
         precondition(!vm.macShortcuts.acceptDrop([source]))
         let broken = data.appendingPathComponent("Not really an app.app", isDirectory: true)
         try fm.createDirectory(at: broken, withIntermediateDirectories: true)
@@ -106,13 +116,16 @@ extension ProfileScreenProbe {
         vm.settingsNotice = nil
         row.handle(.navigateUp)
         row.handle(.confirm)
-        precondition(sent.count == 1 && sent[0] == game.macShortcut?.url)
+        try await waitForSubmission(1)
+        precondition(sent[0].resolvingSymlinksInPath().path == game.macShortcut?.url.resolvingSymlinksInPath().path)
         precondition(vm.play(game) == .refused(.launchInProgress))
         complete?(true); complete = nil
+        try await waitForReceipt()
         router.setInitialRoute(.collection)
         collection().handle(.confirm)
-        precondition(sent.count == 2)
+        try await waitForSubmission(2)
         complete?(true); complete = nil
+        try await waitForReceipt()
         collection().handle(.contextAction)
         precondition(vm.settingsNotice?.title == "Tile options")
         vm.settingsNotice = nil
@@ -129,7 +142,9 @@ extension ProfileScreenProbe {
         vm.settingsNotice = nil
         var events: [PlayEvent] = []
         precondition(vm.play(game) { events.append($0) } == .accepted(.pending))
+        try await waitForSubmission(3)
         complete?(false); complete = nil
+        try await waitForReceipt()
         precondition(events == [.result(.refused(.handoffRejected))] && vm.settingsNotice?.title == "Could not open the Mac app")
         vm.settingsNotice = nil
 

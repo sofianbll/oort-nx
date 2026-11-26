@@ -15,8 +15,17 @@ extension AppViewModel {
     @MainActor @discardableResult
     func play(_ game: CatalogGame, request: RequestID = RequestID(UUID()), resumeOnly: Bool = false,
               observe: PlayObserver? = nil) -> PlayResult {
-        engine.play(playTarget(for: game, resumeOnly: resumeOnly), profile: playProfile,
-                    request: request, observe: observe).admission
+        let result = engine.play(playTarget(for: game, resumeOnly: resumeOnly), profile: playProfile, request: request) {
+            [weak self] fact in
+            if fact.event == .result(.refused(.outcomeUnknown)) { self?.reportUncertainPlay() }
+            observe?(fact.event)
+        }.admission
+        if result == .refused(.outcomeUnknown) { reportUncertainPlay() }
+        return result
+    }
+
+    private func reportUncertainPlay() {
+        logs.append(LogEntry(level: .warning, message: "Play outcome unknown. Oort did not send another launch request."))
     }
 
     @MainActor func pressPlay(_ game: CatalogGame) {
@@ -38,6 +47,10 @@ extension AppViewModel {
             return target.installationAvailability
         }
         return FileManager.default.fileExists(atPath: installation.contentURL.path) ? .available : .unavailable(.installationMissing)
+    }
+
+    func artifact(of target: PlayTarget) -> String? {
+        target.game.nxnativeGame.flatMap { NativePlayTarget($0.url)?.artifact }
     }
 
     func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult {

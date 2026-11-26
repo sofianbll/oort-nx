@@ -49,7 +49,8 @@ extension AppViewModel {
                 alertMessage = L10n.text("Close the game before managing its saves. Keep it closed until this operation finishes.")
                 return .refused(.savesUnavailable)
             }
-            if let runningGameMonitor, known != nil { runningGameMonitor.resume(requested, application: running) }
+            gesture.acceptResume(run: known?.run)
+            if let runningGameMonitor { runningGameMonitor.resume(requested, application: running) }
             else { RunningGameMonitor.activate(running) }
             return .accepted(.gameOpened)
         }
@@ -269,8 +270,8 @@ extension AppViewModel {
                 overrides[GameDisplay.key] = nil
             }
             let players = await preparePlayers(for: game, titleID: titleId, environment: overrides)
-            openGame(game, native: native, profile: profile, titleId: titleId, token: saveLaunchToken, environment: overrides,
-                     players: players, overlay: overlay, snapshot: overlayData.snapshot, gesture: gesture)
+            await openGame(game, native: native, profile: profile, titleId: titleId, token: saveLaunchToken, environment: overrides,
+                           players: players, overlay: overlay, snapshot: overlayData.snapshot, gesture: gesture)
         }
         return .accepted(.pending)
     }
@@ -305,21 +306,41 @@ extension AppViewModel {
                                      titleId: String, token saveLaunchToken: UUID,
                                      environment: [String: String], players: PlayersLaunch,
                                      overlay: GameOverlayLaunch, snapshot: GameOverlaySnapshot,
-                                     gesture: PlayGesture) {
-        let refusal: PlayRefusal? = if playProfile != profile { .profileLocked }
-            else if NativePlayTarget(game.url)?.scope != native.scope { .stale }
-            else { gesture.reserve(native.scope) }
+                                     gesture: PlayGesture) async {
+        let reserved = await gesture.reserve(native.scope)
+        let refusal: PlayRefusal? = if let reserved { reserved }
+            else if playProfile != profile { .profileLocked }
+            else if NativePlayTarget(game.url)?.artifact != native.artifact { .stale }
+            else { nil }
         if let refusal {
             players.discardPortraits()
             resetPlay(game, titleId: titleId, token: saveLaunchToken)
-            gesture.emit(.result(.refused(refusal)))
+            gesture.finish(.refused(refusal))
             return
         }
         let evaluate = snapshot.profile.flatMap { localAchievementExit(for: game, profile: $0.id, environment: environment) }
-        let onExit: @Sendable () -> Void = { evaluate?(); DispatchQueue.main.async { gesture.emit(.exited) } }
+        let run = RunRef(UUID())
+        let onExit: @Sendable () -> Void = { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                let finished = { [weak self] in
+                    if self?.gameSaveLaunches[game.id]?.run == run { self?.gameSaveLaunches[game.id] = nil }
+                    evaluate?()
+                    gesture.emit(.exited)
+                }
+                if let self, self.gameSaveLaunches[game.id]?.run == run {
+                    if let monitor = self.runningGameMonitor {
+                        monitor.endAttributedPlay(game, store: self.playSessionStore, onExit: finished)
+                        return
+                    }
+                    self.playSessionStore?.end(gameID: game.id)
+                }
+                finished()
+            }
+        }
         // The player's own value in env.txt, if any, is already in `environment` and stays.
         let spoken = environment.merging([LaunchService.quitTextKey: LaunchService.quitText(gameName: game.name)]) { own, _ in own }
         launchService.launch(appURL: native.url, environment: spoken, beganAt: gesture.startedAt,
+                             expectedArtifact: native.artifact,
                              homeButton: settingsStore.map { store in
                                  GamepadLayout(store.settings).gameHome(store.settings.inGameHomeButton)
                              } ?? .auto,
@@ -333,9 +354,8 @@ extension AppViewModel {
                 switch result {
                 case .started(let running):
                     self.saveGate.end(titleID: titleId, token: saveLaunchToken)
-                    self.gameSaveLaunches[game.id] = (running.processIdentifier, running.launchDate, snapshot.profile.flatMap {
-                        $0.id == self.localProfiles?.originalID ? nil : $0.id
-                    })
+                    let profileID = snapshot.profile.flatMap { $0.id == self.localProfiles?.originalID ? nil : $0.id }
+                    self.gameSaveLaunches[game.id] = (running.processIdentifier, running.launchDate, profileID, run)
                     self.lastError = nil
                     self.playSessionStore?.start(for: game)
                     self.logs.append(LogEntry(level: .success, message: L10n.format("Launched game: %@", [String(describing: game.name)])))
@@ -343,7 +363,7 @@ extension AppViewModel {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                         if self.launchingGameId == game.id { self.launchingGameId = nil }
                     }
-                    gesture.finish(.accepted(.gameOpened))
+                    gesture.finish(.accepted(.gameOpened), run: run)
                 case .joined, .handedOff:
                     self.resetPlay(game, titleId: titleId, token: saveLaunchToken)
                     self.lastError = nil
@@ -441,7 +461,7 @@ extension AppViewModel {
                                               message: L10n.format("%@ showed no window within 60 s; launch screen closed.", [String(describing: game.name)])))
                 }
                 self.launchOverlay?.isReady = true
-                if visible { gesture.emit(.ready) }
+                gesture.emit(visible ? .ready : .readinessTimedOut)
             }
         }
     }
