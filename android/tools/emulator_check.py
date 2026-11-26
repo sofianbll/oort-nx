@@ -116,13 +116,14 @@ def screen(check_targets=True):
         w, h = n.box[2] - n.box[0], n.box[3] - n.box[1]
         if min(w, h) >= 47.5 * scale:
             continue
-        # A line cut by the edge of its scrolling page is not a small target.
+        # Compose can report a clickable wrapper crossing the scroll edge, not just
+        # the clipped bounds of its visible button. Neither is a full measurement.
         edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 120 * scale
         while not edge and (element := parents.get(element)) is not None:
             if element.get("scrollable") == "true":
                 left, top, right, bottom = by_element[element].box
-                edge = (w < 47.5 * scale and (n.box[0] == left or n.box[2] == right)
-                        or h < 47.5 * scale and (n.box[1] == top or n.box[3] == bottom))
+                edge = (w < 47.5 * scale and (n.box[0] <= left or n.box[2] >= right)
+                        or h < 47.5 * scale and (n.box[1] <= top or n.box[3] >= bottom))
         if not edge:
             if (n.said or "(no name)") not in small:
                 shot(f"SMALL-{len(small)}")

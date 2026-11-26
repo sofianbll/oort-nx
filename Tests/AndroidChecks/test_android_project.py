@@ -33,11 +33,13 @@ class AndroidProject(unittest.TestCase):
         env["shell"] = Mock(return_value="Physical density: 420")
         env["shot"] = Mock()
         env["adb"] = Mock(return_value=f"""
-            <hierarchy><node bounds="[0,0][1080,2400]">
-              <node scrollable="true" bounds="[52,317][1028,2336]">
+            <hierarchy><node bounds="[0,0][1080,2650]">
+              <node scrollable="true" bounds="[52,317][1028,1800]">
                 <node package="{env['PACKAGE']}" clickable="true" text="Clipped" bounds="[52,317][1028,440]"/>
+                <node package="{env['PACKAGE']}" clickable="true" text="Crosses top" bounds="[52,254][1028,323]"/>
                 <node package="{env['PACKAGE']}" clickable="true" text="Too short" bounds="[52,490][1028,613]"/>
                 <node package="{env['PACKAGE']}" clickable="true" text="Full size" bounds="[52,650][1028,776]"/>
+                <node package="{env['PACKAGE']}" clickable="true" text="Crosses bottom" bounds="[52,1750][1028,1853]"/>
               </node>
             </node></hierarchy>""")
         screen()
