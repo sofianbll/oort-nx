@@ -94,7 +94,7 @@ struct CopySettingsPanel: View {
         SoundEffectService.shared.play(.click)
         let target = targets[index]
         viewModel.showSettingsNotice(title: L10n.format("Copy settings to %@?", [target.game.name]),
-                                     message: CopySettingsPanel.summary(target.copy), actionTitle: "Copy", cancelTitle: "Cancel", cancelFirst: true) {
+                                      message: CopySettingsPanel.summary(target.copy), actionTitle: "Copy", cancelTitle: "Cancel") {
             guard viewModel.runtimeSettings.copySettings(from: game, to: target.game) else { return }
             onClose()
         }
