@@ -306,9 +306,9 @@ App data lives in `~/Library/Application Support/NXLibrary/`. Local game data us
 | [Steam](docs/how-it-works/steam.md) | Steam integration: files read, game states, launch, playtime, achievements, limits; in Italian. |
 | [Engine upgrade notes](docs/history/engine-upgrades/README.md) | Pin changes and their evidence. |
 
-If you would like to support **Bium23, the original author of Arcane**, you can [buy Bium23 a coffee](https://buymeacoffee.com/bium). This supports Bium23, not the Oort NX fork.
-
 ## Credits and licences
+
+Oort NX builds on [Arcane by Bium23](https://github.com/Bium23/NxLibrary).
 
 Arcane is MIT licensed. It uses upstream [nxnative](https://github.com/seedds/nxnative). It began from the MIT nxnative_Launcher codebase, which has been rewritten since; that repository is no longer available and its notice stays in [NOTICE](NOTICE). Adaptations from [NX2Apple](https://github.com/LNPANDY/NX2Apple) cover key checks, failure explanations, diagnostics and updates.
 

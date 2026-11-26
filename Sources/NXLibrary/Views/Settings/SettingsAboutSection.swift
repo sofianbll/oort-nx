@@ -12,10 +12,16 @@ struct SettingsAboutSection: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.openURL) private var openURL
     let onActions: ([SettingsRowAction]) -> Void
 
     @State private var didCopyDiagnostics = false
-    private static let supportTitle = "Support Arcane"
+    private static let fundingRow = "oort-funding"
+    private static let fundingMark: OortCreditCard.Mark = {
+        guard let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
+              let image = NSImage(contentsOf: url) else { return .glyph(.favorite) }
+        return .art(image)
+    }()
     private static let docsRow = "Open project docs"
     private static let diagnosticsRow = "Copy diagnostics"
     private static let noticeRow = "credits-notice"
@@ -59,7 +65,7 @@ struct SettingsAboutSection: View {
                              subtitle: L10n.text("A report for an issue: versions, setup and the last porting. No keys."),
                              action: copyDiagnostics)
 
-            supportButton
+            fundingButton
 
             if let credits {
                 if let base {
@@ -89,6 +95,7 @@ struct SettingsAboutSection: View {
         .onGeometryChange(for: Int.self) { [canvas] page in OortCreditGroup.fitting(page.size.width, canvas: canvas) } action: { fitting = $0 }
         .onAppear(perform: publishActions)
         .onChange(of: fitting) { publishActions() }
+        .onChange(of: localization.language) { publishActions() }
         .onChange(of: updater.state) { publishActions() }
         .onChange(of: opened) { publishActions() }
         .onChange(of: viewModel.isBuilding) { publishActions() }
@@ -98,15 +105,16 @@ struct SettingsAboutSection: View {
         .onChange(of: viewModel.runningGameCount) { publishActions() }
     }
 
-    private var supportButton: some View {
-        OortCreditCard(mark: .platform(.support),
-                       name: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization),
-                       byline: L10n.text("Optional contributions support development and maintenance.", context: localization),
-                       focused: focusedRowTitle == Self.supportTitle, action: openSupportPage)
-            .id("selene-row-\(Self.supportTitle)")
-    }
-
     private var language: String { localization.language.rawValue }
+    private var fundingTitle: String { L10n.text("Support Oort NX", context: localization) }
+
+    private var fundingButton: some View {
+        OortCreditCard(mark: Self.fundingMark, name: fundingTitle,
+                       byline: L10n.text("Sofian develops and maintains Oort NX.", context: localization),
+                       hint: L10n.text("Opens in your browser", context: localization),
+                       focused: focusedRowTitle == Self.fundingRow, action: openFundingPage)
+            .id("selene-row-\(Self.fundingRow)")
+    }
 
     private func cards(_ group: Credits.Group, _ credits: Credits) -> some View {
         OortCreditGroup(group: group, credits: credits, fitting: fitting, focusedCard: focusedCard(in: group), open: open)
@@ -148,7 +156,7 @@ struct SettingsAboutSection: View {
         }
         actions.append(.init(id: "docs", title: "Open project docs", rowID: Self.docsRow, activate: openProjectDocs))
         actions.append(.init(id: "diagnostics", title: "Copy diagnostics", rowID: Self.diagnosticsRow, activate: copyDiagnostics))
-        actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
+        actions.append(.init(id: Self.fundingRow, title: fundingTitle, rowID: Self.fundingRow, activate: openFundingPage))
         if let base { actions += cardActions(base) }
         for group in groups {
             actions.append(.init(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
@@ -252,13 +260,11 @@ struct SettingsAboutSection: View {
         return "local"
     }
 
-    private func openSupportPage() {
-        if let url = URL(string: "https://buymeacoffee.com/bium") {
-            NSWorkspace.shared.open(url)
-        }
-    }
-
     private func openProjectDocs() {
         NSWorkspace.shared.open(AppIdentity.documentationPage)
+    }
+
+    private func openFundingPage() {
+        openURL(AppIdentity.koFiPage)
     }
 }

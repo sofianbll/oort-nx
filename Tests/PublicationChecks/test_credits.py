@@ -40,6 +40,13 @@ class CreditsTests(unittest.TestCase):
     def test_the_repository_passes(self):
         self.assertEqual(run(self.data), (0, ""))
 
+    def test_historical_support_is_in_the_notice_but_not_the_app(self):
+        copies = credits.copies(self.data)
+        self.assertIn(b"https://buymeacoffee.com/bium", copies["NOTICE"])
+        app = copies["Sources/NXLibraryCore/Resources/credits.json"]
+        self.assertNotIn(b"buymeacoffee.com", app)
+        self.assertIn(b"https://github.com/Bium23/NxLibrary", app)
+
     def test_a_dependency_without_a_credit_fails(self):
         for name, key in (("capstone", "wheel:capstone"), ("gametdb", "host:art.gametdb.com"), ("material-icons", "font:MaterialIcons-Regular.ttf"),
                           ("omarchy", "dir:ThirdPartyLicenses/omarchy"), ("lumanx", "source:LumaNX"), ("glslang", "brew:glslang")):

@@ -6217,6 +6217,40 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "基于 %3$@ 开发的 %1$@ %2$@"}}
       }
     },
+    "Support Oort NX": {
+      "comment": "Settings › About: opens Sofian's Ko-fi page in the browser.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Support Oort NX"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sostieni Oort NX"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Soutenir Oort NX"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Oort NX unterstützen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Apoyar Oort NX"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Apoiar o Oort NX"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "支持 Oort NX"}}
+      }
+    },
+    "Sofian develops and maintains Oort NX.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Sofian develops and maintains Oort NX."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sofian sviluppa e mantiene Oort NX."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sofian développe et maintient Oort NX."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sofian entwickelt und pflegt Oort NX."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sofian desarrolla y mantiene Oort NX."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sofian desenvolve e mantém o Oort NX."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Sofian 开发并维护 Oort NX。"}}
+      }
+    },
+    "Opens in your browser": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Opens in your browser"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Si apre nel browser"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ouvre le navigateur"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Öffnet sich im Browser"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Se abre en el navegador"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Abre no navegador"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在浏览器中打开"}}
+      }
+    },
     "Support %@ on Buy Me a Coffee": {
       "comment": "The placeholder is the upstream author's name. Buy Me a Coffee is a brand name.",
       "localizations": {

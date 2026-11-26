@@ -67,20 +67,28 @@ import ArcanePorting
 
         #if CREDITS
         func check(_ locale: AppLocale, output: URL) throws {
+            let icon = Bundle.main.url(forResource: "AppIcon", withExtension: "icns")
+            precondition(icon.flatMap { NSImage(contentsOf: $0) } != nil, "Missing Oort NX app icon")
             let credits = Credits.bundled!
             let groups = credits.groups(for: .mac)
             let every = Set(groups.map(\.id))
             var actions: [SettingsRowAction] = []
+            var openedURLs: [URL] = []
             let section = { (row: String?, button: Int) in
                 view(ScrollView {
                     SettingsAboutSection(viewModel: app, setup: app.setup, opened: every) { actions = $0 }
                         .padding(24)
                         .environment(\.seleneFocusedRowID, row)
                         .environment(\.seleneFocusedButton, button)
-                }, locale)
+                }.environment(\.openURL, OpenURLAction { url in
+                    openedURLs.append(url)
+                    return .handled
+                }), locale)
             }
             let long = Host(section("credit-arcane", 1), size: CGSize(width: 1120, height: 4600))
             try long.save("credits-\(locale.language.rawValue)-tous", to: output)
+            let base = Host(section("credit-arcane", 0), size: CGSize(width: 1120, height: 1300))
+            try base.save("credits-\(locale.language.rawValue)-base", to: output)
 
             // One stop per line of cards, and every card of every group within reach of left and right.
             let base = credits.baseGroup!
@@ -99,9 +107,21 @@ import ArcanePorting
             }
             precondition(lines.flatMap(\.credits).count == credits.credits.filter { $0.systems.contains("mac") || credits.base.contains($0.id) }.count)
             precondition(Set(actions.map(\.id)).count == actions.count, "Two rows share an identity")
-            for row in ["Open project docs", "Copy diagnostics", "Support Arcane", "credits-notice"] {
+            for row in ["Open project docs", "Copy diagnostics", "credits-notice"] {
                 precondition(actions.contains { $0.rowID == row }, "\(row) is out of the controller's reach")
             }
+            let firstLine = actions.firstIndex { $0.rowID == "credit-arcane" }!
+            let funding = actions[firstLine - 1]
+            precondition(funding.rowID == "oort-funding" && funding.buttonCount == 1 && funding.isEnabled)
+            precondition(!actions.contains { $0.id == "support" || $0.rowID == "credit-buymeacoffee" })
+            precondition(!credits.credits.contains { $0.url.host == "buymeacoffee.com" })
+            let arcane = credits.credits.first { $0.id == "arcane" }
+            precondition(arcane?.author == "Bium23" && arcane?.url.absoluteString == "https://github.com/Bium23/NxLibrary")
+            precondition(openedURLs.isEmpty, "Opening Settings must not open the funding page")
+            funding.press(button: 0)
+            precondition(openedURLs.map(\.absoluteString) == ["https://ko-fi.com/sofianbll"])
+            let expected = ["fr": "Soutenir Oort NX", "en": "Support Oort NX", "de": "Oort NX unterstützen"]
+            precondition(funding.title == expected[locale.language.rawValue])
             for group in groups { precondition(actions.contains { $0.rowID == "credits-\(group.id)" }) }
             // Closed, the six cards stay in sight and the others are one press away.
             _ = Host(view(SettingsAboutSection(viewModel: app, setup: app.setup) { actions = $0 }, locale), size: CGSize(width: 1120, height: 900))
