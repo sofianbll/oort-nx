@@ -243,6 +243,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var multiplayerDefault: MultiplayerMode = .offline
     public var multiplayerLocalMode: MultiplayerLocalMode = .auto
     public var multiplayerAdapter: String? = nil
+    public var onlinePlayersDisplay = OnlinePlayersDisplay()
     public var backgroundShade: BackgroundShade
     public var readableText: Bool
     public var reduceMotion: Bool
@@ -427,7 +428,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case launcherChoices
         case appLanguage, appRegion, remotePlayMode
         case inGameHomeButton
-        case multiplayerVPN, multiplayerDefault, multiplayerLocalMode, multiplayerAdapter
+        case multiplayerVPN, multiplayerDefault, multiplayerLocalMode, multiplayerAdapter, onlinePlayersDisplay
         case backgroundShade, readableText, reduceMotion, showButtonHints, showClock
         case restoreLastGame, checkEngineAtLaunch, refreshLibraryAtLaunch, lastSelectedGameID
         case gameInboxEnabled
@@ -461,6 +462,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         multiplayerDefault = (try? container.decode(MultiplayerMode.self, forKey: .multiplayerDefault)) ?? .offline
         multiplayerLocalMode = (try? container.decode(MultiplayerLocalMode.self, forKey: .multiplayerLocalMode)) ?? .auto
         multiplayerAdapter = try? container.decode(String.self, forKey: .multiplayerAdapter)
+        onlinePlayersDisplay = (try? container.decode(OnlinePlayersDisplay.self, forKey: .onlinePlayersDisplay))
+            ?? OnlinePlayersDisplay(legacy: try? container.decode(String.self, forKey: .onlinePlayersDisplay))
         self.backgroundShade = try container.decodeIfPresent(BackgroundShade.self, forKey: .backgroundShade) ?? .balanced
         self.readableText = try container.decodeIfPresent(Bool.self, forKey: .readableText) ?? true
         self.reduceMotion = try container.decodeIfPresent(Bool.self, forKey: .reduceMotion) ?? false
@@ -562,6 +565,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         try c.encode(multiplayerDefault, forKey: .multiplayerDefault)
         try c.encode(multiplayerLocalMode, forKey: .multiplayerLocalMode)
         try c.encodeIfPresent(multiplayerAdapter, forKey: .multiplayerAdapter)
+        try c.encode(onlinePlayersDisplay, forKey: .onlinePlayersDisplay)
         try c.encode(showsCloudPlayIcon, forKey: .showsCloudPlayIcon)
         try c.encode(showsCloudDetailsLink, forKey: .showsCloudDetailsLink)
         try c.encode(cloudTileBadges, forKey: .cloudTileBadges)

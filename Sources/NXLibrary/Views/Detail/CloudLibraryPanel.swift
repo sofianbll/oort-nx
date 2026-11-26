@@ -811,6 +811,7 @@ struct CloudLibraryTileBadge: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.onlinePlayersByTitle) private var onlinePlayers
+    @Environment(\.onlinePlayersDisplay) private var onlineDisplay
 
     private var alignment: Alignment {
         switch position {
@@ -838,20 +839,28 @@ struct CloudLibraryTileBadge: ViewModifier {
         }
         let need = need
         let visibleBadge = badge.flatMap { $0.isVisibleOnTile ? $0 : nil }
-        let online = onlineTitleID.flatMap { onlinePlayers[$0.lowercased()] } ?? 0
-        content.overlay(alignment: need == nil && visibleBadge == nil ? .bottomTrailing : alignment) {
+        let online = onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .tile)
+        content.overlay(alignment: alignment) {
             Group {
                 if let need { TileMark(icon: need.icon) }
                 else if let visibleBadge { visibleBadge }
-                else { NextendoOnlineBadge(titleID: onlineTitleID, compact: true) }
             }
             .padding(canvas.u(SeleneTokens.Space.small))
             .allowsHitTesting(false)
             .accessibilityHidden(true)
         }
-        .accessibilityValue(need.map { L10n.text($0.label, context: localization) }
-                            ?? visibleBadge?.indicator.label(context: localization)
-                            ?? (online > 0 ? L10n.count("%lld online", online, context: localization) : ""))
+        .overlay(alignment: .bottomTrailing) {
+            if let online {
+                NextendoOnlineBadge(count: online)
+                    .padding(canvas.u(SeleneTokens.Space.small))
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
+        .accessibilityValue([
+            need.map { L10n.text($0.label, context: localization) } ?? visibleBadge?.indicator.label(context: localization),
+            online.map { OnlinePlayersDisplay.label(for: $0, context: localization) },
+        ].compactMap { $0 }.joined(separator: ", "))
     }
 }
 

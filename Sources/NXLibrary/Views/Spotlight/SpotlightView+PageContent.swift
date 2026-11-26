@@ -147,7 +147,8 @@ extension SpotlightView {
                 mutate { $0.focus = .actions; $0.actionIndex = index }
                 if index < page.links.count { page.links[index].action() }
             },
-            ratingQuery: selectedRatingQuery)
+            ratingQuery: selectedRatingQuery,
+            onlineTitleID: selectedGame?.titleId)
     }
 
     var selectedRatingQuery: CriticRatingQuery? {

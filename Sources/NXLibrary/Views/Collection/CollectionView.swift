@@ -440,7 +440,7 @@ struct CollectionInfoView: View {
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(SeleneTokens.Space.panel))
             }
-            SeleneStatsRow(presentation: presentation)
+            SeleneStatsRow(presentation: presentation, onlineTitleID: game.titleId)
                 .padding(.top, canvas.u(SeleneTokens.Space.feature))
             if !presentation.genres.isEmpty {
                 SpotlightGenreChips(genres: presentation.genres)

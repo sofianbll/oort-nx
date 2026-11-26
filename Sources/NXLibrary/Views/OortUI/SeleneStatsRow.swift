@@ -6,6 +6,7 @@ struct SeleneStat: Identifiable {
     enum Value {
         case text(String)
         case platform(String)
+        case nextendo(String)
     }
 
     let label: String
@@ -25,13 +26,19 @@ struct SeleneStat: Identifiable {
 /// passes its own items and a 28 gap. The caller places it.
 struct SeleneStatsRow: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.onlinePlayersByTitle) private var onlinePlayers
+    @Environment(\.onlinePlayersDisplay) private var onlineDisplay
+    @Environment(\.nxAppLocale) private var localization
 
     let items: [SeleneStat]
+    /// The selected game, whose online players join the row when the player chose that place.
+    var onlineTitleID: String? = nil
+    var onlinePlace: OnlinePlayersDisplay.Place = .selectedGame
     /// Space either side of each rule, in Selene units.
     var gap: CGFloat = 26
 
     /// PLAYTIME · LAST PLAYED · PLATFORM · RELEASED (Spotlight, Collection).
-    init(presentation: LibraryPresentation) {
+    init(presentation: LibraryPresentation, onlineTitleID: String? = nil) {
         var items = [
             SeleneStat.text(L10n.text("PLAYTIME"), presentation.playtime),
             SeleneStat.text(L10n.text("LAST PLAYED"), presentation.lastPlayed),
@@ -41,11 +48,15 @@ struct SeleneStatsRow: View {
             items.append(SeleneStat.text(L10n.text("RELEASED"), year))
         }
         self.items = items
+        self.onlineTitleID = onlineTitleID
     }
 
-    init(items: [SeleneStat], gap: CGFloat = 26) {
+    init(items: [SeleneStat], gap: CGFloat = 26, onlineTitleID: String? = nil,
+         onlinePlace: OnlinePlayersDisplay.Place = .selectedGame) {
         self.items = items
         self.gap = gap
+        self.onlineTitleID = onlineTitleID
+        self.onlinePlace = onlinePlace
     }
 
     var body: some View {
@@ -53,6 +64,11 @@ struct SeleneStatsRow: View {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 if index > 0 { divider }
                 stat(item)
+            }
+            if let count = onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: onlinePlace) {
+                divider
+                stat(.init(label: "Multiplayer",
+                           value: .nextendo(OnlinePlayersDisplay.label(for: count, context: localization))))
             }
         }
         .fixedSize()
@@ -70,6 +86,11 @@ struct SeleneStatsRow: View {
                 switch item.value {
                 case .text(let text):
                     value(text)
+                case .nextendo(let text):
+                    HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
+                        SeleneStatusMark(color: SeleneTheme.statusOK, pulses: false)
+                        value(text)
+                    }
                 case .platform(let console):
                     if let platform = PlatformKind(rawValue: console) {
                         PlatformLabel(platform).foregroundStyle(SeleneTheme.ink)

@@ -202,6 +202,10 @@ struct SettingsAPISection: View {
                            verbatimValue: true, cycle: stepAdapter)
             if supportsNextendo { nextendoClientRow }
         }
+        SettingsSubheading("Nextendo players")
+        ForEach(OnlinePlayersDisplay.Place.allCases, id: \.self) { place in
+            SeleneToggleRow(place.label, subtitle: SettingsCatalog.onlinePlayersHelp, isOn: onlinePlayersToggle(place))
+        }
     }
 
     private var vpnSubtitle: String? {
@@ -263,6 +267,11 @@ struct SettingsAPISection: View {
 
     private func stepDefault(_ step: Int) {
         settings.settings.multiplayerDefault = settings.settings.multiplayerDefault.stepped(step)
+    }
+
+    private func onlinePlayersToggle(_ place: OnlinePlayersDisplay.Place) -> Binding<Bool> {
+        Binding(get: { settings.settings.onlinePlayersDisplay[place] },
+                set: { settings.settings.onlinePlayersDisplay[place] = $0 })
     }
 
     private func stepLocalMode(_ step: Int) {
@@ -710,6 +719,9 @@ struct SettingsAPISection: View {
                     nextendo.isEditingClient = true
                 })
             }
+        }
+        actions += OnlinePlayersDisplay.Place.allCases.map { place in
+            .init(id: place.id, title: place.label) { onlinePlayersToggle(place).wrappedValue.toggle() }
         }
         onActions(actions)
     }

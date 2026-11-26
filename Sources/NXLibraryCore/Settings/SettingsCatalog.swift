@@ -24,6 +24,7 @@ public struct SettingDescriptor: Identifiable, Sendable {
 public enum SettingsCatalog {
     package static let defaults = AppSettings()
     public static let multiplayerVPNHelp = "Use ZeroTier, Tailscale or NetBird for local play away from home."
+    public static let onlinePlayersHelp = "Choose where to show Nextendo players. Turn off all four to stop the requests."
 
     package static func row<Value: Equatable & SendableMetatype>(_ id: String, _ group: SettingsSection, _ title: String,
                                       _ about: String,
@@ -46,7 +47,13 @@ public enum SettingsCatalog {
     }
 
     /// The rows of every section outside the Porting group, in screen order.
-    public static let baseRows: [SettingDescriptor] = [
+    public static let baseRows: [SettingDescriptor] = sharedRows + onlinePlayersRows
+
+    private static let onlinePlayersRows = OnlinePlayersDisplay.Place.allCases.map { place in
+        row(place.id, .multiplayer, place.label, onlinePlayersHelp) { $0.onlinePlayersDisplay[place] }
+    }
+
+    private static let sharedRows: [SettingDescriptor] = [
         action("profileName", .profileIdentity, "Name", "Shown on your profile and to your friends."),
         action("profileAvatar", .profileIdentity, "Avatar", "One of Arcane’s 28 illustrations."),
         action("profilePortrait", .profileIdentity, "Personal image", "PNG, JPEG or animated GIF, up to 4 MB."),

@@ -15,6 +15,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - **Library refresh** now checks the game apps, the enabled sources and the cloud together, from the + card, ⌘K and Settings, and says what changed or what could not be read. In Settings it replaces Scan game apps. Pressing it again starts over.
 - The cloud library is read from one rclone, many folders at a time, and records already read are kept: a refresh takes seconds instead of minutes.
+- **Settings → Multiplayer → Nextendo players** lets you choose where to show the count: on covers, on the selected game, in Details or on the game page. Turn off all four to stop the requests.
 - The control center opens with **⇧⌘K**; ⌘K is now the search.
 - In French, making a game’s app is always “compiler”.
 - A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.

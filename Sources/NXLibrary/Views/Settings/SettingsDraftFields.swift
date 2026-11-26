@@ -157,6 +157,8 @@ enum SettingsDraftFields {
             .init("cloudTileBadges", \.cloudTileBadges, previews: true) { L10n.text($0.titleKey) },
         ] + SpotlightCard.allCases.filter { $0 != .inbox }.map { card in
             toggle("card-\(card.rawValue)", \AppSettings.[spotlightCard: card])
+        } + OnlinePlayersDisplay.Place.allCases.map { place in
+            toggle(place.id, \AppSettings.onlinePlayersDisplay[place], previews: true)
         }
     }
 
