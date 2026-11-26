@@ -28,7 +28,7 @@ extension AppViewModel {
 
     private func reportUncertainPlay() {
         logs.append(LogEntry(level: .warning,
-                             message: "Play receipt unavailable. Oort will not repeat an uncertain handoff. Use the Mac to check the app before opening it again."))
+                             message: L10n.text("Play receipt unavailable. Oort will not repeat an uncertain request. Check the app in the Finder."))
     }
 
     @MainActor func pressPlay(_ game: CatalogGame) {

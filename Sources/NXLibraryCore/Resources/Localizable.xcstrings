@@ -5180,6 +5180,15 @@
     "macOS did not accept the request. The app was not changed.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"macOS did not accept the request. The app was not changed. Open the app once from the Finder, then try again."}}, "it": {"stringUnit":{"state":"translated","value":"macOS non ha accettato la richiesta. L’app non è stata modificata. Apri una volta l’app dal Finder, poi riprova."}}, "fr": {"stringUnit":{"state":"translated","value":"macOS n’a pas accepté la demande. L’app n’a pas été modifiée. Ouvre l’app une fois depuis le Finder, puis réessaie."}}, "de": {"stringUnit":{"state":"translated","value":"macOS hat die Anfrage abgelehnt. Die App wurde nicht geändert. Öffne die App einmal im Finder und versuche es erneut."}}, "es": {"stringUnit":{"state":"translated","value":"macOS no aceptó la solicitud. La app no se ha modificado. Abre la app una vez desde el Finder e inténtalo de nuevo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O macOS não aceitou a solicitação. O app não foi alterado. Abra o app uma vez pelo Finder e tente de novo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"macOS 未接受请求。应用未被修改。请先从访达打开该应用一次，然后重试。"}}
     }},
+    "Play receipt unavailable. Oort will not repeat an uncertain request. Check the app in the Finder.": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Play receipt unavailable. Oort will not repeat an uncertain request. Check the app in the Finder."}},
+      "fr":{"stringUnit":{"state":"translated","value":"Reçu de lancement indisponible. Oort ne renverra pas une demande dont l’issue est incertaine. Vérifie l’app dans le Finder."}},
+      "it":{"stringUnit":{"state":"translated","value":"Ricevuta di avvio non disponibile. Oort non ripeterà una richiesta dall’esito incerto. Controlla l’app nel Finder."}},
+      "de":{"stringUnit":{"state":"translated","value":"Startbestätigung nicht verfügbar. Oort wiederholt keine Anfrage mit unklarem Ausgang. Prüfe die App im Finder."}},
+      "es":{"stringUnit":{"state":"translated","value":"No hay confirmación del inicio. Oort no repetirá una solicitud de resultado incierto. Comprueba la app en el Finder."}},
+      "pt-BR":{"stringUnit":{"state":"translated","value":"O comprovante de inicialização não está disponível. O Oort não repetirá um pedido de resultado incerto. Verifique o app no Finder."}},
+      "zh-Hans":{"stringUnit":{"state":"translated","value":"无法获取启动回执。Oort 不会重复结果不明的请求。请在访达中检查该应用。"}}
+    }},
     "Tile options": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Tile options"}}, "it": {"stringUnit":{"state":"translated","value":"Opzioni della tessera"}}, "fr": {"stringUnit":{"state":"translated","value":"Options de la tuile"}}, "de": {"stringUnit":{"state":"translated","value":"Kacheloptionen"}}, "es": {"stringUnit":{"state":"translated","value":"Opciones de la ficha"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Opções do bloco"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"磁贴选项"}}
     }},

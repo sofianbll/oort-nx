@@ -107,10 +107,13 @@ public final class NSWorkspaceLauncher: AppLaunching {
 
     @MainActor private final class ExitWatch {
         var observer: NSObjectProtocol?
+        var process: DispatchSourceProcess?
 
         func finish(_ onExit: () -> Void) {
             guard let token = observer else { return }
             observer = nil
+            process?.cancel()
+            process = nil
             NSWorkspace.shared.notificationCenter.removeObserver(token)
             onExit()
         }
@@ -124,6 +127,14 @@ public final class NSWorkspaceLauncher: AppLaunching {
                   ended == app else { return }
             // `queue: .main` runs this block on the main thread.
             MainActor.assumeIsolated { watch.finish(onExit) }
+        }
+        // LaunchServices may not deliver the workspace event for an accessory
+        // app or while the launch screen owns the main loop. Follow the exact PID.
+        if !app.isTerminated {
+            let source = DispatchSource.makeProcessSource(identifier: app.processIdentifier, eventMask: .exit, queue: .main)
+            source.setEventHandler { MainActor.assumeIsolated { watch.finish(onExit) } }
+            watch.process = source
+            source.resume()
         }
         // The process can exit before the open completion or observer registration.
         if app.isTerminated { watch.finish(onExit) }
