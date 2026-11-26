@@ -429,7 +429,8 @@ final class BuildServiceTests: XCTestCase {
         try """
         #!/bin/sh
         sleep 30 &
-        echo $! > "$1"
+        echo $! > "$1.tmp"
+        mv "$1.tmp" "$1"
         wait
         """.write(to: script, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
@@ -439,28 +440,11 @@ final class BuildServiceTests: XCTestCase {
                                    environment: [:], workingDirectory: root)
         let service = BuildService()
         let exp = expectation(description: "cancelled")
-        service.start(command: command,
-                      logURL: root.appendingPathComponent("cancel.log"),
-                      tempApp: root.appendingPathComponent("Temp.app"),
-                      finalApp: root.appendingPathComponent("Final.app"),
-                      eventHandler: { _ in },
-                      completion: { result in
-            XCTAssertTrue(result.cancelled)
-            exp.fulfill()
-        })
-        let deadline = Date().addingTimeInterval(5)
-        while !FileManager.default.fileExists(atPath: pidFile.path), Date() < deadline {
-            Thread.sleep(forTimeInterval: 0.05)
-        }
-        let pid = try XCTUnwrap(Int32(try String(contentsOf: pidFile, encoding: .utf8)
-            .trimmingCharacters(in: .whitespacesAndNewlines)))
+        let pid = try start(service, command, root: root, pidFile: pidFile, done: exp)
         XCTAssertTrue(service.cancel())
         wait(for: [exp], timeout: 10)
-        let state = try SystemCommandRunner().run(URL(fileURLWithPath: "/bin/ps"),
-            ["-p", String(pid), "-o", "state="], environment: nil, currentDirectory: nil)
-        // kill(pid, 0) also succeeds for a dead child that launchd has not yet reaped.
-        XCTAssertTrue(state.status == 1 || (state.status == 0 && state.stdout.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("Z")),
-                      "Child \(pid) still running: \(state.stdout) \(state.stderr)")
+        // The wrapper and its pipes may finish while launchd is still reaping the orphan.
+        assertGone(pid)
     }
 
     // MARK: - Tools in sessions of their own (nxnative 0b124486)
