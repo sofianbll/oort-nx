@@ -154,19 +154,19 @@ final class PlaySessionStoreTests: XCTestCase {
         now = now.addingTimeInterval(60)
         store.heartbeat(for: game.id)
         now = now.addingTimeInterval(600)
-        store.reconcile(runningBundleIDs: [])
+        store.closeInterruptedSessions()
         XCTAssertFalse(store.isRunning(gameID: game.id))
         XCTAssertEqual(store.totalDuration(for: game.id), 60, accuracy: 0.001)
     }
 
-    func testReconcileKeepsRunningGame() {
+    func testRestartDoesNotExtendAPlayWhoseIncarnationIsUnproven() {
         let store = store()
         let game = game()
         XCTAssertTrue(store.start(for: game))
         now = now.addingTimeInterval(90)
-        store.reconcile(runningBundleIDs: [game.bundleId!])
-        XCTAssertTrue(store.isRunning(gameID: game.id))
-        XCTAssertEqual(store.totalDuration(for: game.id), 90, accuracy: 0.001)
+        store.closeInterruptedSessions()
+        XCTAssertFalse(store.isRunning(gameID: game.id))
+        XCTAssertEqual(store.totalDuration(for: game.id), 0, accuracy: 0.001)
     }
 
     func testSessionUsesEffectiveBundleIdWhenStoredIdIsMissing() {
@@ -175,7 +175,6 @@ final class PlaySessionStoreTests: XCTestCase {
         game.bundleId = nil
         XCTAssertTrue(store.start(for: game))
         now = now.addingTimeInterval(60)
-        store.reconcile(runningBundleIDs: ["org.nxnative.0100000000010000"])
         XCTAssertTrue(store.isRunning(gameID: game.id))
         now = now.addingTimeInterval(30)
         store.end(bundleID: "org.nxnative.0100000000010000")

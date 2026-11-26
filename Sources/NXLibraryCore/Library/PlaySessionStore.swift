@@ -112,18 +112,12 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
         return ended.filter { $0.profileID == profileID }
     }
 
-    public func reconcile(runningBundleIDs: Set<String>) {
-        let date = now()
+    /// Without a surviving incarnation proof, a restart cannot extend a session.
+    public func closeInterruptedSessions() {
         var changed = false
         for index in history.indices where history[index].isActive {
-            if let bundleID = history[index].bundleID,
-               runningBundleIDs.contains(bundleID) {
-                history[index].lastHeartbeatAt = date
-                changed = true
-            } else {
-                history[index].endedAt = history[index].lastHeartbeatAt
-                changed = true
-            }
+            history[index].endedAt = history[index].lastHeartbeatAt
+            changed = true
         }
         if changed { save() }
     }

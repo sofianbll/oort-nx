@@ -50,6 +50,8 @@ final class RunningGameMonitor: ObservableObject {
     private var focus = GameFocus()
     private var focusToken: NSObjectProtocol?
     private var homeMenus: [UUID: HomeMenuWatch] = [:]
+    private var attributed: [UUID: NSRunningApplication] = [:]
+    private var playHeartbeat: Timer?
     private var engineFolder: () -> String = { "" }
 
     init(center: NotificationCenter = NSWorkspace.shared.notificationCenter) {
@@ -63,7 +65,7 @@ final class RunningGameMonitor: ObservableObject {
         self.engineFolder = engineFolder
         let tracker = RunningAppsTracker(snapshot: Self.runningBundleIDs)
         self.tracker = tracker
-        sessions.reconcile(runningBundleIDs: tracker.running)
+        sessions.closeInterruptedSessions()
         recompute()
         tokens = [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification].map {
             center.addObserver(forName: $0, object: nil, queue: .main) { [weak self] _ in
@@ -83,6 +85,9 @@ final class RunningGameMonitor: ObservableObject {
         processListObservation = NSWorkspace.shared.observe(\.runningApplications) { [weak self] _, _ in
             Task { @MainActor in self?.refresh() }
         }
+        playHeartbeat = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.recordObservedTime() }
+        }
     }
 
     func stop() {
@@ -94,6 +99,9 @@ final class RunningGameMonitor: ObservableObject {
         activeToken = nil
         processListObservation?.invalidate()
         processListObservation = nil
+        playHeartbeat?.invalidate()
+        playHeartbeat = nil
+        attributed = [:]
         for task in closeTasks.values { task.cancel() }
         closeTasks = [:]
         homeMenus.removeAll()
@@ -190,8 +198,7 @@ final class RunningGameMonitor: ObservableObject {
             let others = libraryBundleIDs.intersection(tracker.running).subtracting(ended)
             let othersRunning = !others.isEmpty || SteamPlayCoordinator.shared.hasRunningGame
             if focus.gameEnded(bundleID, othersRunning: othersRunning) { comesForward = true }
-            let survivingHosts = Set(homeMenus.compactMap { id, watch in watch.host?.isAlive == true ? id : nil })
-            for session in sessions?.end(bundleID: bundleID, preserving: survivingHosts) ?? [] {
+            for session in sessions?.end(bundleID: bundleID, preserving: Set(attributed.keys)) ?? [] {
                 if let game = games.first(where: { $0.id == session.gameID }) {
                     showEnded(session, game: game, store: sessions)
                 }
@@ -203,9 +210,20 @@ final class RunningGameMonitor: ObservableObject {
         if comesForward { comeForward() }
     }
 
+    func trackAttributedPlay(_ application: NSRunningApplication, game: UUID) { attributed[game] = application }
+
+    private func recordObservedTime() {
+        for (game, app) in attributed {
+            if !app.isTerminated || homeMenus[game].map({ $0.app == app && $0.host?.isAlive == true }) == true {
+                sessions?.heartbeat(for: game)
+            }
+        }
+    }
+
     func endAttributedPlay(_ game: PortedGame, pid: pid_t, date: Date?,
                            store: PlaySessionStore?, onExit: @escaping () -> Void) {
         let finish = { [weak self] in
+            self?.attributed[game.id] = nil
             for session in store?.end(gameID: game.id) ?? [] { self?.showEnded(session, game: game, store: store) }
             onExit()
         }

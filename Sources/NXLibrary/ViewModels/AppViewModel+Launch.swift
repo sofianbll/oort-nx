@@ -358,7 +358,9 @@ extension AppViewModel {
                     let profileID = snapshot.profile.flatMap { $0.id == self.localProfiles?.originalID ? nil : $0.id }
                     self.gameSaveLaunches[game.id] = (running.processIdentifier, running.launchDate, profileID, run)
                     self.lastError = nil
-                    self.playSessionStore?.start(for: game)
+                    if self.playSessionStore?.start(for: game) == true {
+                        self.runningGameMonitor?.trackAttributedPlay(running, game: game.id)
+                    }
                     self.logs.append(LogEntry(level: .success, message: L10n.format("Launched game: %@", [String(describing: game.name)])))
                     self.watchLaunch(of: game, native: native, gesture: gesture)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
