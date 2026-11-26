@@ -347,7 +347,7 @@ flowchart TD
     C -->|"Continua"| B
 ```
 
-Cambiare sezione non chiude la bozza; Back dalla barra, Menu e Quit la chiudono solo dopo una scelta se è cambiata. Il controller può scorrere il riepilogo. Il reset delle preferenze in `AppSettings` entra nella bozza. In Porting → Game folders, il reset del gruppo non cambia le cartelle. Il pulsante Reset nella riga Game apps ripristina solo quella cartella.
+Cambiare sezione non chiude la bozza; Back dalla barra, Menu e Quit la chiudono solo dopo una scelta se è cambiata. Salva è a fuoco; Esc o B continua a modificare, anche se Scarta è a fuoco. Il riepilogo occupa l'altezza delle prime cinque voci e scorre quando ce ne sono di più. Il reset delle preferenze in `AppSettings` entra nella bozza. In Porting → Game folders, il reset del gruppo non cambia le cartelle. Il pulsante Reset nella riga Game apps ripristina solo quella cartella.
 
 Anche Restart app dalla ricerca attende questa scelta prima di preparare il riavvio. Continue editing settings non avvia l'aiuto di riapertura; Save e Leave without saving riprendono solo dopo un nuovo controllo dei blocchi.
 

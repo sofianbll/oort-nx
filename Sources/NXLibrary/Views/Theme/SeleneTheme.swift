@@ -30,6 +30,7 @@ enum SeleneTheme {
     static var rowIcon: Color { palette.id == SelenePaletteCatalog.classicBlueID ? ink82 : glyph }
     static var success: Color { Color(hex: palette.success) }
     static let danger = Color(hex: SeleneTokens.Color.danger)
+    static let dangerText = Color(hex: SeleneTokens.Color.dangerText)
     /// Monochrome themes still use semantic colors for status dots.
     static let statusOK = Color(hex: SeleneTokens.Color.statusOK)
     static let statusCloud = Color(hex: SeleneTokens.Color.statusCloud)

@@ -213,7 +213,7 @@ extension SettingsConfirmationProbe {
                 let group = vm.settingsNotice!
                 precondition(!settings.editingSettings.viewButtonSwitches, "The group asks first")
                 vm.settingsNotice = nil
-                group.runChoice(0)
+                group.runAnswer(.alternative(0))
                 precondition(settings.editingSettings.viewButtonSwitches, "The group stays one press away")
             }
             settings.endDraft()

@@ -556,7 +556,7 @@ struct ConsoleView: View {
         if confirmClear {
             switch action {
             case .navigateLeft, .navigateRight:
-                let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
+                let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
                 if confirmFocus != next {
                     confirmFocus = next
                     SoundEffectService.shared.play(.focus)

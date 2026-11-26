@@ -21,20 +21,13 @@ struct OortActionBar: View {
     var spread = true
     /// One key a line: the way forward on top, what erases then the way back at the bottom.
     var stacked = false
-    var separateDanger = false
     let onFocus: (AnyHashable) -> Void
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
         let sorted = ActionBarOrder.sorted(actions, role: \.role)
         Group {
-            if separateDanger {
-                let destructive = sorted.filter { $0.role == .destructive }
-                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.dialogActionGap)) {
-                    ForEach(destructive) { key($0, alignment: .leading) }
-                    row(sorted.filter { $0.role != .destructive })
-                }
-            } else if stacked {
+            if stacked {
                 VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     ForEach(ActionBarOrder.stacked(actions, role: \.role)) { key($0, fills: true) }
                 }
@@ -46,39 +39,35 @@ struct OortActionBar: View {
     }
 
     private func row(_ sorted: [Action]) -> some View {
-        let trailing = sorted.filter { !$0.role.isLeading }
+        let apart = ActionBarOrder.separatesDestructive(sorted, role: \.role)
+        let left = sorted.filter { apart ? $0.role == .destructive : $0.role == .back }
+        let right = sorted.filter { apart ? $0.role != .destructive : $0.role != .back }
         return ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
-                leadingKeys(sorted)
-                if spread { Spacer(minLength: canvas.u(SeleneTokens.Space.group)) }
-                ForEach(trailing) { key($0, alignment: separateDanger ? .trailing : .center) }
+            HStack(alignment: .top, spacing: canvas.u(apart ? SeleneTokens.Space.group : SeleneTokens.Space.medium)) {
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(left) { key($0) }
+                }
+                if spread && !apart { Spacer(minLength: canvas.u(SeleneTokens.Space.group)) }
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(right) { key($0) }
+                }
             }
-            // Too narrow for one line: the way back keeps the left, the way forward keeps the right, one line each.
+            // Keep reading and navigation order if two groups need their own lines.
             VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(left) { key($0) }
                     Spacer(minLength: 0)
-                    ForEach(trailing) { key($0, alignment: separateDanger ? .trailing : .center) }
                 }
                 HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    leadingKeys(sorted)
                     Spacer(minLength: 0)
+                    ForEach(right) { key($0) }
                 }
             }
         }
     }
 
-    /// What erases is first, with a wide gap before the way back.
-    private func leadingKeys(_ sorted: [Action]) -> some View {
-        HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.group)) {
-            ForEach(sorted.filter { $0.role == .destructive }) { key($0) }
-            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
-                ForEach(sorted.filter { $0.role == .back }) { key($0, alignment: separateDanger ? .leading : .center) }
-            }
-        }
-    }
-
-    private func key(_ action: Action, fills: Bool = false, alignment: HorizontalAlignment = .center) -> some View {
-        VStack(alignment: alignment, spacing: canvas.u(SeleneTokens.Space.compact)) {
+    private func key(_ action: Action, fills: Bool = false) -> some View {
+        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
                        state: action.enabled ? .ready : .blocked, preset: preset, fillsWidth: fills,
                        tone: action.role == .destructive ? .destructive : .normal,
@@ -87,9 +76,9 @@ struct OortActionBar: View {
                 .accessibilityHint(action.detail ?? "")
                 .seleneHover { if action.enabled { onFocus(action.id) } }
             if let detail = action.detail {
-                Text(verbatim: detail).seleneFont(.text).foregroundStyle(separateDanger ? SeleneTheme.ink75 : SeleneTheme.ink60)
-                    .multilineTextAlignment(alignment == .leading ? .leading : alignment == .trailing ? .trailing : .center)
-                    .frame(idealWidth: canvas.u(SeleneTokens.Space.pillWidth), maxWidth: fills ? nil : canvas.u(separateDanger ? SeleneTokens.Space.metadataList : SeleneTokens.Space.keyDetailMeasure))
+                Text(verbatim: detail).seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
+                    .multilineTextAlignment(.center)
+                    .frame(idealWidth: canvas.u(SeleneTokens.Space.pillWidth), maxWidth: fills ? nil : canvas.u(SeleneTokens.Space.keyDetailMeasure))
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityHidden(true)
             }
@@ -106,7 +95,6 @@ struct OortQuestion: View {
     let onFocus: (AnyHashable) -> Void
     let onCancel: () -> Void
     let onConfirm: () -> Void
-    var separateDanger = false
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
@@ -118,8 +106,7 @@ struct OortQuestion: View {
             Text(verbatim: message).seleneFont(.row).foregroundStyle(SeleneTheme.ink82)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
-            OortActionBar(actions: actions, focused: focused, preset: separateDanger ? .card : .action,
-                          separateDanger: separateDanger, onFocus: onFocus)
+            OortActionBar(actions: actions, focused: focused, stacked: ActionBarOrder.isStacked(count: actions.count), onFocus: onFocus)
                 .padding(.top, canvas.u(SeleneTokens.Space.medium))
         }
         .frame(maxWidth: .infinity, alignment: .leading)

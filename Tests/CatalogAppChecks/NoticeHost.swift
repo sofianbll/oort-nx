@@ -54,9 +54,9 @@ try require(model.settingsNotice?.retry == nil, "Expected the deferred generic n
 var selected: [String] = []
 let retry = SettingsNotice(title: "Retry?", message: "", retry: { selected.append("retry") })
 try require(retry.choices == ["Back", "Retry"] && retry.initialFocus == 0, "The way back is on the left and focused unless the question says it is safe")
-retry.runChoice(retry.initialFocus)
+retry.runAnswer(retry.defaultAnswer)
 try require(selected.isEmpty, "The default choice must not retry")
-retry.runChoice(1)
+retry.runAnswer(.retry)
 try require(selected == ["retry"], "The right choice should retry")
 selected.removeAll()
 let erase = SettingsNotice(title: "Delete?", message: "", retry: { selected.append("delete") }, actionTitle: "Delete", cancelTitle: "Cancel",
@@ -66,33 +66,34 @@ let options = SettingsNotice(title: "Tile", message: "", retry: {}, actionTitle:
     alternatives: [("Remove", { selected.append("remove") })], primaryFirst: true, destructive: ["Remove"])
 try require(options.choices == ["Remove", "Back", "Choose"] && options.initialFocus == 2 && options.destructiveIndexes == [0],
             "What removes stands apart on the far left")
-options.runChoice(0)
+options.runAnswer(.alternative(0))
 try require(selected == ["remove"], "The destructive choice runs its own action")
 selected.removeAll()
 for title in ["Quit", "Restart"] {
     let power = SettingsNotice(title: title, message: "", cancelTitle: "Cancel",
-        alternatives: [(title, { selected.append(title) })])
-    try require(power.choices == [title, "Cancel"] && power.initialFocus == power.cancelIndex,
+        alternatives: [(title, { selected.append(title) })], destructive: [title])
+    try require(power.choices == ["Cancel", title] && power.defaultAnswer == .back,
                 "The power confirmation should initially focus Cancel")
-    power.runChoice(power.initialFocus)
+    power.runAnswer(power.defaultAnswer)
     try require(selected.isEmpty, "The initial choice must not run a power action")
-    power.runChoice(0)
+    power.runAnswer(.alternative(0))
     try require(selected == [title], "Only choosing the power action should run it")
     selected.removeAll()
 }
 model.settingsNotice = SettingsNotice(title: "Rebuild", message: "Different cache",
     retry: { selected.append("download") }, actionTitle: "Download", cancelTitle: "Cancel",
-    alternatives: [("Local", { selected.append("local") }), ("Without", { selected.append("without") })])
+    alternatives: [("Local", { selected.append("local") }), ("Without", { selected.append("without") })], primaryFirst: true)
 let notice = model.settingsNotice!
-try require(notice.choices == ["Cancel", "Without", "Local", "Download"], "Download should be the last choice")
-notice.runChoice(notice.cancelIndex)
+try require(notice.choices == ["Download", "Local", "Without", "Cancel"] && notice.initialFocus == 0 &&
+            notice.answers.map(\.role) == [.primary, .secondary, .secondary, .back], "Download leads the vertical answers and takes focus")
+notice.runAnswer(.back)
 host.dismiss()
 try require(selected.isEmpty, "Cancel should not start an action")
-for choice in (1..<notice.choices.count).reversed() {
+for answer: SettingsNotice.AnswerID in [.retry, .alternative(0), .alternative(1)] {
     model.settingsNotice = notice
-    host.choose(choice)
+    host.choose(answer)
 }
-try require(selected == ["download", "local", "without"], "Choice indices should run the matching actions")
+try require(selected == ["download", "local", "without"], "Named answers should run the matching actions")
 print("Catalog notice bridge preserves Retry, defers unrelated alerts, and routes Rebuild choices.")
 
 }

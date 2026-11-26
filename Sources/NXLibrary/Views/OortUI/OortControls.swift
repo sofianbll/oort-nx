@@ -101,7 +101,7 @@ struct OortButton: View {
                              : preset == .card ? SeleneTokens.Space.large : SeleneTokens.Space.pillInset,
                          focused: focused, scalesOnFocus: preset == .action,
                          enabled: state != .blocked, waveDots: state == .busy,
-                         tint: tone == .destructive ? SeleneTheme.danger : nil) {
+                         tint: tone == .destructive ? SeleneTheme.dangerText : nil) {
             guard state == .ready else { return }
             action()
         }

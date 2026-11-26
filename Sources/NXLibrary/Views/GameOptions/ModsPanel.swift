@@ -442,8 +442,8 @@ struct ModsPanel: View {
         guard embedding?.active.wrappedValue != false else { return }
         if confirmRemove != nil {
             switch action {
-            case .navigateLeft: moveConfirmFocus(.confirm)
-            case .navigateRight: moveConfirmFocus(.cancel)
+            case .navigateLeft: moveConfirmFocus(.left)
+            case .navigateRight: moveConfirmFocus(.right)
             case .confirm: confirmFocus == .confirm ? runRemove() : dismissConfirm()
             case .cancel: dismissConfirm()
             default: break

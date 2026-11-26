@@ -124,8 +124,10 @@ final class GameInboxModel: ObservableObject {
 
     static func confirmation(for entries: [GameInbox.Entry]) -> (title: String, message: String) {
         let duplicates = entries.filter(\.duplicate).count
+        let file = entries.count == 1 ? entries.first?.source.lastPathComponent : nil
         return (
-            L10n.format("Sort %@ selected files?", [String(entries.count)]),
+            file.map { L10n.format("Move %@ to the Trash?", [$0]) }
+                ?? L10n.format("Sort %@ selected files?", [String(entries.count)]),
             L10n.format("Arcane checks the copies before moving the originals to Trash. Identical copies already in Game files: %@.",
                         [String(duplicates)])
         )
@@ -135,8 +137,9 @@ final class GameInboxModel: ObservableObject {
         guard isEnabled, !busy, !needsGameFilesCorrection, !requested.isEmpty,
               requested.allSatisfy({ $0.destination != nil && entries.contains($0) }) else { return }
         let copy = Self.confirmation(for: requested)
-        app.showSettingsNotice(title: copy.title, message: copy.message, actionTitle: L10n.text("Sort and move to Trash"),
-                               cancelTitle: L10n.text("Cancel"), destructive: [L10n.text("Sort and move to Trash")]) { [weak self] in
+        let action = requested.count == 1 ? "Move to Trash" : "Sort and move to Trash"
+        app.showSettingsNotice(title: copy.title, message: copy.message, actionTitle: action,
+                               cancelTitle: "Cancel", destructive: [action]) { [weak self] in
             self?.store(requested)
         }
     }

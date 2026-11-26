@@ -77,7 +77,10 @@ struct OortKeyFace: View {
     }
 
     private var dots: Color {
-        kind == .solid ? SeleneTheme.glyph : (tint ?? SeleneTheme.glyph).opacity(SeleneTokens.Effect.surfaceLineStrong)
+        if kind == .solid { return SeleneTheme.glyph }
+        // Destructive labels keep their contrast at focus; the outline still shows the selection.
+        if tint == SeleneTheme.dangerText { return .clear }
+        return (tint ?? SeleneTheme.glyph).opacity(SeleneTokens.Effect.surfaceLineStrong)
     }
 }
 

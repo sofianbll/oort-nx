@@ -386,7 +386,7 @@ import ArcanePorting
         section().confirmDisconnect()
         let question = vm.settingsNotice!
         precondition(question.choices == ["Erase everything", "Cancel", "Disconnect and keep the ID and secret"]
-                     && question.role(at: 0) == .destructive && question.cancelIndex == 1
+                     && question.answers.first?.role == .destructive && question.cancelIndex == 1
                      && vm.settingsNoticeFocus == 2)
         precondition(question.choiceDetails["Disconnect and keep the ID and secret"]?.contains("Seule la connexion Google") == true
                      && question.choiceDetails["Erase everything"]?.contains("l’ID et le secret") == true)
@@ -688,6 +688,22 @@ import ArcanePorting
             NotificationCenter.default.post(name: input, object: action)
             settle()
         }
+        // The same answers can be declared in a different order without changing what Save or Back does.
+        typealias Answer = SettingsView.DraftAnswer
+        let answers: [DialogAnswer<Answer>] = [
+            .init(.save, "Save", .primary), .init(.keepEditing, "Keep editing", .back),
+            .init(.discard, "Discard", .destructive)
+        ]
+        for order in [answers, Array(answers.reversed())] {
+            var picked: [Answer] = []
+            let question = SeleneChoiceDialog(title: "Unsaved settings", message: "",
+                answers: order, focus: .constant(.keepEditing), onCancel: { picked.append(.keepEditing) },
+                onAnswer: { picked.append($0) })
+            let save = question.choices.firstIndex(of: "Save")!
+            question.onChoose(save)
+            question.onCancel?()
+            precondition(picked == [.save, .keepEditing], "Declaration order cannot change Save or Cancel")
+        }
         try capture("01-reglages-sauvegardes")
         let original = try Data(contentsOf: settings.fileURL)
         let section = SettingsCloudSavesSection(settings: SettingsEditor(settings), onActions: { _ in })
@@ -704,12 +720,13 @@ import ArcanePorting
         router.back()
         precondition(router.settingsDecision == .leave && router.route == .settings(.cloudSaves))
         try capture("03-reglages-demande-enregistrement")
-        send(.confirm) // default = Keep editing
+        send(.navigateLeft)
+        send(.navigateLeft) // highlight Discard
+        send(.cancel) // Esc / B must still Keep editing
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
         send(.contextAction) // Y: save without leaving
         precondition(router.settingsDecision == .save)
-        send(.navigateRight) // Save, last on the right
-        send(.confirm)
+        send(.confirm) // Save is already focused.
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == false && router.route == .settings(.cloudSaves))
         precondition(AppSettingsStore(fileURL: settings.fileURL).settings.multiplayerDefault == .local)
         settings.editingSettings.multiplayerDefault = .online
@@ -717,11 +734,12 @@ import ArcanePorting
         precondition(router.requestSettingsDeparture { quit = true })
         settle()
         send(.navigateLeft)
+        send(.navigateLeft)
         send(.confirm) // discard, then resume quit
         precondition(quit && settings.editingSettings.multiplayerDefault == .local)
         settings.settings.multiplayerDefault = .offline
         settings.settings.interfaceSounds = true
-        print("Settings draft: live row, one exit dialog, default Keep editing, Y and verified save, discard before quit.")
+        print("Settings draft: live row, default Save, Escape never discards, Y and verified save, discard before quit.")
     }
 
     @MainActor private static func checkNavigation(vm: AppViewModel, settings: AppSettingsStore,

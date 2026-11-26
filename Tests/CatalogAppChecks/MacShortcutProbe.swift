@@ -143,9 +143,8 @@ extension ProfileScreenProbe {
             ZStack {
                 spotlight().seleneOverlayOwnership(false)
                 SeleneOverlay(style: .dialog) {
-                    SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                       focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
-                                       onCancel: {}, onChoose: { _ in })
+                    SeleneChoiceDialog(title: notice.title, message: notice.message, answers: notice.answers,
+                                       focus: .constant(notice.defaultAnswer), onCancel: {}, onAnswer: { _ in })
                 }
             }
         }
@@ -163,8 +162,8 @@ extension ProfileScreenProbe {
             let options = vm.settingsNotice!
             try shot("options", dialog(options))
             vm.settingsNotice = nil
-            precondition(options.initialFocus == 0 && options.choices.contains("Remove tile"))
-            options.runChoice(options.choices.firstIndex(of: "Remove tile"))
+            precondition(options.choices == ["Remove tile", "Back", "Choose image…"] && options.defaultAnswer == .retry)
+            options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
             precondition(vm.visibleCatalogGames.isEmpty && vm.settingsNotice == nil)
             let offer = vm.undoOffers.offer!
             try shot("removed", UndoNotice(message: offer.message, onUndo: {}))
@@ -208,7 +207,7 @@ extension ProfileScreenProbe {
         vm.macShortcuts.showTileOptions(sameTile)
         let options = vm.settingsNotice!
         vm.settingsNotice = nil
-        options.runChoice(options.choices.firstIndex(of: "Remove tile"))
+        options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
         precondition(vm.visibleCatalogGames.isEmpty && vm.settingsNotice == nil)
         let unchanged = try paths.map { try Data(contentsOf: moved.appendingPathComponent($0)) }
         precondition(unchanged == originalBytes)

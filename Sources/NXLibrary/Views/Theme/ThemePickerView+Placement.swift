@@ -13,24 +13,28 @@ extension ThemePickerView {
     }
 
     func askPlacement(_ id: String?) {
-        placementFocus = WallpaperPlacement.allCases.count - 1
+        placementFocus = .everywhere
         placing = PendingWallpaper(id: id)
         SoundEffectService.shared.play(.click)
     }
 
     func handlePlacement(_ action: GamepadAction) {
-        let last = WallpaperPlacement.allCases.count - 1
         switch action {
-        case .navigateLeft:
-            if placementFocus > 0 { placementFocus -= 1; SoundEffectService.shared.play(.focus) }
-        case .navigateRight:
-            if placementFocus < last { placementFocus += 1; SoundEffectService.shared.play(.focus) }
+        case .navigateLeft, .navigateRight:
+            let next = ActionBarOrder.move(placementFocus, by: action == .navigateLeft ? -1 : 1, in: placementAnswers.map(\.id))
+            if next != placementFocus { placementFocus = next; SoundEffectService.shared.play(.focus) }
         case .confirm:
-            place(WallpaperPlacement.allCases[placementFocus])
+            place(placementFocus)
         case .cancel:
             place(.notNow)
         default: break
         }
+    }
+
+    private var placementAnswers: [DialogAnswer<WallpaperPlacement>] {
+        ActionBarOrder.sorted(WallpaperPlacement.allCases.map { answer in
+            DialogAnswer(answer, answer.title, answer == .notNow ? .back : answer == .everywhere ? .primary : .secondary)
+        }, role: \.role)
     }
 
     /// Everywhere and Settings only apply it and close the menu; Not now keeps the gallery open, nothing changed.
@@ -56,10 +60,8 @@ extension ThemePickerView {
                 .onTapGesture { place(.notNow) }
             SeleneChoiceDialog(title: WallpaperPlacement.dialogTitle,
                                message: L10n.format("%@. You can change both wallpapers any time in Settings → Look.", [String(describing: name)]),
-                               choices: WallpaperPlacement.allCases.map(\.title), focus: $placementFocus, cancelIndex: 0,
-                               onCancel: { placing = nil }) { index in
-                place(WallpaperPlacement.allCases[index])
-            }
+                               answers: placementAnswers, focus: $placementFocus,
+                               onCancel: { place(.notNow) }, onAnswer: place)
         }
     }
 }

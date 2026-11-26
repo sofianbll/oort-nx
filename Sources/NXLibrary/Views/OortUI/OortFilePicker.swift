@@ -141,6 +141,8 @@ import UniformTypeIdentifiers
 
 @MainActor final class OortFilePickerModel: ObservableObject {
     enum Column: Int, CaseIterable { case places, files, actions }
+    enum ActionKey: Hashable { case cancel, finder, hidden, settings, selectMultiple, chooseFolder, chooseFiles }
+    @Published var focusedAction = ActionKey.cancel
     @Published var query = ""
     @Published var search = false
     @Published var showHidden = false
@@ -160,8 +162,25 @@ import UniformTypeIdentifiers
     var confirm: (() -> Void)?
     var close: (() -> Void)?
     var canSelectMultiple: Bool { choice.allowsMultiple }
-    /// The keys of the foot; the last one chooses, so the column opens on it.
-    private var actionCount: Int { 3 + (canSelectMultiple ? 1 : 0) + (choice.allowsFolder ? 1 : 0) + (problem == .denied ? 1 : 0) }
+    var actionKeys: [ActionKey] {
+        [.cancel, .finder, .hidden] + (problem == .denied ? [.settings] : [])
+            + (canSelectMultiple && !picksSeveral ? [.selectMultiple] : [])
+            + (choice.allowsFolder ? [.chooseFolder] : []) + (picksSeveral ? [.chooseFiles] : [])
+    }
+    private var picksSeveral: Bool { multiple && !selected.isEmpty }
+
+    func actionRole(_ key: ActionKey) -> ActionBarRole {
+        switch key {
+        case .cancel: .back
+        case .chooseFiles: .primary
+        case .chooseFolder where !picksSeveral: .primary
+        default: .secondary
+        }
+    }
+
+    private func enterActionColumn() {
+        focusedAction = ActionBarOrder.initial(actionKeys, role: actionRole) ?? .cancel
+    }
     /// X adds the focused file to the choice.
     var canPickSeveral: Bool {
         canSelectMultiple && column == .files && visible.indices.contains(index) && !visible[index].isFolder
@@ -231,16 +250,22 @@ import UniformTypeIdentifiers
 
     func input(_ action: GamepadAction) {
         switch action {
+        case .navigateUp where column == .actions, .navigateDown where column == .actions:
+            focusedAction = ActionBarOrder.move(focusedAction, by: action == .navigateUp ? -1 : 1, in: actionKeys)
+        case .jumpToStart where column == .actions: focusedAction = actionKeys.first ?? .cancel
+        case .jumpToEnd where column == .actions: focusedAction = actionKeys.last ?? .cancel
         case .navigateUp: index = max(0, index - 1)
         case .navigateDown: index += 1
         case .jumpToStart: index = 0
         case .jumpToEnd: index = 100_000
         case .navigateLeft, .tabPrevious:
             column = Column(rawValue: (column.rawValue + 2) % 3) ?? .files
-            index = column == .actions ? actionCount - 1 : 0
+            index = 0
+            if column == .actions { enterActionColumn() }
         case .navigateRight, .tabNext:
             column = Column(rawValue: (column.rawValue + 1) % 3) ?? .files
-            index = column == .actions ? actionCount - 1 : 0
+            index = 0
+            if column == .actions { enterActionColumn() }
         case .confirm: confirm?()
         case .cancel:
             if search { search = false; query = "" }
@@ -261,7 +286,7 @@ import UniformTypeIdentifiers
         let limit = switch column {
         case .places: places.count
         case .files: visible.count
-        case .actions: actionCount
+        case .actions: 0
         }
         if index >= limit { index = max(0, limit - 1) }
     }
@@ -314,12 +339,11 @@ struct OortFilePicker: View {
                 Divider()
                 files
             }
-            OortActionBar(actions: actions.enumerated().map { index, action in
-                .init(id: index, title: action.title, role: action.role, enabled: action.enabled, perform: action.perform)
-            }, focused: model.column == .actions ? AnyHashable(model.index) : nil, preset: .compact) { id in
-                guard let index = id.base as? Int else { return }
+            OortActionBar(actions: actions, focused: model.column == .actions ? AnyHashable(model.focusedAction) : nil,
+                          preset: .compact) { id in
+                guard let key = id.base as? OortFilePickerModel.ActionKey else { return }
                 model.column = .actions
-                model.index = index
+                model.focusedAction = key
             }
             SeleneHintsBar(left: [HintItem(.b, model.backLabel), HintItem(.y, "Search", keyboard: .text("⌘F"))],
                            right: hints, bottom: 0, leftInset: 0, press: model.input)
@@ -412,32 +436,31 @@ struct OortFilePicker: View {
     }
 
     /// As drawn: Cancel on the left, the tools, then the key that chooses, last.
-    private var actions: [(title: String, role: ActionBarRole, enabled: Bool, perform: () -> Void)] {
-        var actions: [(String, ActionBarRole, Bool, () -> Void)] = [(L10n.text("Cancel"), .back, true, cancel)]
-        actions.append((L10n.text("Open in Finder…"), .secondary, true, finder))
-        actions.append((model.showHidden ? L10n.text("Hide hidden files") : L10n.text("Show hidden files"), .secondary, true, {
-            model.showHidden.toggle()
-            model.index = model.column == .actions ? model.index : 0
-        }))
-        if model.problem == .denied {
-            actions.append((L10n.text("Open System Settings"), .secondary, true, {
-                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
-                    NSWorkspace.shared.open(url)
+    private var actions: [OortActionBar.Action] {
+        model.actionKeys.map { key in
+            let role = model.actionRole(key)
+            func button(_ title: String, enabled: Bool = true, _ action: @escaping () -> Void) -> OortActionBar.Action {
+                .init(id: key, title: title, role: role, enabled: enabled, perform: action)
+            }
+            switch key {
+            case .cancel: return button("Cancel", cancel)
+            case .finder: return button("Open in Finder…", finder)
+            case .hidden:
+                return button(model.showHidden ? "Hide hidden files" : "Show hidden files") {
+                    model.showHidden.toggle()
+                    if model.column != .actions { model.index = 0 }
                 }
-            }))
+            case .settings:
+                return button("Open System Settings") {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            case .selectMultiple: return button("Select multiple files", enabled: model.ready) { model.multiple.toggle() }
+            case .chooseFolder: return button("Choose this folder", enabled: model.ready && model.selected.isEmpty) { choose([model.folder]) }
+            case .chooseFiles: return button(L10n.format("Choose %lld files", [model.selected.count]), enabled: model.ready) { choose(model.selected) }
+            }
         }
-        let picksSeveral = model.multiple && !model.selected.isEmpty
-        if model.canSelectMultiple && !picksSeveral {
-            actions.append((L10n.text("Select multiple files"), .secondary, model.ready, { model.multiple.toggle() }))
-        }
-        if model.choice.allowsFolder {
-            actions.append((L10n.text("Choose this folder"), picksSeveral ? .secondary : .primary,
-                            model.ready && model.selected.isEmpty, { choose([model.folder]) }))
-        }
-        if picksSeveral {
-            actions.append((L10n.format("Choose %lld files", [model.selected.count]), .primary, model.ready, { choose(model.selected) }))
-        }
-        return actions
     }
 
     private func focused(_ column: OortFilePickerModel.Column, _ index: Int) -> Bool {
@@ -452,8 +475,7 @@ struct OortFilePicker: View {
             let entries = model.visible
             if entries.indices.contains(model.index) { open(entries[model.index]) }
         case .actions:
-            let actions = actions
-            if actions.indices.contains(model.index), actions[model.index].enabled { actions[model.index].perform() }
+            if let action = actions.first(where: { $0.id == AnyHashable(model.focusedAction) }), action.enabled { action.perform() }
         }
     }
 

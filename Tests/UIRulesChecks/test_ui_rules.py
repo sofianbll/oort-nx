@@ -100,8 +100,12 @@ class Menus(Case):
         opener = {"type": "Row", "member": "opens", "opens": {"a": "declared"}}
         self.assertEqual([item[2] for item in self.found("menu-unregistered", openers=[opener])], ["Row.b"])
 
-    def test_a_dialog_with_four_keys_is_refused(self):
-        self.write('struct S: View { var body: some View { SeleneChoiceDialog(title: t, choices: [a, b, c, d], focus: $f) } }')
+    def test_a_dialog_can_stack_four_or_five_keys_but_not_six(self):
+        dialog = 'SeleneChoiceDialog(title: t, choices: [%s], focus: $f)'
+        for choices in ["a, b, c, d", "a, b, c, d, e"]:
+            self.write(dialog % choices)
+            self.assertEqual(self.found("dialog-size"), [])
+        self.write(dialog % "a, b, c, d, e, f")
         self.assertEqual(len(self.found("dialog-size")), 1)
 
 
@@ -258,6 +262,24 @@ class ButtonOrder(Case):
         self.write(dialog % "2")
         self.assertEqual(len(self.found("button-order")), 1)
 
+    def test_a_destructive_pair_cannot_put_cancel_on_the_right(self):
+        dialog = 'SeleneChoiceDialog(choices: [a, b], focus: $f, cancelIndex: %s, destructive: [%s])'
+        for back, danger, count in [(0, 1, 0), (1, 0, 1)]:
+            self.write(dialog % (back, danger))
+            self.assertEqual(len(self.found("button-order")), count)
+
+    def test_four_choices_stack_with_cancel_at_the_bottom(self):
+        dialog = 'SeleneChoiceDialog(choices: [a, b, c, d], focus: $f, cancelIndex: %s)'
+        for back, count in [(3, 0), (0, 1)]:
+            self.write(dialog % back)
+            self.assertEqual(len(self.found("button-order")), count)
+
+    def test_left_cannot_focus_confirm_in_a_binary_dialog(self):
+        self.write('let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel')
+        self.assertEqual(len(self.found("button-order")), 1)
+        self.write('let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right')
+        self.assertEqual(self.found("button-order"), [])
+
     def test_the_back_hint_on_the_right_is_refused(self):
         bar = "struct S: View {{ var body: some View {{ SeleneHintsBar({0}, bottom: 0) }} }}"
         self.write(bar.format('right: [HintItem(.a, "Select"), HintItem(.b, "Back")]'))
@@ -300,6 +322,11 @@ class FocusDanger(Case):
     def test_a_loss_said_in_the_message_counts(self):
         self.write('struct S: View { @State var focus: SeleneConfirmButton = .confirm\n var body: some View { '
                    'SeleneConfirmDialog(title: t, message: L10n.text("Unsaved progress will be lost."), confirmTitle: "Close", focus: $focus) } }')
+        self.assertEqual(len(self.found("focus-danger")), 1)
+
+    def test_an_explicitly_destructive_move_cannot_default_to_confirm(self):
+        self.write('struct S: View { @State var focus: SeleneConfirmButton = .confirm\n var body: some View { '
+                   'SeleneConfirmDialog(title: t, message: m, confirmTitle: "Move", destructive: true, focus: $focus) } }')
         self.assertEqual(len(self.found("focus-danger")), 1)
 
     def test_a_choice_that_starts_on_discard_is_refused(self):

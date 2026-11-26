@@ -9,10 +9,6 @@ enum SeleneConfirmButton: Hashable {
     static let left = Self.cancel
     static let right = Self.confirm
     static let ordered = [left, right]
-
-    static func onSide(left: Bool, destructive: Bool) -> Self {
-        left == destructive ? .confirm : .cancel
-    }
 }
 
 /// Selene's confirmation card (its dialogs: a 640u card, centred title and text,
@@ -29,7 +25,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
     var confirmEnabled = true
     var highlightsPills = true
     var warningIcon = false
-    /// The answer deletes, replaces or ends something: it stands apart on the far left.
+    /// Use danger text, never the filled default appearance. In a pair this stays to the right of Back.
     var destructive = false
     @Binding var focus: SeleneConfirmButton
     let onCancel: () -> Void
@@ -98,27 +94,48 @@ struct SeleneDialogNotes: View {
 
     var body: some View {
         if let detail, !detail.isEmpty {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.badge)) {
-                        ForEach(Array(ReleaseNotesLayout.lines(detail).enumerated()), id: \.offset) { index, line in
-                            noteLine(line, first: index == 0).id(index)
+            let lines = ReleaseNotesLayout.lines(detail)
+            Group {
+                if plainText {
+                    let preview = noteLines(Array(lines.prefix(5)))
+                    Group {
+                        if lines.count <= 5 {
+                            preview
+                        } else {
+                            preview.hidden().accessibilityHidden(true)
+                                .overlay { scrollingLines(lines, padded: false) }
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(canvas.u(SeleneTokens.Space.medium))
-                }
-                .onChange(of: scrollRequest) { _, index in
-                    withAnimation(reduceMotion ? nil : SeleneTheme.quick) { proxy.scrollTo(index, anchor: .top) }
+                } else {
+                    scrollingLines(lines).frame(maxHeight: canvas.u(260))
                 }
             }
-            .frame(maxHeight: canvas.u(260))
             .background(
                 RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
                     .fill(SeleneTheme.glassLight)
             )
             .padding(.top, canvas.u(SeleneTokens.Space.panel))
         }
+    }
+
+    private func scrollingLines(_ lines: [ReleaseNotesLayout.Line], padded: Bool = true) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView { noteLines(lines).padding(padded ? canvas.u(SeleneTokens.Space.medium) : 0) }
+                .onChange(of: scrollRequest) { _, index in
+                    withAnimation(reduceMotion ? nil : SeleneTheme.quick) { proxy.scrollTo(index, anchor: .top) }
+                }
+        }
+    }
+
+    private func noteLines(_ lines: [ReleaseNotesLayout.Line]) -> some View {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.badge)) {
+            ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
+                noteLine(line, first: index == 0).id(index)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     /// Headings as the app's section labels, items with a dot and a hanging indent, blank lines as spacing only.
@@ -236,6 +253,7 @@ struct SeleneChoiceDialog: View {
     var cancelIndex: Int? = nil
     /// The choices that delete, replace or end something.
     var destructive: Set<Int> = []
+    var answerRoles: [ActionBarRole]? = nil
     /// What B says when no choice is the way back.
     var backTitle = "Cancel"
     /// A list of things to pick, one a line, the way back at the bottom.
@@ -279,7 +297,7 @@ struct SeleneChoiceDialog: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.line))
             SeleneDialogNotes(detail: notes, scrollRequest: notesScrollRequest, plainText: true)
                 .frame(width: textWidth)
-            OortActionBar(actions: keys, focused: focus, stacked: list) { id in
+            OortActionBar(actions: keys, focused: focus, stacked: list || ActionBarOrder.isStacked(count: choices.count)) { id in
                 if let index = id.base as? Int { focus = index }
             }
             .padding(.top, canvas.u(SeleneTokens.Space.dialogActionGap))
@@ -288,10 +306,29 @@ struct SeleneChoiceDialog: View {
 
     private var keys: [OortActionBar.Action] {
         choices.enumerated().map { index, choice in
-            let last = index == choices.count - 1
-            let role: ActionBarRole = choices.count == 1 ? .primary : index == cancelIndex ? .back
-                : destructive.contains(index) ? .destructive : list ? .secondary : last ? .primary : .secondary
+            let main = choices.indices.last { $0 != cancelIndex && !destructive.contains($0) }
+            let role = answerRoles?[index] ?? (destructive.contains(index) ? .destructive : choices.count == 1 ? .primary
+                : index == cancelIndex ? .back : index == main && !list ? .primary : .secondary)
             return .init(id: index, title: choice, role: role, detail: details[choice]) { onChoose(index) }
         }
+    }
+}
+
+extension SeleneChoiceDialog {
+    /// Adapt layout slots to stable answers at the view boundary. Callers never dispatch on a slot.
+    init<ID>(title: String, message: String, answers: [DialogAnswer<ID>], focus: Binding<ID>,
+             backTitle: String = "Cancel", list: Bool = false, details: [String: String] = [:],
+             notes: String? = nil, notesScrollRequest: Int = 0, onCancel: (() -> Void)? = nil,
+             onAnswer: @escaping (ID) -> Void) {
+        let order = list ? ActionBarOrder.stacked(answers, role: \.role) : ActionBarOrder.dialog(answers, role: \.role)
+        self.init(title: title, message: message, choices: order.map(\.title),
+                  focus: Binding(get: { order.firstIndex { $0.id == focus.wrappedValue } ?? -1 },
+                                 set: { if order.indices.contains($0) { focus.wrappedValue = order[$0].id } }),
+                  cancelIndex: order.firstIndex { $0.role == .back },
+                  destructive: Set(order.indices.filter { order[$0].role == .destructive }),
+                  answerRoles: order.map(\.role),
+                  backTitle: backTitle, list: list, details: details, notes: notes,
+                  notesScrollRequest: notesScrollRequest, onCancel: onCancel,
+                  onChoose: { if order.indices.contains($0) { onAnswer(order[$0].id) } })
     }
 }

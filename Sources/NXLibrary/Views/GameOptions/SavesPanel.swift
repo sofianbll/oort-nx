@@ -16,7 +16,8 @@ struct SavesPanel: View {
     @State private var keyMonitor: Any?
     @State private var cloudPrompt = false
     @State private var copyFrom: [LocalProfile] = []
-    @State private var copyFocus = 0
+    private enum CopyAnswer: Hashable { case cancel, profile(UUID) }
+    @State private var copyFocus = CopyAnswer.cancel
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
 
@@ -200,8 +201,8 @@ struct SavesPanel: View {
         } else if !copyFrom.isEmpty {
             SeleneChoiceDialog(title: L10n.text("Copy saves from another profile"),
                                message: L10n.text("Only an empty profile can receive a copy of this game's saves."),
-                               choices: copyChoices.titles,
-                               focus: $copyFocus, cancelIndex: copyChoices.cancel, list: copyChoices.cancel > 0, onCancel: close, onChoose: chooseCopySource)
+                               answers: copyChoices, focus: $copyFocus, list: copyFrom.count > 2,
+                               onCancel: close, onAnswer: chooseCopySource)
         } else if cloudPrompt {
             SeleneConfirmDialog(title: L10n.text("Cloud saves on"), message: cloudHelp.message + "\n\n" + SavePresentation.cloudNotice, confirmTitle: cloudHelp.button,
                 cancelTitle: cloudHelp.button == "OK" ? nil : "Cancel", focus: $cloudFocus, onCancel: { cloudPrompt = false }, onConfirm: resolveCloud)
@@ -240,7 +241,7 @@ struct SavesPanel: View {
             else { model.chooseImport(slot: target) }
         case .refresh: model.refresh()
         case .backups: model.showBackups()
-        case .copy: copyFrom = model.saveCopySources; copyFocus = copyChoices.cancel
+        case .copy: copyFrom = model.saveCopySources; copyFocus = .cancel
         }
     }
     private func close() {
@@ -253,15 +254,18 @@ struct SavesPanel: View {
         embedding?.onBack()
     }
     /// Two profiles fit beside Cancel; more make a list, Cancel at the bottom.
-    private var copyChoices: (titles: [String], cancel: Int) {
-        let names = copyFrom.map(\.name), cancel = L10n.text("Cancel")
-        return names.count > 2 ? (names + [cancel], names.count) : ([cancel] + names, 0)
+    private var copyChoices: [DialogAnswer<CopyAnswer>] {
+        let choices = copyFrom.map { DialogAnswer(CopyAnswer.profile($0.id), $0.name, .secondary) }
+            + [DialogAnswer(.cancel, "Cancel", .back)]
+        return copyFrom.count > 2 ? ActionBarOrder.stacked(choices, role: \.role)
+            : ActionBarOrder.sorted(choices, role: \.role)
     }
-    private func chooseCopySource(_ index: Int) {
-        let sources = copyFrom, cancel = copyChoices.cancel
+    private func chooseCopySource(_ answer: CopyAnswer) {
+        let sources = copyFrom
         copyFrom = []
-        let chosen = cancel == 0 ? index - 1 : index
-        if sources.indices.contains(chosen) { model.copySaves(from: sources[chosen]) }
+        if case .profile(let id) = answer, let source = sources.first(where: { $0.id == id }) {
+            model.copySaves(from: source)
+        }
     }
     private func handle(_ action: GamepadAction) {
         guard embedding?.active.wrappedValue != false else { return }
@@ -269,8 +273,9 @@ struct SavesPanel: View {
             guard !model.busy else { return }
             if !copyFrom.isEmpty {
                 switch action {
-                case .navigateLeft, .navigateUp: copyFocus = max(0, copyFocus - 1)
-                case .navigateRight, .navigateDown: copyFocus = min(copyFrom.count, copyFocus + 1)
+                case .navigateLeft, .navigateUp, .navigateRight, .navigateDown:
+                    let delta = action == .navigateLeft || action == .navigateUp ? -1 : 1
+                    copyFocus = ActionBarOrder.move(copyFocus, by: delta, in: copyChoices.map(\.id))
                 case .cancel: close()
                 case .confirm: chooseCopySource(copyFocus)
                 default: break
@@ -281,7 +286,7 @@ struct SavesPanel: View {
             case .navigateLeft where cloudPrompt: if cloudHelp.button != "OK" { cloudFocus = .left }
             case .navigateRight where cloudPrompt: cloudFocus = .right
             case .navigateLeft, .navigateRight:
-                confirmFocus = .onSide(left: action == .navigateLeft, destructive: true)
+                confirmFocus = action == .navigateLeft ? .left : .right
             case .cancel: close()
             case .confirm:
                 if model.issue != nil { model.dismissIssue() }

@@ -91,6 +91,7 @@ public enum SeleneTokens {
 
     public enum Color {
         public static let danger: UInt32 = 0xFF6B6B
+        public static let dangerText: UInt32 = 0xFFBDBD
         public static let statusOK: UInt32 = 0x3DDC84
         public static let statusCloud: UInt32 = 0x9CCBFF
         public static let untested: UInt32 = 0xE8B65C

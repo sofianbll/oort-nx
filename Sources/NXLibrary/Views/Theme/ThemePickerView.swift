@@ -33,7 +33,7 @@ struct ThemePickerView: View {
     /// A chosen background waiting on "Where should this wallpaper go?" (nil inside: the theme's own), and the
     /// dialog's focused pill (an index in `WallpaperPlacement.allCases`).
     @State var placing: PendingWallpaper?
-    @State var placementFocus = WallpaperPlacement.allCases.count - 1
+    @State var placementFocus = WallpaperPlacement.everywhere
     /// The focused live item's video, once the focus has rested on it.
     @State var previewVideo: URL?
     @FocusState var searchFocused: Bool

@@ -6,7 +6,7 @@ Rules (docs/working-on-it/change-criteria.md gives the source and the reason of 
   menu-size          more than 5 entries in a menu, bar, tab set, list of choices or group
   menu-depth         a surface more than 2 levels below its root
   menu-unregistered  a menu, tab set or iterated enum that nobody declared in ui-rules.json
-  dialog-size        more than 3 keys in a dialog
+  dialog-size        more than 5 fixed answers in a dialog
   untranslated       visible text that is not in the string catalog
   same-as-english    a translation identical to a long English sentence
   measure            a literal size, offset or duration in a screen (completes check_selene_tokens.py)
@@ -16,7 +16,7 @@ Rules (docs/working-on-it/change-criteria.md gives the source and the reason of 
   pointer-only       a view that takes clicks but knows no focus: no keyboard or controller path in sight
   pad-only           a hint shown for the controller only
   motion             a repeating animation in a file that never reads Reduce motion
-  button-order       a way back after another button, the B hint on the right, or a known row out of its order
+  button-order       wrong dialog order (destructive pair, split group, or vertical list), row or hint
   focus-danger       a question that starts on an answer that deletes, quits, replaces or trashes
   keyboard-path      a click with no key: a Settings button or help no row presses, a link inside a dialog,
                      Return without the keypad's Enter, a declared action whose key is gone
@@ -41,7 +41,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "scripts/ui-rules.json"
-MAX_ENTRIES, MAX_DEPTH, MAX_KEYS = 5, 2, 3
+MAX_ENTRIES, MAX_DEPTH = 5, 2
 CATALOG = "Sources/NXLibraryCore/Resources/Localizable.xcstrings"
 VIEWS = "Sources/NXLibrary/Views/"
 APP = "Sources/NXLibrary/"
@@ -409,8 +409,8 @@ def check_dialogs(tree, found):
             listed = re.search(r"\bchoices\s*:\s*(\[)", call)
             if not listed: continue
             count = len(elements(call[listed.start(1):listed.start(1) + bracket_end(call[listed.start(1):])]))
-            if count > MAX_KEYS:
-                found.add("dialog-size", relative, "SeleneChoiceDialog", f"a dialog has {count} keys, at most {MAX_KEYS}", source.line(match.start()), count - MAX_KEYS)
+            if count > MAX_ENTRIES:
+                found.add("dialog-size", relative, "SeleneChoiceDialog", f"a dialog has {count} fixed answers, at most {MAX_ENTRIES}", source.line(match.start()), count - MAX_ENTRIES)
 
 
 def unescape(value):
@@ -570,20 +570,36 @@ def check_order(tree, rules, found):
             row = keys_in(source, opening, source.close(opening))
             if len(row) < 2: continue
             backs = [is_back(source, *one) for one in row]
+            destructive = [bool(re.search(r"\b(?:destructive\s*:\s*true|(?:role|tone)\s*:\s*\.destructive)\b",
+                                          source.code[start:end])) for start, end in row]
             for index, back in enumerate(backs):
-                if back and not all(backs[:index]):
+                if back and not all(backs[i] or (len(row) >= 3 and destructive[i]) for i in range(index)):
                     words = literals(source, *row[index])[:1] or [re.sub(r"\s+", "", source.text[slice(*row[index])])[:40]]
                     found.add("button-order", relative, f"row {words[0]}", f"the way back ({words[0]}) comes after another button",
                               source.line(row[index][0]))
         for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):
             call = source.code[match.end() - 1:source.close(match.end() - 1)]
             index = re.search(r"\bcancelIndex\s*:\s*([^,)\n]+)", call)
-            # What erases may stand apart before the way back.
-            apart = re.search(r"\bdestructive\s*:\s*\[([^\]]*)\]", call)
-            first = len(elements(call[apart.start(1) - 1:apart.end(1) + 1])) if apart and apart[1].strip() else 0
-            if index and (re.fullmatch(r"[1-9]\d*", index[1].strip()) and int(index[1]) != first or index[1].strip().endswith(".count")):
-                found.add("button-order", relative, f"cancelIndex {index[1].strip()}",
-                          f"cancelIndex {index[1].strip()}: Cancel is the first choice, after what erases", source.line(match.start()))
+            listed = re.search(r"\bchoices\s*:\s*(\[)", call)
+            if not index or not listed: continue
+            start = listed.start(1)
+            count = len(elements(call[start:start + bracket_end(call[start:])]))
+            if count < 2: continue
+            erased = re.search(r"\bdestructive\s*:\s*\[([0-9,\s]*)\]", call)
+            danger = {int(n) for n in re.findall(r"\d+", erased[1])} if erased else set()
+            stacked = count >= 4 or re.search(r"\blist\s*:\s*true", call)
+            back = index[1].strip()
+            expected = count - 1 if stacked else len(danger) if count >= 3 else 0
+            wrong = (back.isdecimal() and int(back) != expected) or back.endswith(".count")
+            if not stacked and danger:
+                wrong |= danger != ({1} if count == 2 else set(range(expected)))
+            if wrong:
+                found.add("button-order", relative, f"cancelIndex {back}",
+                          f"Cancel belongs in slot {expected}; a destructive pair is Cancel then action, lists end with Cancel",
+                          source.line(match.start()))
+        for match in re.finditer(r"\b(?:navigateLeft|\bdelta\s*<\s*0)\s*\?\s*\.confirm\s*:\s*\.cancel\b", source.code):
+            found.add("button-order", relative, "confirm left of cancel",
+                      "Binary confirmations navigate Cancel on the left and Confirm on the right", source.line(match.start()))
     # The hint bar sets the sides the keys follow: B on the left, A last on the right.
     for relative in tree.files("Sources/NXLibrary"):
         source = tree.source(relative)
@@ -634,7 +650,8 @@ def check_focus(tree, rules, found):
             call = source.text[match.start():end]
             confirm = re.search(r"\bconfirmTitle\s*:\s*(?:L10n\.(?:text|format)\(\s*)?\"([^\"]*)\"", call)
             bound = re.search(r"\bfocus\s*:\s*\$(?:\w+\.)*(\w+)", call)
-            if not bound or not (confirm and DANGER.search(confirm[1]) or re.search(r"\bis lost|will be lost|will lose", call)): continue
+            if not bound or not (re.search(r"\bdestructive\s*:\s*true\b", call)
+                                 or confirm and DANGER.search(confirm[1]) or re.search(r"\bis lost|will be lost|will lose", call)): continue
             if re.search(rf"\b{bound[1]}\b(?:\s*:\s*SeleneConfirmButton)?\s*=\s*\.confirm\b(?!\s*:)", everything):
                 found.add("focus-danger", relative, f"confirm {bound[1]}", f"{bound[1]} can start on a dangerous answer", source.line(match.start()))
         for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):

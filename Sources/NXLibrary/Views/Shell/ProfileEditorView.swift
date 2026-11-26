@@ -26,7 +26,7 @@ struct ProfileEditorView: View {
     @State private var cropDraft: AvatarCropDraft?
     @State private var isCropping = false
     @State private var cropTask: Task<Void, Never>?
-    @State private var discardFocus: Int?
+    @State private var discardFocus: SeleneConfirmButton?
     @State private var resumeNameFocus = false
     @FocusState private var nameFocused: Bool
     @ObservedObject private var theme = ThemeStore.shared
@@ -126,11 +126,11 @@ struct ProfileEditorView: View {
     }
 
     private var discardDialog: some View {
-        let focus = Binding(get: { discardFocus ?? 1 }, set: { discardFocus = $0 })
+        let focus = Binding(get: { discardFocus ?? .cancel }, set: { discardFocus = $0 })
         return SeleneOverlay(style: .profileRemoval, onOutside: keepEditing) {
-            SeleneChoiceDialog(title: "Discard changes?", message: L10n.text("Your profile changes won’t be saved."),
-                               choices: ["Discard", "Keep editing"], focus: focus, cancelIndex: 1, destructive: [0],
-                               onCancel: keepEditing, onChoose: chooseDiscardAction)
+            SeleneConfirmDialog(title: "Discard changes?", message: L10n.text("Your profile changes won’t be saved."),
+                                confirmTitle: "Discard", cancelTitle: "Keep editing", destructive: true,
+                                focus: focus, onCancel: keepEditing, onConfirm: onCancel)
         }
     }
 
@@ -336,8 +336,8 @@ struct ProfileEditorView: View {
     private func handle(_ action: GamepadAction) {
         if discardFocus != nil {
             switch action {
-            case .navigateLeft: discardFocus = 0
-            case .navigateRight: discardFocus = 1
+            case .navigateLeft, .navigateRight:
+                discardFocus = action == .navigateLeft ? .left : .right
             case .confirm: confirmDiscardChoice()
             case .cancel: keepEditing()
             default: break
@@ -444,7 +444,7 @@ struct ProfileEditorView: View {
         guard profile != original || hasCustomBackground else { onCancel(); return }
         resumeNameFocus = nameFocused
         nameFocused = false
-        discardFocus = 1
+        discardFocus = .cancel
     }
 
     private func keepEditing() {
@@ -452,9 +452,7 @@ struct ProfileEditorView: View {
         if resumeNameFocus { nameFocused = true }
     }
 
-    private func confirmDiscardChoice() { if let discardFocus { chooseDiscardAction(discardFocus) } }
-
-    private func chooseDiscardAction(_ index: Int) { if index == 0 { onCancel() } else { keepEditing() } }
+    private func confirmDiscardChoice() { if discardFocus == .confirm { onCancel() } else { keepEditing() } }
 
     private func press(_ key: OnScreenKeyboard.Key) {
         switch key {

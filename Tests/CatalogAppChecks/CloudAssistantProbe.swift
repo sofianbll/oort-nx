@@ -116,8 +116,8 @@ import ArcanePorting
                 try picture("pret", assistant(.credentials).screenReady(found, verified: true))
                 try picture("pret-verification", assistant(.credentials).screenReady(found, verified: false, working: true))
                 let move = assistant(.library).screenMove(try plan())
-                precondition(move.focusRows == [[.confirmMove, .cancel]] && move.focusedTarget == .cancel,
-                             "Moving games stands apart on the left; Cancel is lit")
+                precondition(move.focusRows == [[.cancel, .confirmMove]] && move.focusedTarget == .cancel,
+                             "Cancel is left and focused; Move is right")
                 try picture("deplacer", move)
                 precondition(assistant(.sources).browsing == .sources && assistant(.sources).focusRail.isEmpty, "Change opens the browser at once")
                 precondition(assistant(.library).browsing == .library)
@@ -170,16 +170,16 @@ import ArcanePorting
             frames = [:]
             let move = CloudSetupAssistant(viewModel: vm, model: vm.cloudLibrary, entry: .library) {}
                 .screenMove(try plan()).screenStill()
-            precondition(move.focusRows == [[.confirmMove, .cancel]] && move.focusedTarget == .cancel)
+            precondition(move.focusRows == [[.cancel, .confirmMove]] && move.focusedTarget == .cancel)
             let canvas = SeleneCanvas(size: size, zoom: zoom)
             let host = Host(move, size: size, canvas: canvas, locale: locale)
             defer { host.close() }
             try save("deplacer-\(suffix)", output, host)
             let action = frames[AnyHashable(CloudSetupAssistant.Target.confirmMove)]!
             let cancel = frames[AnyHashable(CloudSetupAssistant.Target.cancel)]!
-            precondition(cancel.minX - action.maxX >= canvas.u(SeleneTokens.Space.group) - 1, "Move stands apart on the left")
+            precondition(cancel.midX < action.midX && abs(cancel.midY - action.midY) < 2, "Cancel is left of Move")
         }
-        print("Move: separated at left, Cancel focused, reproduced in seven variants.")
+        print("Move: Cancel left and focused, Move right, reproduced in seven variants.")
     }
 
     @MainActor static func save(_ name: String, _ output: URL, _ host: Host) throws {
@@ -236,13 +236,13 @@ import ArcanePorting
                                           focused: AnyHashable("Forward"), onFocus: { _ in }).padding(), size: .init(width: width, height: 260),
                             canvas: .init(size: .init(width: 1920, height: 1080)), locale: french)
             host.settle(0.2)
-            let x = ["Erase", "Back", "Other", "Forward"].map { frames[AnyHashable($0)]!.midX }
-            precondition(x[0] < x[1] && x[2] < x[3], "Order in \(width): \(x)")
-            precondition(x[1] < x[3], "Back is left of the way forward")
-            let forward = frames[AnyHashable("Forward")]!, erase = frames[AnyHashable("Erase")]!
-            let back = frames[AnyHashable("Back")]!
-            precondition(back.minX - erase.maxX >= SeleneTokens.Space.group - 1, "The destructive key stands apart")
-            precondition(abs(forward.maxX - (width - 16)) < 4 && abs(erase.minX - 16) < 4, "The ends are used: \(forward) \(erase)")
+            let keys = ["Erase", "Back", "Other", "Forward"].map { frames[AnyHashable($0)]! }
+            precondition(keys[1].midX < keys[2].midX && keys[2].midX < keys[3].midX)
+            if width > 500 {
+                precondition(keys[1].minX - keys[0].maxX >= SeleneTokens.Space.group - 1)
+            } else {
+                precondition(keys[0].midY < keys[1].midY)
+            }
             host.close()
         }
     }

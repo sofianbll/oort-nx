@@ -3579,7 +3579,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Keep editing"}}, "fr": {"stringUnit":{"state":"translated","value":"Continuer à modifier"}}, "it": {"stringUnit":{"state":"translated","value":"Continua a modificare"}}, "de": {"stringUnit":{"state":"translated","value":"Weiter bearbeiten"}}, "es": {"stringUnit":{"state":"translated","value":"Seguir editando"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Continuar editando"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"继续编辑"}}
     }},
     "Discard changes": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Discard changes"}}, "fr": {"stringUnit":{"state":"translated","value":"Abandonner les changements"}}, "it": {"stringUnit":{"state":"translated","value":"Scarta le modifiche"}}, "de": {"stringUnit":{"state":"translated","value":"Änderungen verwerfen"}}, "es": {"stringUnit":{"state":"translated","value":"Descartar cambios"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Descartar alterações"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"放弃更改"}}
+      "en": {"stringUnit":{"state":"translated","value":"Discard"}}, "fr": {"stringUnit":{"state":"translated","value":"Abandonner"}}, "it": {"stringUnit":{"state":"translated","value":"Scarta"}}, "de": {"stringUnit":{"state":"translated","value":"Verwerfen"}}, "es": {"stringUnit":{"state":"translated","value":"Descartar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Descartar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"放弃"}}
     }},
     "Leave without saving": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Leave without saving"}}, "fr": {"stringUnit":{"state":"translated","value":"Quitter sans enregistrer"}}, "it": {"stringUnit":{"state":"translated","value":"Esci senza salvare"}}, "de": {"stringUnit":{"state":"translated","value":"Ohne Speichern verlassen"}}, "es": {"stringUnit":{"state":"translated","value":"Salir sin guardar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Sair sem salvar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"退出而不保存"}}
@@ -52185,7 +52185,7 @@
       }
     },
     "Move %@ to the Trash?": {
-      "comment": "ModsPanel.swift",
+      "comment": "ModsPanel.swift, GameInboxModel.swift",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -52202,7 +52202,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mettre %@ dans la Corbeille ?"
+            "value": "Mettre %@ à la Corbeille ?"
           }
         },
         "de": {

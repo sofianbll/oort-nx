@@ -33,26 +33,14 @@ extension AppShellView {
     // MARK: - Retry a ready build
 
     func settingsNoticeOverlay(_ notice: SettingsNotice) -> some View {
-        let cancel = {
+        SeleneOverlay(style: .dialog, onOutside: {
             if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() }
-        }
-        let choose: (Int) -> Void = { index in
-            if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(choice: index) }
-        }
-        return SeleneOverlay(style: .dialog, onOutside: cancel) {
-            if !notice.destructive.isEmpty && !notice.choiceDetails.isEmpty {
-                OortQuestion(title: notice.title, message: notice.message,
-                    actions: notice.choices.enumerated().map { index, title in
-                        .init(id: index, title: title, role: notice.role(at: index), detail: notice.choiceDetails[title],
-                              perform: { choose(index) })
-                    }, focused: viewModel.settingsNoticeFocus,
-                    onFocus: { if let index = $0.base as? Int { viewModel.settingsNoticeFocus = index } },
-                    onCancel: cancel, onConfirm: { choose(viewModel.settingsNoticeFocus) }, separateDanger: true)
-            } else {
-                SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                    focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil,
-                    destructive: notice.destructiveIndexes, details: notice.choiceDetails, onCancel: cancel, onChoose: choose)
-            }
+        }) {
+            SeleneChoiceDialog(title: notice.title, message: notice.message,
+                               answers: notice.answers, focus: $viewModel.settingsNoticeAnswer,
+                               details: notice.choiceDetails,
+                               onCancel: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() } },
+                               onAnswer: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(answer: $0) } })
         }
     }
 
@@ -68,11 +56,11 @@ extension AppShellView {
             retry: { NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications", isDirectory: true)) })
     }
 
-    func finishSettingsNotice(choice: Int? = nil) {
+    func finishSettingsNotice(answer: SettingsNotice.AnswerID = .back) {
         let notice = viewModel.settingsNotice
         viewModel.settingsNotice = nil
         notice?.onDismiss?()
-        notice?.runChoice(choice)
+        notice?.runAnswer(answer)
         presentLegacyNotice()
     }
 
@@ -149,11 +137,11 @@ extension AppShellView {
 
     func settingsNoticeInput(_ action: GamepadAction) {
         switch action {
-        case .navigateLeft, .navigateUp: viewModel.settingsNoticeFocus = max(0, viewModel.settingsNoticeFocus - 1)
-        case .navigateRight, .navigateDown:
-            let last = (viewModel.settingsNotice?.choices.count ?? 1) - 1
-            viewModel.settingsNoticeFocus = min(last, viewModel.settingsNoticeFocus + 1)
-        case .confirm: finishSettingsNotice(choice: viewModel.settingsNoticeFocus)
+        case .navigateLeft, .navigateUp, .navigateRight, .navigateDown:
+            guard let notice = viewModel.settingsNotice else { return }
+            let direction = action == .navigateLeft || action == .navigateUp ? -1 : 1
+            viewModel.settingsNoticeAnswer = ActionBarOrder.move(viewModel.settingsNoticeAnswer, by: direction, in: notice.answers.map(\.id))
+        case .confirm: finishSettingsNotice(answer: viewModel.settingsNoticeAnswer)
         case .cancel: finishSettingsNotice()
         default: break
         }
@@ -207,7 +195,7 @@ extension AppShellView {
     func closeGameInput(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
+            let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
             if viewModel.closeGameFocus != next {
                 viewModel.closeGameFocus = next
                 SoundEffectService.shared.play(.focus)
@@ -278,7 +266,7 @@ extension AppShellView {
     func removeGameInput(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
+            let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
             if viewModel.removeGameFocus != next {
                 viewModel.removeGameFocus = next
                 SoundEffectService.shared.play(.focus)

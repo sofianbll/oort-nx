@@ -323,8 +323,8 @@ struct ProfileSwitchDialog: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onReceive(NotificationCenter.default.publisher(for: .nxProfileInput)) { note in
             switch note.object as? GamepadAction {
-            case .navigateLeft: focus = .onSide(left: true, destructive: hasGame || endsGuest)
-            case .navigateRight: focus = .onSide(left: false, destructive: hasGame || endsGuest)
+            case .navigateLeft: focus = .left
+            case .navigateRight: focus = .right
             case .confirm: accept()
             case .cancel: onCancel()
             default: break
