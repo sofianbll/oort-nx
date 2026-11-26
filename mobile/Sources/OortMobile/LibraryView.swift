@@ -42,31 +42,38 @@ struct LibraryScreen: View {
             if model.details.isEmpty {
                 EmptyLibrary(model: model, nav: nav)
             } else {
-                ScrollViewReader { scroll in
-                    ScrollView {
-                        if showsActionRow { actionKeys }
-                        tabKeys
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium), count: columns),
-                                  spacing: SeleneTokens.Space.large) {
-                            ForEach(games) { item in card(item).id(item.id) }
-                        }
-                        .padding(.horizontal, SeleneTokens.Space.panel)
-                        .padding(.vertical, SeleneTokens.Space.medium)
-                        .animation(.snappy, value: byName)
-                        if games.isEmpty {
-                            if nav.query.isEmpty {
-                                ContentUnavailableView(Oort.text("No favorite yet"), systemImage: "heart",
-                                                       description: Text(Oort.text("Mark a game on its page, or with a long press.")))
-                            } else { ContentUnavailableView.search(text: nav.query) }
-                        }
+                ZStack {
+                    // Keep the scroll view in place when the system search is taken out of the navigation bar.
+                    if !showsActionRow || nav.typing {
+                        Color.clear
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                            .searchable(text: $nav.query, isPresented: $nav.typing, prompt: Oort.text("Search your games"))
                     }
-                    .onChange(of: focus.current) { _, id in
-                        // Revealing the first focus must not scroll the large title out of place.
-                        if !nav.revealing { withAnimation(.snappy) { scroll.scrollTo(id, anchor: .center) } }
+                    ScrollViewReader { scroll in
+                        ScrollView {
+                            if showsActionRow { actionKeys }
+                            tabKeys
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium), count: columns),
+                                      spacing: SeleneTokens.Space.large) {
+                                ForEach(games) { item in card(item).id(item.id) }
+                            }
+                            .padding(.horizontal, SeleneTokens.Space.panel)
+                            .padding(.vertical, SeleneTokens.Space.medium)
+                            .animation(.snappy, value: byName)
+                            if games.isEmpty {
+                                if nav.query.isEmpty {
+                                    ContentUnavailableView(Oort.text("No favorite yet"), systemImage: "heart",
+                                                           description: Text(Oort.text("Mark a game on its page, or with a long press.")))
+                                } else { ContentUnavailableView.search(text: nav.query) }
+                            }
+                        }
+                        .onChange(of: focus.current) { _, id in
+                            // Revealing the first focus must not scroll the large title out of place.
+                            if !nav.revealing { withAnimation(.snappy) { scroll.scrollTo(id, anchor: .center) } }
+                        }
                     }
                 }
-                .searchable(text: $nav.query, isPresented: $nav.typing, prompt: Oort.text("Search your games"))
-                .toolbar(removing: showsActionRow && !nav.typing ? .search : nil)
             }
         }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
