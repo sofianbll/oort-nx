@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       swift: ${{ steps.decide.outputs.swift }}
+      catalog_batches: ${{ steps.catalog.outputs.batches }}
       desktop: ${{ steps.decide.outputs.desktop }}
       mobile: ${{ steps.decide.outputs.mobile }}
       android: ${{ steps.decide.outputs.android }}
@@ -58,6 +59,11 @@ jobs:
           else
             echo "full=false" >> "$GITHUB_OUTPUT"
           fi
+      - id: catalog
+        if: steps.decide.outputs.swift == 'true'
+        run: |
+          batches="$(python3 scripts/ci_catalog_checks.py matrix)"
+          echo "batches=$batches" >> "$GITHUB_OUTPUT"
 
   # Always runs: publication, translations, tokens, module boundaries, interface rules, vocabulary, guides and the Python checks.
   checks:
@@ -95,8 +101,8 @@ jobs:
           python3 scripts/check_selene_tokens.py --base HEAD^1
           python3 scripts/check_ui_rules.py --base HEAD^1
 
-  swift:
-    name: Mac / Swift tests
+  swift-debug:
+    name: Mac / Swift unit tests and shared probes
     needs: areas
     if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
@@ -112,12 +118,56 @@ jobs:
           home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
           HOME="$home" CFFIXED_USER_HOME="$home" swift test --jobs 6
       - name: Application regressions without UI
-        run: |
-          for check in Tests/CatalogAppChecks/run_*.py; do
-            python3 "$check" || exit 1
-          done
+        run: python3 scripts/ci_catalog_checks.py debug
+
+  swift-app:
+    name: Mac / standalone app probes (${{ matrix.batch }})
+    needs: areas
+    if: needs.areas.outputs.swift == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    strategy:
+      fail-fast: false
+      matrix:
+        batch: ${{ fromJSON(needs.areas.outputs.catalog_batches) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Application regressions without UI
+        run: python3 scripts/ci_catalog_checks.py "${{ matrix.batch }}"
+
+  swift-release:
+    name: Mac / Release compilation
+    needs: areas
+    if: needs.areas.outputs.swift == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Release compilation
         run: swift build -c release --product NXLibrary
+
+  swift:
+    # Keep the same required check name and require every batch to pass.
+    name: Mac / Swift tests
+    needs: [areas, swift-debug, swift-app, swift-release]
+    if: always() && (needs.areas.outputs.swift == 'true' || needs.areas.result != 'success')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      RESULTS: ${{ format('{0} {1} {2}', needs.swift-debug.result, needs.swift-app.result, needs.swift-release.result) }}
+    steps:
+      - name: Require all Mac checks
+        run: |
+          echo "Swift tests and shared probes / standalone probes / Release compilation: $RESULTS"
+          test "$RESULTS" = 'success success success'
 
   # Windows and Linux: the portable core, the Tauri host and the packages. Alpha branch layout.
   windows:

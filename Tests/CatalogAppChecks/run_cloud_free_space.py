@@ -84,7 +84,13 @@ SCENARIO = r'''
     static func words(_ name: String, _ output: URL) throws -> String {
         let request = VNRecognizeTextRequest()
         request.recognitionLanguages = ["fr-FR"]
-        try VNImageRequestHandler(url: output.appendingPathComponent(name + ".png")).perform([request])
+        let url = output.appendingPathComponent(name + ".png")
+        do {
+            try VNImageRequestHandler(url: url).perform([request])
+        } catch {
+            FileHandle.standardError.write(Data("Vision OCR failed for \(url.lastPathComponent): \(String(reflecting: error))\n".utf8))
+            throw error
+        }
         return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
             .joined(separator: " ").replacingOccurrences(of: "\u{202f}", with: " ")
             .replacingOccurrences(of: "\u{a0}", with: " ").lowercased()

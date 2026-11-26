@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 26 novembre 2026. Il repository versiona **1635 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 26 novembre 2026. Il repository versiona **1638 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -77,7 +77,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [.github/CODEOWNERS](../../.github/CODEOWNERS) | Designa il maintainer come revisore delle aree sensibili: dati, accesso, release, pacchetto, motore. |
 | [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo, npm e Gradle; apre solo pull request. |
 | [.github/LABELS.md](../../.github/LABELS.md) | Propone le etichette da creare; nessuna è stata applicata su GitHub. |
-| [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: controlli Mac sempre; Swift, desktop, iPhone e iPad, Android solo se cambiano i loro percorsi. |
+| [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: controlli Mac sempre; per Swift, suite Debug, gruppi di sonde autonome e build Release paralleli, tutti richiesti da Mac / Swift tests. I port girano solo se cambiano i loro percorsi. |
 | [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
@@ -1034,12 +1034,14 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
+| [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
 | [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge i livelli dal modello LikeC4, li confronta con SwiftPM e verifica gli import. |
 | [architecture/likec4.config.json](../../architecture/likec4.config.json) | Configurazione del progetto LikeC4. |
 | [architecture/spec.c4](../../architecture/spec.c4) | Tipi di elementi del modello. |
 | [architecture/model.c4](../../architecture/model.c4) | Sistemi, livelli Swift e responsabilità dei domini. |
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
 | [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
+| [Tests/CIChecks/test_catalog_checks.py](../../Tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
 | [docs/working-on-it/architecture-map.md](architecture-map.md) | Collegamento al modello, controlli e dove mettere il codice. |
@@ -1347,7 +1349,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_pause.py](../../Tests/CatalogAppChecks/run_cloud_pause.py) | Verifica la pausa e la ripresa esplicita dopo riavvio, ordine e controlli in Cloud e Attività con un backend sintetico. |
 | [run_cloud_shelf.py](../../Tests/CatalogAppChecks/run_cloud_shelf.py) | Rende lo scaffale Cloud in francese e verifica gli stati vuoti, i titoli importati e il recupero nell’assistente con fixture. |
 | [run_cloud_reference.py](../../Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
-| [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. |
+| [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. Identifica il PNG se Vision non riesce a leggerlo. |
 | [run_store_next_step.py](../../Tests/CatalogAppChecks/run_store_next_step.py) | Rende le prossime azioni e gli stati passivi di Details in francese su dati sintetici. |
 | [StoreNextStepOCR.swift](../../Tests/CatalogAppChecks/StoreNextStepOCR.swift) | Legge i PNG della sonda Details e verifica testi, origine e assenza di misure ripetute. |
 | [run_cloud_personal_update.py](../../Tests/CatalogAppChecks/run_cloud_personal_update.py) | Esercita l’offerta personale, la conferma e le copie sostituite o conservate tramite un cloud e bundle sintetici. |
@@ -1593,6 +1595,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [docs/history/reviews/2026-11-22-local-removal-inventory.md](../history/reviews/2026-11-22-local-removal-inventory.md) | Inventario delle cancellazioni locali e verifica del contratto `DM_SAVE`. |
 | [docs/history/reviews/2026-11-24-profile-focus.md](../history/reviews/2026-11-24-profile-focus.md) | Sonda dell'alone profili, misure dei bordi negli altri viewport e diagnosi del banding. |
 | [docs/history/reviews/2026-11-25-cloud-assistant.md](../history/reviews/2026-11-25-cloud-assistant.md) | Processi, richieste e tempi prima e dopo, su Drive sintetico. |
+| [docs/history/reviews/2026-11-26-mac-ci.md](../history/reviews/2026-11-26-mac-ci.md) | Tempi dei runner, compilazioni indipendenti e diagnosi dell'errore OCR. |
 
 ## Aggiornare questo catalogo
 
