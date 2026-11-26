@@ -24,9 +24,28 @@ struct SeleneOptionRow<Trailing: View>: View {
     /// False: the line is data (a path, a state), not an explanation, and stays on the row.
     var aboutIsHelp = true
     var formatBadges: [String] = []
+    var detail: AnyView? = nil
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
+        Group {
+            if let detail {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                    row
+                    detail.frame(maxWidth: .infinity, alignment: .leading)
+                }
+            } else {
+                row
+            }
+        }
+        .modifier(SeleneOptionRowSurface(focused: focused))
+        .onHover { hovered = $0 }
+        .preference(key: OortRowHelpKey.self, value: grouped && aboutIsHelp && (focused || hovered) ? about : nil)
+        .accessibilityHint(grouped && aboutIsHelp ? about ?? "" : "")
+        .containerValue(\.oortSettingsRow, true)
+    }
+
+    private var row: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.control)) {
             leading
             if let icon {
@@ -64,11 +83,6 @@ struct SeleneOptionRow<Trailing: View>: View {
             Spacer(minLength: canvas.u(16))
             trailing()
         }
-        .modifier(SeleneOptionRowSurface(focused: focused))
-        .onHover { hovered = $0 }
-        .preference(key: OortRowHelpKey.self, value: grouped && aboutIsHelp && (focused || hovered) ? about : nil)
-        .accessibilityHint(grouped && aboutIsHelp ? about ?? "" : "")
-        .containerValue(\.oortSettingsRow, true)
     }
 }
 

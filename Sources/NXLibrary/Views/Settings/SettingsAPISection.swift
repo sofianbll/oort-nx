@@ -354,29 +354,10 @@ struct SettingsAPISection: View {
                                focused: focusedRow == accountRowID,
                                leading: signedOut ? nil : AnyView(NextendoAvatar(service: nextendo.accountService, pid: account?.avatarPID, image: account?.avatar,
                                                                               revision: nextendo.revision)),
-                               titleAccessory: signedOut ? nil : AnyView(accountStatus)) {
+                               titleAccessory: signedOut ? nil : AnyView(accountStatus),
+                               detail: nextendo.failure.map { AnyView(accountFailure($0)) }) {
             VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                if let failure = nextendo.failure {
-                    Text(failure.localizedDescription)
-                        .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.danger)
-                        .multilineTextAlignment(.trailing)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: canvas.u(340), alignment: .trailing)
-                    if let diagnostic = failure.checkDiagnostic {
-                        Text(diagnostic.message(context: localization))
-                            .seleneFont(.text)
-                            .foregroundStyle(SeleneTheme.ink60)
-                    } else if failure == .discordUnlinked || failure == .emailUnverified {
-                        Text(text(failure == .discordUnlinked
-                                  ? "Nextendo account not yet verified: link Discord on nextendo.network. Verification may take a few minutes."
-                                  : "Nextendo account not yet verified: confirm your email address."))
-                            .seleneFont(.text)
-                            .foregroundStyle(SeleneTheme.ink60)
-                            .multilineTextAlignment(.trailing)
-                            .frame(maxWidth: canvas.u(340), alignment: .trailing)
-                    }
-                } else if nextendo.isWaitingForBrowser || nextendo.isBusy && !nextendo.isRefreshingFriends || signedOut {
+                if nextendo.failure == nil && (nextendo.isWaitingForBrowser || nextendo.isBusy && !nextendo.isRefreshingFriends || signedOut) {
                     NextendoValue(text: text(nextendo.isWaitingForBrowser ? "Waiting for your browser…"
                                              : nextendo.isBusy ? "Checking…"
                                              : canContactNextendo ? "Signed out" : "Connection not tested"))
@@ -389,6 +370,27 @@ struct SettingsAPISection: View {
             }
         }
         .id("selene-row-\(accountRowID)")
+    }
+
+    private func accountFailure(_ failure: NextendoError) -> some View {
+        let detail: String? = if let diagnostic = failure.checkDiagnostic {
+            diagnostic.message(context: localization)
+        } else if failure == .discordUnlinked {
+            text("Nextendo account not yet verified: link Discord on nextendo.network. Verification may take a few minutes.")
+        } else if failure == .emailUnverified {
+            text("Nextendo account not yet verified: confirm your email address.")
+        } else { nil }
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
+            Text(verbatim: failure.localizedDescription)
+                .foregroundStyle(SeleneTheme.danger)
+            if let detail {
+                Text(verbatim: detail)
+                    .foregroundStyle(SeleneTheme.ink60)
+            }
+        }
+        .seleneFont(.text)
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var accountStatus: some View {

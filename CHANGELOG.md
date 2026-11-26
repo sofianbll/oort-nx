@@ -5,6 +5,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ## Unreleased
 
 - **Settings → Switch → Keys** no longer shows the private file’s location. Checking the keys does not change file permissions.
+- **Settings → Account → Nextendo** wraps access and verification messages across the account row instead of squeezing them next to the buttons.
 
 ## 0.5.0-beta.4 — unreleased
 
