@@ -291,9 +291,6 @@ import ArcanePorting
         L10n.setContext(locale)
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
-            // Cancel on the left in the dialogs that follow the agreed order, on the right in the others.
-            func toAction() { input.settingsNoticeInput(vm.settingsNotice!.cancelFirst ? .navigateRight : .navigateLeft) }
-            func toCancel() { input.settingsNoticeInput(vm.settingsNotice!.cancelFirst ? .navigateLeft : .navigateRight) }
             let before = count()
             open()
             let notice = vm.settingsNotice!
