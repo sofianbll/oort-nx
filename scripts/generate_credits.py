@@ -30,6 +30,8 @@ BEGIN, END = "BEGIN GENERATED CREDITS (design/credits.json, scripts/generate_cre
 # Addresses in the code that name no third party: the app itself, a test, a template.
 OWN_HOSTS = {"localhost", "127.0.0.1", "cdn", "github", "fr.wikipedia.org", "xwikipedia.org", "steamstatic.com.x.org", "sofianbll.github.io",
              "www.apple.com", "developer.apple.com", "apps.apple.com", "support.apple.com", "schemas.android.com"}
+# The maintainer's public profile is handed to the browser, not called by the app.
+PROJECT_LINK = "https://ko-fi.com/sofianbll"
 
 
 def unique(pairs):
@@ -191,6 +193,7 @@ def dependencies():
             and n.endswith((".swift", ".kt", ".rs", ".js", ".m", ".h")) and "/gen/" not in n]
     for name in code:
         text = read(ROOT / name)
+        text = text.replace(f'"{PROJECT_LINK}"', "")
         for host in re.findall(r"https?://([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)", text):
             if host not in OWN_HOSTS:
                 add("host:" + host.lower(), name)
@@ -291,10 +294,15 @@ def terms(data, c, lang):
 def compact(data):
     return json.dumps(data, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n"
 
+def display_data(data):
+    """Historical entries stay in NOTICE, not in any interactive credits."""
+    return {**data, "credits": [c for c in data["credits"] if not c.get("noticeOnly")]}
+
 
 def copies(data):
     """Path to bytes, for every place this checkout has."""
     out, block = {}, notice_block(data)
+    data = display_data(data)
     text = compact(data).encode()
     for folder, reader in (("Sources/NXLibraryCore/Resources", "Sources/NXLibraryCore/App/Credits+Bundled.swift"),
                            ("mobile/Sources/OortMobile/Resources", "mobile"), ("android/app/src/main/assets", "android")):
@@ -328,6 +336,7 @@ def manifest(data):
 
 
 def site_copies(data, folder):
+    data = display_data(data)
     out = {"source/credits.json": compact(data).encode()}
     out.update({f"art/merci/{n}.png": (ROOT / ART / f"{n}.png").read_bytes() for n in sorted(arts(data))})
     return {folder / k: v for k, v in out.items()}
@@ -336,6 +345,7 @@ def site_copies(data, folder):
 def site_pages(data, folder):
     """The built pages name every credit, with its licence and link, in both languages."""
     import html
+    data = display_data(data)
     issues = []
     for lang, page in (("fr", "credits/index.html"), ("en", "en/credits/index.html")):
         text = read(folder / page)

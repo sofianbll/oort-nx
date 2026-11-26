@@ -16,7 +16,6 @@ struct SettingsAboutSection: View {
     let onActions: ([SettingsRowAction]) -> Void
 
     @State private var didCopyDiagnostics = false
-    private static let supportTitle = "Support Arcane"
     private static let fundingRow = "oort-funding"
     private static let fundingMark: OortCreditCard.Mark = {
         guard let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
@@ -77,9 +76,6 @@ struct SettingsAboutSection: View {
                     }
                     if shows(group) {
                         OortCreditGroup(group: group, credits: credits, focusedCard: focusedCard(in: group), open: open)
-                        if group.id == groups.first?.id {
-                            supportButton
-                        }
                     }
                 }
 
@@ -103,14 +99,6 @@ struct SettingsAboutSection: View {
         .onChange(of: viewModel.hasActiveSaveOperations) { publishActions() }
         .onChange(of: viewModel.isUpdatingApp) { publishActions() }
         .onChange(of: viewModel.runningGameCount) { publishActions() }
-    }
-
-    private var supportButton: some View {
-        OortCreditCard(mark: .platform(.support),
-                       name: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization),
-                       byline: L10n.text("Optional contributions support development and maintenance.", context: localization),
-                       focused: focusedRowTitle == Self.supportTitle, action: openSupportPage)
-            .id("selene-row-\(Self.supportTitle)")
     }
 
     private var language: String { localization.language.rawValue }
@@ -171,9 +159,6 @@ struct SettingsAboutSection: View {
                 let opens = line.credits.map { credit in { open(credit) } }
                 return SettingsRowAction(id: line.id, title: line.credits[0].name, rowID: line.id,
                                          additionalButtons: Array(opens.dropFirst()), activate: opens[0])
-            }
-            if group.id == groups.first?.id {
-                actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
             }
         }
         if credits != nil {
@@ -262,12 +247,6 @@ struct SettingsAboutSection: View {
             return date.formatted(.dateTime.day().month(.abbreviated).year().locale(L10n.context.formatLocale))
         }
         return "local"
-    }
-
-    private func openSupportPage() {
-        if let url = URL(string: "https://buymeacoffee.com/bium") {
-            openURL(url)
-        }
     }
 
     private func openProjectDocs() {
