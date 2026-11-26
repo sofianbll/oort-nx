@@ -311,7 +311,8 @@ extension SpotlightView {
                     guard !state.isLifted, index < top.count else { return }
                     selectGame(top[index].id)
                 },
-                recentBuilds: card == .activity ? recentBuilds : nil
+                recentBuilds: card == .activity ? recentBuilds : nil,
+                actions: card == .activity ? [buildHistoryHint] : []
             )
             .padding(.top, canvas.u(SeleneTokens.Space.small))
         }

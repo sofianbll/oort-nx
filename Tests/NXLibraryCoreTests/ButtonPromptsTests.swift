@@ -135,7 +135,7 @@ final class ButtonPromptsTests: XCTestCase {
         XCTAssertEqual(ButtonPrompts.keyboardKey(.b), .text("esc"))
         XCTAssertEqual(ButtonPrompts.keyboardKey(.view), .text("V"))
         XCTAssertEqual(ButtonPrompts.keyboardKey(.rb), .text("E"))
-        XCTAssertEqual(ButtonPrompts.keyboardKey(.rs), .text("F3"))
+        XCTAssertEqual(ButtonPrompts.keyboardKey(.rs), .text("S"))
         XCTAssertEqual(ButtonPrompts.keyboardKey(.search), .text("⌘F"))
     }
 

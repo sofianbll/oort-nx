@@ -127,8 +127,9 @@ struct LaunchScreenView: View {
     /// Selene's hints bar, like every screen's, over the art once the wait is long.
     @ViewBuilder private var exitHint: some View {
         if exit != .none {
-            SeleneHintsBar(right: [exit == .button ? HintItem(.b, "Close", action: finish)
-                                                   : HintItem(nil, "Click to close", action: finish)])
+            SeleneHintsBar(left: exit == .button ? [HintItem(.b, "Close", action: finish)] : [],
+                           right: exit == .button ? [] : [HintItem(nil, "Click to close", action: finish)])
+                .transformEnvironment(\.seleneShowButtonHints) { if exit == .click { $0 = true } }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .transition(.opacity)
         }

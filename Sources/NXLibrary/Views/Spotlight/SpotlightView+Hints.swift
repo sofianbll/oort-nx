@@ -22,7 +22,7 @@ extension SpotlightView {
         }
     }
 
-    private var buildHistoryHint: HintItem {
+    var buildHistoryHint: HintItem {
         HintItem(.x, settings.settings.showsRecentBuilds ? "Hide builds" : "Show builds") { handle(.secondaryAction) }
     }
 

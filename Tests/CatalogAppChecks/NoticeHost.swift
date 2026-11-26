@@ -52,21 +52,31 @@ try require(model.alertMessage == nil, "Deferred legacy alert was not presented 
 try require(model.settingsNotice?.retry == nil, "Expected the deferred generic notice after dismissal")
 var selected: [String] = []
 let retry = SettingsNotice(title: "Retry?", message: "", retry: { selected.append("retry") })
-try require(retry.choices == ["Retry", "Back"] && retry.initialFocus == 1, "Back stays focused on the right")
+try require(retry.choices == ["Back", "Retry"] && retry.initialFocus == 0, "The way back is on the left and focused unless the question says it is safe")
 retry.runChoice(retry.initialFocus)
 try require(selected.isEmpty, "The default choice must not retry")
-retry.runChoice(0)
-try require(selected == ["retry"], "The left choice should retry")
+retry.runChoice(1)
+try require(selected == ["retry"], "The right choice should retry")
+selected.removeAll()
+let erase = SettingsNotice(title: "Delete?", message: "", retry: { selected.append("delete") }, actionTitle: "Delete", cancelTitle: "Cancel",
+    alternatives: [("Archive", { selected.append("archive") })], primaryFirst: true, destructive: ["Delete"])
+try require(erase.choices == ["Delete", "Cancel", "Archive"] && erase.initialFocus == 1, "A question never opens on what deletes")
+let options = SettingsNotice(title: "Tile", message: "", retry: {}, actionTitle: "Choose", cancelTitle: "Back",
+    alternatives: [("Remove", { selected.append("remove") })], primaryFirst: true, destructive: ["Remove"])
+try require(options.choices == ["Remove", "Back", "Choose"] && options.initialFocus == 2 && options.destructiveIndexes == [0],
+            "What removes stands apart on the far left")
+options.runChoice(0)
+try require(selected == ["remove"], "The destructive choice runs its own action")
 selected.removeAll()
 model.settingsNotice = SettingsNotice(title: "Rebuild", message: "Different cache",
     retry: { selected.append("download") }, actionTitle: "Download", cancelTitle: "Cancel",
     alternatives: [("Local", { selected.append("local") }), ("Without", { selected.append("without") })])
 let notice = model.settingsNotice!
-try require(notice.choices == ["Download", "Local", "Without", "Cancel"], "Download should be the first choice")
+try require(notice.choices == ["Cancel", "Without", "Local", "Download"], "Download should be the last choice")
 notice.runChoice(notice.cancelIndex)
 host.dismiss()
 try require(selected.isEmpty, "Cancel should not start an action")
-for choice in 0..<notice.cancelIndex {
+for choice in (1..<notice.choices.count).reversed() {
     model.settingsNotice = notice
     host.choose(choice)
 }

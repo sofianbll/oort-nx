@@ -61,10 +61,13 @@ struct SettingsView: View {
     /// The button in focus inside the focused row: 0 its own, 1 a second one (Back to tested beside Update).
     @State private var rowButton = 0
     @State private var rowActions: [SettingsRowAction] = []
+    /// The help that is open, and the focused row's when it has one (`I`).
+    @State private var openHelp: String?
+    @State private var focusedHelp: String?
     @State private var pageActions: [SettingsSection: [SettingsRowAction]] = [:]
     @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
-    @State private var decisionFocus = 2
+    @State private var decisionFocus = 1
     @State private var decisionError: String?
     @State private var decisionScroll = 0
     @State private var savingPlayers = false
@@ -135,7 +138,7 @@ struct SettingsView: View {
             } detail: {
                 content
             }
-            SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }], right: commandHints)
+            SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }] + helpHint, right: commandHints)
                 // Save remains visible even while previewing a change that hides the hints.
                 .environment(\.seleneShowButtonHints, hasPendingChanges || settings.presentation.showButtonHints)
                 .seleneOverlaidHints(overlayOwnsInput)
@@ -216,7 +219,7 @@ struct SettingsView: View {
             focusRequestedSetting()
         }
         .onChange(of: router.settingsDecision) {
-            decisionFocus = 2
+            decisionFocus = 1
             decisionError = nil
             decisionScroll = 0
         }
@@ -324,12 +327,12 @@ struct SettingsView: View {
 
     @ViewBuilder var decisionOverlay: some View {
         if let mode = router.settingsDecision, let draft = settings.draft {
-            SeleneOverlay(style: .profileRemoval, onOutside: { decide(2) }) {
+            SeleneOverlay(style: .profileRemoval, onOutside: { decide(1) }) {
                 SeleneChoiceDialog(title: "Unsaved settings",
                     message: decisionError ?? L10n.text("Review what will change before you save."),
-                    choices: ["Save", mode == .leave ? "Leave without saving" : "Discard changes", "Continue editing settings"],
-                    focus: $decisionFocus, cancelIndex: 2, notes: SettingsDraftFields.summary(draft.changes),
-                    notesScrollRequest: decisionScroll, onCancel: { decide(2) }, onChoose: decide)
+                    choices: [mode == .leave ? "Leave without saving" : "Discard changes", "Continue editing settings", "Save"],
+                    focus: $decisionFocus, cancelIndex: 1, destructive: [0], notes: SettingsDraftFields.summary(draft.changes),
+                    notesScrollRequest: decisionScroll, onCancel: { decide(1) }, onChoose: decide)
                     .environment(\.seleneShowButtonHints, true)
             }
         }
@@ -338,7 +341,7 @@ struct SettingsView: View {
     private func decide(_ index: Int) {
         guard router.settingsDecision != nil, !savingPlayers else { return }
         switch index {
-        case 0:
+        case 2:                                         // Save
             if let plan = settings.editingSettings.launcherChoices.players, plan != settings.settings.launcherChoices.players {
                 savingPlayers = true
                 Task { @MainActor in
@@ -357,7 +360,7 @@ struct SettingsView: View {
             } else if applyDraft() {
                 finishDecision(proceed: true)
             }
-        case 1:
+        case 0:                                         // Discard changes
             settings.discardDraft()
             showingPlayers = false
             editor.resetPlayers()
@@ -368,7 +371,7 @@ struct SettingsView: View {
     }
 
     private func finishDecision(proceed: Bool) {
-        decisionFocus = 2
+        decisionFocus = 1
         router.finishSettingsDecision(proceed: proceed)
     }
 
@@ -488,7 +491,7 @@ struct SettingsView: View {
                     .onTapGesture { nextendo.friendToRemove = nil }
                 SeleneConfirmDialog(title: L10n.text("Remove this friend?", context: localization), message: friend.name,
                                     confirmTitle: L10n.text("Remove friend", context: localization),
-                                    cancelTitle: L10n.text("Cancel", context: localization), focus: $nextendoRemovalFocus,
+                                    cancelTitle: L10n.text("Cancel", context: localization), destructive: true, focus: $nextendoRemovalFocus,
                                     onCancel: { nextendo.friendToRemove = nil }, onConfirm: confirmNextendoRemoval)
             }
             .onAppear { nextendoRemovalFocus = .cancel }
@@ -510,16 +513,24 @@ struct SettingsView: View {
                     if case let .category(category) = visiblePage {
                         subjectRows(category)
                     }
+                    if resettable {
+                        OortSettingsGroup {
+                            SeleneButtonRow(Self.resetRow, buttonTitle: "Reset", action: askToReset)
+                        }
+                    }
                 }
                 .id(visiblePage)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .environment(\.seleneFocusedRowID, focusArea == .rows ? focusedRow?.rowID : nil)
                 .environment(\.seleneFocusedButton, rowButton)
+                .environment(\.seleneOpenHelp, $openHelp)
+                .onPreferenceChange(SeleneFocusedHelpKey.self) { row in MainActor.assumeIsolated { focusedHelp = row } }
                 .padding(.bottom, canvas.u(SeleneTokens.Space.settingsInfoClearance))
             }
             .scrollIndicators(.hidden)
             .onChange(of: focusArea == .rows ? focusedRow?.rowID : nil) { _, rowID in
                 rowButton = 0
+                openHelp = nil
                 guard let rowID else { return }
                 let id = "selene-row-\(rowID)"
                 withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
@@ -636,6 +647,19 @@ struct SettingsView: View {
         return hints
     }
 
+    private var helpHint: [HintItem] {
+        guard focusedHelp != nil else { return [] }
+        var help = HintItem(.navigate, openHelp == nil ? "Information" : "Close", keyboard: .text("I"), action: toggleHelp)
+        help.keyboardOnly = true
+        return [help]
+    }
+
+    private func toggleHelp() {
+        guard let focusedHelp else { return }
+        openHelp = openHelp == nil ? focusedHelp : nil
+        SoundEffectService.shared.play(.focus)
+    }
+
     private var focusedRow: SettingsRowAction? {
         rowActions.indices.contains(rowFocus.index) ? rowActions[rowFocus.index] : nil
     }
@@ -644,7 +668,9 @@ struct SettingsView: View {
         // One focus slot per visible row; reset the button when an action appears or disappears.
         let focusedID = focusArea == .rows ? focusedRow?.id : nil
         let focusedButtonCount = focusedRow?.buttonCount
-        rowActions = SettingsRowAction.primaryActions(page.inlineSections.flatMap { pageActions[$0] ?? [] } + subjectActions)
+        let reset = resettable ? [SettingsRowAction(id: "resetGroup", title: Self.resetRow, activate: askToReset)] : []
+        let actions = page.inlineSections.flatMap { pageActions[$0] ?? [] } + subjectActions
+        rowActions = SettingsRowAction.primaryActions(actions.isEmpty ? [] : actions + reset)
         if let focusedID, let index = rowActions.firstIndex(where: { $0.id == focusedID }) {
             rowFocus.index = index
         }
@@ -740,8 +766,15 @@ struct SettingsView: View {
         SoundEffectService.shared.play(.focus)
     }
 
+    private static let resetRow = "Reset group"
+
     private var canResetSection: Bool {
         if focusArea == .rows, let row = focusedRow, subjectActions.contains(where: { $0.id == row.id }) { return false }
+        return resettable
+    }
+
+    /// The page's group has something to reset: its last row does it, as X does.
+    private var resettable: Bool {
         guard let section else { return false }
         if section == .profileSecurity { return profiles?.active?.isLocked == true && profiles?.guest == nil }
         if section == .profileNextendo { return hasProfileAccount }
@@ -754,7 +787,7 @@ struct SettingsView: View {
         guard let ask = SettingsReset.question(section, title: L10n.text(section.title, context: localization)) else {
             return resetSection(section)
         }
-        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset") { resetSection(section) }
+        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset", destructive: true) { resetSection(section) }
     }
 
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
@@ -933,6 +966,10 @@ struct SettingsView: View {
             case 7:                                     // X
                 if typing { return event }
                 action = .secondaryAction
+            case 34:                                    // I: the focused row's help
+                if typing || focusedHelp == nil { return event }
+                if !event.isARepeat { toggleHelp() }
+                return nil
             case 16:                                    // Y
                 if typing || !hasPendingChanges { return event }
                 action = .contextAction
@@ -958,7 +995,7 @@ struct SettingsView: View {
             case .navigateDown:
                 decisionScroll = min(max(0, (settings.draft?.changes.count ?? 1) - 1), decisionScroll + 1)
             case .confirm: decide(decisionFocus)
-            case .cancel: decide(2)
+            case .cancel: decide(1)
             default: break
             }
             return
@@ -975,8 +1012,8 @@ struct SettingsView: View {
         if viewModel.isEditingSteamGridDBKey || igdb.isEditing || nextendo.isEditingClient || showingCloudAssistant { return }
         if nextendo.friendToRemove != nil {
             switch action {
-            case .navigateLeft: nextendoRemovalFocus = .left
-            case .navigateRight: nextendoRemovalFocus = .right
+            case .navigateLeft, .navigateRight:
+                nextendoRemovalFocus = .onSide(left: action == .navigateLeft, destructive: true)
             case .confirm where nextendoRemovalFocus == .confirm: confirmNextendoRemoval()
             case .confirm, .cancel: nextendo.friendToRemove = nil
             default: break
@@ -1060,6 +1097,9 @@ struct SettingsView: View {
     private func handleBack() {
         if let window = NSApp.keyWindow, window.firstResponder is NSText {
             window.makeFirstResponder(nil)
+            SoundEffectService.shared.play(.focus)
+        } else if openHelp != nil {
+            openHelp = nil
             SoundEffectService.shared.play(.focus)
         } else if navigation.canGoBack {
             var next = navigation

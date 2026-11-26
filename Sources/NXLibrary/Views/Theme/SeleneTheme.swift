@@ -168,6 +168,19 @@ extension EnvironmentValues {
     }
 }
 
+extension View {
+    /// The ring of the one key Left and Right put the focus on, in a row with more than one.
+    func seleneKeyRing(_ focused: Bool) -> some View {
+        padding(.horizontal, SeleneTokens.Space.gap)
+            .padding(.vertical, SeleneTokens.Space.chipBottom)
+            .overlay {
+                Capsule().strokeBorder(SeleneTheme.focus, lineWidth: SeleneTokens.Space.focusStroke)
+                    .opacity(focused ? 1 : 0)
+            }
+            .accessibilityAddTraits(focused ? .isSelected : [])
+    }
+}
+
 private struct SeleneFocusedButtonKey: EnvironmentKey {
     static let defaultValue = 0
 }

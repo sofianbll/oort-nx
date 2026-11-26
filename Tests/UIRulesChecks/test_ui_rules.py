@@ -251,6 +251,13 @@ class ButtonOrder(Case):
         self.write(dialog % "0")
         self.assertEqual(self.found("button-order"), [])
 
+    def test_what_erases_may_stand_before_the_way_back(self):
+        dialog = 'struct S: View { var body: some View { SeleneChoiceDialog(title: t, choices: [a, b, c], focus: $f, cancelIndex: %s, destructive: [0]) } }'
+        self.write(dialog % "1")
+        self.assertEqual(self.found("button-order"), [])
+        self.write(dialog % "2")
+        self.assertEqual(len(self.found("button-order")), 1)
+
     def test_the_back_hint_on_the_right_is_refused(self):
         bar = "struct S: View {{ var body: some View {{ SeleneHintsBar({0}, bottom: 0) }} }}"
         self.write(bar.format('right: [HintItem(.a, "Select"), HintItem(.b, "Back")]'))

@@ -14,7 +14,7 @@ extension DetailsLink {
     /// Every source's links, in grid order, each only when it has a target. Technical actions
     /// (Rebuild, sources, log, saves) live in Options.
     @MainActor
-    static func links(app: URL?, store: URL?, hltb: URL?, viewModel: AppViewModel,
+    static func links(app: URL?, store: URL?, hltb: URL?, wikipedia: URL? = nil, viewModel: AppViewModel,
                       cloudGame: PortedGame? = nil) -> [DetailsLink] {
         var links: [DetailsLink] = []
         if let game = cloudGame, viewModel.showsCloudLibrary(game) {
@@ -28,6 +28,9 @@ extension DetailsLink {
         }
         if let hltb {
             links.append(DetailsLink(id: "hltb", title: L10n.text("HowLongToBeat")) { viewModel.openURL(hltb) })
+        }
+        if let wikipedia {
+            links.append(DetailsLink(id: "wikipedia", title: L10n.text("Wikipedia")) { viewModel.openURL(wikipedia) })
         }
         return links
     }

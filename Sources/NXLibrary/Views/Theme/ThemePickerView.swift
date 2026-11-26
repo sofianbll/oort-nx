@@ -101,7 +101,7 @@ struct ThemePickerView: View {
                            removal: .opacity.combined(with: .offset(x: forward ? offset : -offset)))
     }
 
-    private var rightHints: [HintItem] {
+    var rightHints: [HintItem] {
         switch state.step {
         case .theme:
             return [HintItem(.a, L10n.text("Next"), action: accept)]

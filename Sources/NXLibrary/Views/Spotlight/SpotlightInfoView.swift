@@ -148,8 +148,10 @@ struct SpotlightGameInfoView: View {
         case .failed:
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
-                    pill(index, SelenePillButton(title: title, height: 52,
-                                                 focused: focusedPill == index) { onPill(index) })
+                    pill(index, SelenePillButton(title: title, height: 52, focused: focusedPill == index,
+                                                 tint: PortingPillCopy.deletes(index) ? PortingPillCopy.softRed : nil) { onPill(index) })
+                        // What deletes stands apart.
+                        .padding(.leading, PortingPillCopy.deletes(index) ? canvas.u(SeleneTokens.Space.group) : 0)
                 }
             }
         case .normal, .queued, .normalAfterFailure, .unavailable:
@@ -270,6 +272,7 @@ private struct NowPlayingDot: View {
 /// Copy shared by Spotlight's and Details' porting pills.
 enum PortingPillCopy {
     static let failedTitles = ["Try again", "Open log", "Delete"]
+    static func deletes(_ index: Int) -> Bool { failedTitles.indices.contains(index) && failedTitles[index] == "Delete" }
     /// Soft, never alarm red.
     static let softRed = Color(hex: SeleneTokens.Art.softRed)
 

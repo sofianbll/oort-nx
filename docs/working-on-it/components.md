@@ -17,6 +17,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `SeleneConfirmDialog`, `SeleneChoiceDialog`, `SeleneSuccessNotice` | Conferma, scelta o messaggio | Conferma, lista di scelte, messaggio | Azione primaria a sinistra, focus iniziale sicuro · nascondere l'aiuto sottostante. |
 | `OortActionBar`, `OortQuestion` | Piede di un pannello o di una domanda | Ruoli `destructive`, `back`, `secondary`, `primary` | Dare il ruolo, non la posizione: ritorno a sinistra, azione principale ultima a destra · per ora solo l'assistente cloud. |
 | `OortAssistantPanel`, `OortFolderCard` | Compito in pochi passi; una cartella con domanda, percorso e contenuto | Passo fatto, corrente, futuro | Un compito lungo · non una semplice domanda. |
+| `SeleneConfirmDialog`, `SeleneChoiceDialog`, `SeleneSuccessNotice` | Conferma, scelta o messaggio | Conferma, lista di scelte, messaggio | Piede `OortActionBar`: ritorno a sinistra, principale ultima, distruttivo staccato; focus iniziale sicuro · nascondere l'aiuto sottostante. |
 | `SeleneValueChip`, `OortStatus` | Valore breve o stato scritto | Testo/simbolo; neutro, in corso, attenzione, pronto | Scrivere lo stato · non affidarlo a colore o animazione. |
 | `PlatformLabel`, `PlatformMark` | Nome leggibile e marchio piattaforma | Intestazione, riga, riepilogo, didascalia, setup, elenco | Usare il marchio con il nome · non aggiungere un secondo disegno. |
 | `OortField` (`SeleneFieldSurface`) | Applicare al campo la superficie Selene | Focus o riposo | Passare il focus del campo · non ridefinire il contorno. |

@@ -375,7 +375,7 @@ struct SettingsCloudLibrarySection: View {
         guard !selection.enabled, canPrepareTool else { return }
         viewModel.confirmSetting(text("Oort NX’s copy of rclone"),
             message: text("Only Oort NX’s download is moved to the Trash; other copies stay in place."),
-            action: "Move to Trash") {
+            action: "Move to Trash", destructive: true) {
             viewModel.trashDriveTool()
             inspection += 1
         }
@@ -425,7 +425,7 @@ struct SettingsCloudLibrarySection: View {
         guard editable, let reference = selection.referenceFolder else { return }
         viewModel.confirmSetting(text("Reference library"),
             message: text("Games available only from this reference will leave your library, but no files will be deleted."),
-            action: "Unfollow") {
+            action: "Unfollow", destructive: true) {
             guard editable, selection.referenceFolder == reference else { return }
             viewModel.followCloudReference(nil)
         }
@@ -505,7 +505,7 @@ struct SettingsCloudLibrarySection: View {
         guard hasKnownConnection, let tool, let name = connected?.name else { return }
         viewModel.confirmSetting(text("Disconnect cloud service?"),
             message: "\(name)\n\n\(text("Removes only the local connection. Cloud files stay where they are."))",
-            action: "Disconnect") {
+            action: "Disconnect", destructive: true) {
                 guard hasKnownConnection, model.preference.remote == name else { return }
                 model.isChangingConnection = true
                 Task { @MainActor in

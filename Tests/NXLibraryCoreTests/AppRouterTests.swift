@@ -552,7 +552,7 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         }
     }
 
-    /// The question's safe answer is last and focused first, and the pill only asks.
+    /// The question's safe answer is on the left and focused first, and the pill only asks.
     func testQuitAndRestartOnlyRunFromTheirConfirmation() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let shell = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/Views/Shell/AppShellView+Input.swift"), encoding: .utf8)
@@ -560,6 +560,6 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         XCTAssertFalse(run.contains("terminate"))
         XCTAssertTrue(run.contains("confirmSetting(ask.title"))
         let model = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"), encoding: .utf8)
-        XCTAssertTrue(model.contains("primaryFirst && retry != nil ? 0 : cancelIndex"))
+        XCTAssertTrue(model.contains("primaryFirst && retry != nil && !destructive.contains(actionTitle) ? choices.count - 1 : cancelIndex"))
     }
 }

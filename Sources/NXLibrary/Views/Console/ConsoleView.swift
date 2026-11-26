@@ -117,7 +117,7 @@ struct ConsoleView: View {
                                         message: L10n.text("The log file on disk is kept; only the lines shown here go."),
                                         confirmTitle: "Clear",
                                         cancelTitle: L10n.text("Keep"),
-                                        focus: $confirmFocus,
+                                        destructive: true, focus: $confirmFocus,
                                         onCancel: dismissClear,
                                         onConfirm: clear)
                 }
@@ -556,7 +556,7 @@ struct ConsoleView: View {
         if confirmClear {
             switch action {
             case .navigateLeft, .navigateRight:
-                let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
+                let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
                 if confirmFocus != next {
                     confirmFocus = next
                     SoundEffectService.shared.play(.focus)

@@ -140,9 +140,9 @@ private struct GallerySpecimen: View {
             case .dialogs:
                 HStack(alignment: .top) {
                     SeleneConfirmDialog(title: "Remove", message: text("No incoming files"), confirmTitle: "Remove",
-                                        warningIcon: true, focus: $confirmation, onCancel: {}, onConfirm: {})
+                                        warningIcon: true, destructive: true, focus: $confirmation, onCancel: {}, onConfirm: {})
                     SeleneChoiceDialog(title: "Integrations", message: text("Find installed Mac games and open them in Steam."),
-                                       choices: ["Open", "Cancel"], focus: $choice, cancelIndex: 1, onCancel: {}) { _ in }
+                                       choices: ["Cancel", "Open"], focus: $choice, cancelIndex: 0, onCancel: {}) { _ in }
                 }
                 SeleneSuccessNotice(title: "Done", message: text("Last Drive check succeeded"))
             case .pieces:

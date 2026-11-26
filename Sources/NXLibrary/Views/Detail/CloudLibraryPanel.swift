@@ -66,7 +66,7 @@ struct CloudLibraryPanel: View {
         .task(id: ReadRequest(game: game, revision: refreshRevision)) { await viewModel.refreshCloudLibrary(game) }
         .onChange(of: controls) { _, controls in
             if let focus, controls.contains(focus) { return }
-            focus = controls.first
+            focus = startControl
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxCloudLibraryGamepadAction)) { note in
             if let action = note.object as? GamepadAction { handle(action) }
@@ -74,7 +74,7 @@ struct CloudLibraryPanel: View {
     }
 
     private var actionHints: [HintItem] {
-        switch focus ?? controls.first {
+        switch focus ?? startControl {
         case .pause: return [HintItem(.a, "Pause") { choose(.pause) }]
         case .resume: return [HintItem(.a, "Resume") { choose(.resume) }]
         case .none: return []
@@ -108,17 +108,9 @@ struct CloudLibraryPanel: View {
                 failureLine(failure.message(context: localization), failure: failure, item: nil)
             }
             if controls.contains(where: { [.close, .settings, .refresh, .free, .upload(nil), .advanced].contains($0) }) {
-                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                    if !showHints { button(.close, "Close") }
-                    if controls.contains(.settings) { button(.settings, "Open settings") }
-                    if controls.contains(.refresh) { button(.refresh, "Refresh") }
-                    if controls.contains(.free) { button(.free, "Free up space") }
-                    if controls.contains(.upload(nil)) {
-                        button(.upload(nil), state.combinedUploadTitle)
-                    }
-                    if controls.contains(.advanced) { button(.advanced, advanced ? "Hide" : "Advanced") }
+                OortActionBar(actions: foot, focused: (focus ?? startControl).map(AnyHashable.init), preset: .compact) { id in
+                    if let control = id.base as? Control { focus = control }
                 }
-                .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
         .modifier(SeleneDialogCard(width: 920))
@@ -249,7 +241,7 @@ struct CloudLibraryPanel: View {
                 }
             }
         }
-        .modifier(SeleneOptionRowSurface(focused: control != nil && (focus ?? controls.first) == control))
+        .modifier(SeleneOptionRowSurface(focused: control != nil && (focus ?? startControl) == control))
     }
 
     private func cloudPath(_ item: CloudLibraryItem) -> String? {
@@ -312,7 +304,27 @@ struct CloudLibraryPanel: View {
         }
     }
 
+    /// Where the panel opens: never on what moves files to the Trash.
+    private var startControl: Control? { controls.first { $0 != .free } }
+
+    /// The foot as drawn: Free up space apart on the left, Close, then Send last.
+    private var foot: [OortActionBar.Action] {
+        let keys: [(Control, String, ActionBarRole)] = [(.free, "Free up space", .destructive), (.close, "Close", .back),
+            (.advanced, advanced ? "Hide" : "Advanced", .secondary), (.settings, "Open settings", .secondary),
+            (.refresh, "Refresh", .secondary), (.upload(nil), state.combinedUploadTitle, .primary)]
+        return keys.filter { controls.contains($0.0) }.map { control, title, role in
+            .init(id: control, title: title, role: role) { choose(control) }
+        }
+    }
+
+    /// The arrows walk the rows, then the foot in its drawn order.
     private var controls: [Control] {
+        let drawn: [Control] = [.free, .close, .advanced, .settings, .refresh, .upload(nil)]
+        let all = offered
+        return all.filter { !drawn.contains($0) } + drawn.filter(all.contains)
+    }
+
+    private var offered: [Control] {
         let close: [Control] = showHints ? [] : [.close]
         if state.action != nil {
             let primary: [Control] = interrupted != nil ? [.resume] : pausable != nil ? [.pause] : []
@@ -380,7 +392,7 @@ struct CloudLibraryPanel: View {
 
     private func button(_ control: Control, _ key: String) -> some View {
         SelenePillButton(title: key, minWidth: 96, height: 36, horizontalPadding: 14,
-                         focused: (focus ?? controls.first) == control, action: { choose(control) })
+                         focused: (focus ?? startControl) == control, action: { choose(control) })
             .seleneHover { focus = control }
     }
 
@@ -405,7 +417,7 @@ struct CloudLibraryPanel: View {
         let controls = self.controls
         if action == .cancel { close(); return }
         guard !controls.isEmpty else { return }
-        let current = focus.flatMap { controls.firstIndex(of: $0) } ?? 0
+        guard let current = (focus ?? startControl).flatMap(controls.firstIndex) ?? controls.indices.first else { return }
         switch action {
         case .navigateUp, .navigateLeft, .navigateDown, .navigateRight:
             let direction = action == .navigateUp || action == .navigateLeft ? -1 : 1
@@ -464,7 +476,7 @@ struct CloudLibraryPanel: View {
             SeleneConfirmDialog(title: "Free up space",
                 message: text("Your verified copy stays available in your personal cloud. Your saves are unchanged. Empty the Trash to reclaim space."),
                 confirmTitle: "Free up space", confirmEnabled: !selection.selected.isEmpty,
-                highlightsPills: freeFocus == .cancel || freeFocus == .confirm,
+                highlightsPills: freeFocus == .cancel || freeFocus == .confirm, destructive: true,
                 focus: Binding(get: { freeFocus == .confirm ? .confirm : .cancel },
                                set: { freeFocus = $0 == .cancel ? .cancel : .confirm }),
                 onCancel: { freeSelection = nil }, onConfirm: confirmFree) {
@@ -518,7 +530,7 @@ struct CloudLibraryPanel: View {
                 SoundEffectService.shared.play(.key)
             }
         case .navigateLeft, .navigateUp, .navigateRight, .navigateDown:
-            var index = FocusIndex(index: choices.firstIndex(of: freeFocus) ?? (choices.count - 1))
+            var index = FocusIndex(index: (choices.firstIndex(of: freeFocus) ?? choices.firstIndex(of: .cancel))!)
             index.move(by: action == .navigateLeft || action == .navigateUp ? -1 : 1, count: choices.count)
             let next = choices[index.index]
             if next != freeFocus { SoundEffectService.shared.play(.focus); freeFocus = next }

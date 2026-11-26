@@ -123,7 +123,7 @@ struct ProfilePickerView: View {
                     SeleneConfirmDialog(title: L10n.format("Delete %@?", [removing.name]),
                                         message: L10n.text("This profile will lose its favorites and play time."),
                                         confirmTitle: L10n.text("Delete"), cancelTitle: L10n.text("Keep"),
-                                        warningIcon: true, focus: $removalFocus,
+                                        warningIcon: true, destructive: true, focus: $removalFocus,
                                         onCancel: { self.removing = nil }, onConfirm: remove)
                 }
             }
@@ -165,6 +165,9 @@ struct ProfilePickerView: View {
                         else { scroll.scrollTo("add", anchor: .center) }
                     }
                 }
+                // Same height with and without keys, so the portraits never move.
+                OortItemActions(hints: profileHints(selectedProfile), deletes: [.x])
+                    .frame(height: canvas.u(SeleneTokens.Space.compactPillHeight))
                 if profiles.failed { Text(L10n.text("Profiles could not be saved.")).seleneFont(.text) }
             }
             .foregroundStyle(SeleneTheme.ink)
@@ -180,11 +183,17 @@ struct ProfilePickerView: View {
     private var leftHints: [HintItem] {
         var hints = canClose ? [HintItem(.b, "Back", action: onClose)] : []
         hints.append(HintItem(.menu, "Add", keyboard: .text("+"), action: add))
-        if selectedProfile?.id == profiles.active?.id, onEditActive != nil {
-            hints.append(HintItem(.y, "Edit profile", action: edit))
+        return hints + profileHints(selectedProfile)
+    }
+
+    private func profileHints(_ profile: LocalProfile?) -> [HintItem] {
+        guard let profile else { return [] }
+        var hints: [HintItem] = []
+        if profile.id == profiles.active?.id, onEditActive != nil {
+            hints.append(HintItem(.y, "Edit profile") { selected = profile.id; edit() })
         }
-        if selectedProfile.map(canRemoveProfile) == true {
-            hints.append(HintItem(.x, "Delete", action: askRemoval))
+        if canRemoveProfile(profile) {
+            hints.append(HintItem(.x, "Delete") { selected = profile.id; askRemoval() })
         }
         return hints
     }
@@ -223,6 +232,7 @@ struct ProfilePickerView: View {
             }
         }
         .buttonStyle(OortPressStyle())
+        .oortItemMenu(profileHints(profile), deletes: [.x])
         .onHover { if hover.moved($0) { selected = profile?.id } }
         .accessibilityLabel(title)
         .accessibilityAddTraits(isFocused ? .isSelected : [])
@@ -233,8 +243,8 @@ struct ProfilePickerView: View {
     private func handle(_ action: GamepadAction) {
         if removing != nil {
             switch action {
-            case .navigateLeft: removalFocus = .left
-            case .navigateRight: removalFocus = .right
+            case .navigateLeft, .navigateRight:
+                removalFocus = .onSide(left: action == .navigateLeft, destructive: true)
             case .confirm: if removalFocus == .confirm { remove() } else { removing = nil }
             case .cancel: removing = nil
             default: break

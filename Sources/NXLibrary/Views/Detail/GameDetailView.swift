@@ -55,6 +55,8 @@ struct GameDetailView: View {
     @State var viewer: ViewerContext?
     /// "Read more" is open: the description scrolls, and the wheel scrolls it rather than the bands.
     @State var expanded = false
+    /// Up from the buttons reaches Read more, when the description has more.
+    @State var readMoreFocused = false
     /// Wikipedia's introduction when the store text is in another language (`WikipediaAbout`).
     @State var wikipediaAbout: WikipediaAbout?
     @State var keyMonitor: Any?
@@ -82,6 +84,8 @@ struct GameDetailView: View {
         let presentation: GameDetailPresentation
         let facts: [DetailsFact]
         let links: [DetailsLink]
+        /// The description has more to read.
+        let readsMore: Bool
         let screenshots: [URL]
         let screenshotsKnown: Bool
         let more: [PortedGame]
@@ -101,11 +105,13 @@ struct GameDetailView: View {
         let urls = Array((metadata?.screenshotURLs ?? []).prefix(SpotlightScreenshotStrip.maxCount))
         let more = moreGames
         let blocked = toolchainBlocked
-        let links = DetailsLink.links(app: game.url, store: p.storeURL, hltb: p.hltbURL, viewModel: viewModel,
+        let about = p.aboutDescription(wikipedia: wikipediaAbout?.matching(aboutLookup(p)), language: L10n.context.language)
+        let links = DetailsLink.links(app: game.url, store: p.storeURL, hltb: p.hltbURL,
+                                      wikipedia: about.preview == nil || expanded ? about.wikipediaPage : nil, viewModel: viewModel,
                                       cloudGame: cloudManagementPlacement == .detailsLink ? game : nil)
         let facts = DetailsFacts.switchGame(game, metadata: metadata, folderName: DetailsLink.folderName(of: game.url),
                                             engine: viewModel.engineDetail(for: game))
-        return Model(presentation: p, facts: facts, links: links, screenshots: urls,
+        return Model(presentation: p, facts: facts, links: links, readsMore: DetailsTopBlock.readsMore(about), screenshots: urls,
                      screenshotsKnown: screenshotsKnown,
                      more: more,
                      mods: modsHost.localMods,
@@ -258,7 +264,7 @@ struct GameDetailView: View {
     }
 
     private var confirmHint: [HintItem] {
-        if focus.zone == DetailsFocus.topZone {
+        if focus.zone == DetailsFocus.topZone, !readMoreFocused {
             if pillSet.cancelsQueuedBuild(at: focus.pill) { return [HintItem(.a, "Cancel")] }
             if focus.pill == 0, downloadItem != nil, pillSet != .porting, !pillSet.isFailed,
                !DetailsTopBlock.canDownload(downloadAllowed, state: cloud.states[game.id]) { return [] }
@@ -315,8 +321,8 @@ struct GameDetailView: View {
 
     private static let modsBandTop: CGFloat = 1200
 
-    private func aboutLookup(_ model: Model) -> WikipediaAboutLookup? {
-        WikipediaAboutLookup(presentation: model.presentation, query: CriticRatingQuery(game: game, name: metadata?.name))
+    private func aboutLookup(_ presentation: GameDetailPresentation) -> WikipediaAboutLookup? {
+        WikipediaAboutLookup(presentation: presentation, query: CriticRatingQuery(game: game, name: metadata?.name))
     }
 
     private func page(_ model: Model) -> some View {
@@ -325,10 +331,11 @@ struct GameDetailView: View {
                             presentation: model.presentation,
                             isRunning: runningGames.isRunning(game),
                             cheatsOn: cheatsOn,
-                            focusedPill: focus.zone == DetailsFocus.topZone ? focus.pill : nil,
+                            focusedPill: focus.zone == DetailsFocus.topZone && !readMoreFocused ? focus.pill : nil,
                             primaryEnabled: model.primaryEnabled,
                             expanded: $expanded,
-                            wikipedia: wikipediaAbout?.matching(aboutLookup(model)),
+                            readMoreFocused: readMoreFocused,
+                            wikipedia: wikipediaAbout?.matching(aboutLookup(model.presentation)),
                             onPrimary: { pressPill(0) },
                             onSecondary: { pressPill(1) },
                             onFavorite: { pressPill(pillCount - 1) },
@@ -342,8 +349,8 @@ struct GameDetailView: View {
                             onPill: { pressPill($0) },
                             onOpenLog: { viewModel.revealLog(for: game) })
                 .offset(x: canvas.u(110), y: canvas.u(96))
-                .task(id: aboutLookup(model)) {
-                    guard let lookup = aboutLookup(model), let found = await lookup.load() else { return }
+                .task(id: aboutLookup(model.presentation)) {
+                    guard let lookup = aboutLookup(model.presentation), let found = await lookup.load() else { return }
                     wikipediaAbout = WikipediaAbout(lookup: lookup, description: found)
                 }
 

@@ -328,6 +328,8 @@ struct AchievementsScreen: View {
                      selected: state.filter, label: { "\($0.title), \($0.count ?? 0)" }, select: onFilter)
             shoulder(.rb, L10n.text("Next"), step: 1)
                 .opacity(state.isDetailOpen ? 0 : 1)
+            OortItemActions(hints: orderHint)
+                .opacity(state.isDetailOpen ? 0 : 1)
         }
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: state.filter)
     }
@@ -350,9 +352,13 @@ struct AchievementsScreen: View {
         }
     }
 
+    private var orderHint: [HintItem] {
+        game.steamGame == nil ? [] : [HintItem(.y, Self.title(state.order)) { onCycleOrder() }]
+    }
+
     /// Order and Open share the bottom-right hints. Keep Order available even when the filter is empty.
     private func listHints(hasRows: Bool) -> [HintItem] {
-        var hints: [HintItem] = game.steamGame == nil ? [] : [HintItem(.y, Self.title(state.order)) { onCycleOrder() }]
+        var hints = orderHint
         if hasRows { hints.append(HintItem(.a, L10n.text("Open")) { onOpen() }) }
         return hints
     }

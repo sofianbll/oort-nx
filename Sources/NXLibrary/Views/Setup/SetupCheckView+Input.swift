@@ -11,8 +11,8 @@ extension SetupCheckView {
               viewModel.firstRunSetup.page == .requirements else { return }
         if pendingTool != nil {
             switch action {
-            case .navigateLeft: toolFocus = .confirm
-            case .navigateRight: toolFocus = .cancel
+            case .navigateLeft: toolFocus = .left
+            case .navigateRight: toolFocus = .right
             case .confirm: if toolFocus == .confirm { confirmTool() } else { pendingTool = nil }
             case .cancel: pendingTool = nil
             default: break

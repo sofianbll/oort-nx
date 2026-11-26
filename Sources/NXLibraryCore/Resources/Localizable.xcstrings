@@ -98957,6 +98957,9 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "垂直位置"}}
       }
     },
+    "Zoom in": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Zoom in"}},"fr":{"stringUnit":{"state":"translated","value":"Zoom avant"}},"de":{"stringUnit":{"state":"translated","value":"Vergrößern"}},"es":{"stringUnit":{"state":"translated","value":"Acercar"}},"it":{"stringUnit":{"state":"translated","value":"Ingrandisci"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Aproximar"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"放大"}}}},
+    "Zoom out": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Zoom out"}},"fr":{"stringUnit":{"state":"translated","value":"Zoom arrière"}},"de":{"stringUnit":{"state":"translated","value":"Verkleinern"}},"es":{"stringUnit":{"state":"translated","value":"Alejar"}},"it":{"stringUnit":{"state":"translated","value":"Riduci"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Afastar"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"缩小"}}}},
+    "Wikipedia": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Wikipedia"}},"fr":{"stringUnit":{"state":"translated","value":"Wikipédia"}},"de":{"stringUnit":{"state":"translated","value":"Wikipedia"}},"es":{"stringUnit":{"state":"translated","value":"Wikipedia"}},"it":{"stringUnit":{"state":"translated","value":"Wikipedia"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Wikipédia"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"维基百科"}}}},
     "Zoom": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Zoom"}},

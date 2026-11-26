@@ -326,6 +326,7 @@ final class HomeSettingsFixture: ControllerHomeSettings {
         precondition(!m.confirmsReset && !m.numbers.isEmpty)
         m.select(.reset)
         key(123)
+        precondition(m.resetFocus == .confirm, "Left selects Reset; the question opens on Cancel")
         screen.handleController(.confirm)
         await settled(m)
         precondition(m.numbers.isEmpty && m.plan.mode == .pressToJoin)
@@ -782,7 +783,7 @@ struct CloudSavesSettingsFixture: View {
                 if let notice = viewModel.settingsNotice {
                     SeleneOverlay(style: .dialog) {
                         SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                           focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.cancelIndex,
+                                           focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
                                            details: notice.choiceDetails, onCancel: { viewModel.settingsNotice = nil }, onChoose: { _ in })
                     }
                 }

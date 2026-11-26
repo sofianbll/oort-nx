@@ -41,9 +41,7 @@ struct SteamGridDBKeyDialog: View {
                             .foregroundColor(message == nil ? SeleneTheme.ink60 : SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 0)
-                        Button(L10n.text("Get a key")) { NSWorkspace.shared.open(SteamGridDBArt.keyPage) }
-                            .buttonStyle(OortPressStyle())
-                            .foregroundColor(SeleneTheme.focus)
+                        OortLink(title: "Get a key") { NSWorkspace.shared.open(SteamGridDBArt.keyPage) }
                     }
                     .seleneFont(.text)
                 }
@@ -55,6 +53,7 @@ struct SteamGridDBKeyDialog: View {
                 .onAppear { fieldFocused = true }
             }
         }
+        .onExitCommand { close(saved: false) }
         .onReceive(NotificationCenter.default.publisher(for: gamepad)) { note in
             guard let action = note.object as? GamepadAction else { return }
             switch action {

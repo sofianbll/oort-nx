@@ -78,7 +78,7 @@ extension AppShellView {
     func cloudQuitInput(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
+            let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
             if cloudQuitFocus != next {
                 cloudQuitFocus = next
                 SoundEffectService.shared.play(.focus)
@@ -347,7 +347,8 @@ extension AppShellView {
     func runPower(_ action: PowerAction) {
         guard let ask = action.confirmation else { return performPower(action) }
         router.closeMenu()
-        viewModel.confirmSetting(ask.title, message: ask.message, action: action.title) { performPower(action) }
+        viewModel.confirmSetting(ask.title, message: ask.message, action: action.title,
+                                 destructive: action == .quit || action == .relaunch) { performPower(action) }
     }
 
     private func performPower(_ action: PowerAction) {
@@ -386,6 +387,7 @@ extension AppShellView {
             viewModel.showSettingsNotice(title: L10n.text("Restart app"), message: L10n.text("After the cloud transfer"))
             return
         }
+        guard !router.requestSettingsDeparture({ self.relaunchApp() }) else { return }
         let helper = Process()
         helper.executableURL = URL(fileURLWithPath: "/bin/sh")
         helper.arguments = [

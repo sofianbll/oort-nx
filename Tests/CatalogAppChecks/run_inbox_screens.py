@@ -85,13 +85,14 @@ import SwiftUI
         precondition(model.entries.filter { $0.issue != nil }.count == 1)
         model.confirm(model.entries.filter { $0.destination != nil })
         let notice = app.settingsNotice!
-        precondition(notice.choices.count == 2 && notice.cancelIndex == 1 && notice.initialFocus == 0)
+        precondition(notice.choices.count == 2 && notice.cancelIndex == 1 && notice.initialFocus == 1 && notice.destructiveIndexes == [0])
         try render("03-ambiguous", page: view.page, to: output, locale: locale)
         try render("04-confirmation", page: ZStack {
             view.page.blur(radius: 20)
             Color.black.opacity(0.55)
             SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex) { _ in }
+                focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex,
+                destructive: notice.destructiveIndexes) { _ in }
         }, to: output, locale: locale)
         let artwork = ArtworkStore()
         let spotlight = SpotlightView(viewModel: app, router: router, settings: settings,

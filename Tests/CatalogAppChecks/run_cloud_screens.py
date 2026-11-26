@@ -50,8 +50,8 @@ import ArcanePorting
             L10n.setContext(locale)
             vm.screenRebuildNotice()
             let notice = vm.settingsNotice!
-            precondition(notice.choices == ["CACHE_DOWNLOAD_CHOICE", "Rebuild with this Mac’s cache", "Rebuild without cache", "Cancel"])
-            precondition(vm.settingsNoticeFocus == 0 && notice.cancelIndex == 3)
+            precondition(notice.choices == ["Cancel", "Rebuild without cache", "Rebuild with this Mac’s cache", "CACHE_DOWNLOAD_CHOICE"])
+            precondition(vm.settingsNoticeFocus == 3 && notice.cancelIndex == 0)
             try renderNotice(name, output, notice, width: 1440)
         }
         L10n.setContext(.init(language: .english, region: "US"))
@@ -565,13 +565,13 @@ extension CloudScreenProbe {
             .padding(24).frame(width: 1040))
         sourceSettings.requestSourceConfirmationForProbe()
         guard let notice = vm.settingsNotice else { preconditionFailure("No source confirmation") }
-        precondition(notice.choices == ["Keep this folder", "Use default", "Cancel"] && notice.initialFocus == notice.cancelIndex)
+        precondition(notice.choices == ["Cancel", "Use default", "Keep this folder"] && notice.initialFocus == notice.cancelIndex)
         try renderNotice("settings-sources-question-fr", output, notice, width: 1120)
         vm.settingsNotice = nil
         notice.runChoice(notice.cancelIndex)
         precondition(model.sourcesNeedConfirmation && model.sourceArchive == nil)
         sourceSettings.requestSourceConfirmationForProbe()
-        vm.settingsNotice?.runChoice(0)
+        vm.settingsNotice?.runChoice(2)
         vm.settingsNotice = nil
         precondition(!model.sourcesNeedConfirmation && model.preference.sourcesRootOverride == "Games/GameFiles")
         print("Changed library: Cancel kept source downloads blocked; Keep this folder confirmed Games/GameFiles.")
@@ -1178,8 +1178,8 @@ MULTIPLAYER_STATES = r'''
             L10n.setContext(locale)
             vm.showMultiplayerVPNFallback {}
             let warning = vm.settingsNotice!
-            precondition(warning.choices == ["Play on the local network", "Cancel"])
-            precondition(vm.settingsNoticeFocus == 0 && warning.cancelIndex == 1)
+            precondition(warning.choices == ["Cancel", "Play on the local network"])
+            precondition(vm.settingsNoticeFocus == 1 && warning.cancelIndex == 0)
             try renderNotice(name, output, warning, width: 1100)
         }
         L10n.setContext(frLocale)
@@ -1346,7 +1346,8 @@ extension SettingsView {
         precondition(settings.settings.gameInboxEnabled == originalInbox)
         handleGamepad(.contextAction)
         precondition(router.settingsDecision == .save)
-        decide(0)
+        // This view is not mounted: its @State focus cannot be moved by a synthetic key.
+        decide(2) // Save, the rightmost answer.
         precondition(router.settingsDecision == nil, "Reset must save the draft")
     }
     /// X only asks, on Cancel; leaving changes nothing and Reset runs from the question.
@@ -1358,7 +1359,7 @@ extension SettingsView {
         precondition(notice.choices.count == 2 && notice.initialFocus == notice.cancelIndex)
         precondition(settings.editingSettings == before, "Nothing changes before the answer")
         viewModel.settingsNotice = nil
-        notice.runChoice(0)
+        notice.runChoice(notice.destructiveIndexes.first!)
     }
 }
 """)
@@ -1514,7 +1515,7 @@ extension ActivityCenterView {
     }
 }
 """)
-        host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
+        host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,")
         if not before and not baseline:
             host = host.replace("// SCENARIO", '''
         AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)
@@ -2088,7 +2089,7 @@ extension AppViewModel {
         try await confirmCloudSourcesDownload(for: game, archive: cloudLibrary.archive!, extraArguments: [],
             onStarted: nil, withoutCache: false, afterSourcesDownloaded: nil, request: nil)
         precondition(cloudLibrary.states[game.id]?.referenceSourceBytes == nil)
-        settingsNotice?.runChoice(0)
+        settingsNotice?.runChoice(settingsNotice!.choices.count - 1)
         guard let queued = cloudLibrary.queue.first, queued.sourceReference == reference,
               queued.rebuildSources?.referenceSelection == selection("Shared.nsp", bytes: 7),
               queued.rebuildSources?.bytes == 7 else {

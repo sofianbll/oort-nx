@@ -43,7 +43,8 @@ public enum SeleneTokens {
         public static let metadataList: CGFloat = 400
         public static let sidePanel: CGFloat = 640
         public static let assistantRail: CGFloat = 260
-        public static let questionMeasure: CGFloat = 1040
+        public static let questionMeasure: CGFloat = 900
+        public static let keyDetailMeasure: CGFloat = 220
         public static let settingsMeasure: CGFloat = 1120
         public static let creditCard: CGFloat = 320
         public static let pageMinimumFont: CGFloat = 11

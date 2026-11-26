@@ -517,7 +517,7 @@ import ArcanePorting
             precondition(notice.initialFocus == notice.cancelIndex)
             try render("26-settings-trash-\(index)", SeleneOverlay(style: .dialog) {
                 SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                   focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex,
+                                   focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
                                    onCancel: {}, onChoose: { _ in })
             }.background(SeleneBackdrop().still(true)).environment(\.nxAppLocale, french), in: out, refs, "none")
         }
@@ -530,7 +530,9 @@ import ArcanePorting
         vm.libraryFolder = originalAppsFolder
         AppData.preferences.set(originalAppsPath, forKey: AppViewModel.StorageKeys.savedLibraryFolder)
         AppData.preferences.removeObject(forKey: PortingModel.savedGameFolderKey)
-        precondition(SeleneConfirmButton.ordered == [.confirm, .cancel])
+        precondition(SeleneConfirmButton.ordered == [.cancel, .confirm], "The way back is on the left, the answer last")
+        precondition(SeleneConfirmButton.onSide(left: true, destructive: true) == .confirm,
+                     "The destructive action is left of the safe answer")
         try render("11-remove", picker(selected: sam.id, removing: sam).environment(\.nxAppLocale, french),
                     in: out, refs, "web/182-15.png", native: true)
         L10n.setContext(.init(language: .english, region: "US"))
@@ -822,7 +824,7 @@ import ArcanePorting
             let notice = vm.settingsNotice!
             try render("play-icon-wait-\(name)", SeleneOverlay(style: .dialog) {
                 SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                   focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex,
+                                   focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
                                    onCancel: {}, onChoose: { _ in })
             }.environment(\.nxAppLocale, locale), in: out, refs, "none")
             vm.appIcon.completePlayFixture(fixture, .success(false))

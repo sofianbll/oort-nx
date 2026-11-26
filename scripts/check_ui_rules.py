@@ -578,9 +578,12 @@ def check_order(tree, rules, found):
         for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):
             call = source.code[match.end() - 1:source.close(match.end() - 1)]
             index = re.search(r"\bcancelIndex\s*:\s*([^,)\n]+)", call)
-            if index and (re.fullmatch(r"[1-9]\d*", index[1].strip()) or index[1].strip().endswith(".count")):
+            # What erases may stand apart before the way back.
+            apart = re.search(r"\bdestructive\s*:\s*\[([^\]]*)\]", call)
+            first = len(elements(call[apart.start(1) - 1:apart.end(1) + 1])) if apart and apart[1].strip() else 0
+            if index and (re.fullmatch(r"[1-9]\d*", index[1].strip()) and int(index[1]) != first or index[1].strip().endswith(".count")):
                 found.add("button-order", relative, f"cancelIndex {index[1].strip()}",
-                          f"cancelIndex {index[1].strip()}: Cancel is the first choice", source.line(match.start()))
+                          f"cancelIndex {index[1].strip()}: Cancel is the first choice, after what erases", source.line(match.start()))
     # The hint bar sets the sides the keys follow: B on the left, A last on the right.
     for relative in tree.files("Sources/NXLibrary"):
         source = tree.source(relative)

@@ -129,7 +129,7 @@ struct ProfileEditorView: View {
         let focus = Binding(get: { discardFocus ?? 1 }, set: { discardFocus = $0 })
         return SeleneOverlay(style: .profileRemoval, onOutside: keepEditing) {
             SeleneChoiceDialog(title: "Discard changes?", message: L10n.text("Your profile changes won’t be saved."),
-                               choices: ["Discard", "Keep editing"], focus: focus, cancelIndex: 1,
+                               choices: ["Discard", "Keep editing"], focus: focus, cancelIndex: 1, destructive: [0],
                                onCancel: keepEditing, onChoose: chooseDiscardAction)
         }
     }
@@ -503,13 +503,16 @@ struct ProfileEditorView: View {
                 cropSlider("Vertical position", \.y, 0...1, fallback: 0.5)
                 cropSlider("Zoom", \.zoom, 1...3, fallback: 1)
                 if isCropping { ProgressView().controlSize(.small).accessibilityLabel(L10n.text("Loading…")) }
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    SelenePillButton(title: "Cancel", focused: false, action: cancelCrop)
-                    SelenePillButton(title: "Done", focused: true, enabled: !isCropping, action: saveCrop)
-                }
+                OortActionBar(actions: [.init(id: "cancel", title: "Cancel", role: .back, perform: cancelCrop),
+                                        .init(id: "done", title: "Done", role: .primary, enabled: !isCropping, perform: saveCrop)],
+                              focused: "done") { _ in }
             }
             .disabled(isCropping)
             .modifier(SeleneDialogCard())
+            SeleneHintsBar(left: [HintItem(.b, "Cancel", action: cancelCrop)],
+                           right: [HintItem(.navigate, "Move"), HintItem(.lb, "Zoom out") { handleCrop(.tabPrevious) },
+                                   HintItem(.rb, "Zoom in") { handleCrop(.tabNext) }, HintItem(.a, "Done", action: saveCrop)])
+                .frame(maxHeight: .infinity, alignment: .bottom)
         }
     }
 

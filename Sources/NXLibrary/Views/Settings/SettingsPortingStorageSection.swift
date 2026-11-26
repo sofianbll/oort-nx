@@ -80,7 +80,7 @@ struct SettingsPortingStorageSection: View {
             message += L10n.format(" This build cache is also used by %@; their next rebuilds may take longer too.", [String(describing: usage.sharedCacheWith.joined(separator: ", "))])
         }
         viewModel.showSettingsNotice(title: L10n.text("Move this game's build cache to the Trash?"), message: message,
-                                    actionTitle: "Move to Trash", cancelTitle: "Cancel") {
+                                    actionTitle: "Move to Trash", cancelTitle: "Cancel", destructive: ["Move to Trash"]) {
             viewModel.deleteCaches(for: game)
         }
     }
@@ -89,7 +89,7 @@ struct SettingsPortingStorageSection: View {
         let amount = seleneBytes(viewModel.storageUsage?.cacheBytes ?? 0)
         let message = L10n.format("Move %@ of build caches for all games to the Trash? Future rebuilds may take longer. Your games, original game files, saves and logs will be kept. Unavailable folders will be left alone.", [String(describing: amount)])
         viewModel.showSettingsNotice(title: L10n.text("Move build caches to the Trash?"), message: message,
-                                    actionTitle: "Move to Trash", cancelTitle: "Cancel") {
+                                    actionTitle: "Move to Trash", cancelTitle: "Cancel", destructive: ["Move to Trash"]) {
             viewModel.deleteCaches()
         }
     }

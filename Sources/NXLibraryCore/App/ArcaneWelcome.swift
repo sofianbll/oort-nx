@@ -37,17 +37,17 @@ public enum ArcaneWelcome {
         case add, notNow, openLibrary
 
         public static func order(offer: Offer?) -> [Focus] {
-            offer == nil ? [.openLibrary] : [.add, .notNow, .openLibrary]
+            offer == nil ? [.openLibrary] : [.notNow, .add, .openLibrary]
         }
 
-        public static func initial(offer: Offer?) -> Focus { order(offer: offer)[0] }
+        public static func initial(offer: Offer?) -> Focus { offer == nil ? .openLibrary : .add }
 
-        /// Add and Not now sit side by side on the offer row; Open library is below it.
+        /// Not now and Add sit side by side on the offer row; Open library is below it.
         public func moved(_ direction: MoveDirection, offer: Offer?) -> Focus {
             guard offer != nil else { return .openLibrary }
             switch (self, direction) {
-            case (.add, .right): return .notNow
-            case (.notNow, .left): return .add
+            case (.notNow, .right): return .add
+            case (.add, .left): return .notNow
             case (.add, .down), (.notNow, .down): return .openLibrary
             case (.openLibrary, .up): return .add
             default: return self

@@ -12,6 +12,7 @@ extension GameOptionsView {
             SeleneConfirmDialog(title: copy.title,
                                 message: copy.message,
                                 confirmTitle: copy.confirm,
+                                destructive: true,
                                 focus: $confirmFocus,
                                 onCancel: dismissConfirm,
                                 onConfirm: runConfirm)

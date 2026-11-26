@@ -13,6 +13,24 @@ extension GameDetailView {
         if viewer != nil { return handleViewer(action) }
         if modsHost.isPanelOpen { return modsHost.handlePanel(action) }
         var moved = false
+        if readMoreFocused {
+            switch action {
+            case .navigateUp, .navigateLeft, .navigateRight: return
+            case .navigateDown:
+                readMoreFocused = false
+                SoundEffectService.shared.play(.focus)
+                return
+            case .confirm:
+                expanded.toggle()
+                SoundEffectService.shared.play(.click)
+                return
+            default: readMoreFocused = false
+            }
+        } else if action == .navigateUp, focus.zone == DetailsFocus.topZone, currentModel.readsMore {
+            readMoreFocused = true
+            SoundEffectService.shared.play(.focus)
+            return
+        }
         switch action {
         case .navigateLeft: moved = moveFocus { $0.left(in: $1) }
         case .navigateRight: moved = moveFocus { $0.right(in: $1) }
@@ -326,7 +344,7 @@ extension GameDetailView {
             case 124: action = .navigateRight
             case 125: action = .navigateDown
             case 126: action = .navigateUp
-            case 36, 49: action = .confirm
+            case 36, 76, 49: action = .confirm
             case 53: action = .cancel           // Esc: back to where Details was opened from
             case 16: action = .contextAction    // Y
             default: return event

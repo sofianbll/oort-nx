@@ -13,7 +13,7 @@ extension AppShellView {
                                 message: movingLibrary
                                     ? L10n.text("Quitting stops the move between files. Files already moved stay in the new folder.")
                                     : L10n.text("Quitting stops the transfer. Your files and cloud copies stay intact. The next time you open Arcane, confirm uploads again from the game pages."),
-                                confirmTitle: "Quit", cancelTitle: "Stay", focus: $cloudQuitFocus,
+                                confirmTitle: "Quit", cancelTitle: "Stay", destructive: true, focus: $cloudQuitFocus,
                                 onCancel: { finishCloudQuit(false) },
                                 onConfirm: { finishCloudQuit(true) })
         }
@@ -39,7 +39,8 @@ extension AppShellView {
             SeleneChoiceDialog(title: notice.title, message: notice.message,
                                choices: notice.choices,
                                focus: $viewModel.settingsNoticeFocus,
-                               cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil, details: notice.choiceDetails,
+                               cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil,
+                               destructive: notice.destructiveIndexes, details: notice.choiceDetails,
                                onCancel: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() } },
                                onChoose: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(choice: $0) } })
         }
@@ -53,7 +54,7 @@ extension AppShellView {
             title: L10n.text("Move Arcane to Applications to update"),
             message: L10n.text("macOS is running a temporary copy of Arcane, so it cannot update itself. In the Finder, move Arcane to Applications, then quit it and open it from there."),
             actionTitle: L10n.text("Open Applications"),
-            cancelTitle: L10n.text("Not now"),
+            cancelTitle: L10n.text("Not now"), primaryFirst: true,
             retry: { NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications", isDirectory: true)) })
     }
 
@@ -183,7 +184,7 @@ extension AppShellView {
             SeleneConfirmDialog(title: L10n.format("Close %@?", [String(describing: game.name)]),
                                 message: L10n.text("Unsaved progress will be lost."),
                                 confirmTitle: "Close",
-                                focus: $viewModel.closeGameFocus,
+                                destructive: true, focus: $viewModel.closeGameFocus,
                                 onCancel: { viewModel.dismissCloseGame() },
                                 onConfirm: confirmCloseGame)
         }
@@ -193,7 +194,7 @@ extension AppShellView {
     func closeGameInput(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
+            let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
             if viewModel.closeGameFocus != next {
                 viewModel.closeGameFocus = next
                 SoundEffectService.shared.play(.focus)
@@ -218,7 +219,7 @@ extension AppShellView {
             SeleneConfirmDialog(title: L10n.format("Delete %@?", [String(describing: game.name)]),
                                 message: L10n.text("It leaves the library. Your game files and the build cache stay on disk."),
                                 confirmTitle: "Delete",
-                                focus: $viewModel.removeGameFocus,
+                                destructive: true, focus: $viewModel.removeGameFocus,
                                 onCancel: { viewModel.dismissRemoveGame() },
                                 onConfirm: { viewModel.confirmRemoveGame() })
         }
@@ -239,7 +240,7 @@ extension AppShellView {
     func updateOfferInput(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateRight && updater.dialogHasSecondaryButton ? .right : .left
+            let next: SeleneConfirmButton = action == .navigateLeft && updater.dialogHasSecondaryButton ? .left : .right
             if updater.offerFocus != next {
                 updater.offerFocus = next
                 SoundEffectService.shared.play(.focus)
@@ -264,7 +265,7 @@ extension AppShellView {
     func removeGameInput(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
+            let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
             if viewModel.removeGameFocus != next {
                 viewModel.removeGameFocus = next
                 SoundEffectService.shared.play(.focus)

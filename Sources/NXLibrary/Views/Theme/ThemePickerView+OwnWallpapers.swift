@@ -39,7 +39,7 @@ extension ThemePickerView {
     func handleRemoval(_ action: GamepadAction) {
         switch action {
         case .navigateLeft, .navigateRight:
-            let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
+            let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
             if removalFocus != next { removalFocus = next; SoundEffectService.shared.play(.focus) }
         case .confirm:
             removalFocus == .confirm ? confirmRemoval() : keepIt()
@@ -85,7 +85,7 @@ extension ThemePickerView {
                 .contentShape(Rectangle())
                 .onTapGesture { keepIt() }
             SeleneConfirmDialog(title: removalTitle, message: message, confirmTitle: "Delete",
-                                cancelTitle: L10n.text("Keep it"), focus: $removalFocus,
+                                cancelTitle: L10n.text("Keep it"), destructive: true, focus: $removalFocus,
                                 onCancel: keepIt, onConfirm: confirmRemoval)
         }
     }

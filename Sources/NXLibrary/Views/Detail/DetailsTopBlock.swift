@@ -24,6 +24,7 @@ struct DetailsTopBlock: View {
     let primaryEnabled: Bool
     /// Description expanded by "Read more" (the page passes wheel scrolling through meanwhile).
     @Binding var expanded: Bool
+    var readMoreFocused = false
     /// Wikipedia's introduction for a short or foreign-language store text (`WikipediaAbout`).
     var wikipedia: WikipediaDescription? = nil
     let onPrimary: () -> Void
@@ -42,6 +43,10 @@ struct DetailsTopBlock: View {
 
     /// Longer than this, the description gets a "Read more" (five lines hold about 520 characters at this width).
     static let readMoreThreshold = 520
+
+    static func readsMore(_ about: GameAboutDescription) -> Bool {
+        about.text.count > readMoreThreshold || about.preview != nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -178,8 +183,11 @@ struct DetailsTopBlock: View {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
                     SelenePillButton(title: title, minWidth: 200, height: 52, horizontalPadding: 36,
-                                     focused: focusedPill == index) { onPill(index) }
+                                     focused: focusedPill == index,
+                                     tint: PortingPillCopy.deletes(index) ? PortingPillCopy.softRed : nil) { onPill(index) }
                         .seleneHover { onHoverPill(index) }
+                        // What deletes stands apart.
+                        .padding(.leading, PortingPillCopy.deletes(index) ? canvas.u(SeleneTokens.Space.group) : 0)
                 }
             }
         case .normal, .queued, .normalAfterFailure, .unavailable:
@@ -375,11 +383,12 @@ struct DetailsTopBlock: View {
                     if !showingPreview, let page = about.wikipediaPage {
                         WikipediaCredit(pageURL: page)
                     }
-                    if about.text.count > Self.readMoreThreshold || about.preview != nil {
+                    if Self.readsMore(about) {
                         Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
                             .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.glyph)
+                            .seleneKeyRing(readMoreFocused)
                     }
                 }
                 if expanded {

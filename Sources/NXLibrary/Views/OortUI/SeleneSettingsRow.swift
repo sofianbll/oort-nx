@@ -5,20 +5,41 @@ extension EnvironmentValues {
     @Entry var settingsRowChanges: [String: AppSettingsDraft.Change] = [:]
 }
 
+/// The one help open on a screen, so a key opens the focused row's help as a click does.
+extension EnvironmentValues {
+    @Entry var seleneOpenHelp: Binding<String?>? = nil
+}
+
+/// The row whose help the key opens: the focused one, when it has a help.
+struct SeleneFocusedHelpKey: PreferenceKey {
+    static let defaultValue: String? = nil
+    static func reduce(value: inout String?, nextValue: () -> String?) { value = value ?? nextValue() }
+}
+
 /// An info button: a click shows `text` beside it. Pass `isShowing` for a screen that also opens it from the
 /// keyboard or a controller.
 struct SeleneInfoTip: View {
     @Environment(\.nxAppLocale) private var localization
     let text: String
     private let shown: Binding<Bool>?
+    /// The row this help belongs to, when the screen's help key can open it.
+    private let row: String?
+    private let focused: Bool
     @State private var shownHere = false
+    @Environment(\.seleneOpenHelp) private var openHelp
 
-    init(_ text: String, isShowing: Binding<Bool>? = nil) {
+    init(_ text: String, isShowing: Binding<Bool>? = nil, row: String? = nil, focused: Bool = false) {
         self.text = text
         self.shown = isShowing
+        self.row = row
+        self.focused = focused
     }
 
-    private var isShowing: Binding<Bool> { shown ?? $shownHere }
+    private var isShowing: Binding<Bool> {
+        if let shown { return shown }
+        guard let row, let openHelp else { return $shownHere }
+        return Binding(get: { openHelp.wrappedValue == row }, set: { openHelp.wrappedValue = $0 ? row : nil })
+    }
 
     var body: some View {
         Button {
@@ -46,6 +67,7 @@ struct SeleneInfoTip: View {
         .help(L10n.text(text, context: localization))
         .accessibilityLabel(L10n.text("Information", context: localization))
         .accessibilityHint(L10n.text(text, context: localization))
+        .preference(key: SeleneFocusedHelpKey.self, value: focused ? row : nil)
     }
 }
 
@@ -95,7 +117,7 @@ struct SeleneRow<Trailing: View>: View {
                         aboutIsHelp: !verbatimSubtitle, formatBadges: formatBadges) {
             HStack(spacing: SeleneTokens.Space.gap) {
                 if let info {
-                    SeleneInfoTip(info)
+                    SeleneInfoTip(info, row: rowID, focused: isFocused)
                 }
                 trailing()
             }
@@ -265,13 +287,17 @@ typealias SeleneSegmented = OortSegmented
 struct OortCard<Content: View>: View {
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneFocusedRowID) private var focusedRowID
     let title: String?
     let info: String?
+    /// The row whose focus lets the help key open `info`: the one named like the card, unless told otherwise.
+    let infoRow: String?
     @ViewBuilder var content: () -> Content
 
-    init(_ title: String? = nil, info: String? = nil, @ViewBuilder content: @escaping () -> Content) {
+    init(_ title: String? = nil, info: String? = nil, infoRow: String? = nil, @ViewBuilder content: @escaping () -> Content) {
         self.title = title
         self.info = info
+        self.infoRow = infoRow
         self.content = content
     }
 
@@ -284,7 +310,7 @@ struct OortCard<Content: View>: View {
                         .foregroundColor(SeleneTheme.ink75)
                         .accessibilityAddTraits(.isHeader)
                     if let info {
-                        SeleneInfoTip(info)
+                        SeleneInfoTip(info, row: infoRow ?? title, focused: focusedRowID != nil && focusedRowID == infoRow ?? title)
                     }
                 }
             }

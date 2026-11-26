@@ -171,15 +171,21 @@ struct ModsPanel: View {
                         if row == presentation.codeRows.first {
                             sectionHeader("Code mods", subtitle: "Rebuild the game after making changes. Turning off all code mods or re-enabling the entire built set needs no rebuild. Inactive online (Nextendo).")
                         }
-                        rowView(row, focused: embedding?.active.wrappedValue != false && index == focus.index,
-                                inactiveOnline: inactiveOnline)
-                            .padding(.top, row == .openFolder ? canvas.u(8) : 0)
-                            .id(row)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                focus.index = index
-                                activate(row)
+                        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                            rowView(row, focused: embedding?.active.wrappedValue != false && index == focus.index,
+                                    inactiveOnline: inactiveOnline)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    focus.index = index
+                                    activate(row)
+                                }
+                            if case .mod(let name) = row {
+                                SelenePillButton.roundIcon(.delete, enabled: !running && !importing) { askRemove(name) }
+                                    .accessibilityLabel(L10n.text("Delete", context: locale) + ": " + name)
                             }
+                        }
+                        .padding(.top, row == .openFolder ? canvas.u(8) : 0)
+                        .id(row)
                     }
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.tight))
@@ -230,6 +236,19 @@ struct ModsPanel: View {
         .accessibilityLabel([text.title, inactiveBadge, text.about].compactMap { $0 }.joined(separator: ". "))
         .accessibilityValue(text.isOn.map { $0 ? L10n.text("On") : L10n.text("Off") } ?? "")
         .accessibilityAddTraits(.isButton)
+        .oortItemMenu(deleteHint(row), deletes: [.y])
+    }
+
+    private func deleteHint(_ row: Row) -> [HintItem] {
+        guard case .mod(let name) = row else { return [] }
+        return [HintItem(.y, "Delete") { askRemove(name) }]
+    }
+
+    /// The bin on a row asks for that row, wherever the focus was.
+    private func askRemove(_ name: String) {
+        guard let index = presentation.rows.firstIndex(of: .mod(name)) else { return }
+        focus.index = index
+        askRemove()
     }
 
     private func describe(_ row: Row) -> (icon: MaterialIcon?, title: String, about: String?, isOn: Bool?, enabled: Bool) {
@@ -262,7 +281,7 @@ struct ModsPanel: View {
                 .onTapGesture { dismissConfirm() }
             SeleneConfirmDialog(title: L10n.format("Move %@ to the Trash?", [String(describing: name)]),
                                 message: L10n.text("The game stops loading it. You can put it back from the Trash."),
-                                confirmTitle: L10n.text("Move to Trash"), focus: $confirmFocus,
+                                confirmTitle: L10n.text("Move to Trash"), destructive: true, focus: $confirmFocus,
                                 onCancel: dismissConfirm, onConfirm: runRemove)
         }
     }
@@ -423,8 +442,8 @@ struct ModsPanel: View {
         guard embedding?.active.wrappedValue != false else { return }
         if confirmRemove != nil {
             switch action {
-            case .navigateLeft: moveConfirmFocus(.left)
-            case .navigateRight: moveConfirmFocus(.right)
+            case .navigateLeft: moveConfirmFocus(.confirm)
+            case .navigateRight: moveConfirmFocus(.cancel)
             case .confirm: confirmFocus == .confirm ? runRemove() : dismissConfirm()
             case .cancel: dismissConfirm()
             default: break
@@ -462,7 +481,7 @@ struct ModsPanel: View {
             case 123: action = .navigateLeft
             case 124: action = .navigateRight
             case 36, 76, 49: action = .confirm
-            case 51, 117: action = .contextAction
+            case 16, 51, 117: action = .contextAction   // Y, as the hint says, or Delete
             case 53: action = .cancel
             default: return event
             }

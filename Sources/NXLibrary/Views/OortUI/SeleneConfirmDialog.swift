@@ -6,18 +6,21 @@ enum SeleneConfirmButton: Hashable {
     case cancel
     case confirm
 
-    static let left = Self.confirm
-    static let right = Self.cancel
+    static let left = Self.cancel
+    static let right = Self.confirm
     static let ordered = [left, right]
+
+    static func onSide(left: Bool, destructive: Bool) -> Self {
+        left == destructive ? .confirm : .cancel
+    }
 }
 
 /// Selene's confirmation card (its dialogs: a 640u card, centred title and text,
-/// two pills). Cancel is the focused pill by default, so a stray A keeps the item.
+/// the action bar: the way back on the left, the answer on the right). Cancel is the focused pill by default, so a stray A keeps the item.
 /// The caller owns input: it moves `focus` with Left/Right or hover, and acts on
 /// the two closures. Reused by Game options now and by later confirmations.
 struct SeleneConfirmDialog<Detail: View>: View {
     @Environment(\.seleneCanvas) private var canvas
-    @State private var hover = SeleneHoverFocus()
 
     let title: String
     let message: String
@@ -26,6 +29,8 @@ struct SeleneConfirmDialog<Detail: View>: View {
     var confirmEnabled = true
     var highlightsPills = true
     var warningIcon = false
+    /// The answer deletes, replaces or ends something: it stands apart on the far left.
+    var destructive = false
     @Binding var focus: SeleneConfirmButton
     let onCancel: () -> Void
     let onConfirm: () -> Void
@@ -54,30 +59,30 @@ struct SeleneConfirmDialog<Detail: View>: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, canvas.u(SeleneTokens.Space.line))
             detailContent()
-            HStack(spacing: canvas.u(SeleneTokens.Space.titleGap)) {
-                ForEach(SeleneConfirmButton.ordered, id: \.self) { button in
-                    if let label = button == .confirm ? confirmTitle : cancelTitle {
-                        let enabled = button == .cancel || confirmEnabled
-                        SelenePillButton(title: label, focused: highlightsPills && focus == button,
-                                         enabled: enabled, action: button == .confirm ? onConfirm : onCancel)
-                            .onHover { if enabled && hover.moved($0) { focus = button } }
-                            .accessibilityLabel(label)
-                    }
-                }
+            OortActionBar(actions: keys, focused: highlightsPills ? AnyHashable(focus) : nil) { id in
+                if let button = id.base as? SeleneConfirmButton { focus = button }
             }
             .padding(.top, canvas.u(SeleneTokens.Space.dialogActionGap))
         }
-        .modifier(SeleneDialogCard(cancelHint: cancelTitle.map { _ in HintItem(.b, "Cancel") },
+        .modifier(SeleneDialogCard(cancelHint: cancelTitle.map { HintItem(.b, $0, action: onCancel) },
                                    confirmHint: confirmEnabled || cancelTitle != nil ? HintItem(.a, "Select") : nil))
+    }
+
+    private var keys: [OortActionBar.Action] {
+        SeleneConfirmButton.ordered.compactMap { button in
+            button == .cancel
+                ? cancelTitle.map { .init(id: button, title: $0, role: .back, perform: onCancel) }
+                : .init(id: button, title: confirmTitle, role: destructive ? .destructive : .primary, enabled: confirmEnabled, perform: onConfirm)
+        }
     }
 }
 
 extension SeleneConfirmDialog where Detail == SeleneDialogNotes {
     init(title: String, message: String, confirmTitle: String, cancelTitle: String? = "Cancel",
-         detail: String? = nil, warningIcon: Bool = false, focus: Binding<SeleneConfirmButton>,
+         detail: String? = nil, warningIcon: Bool = false, destructive: Bool = false, focus: Binding<SeleneConfirmButton>,
          onCancel: @escaping () -> Void, onConfirm: @escaping () -> Void) {
         self.init(title: title, message: message, confirmTitle: confirmTitle, cancelTitle: cancelTitle,
-                  warningIcon: warningIcon, focus: focus, onCancel: onCancel, onConfirm: onConfirm) {
+                  warningIcon: warningIcon, destructive: destructive, focus: focus, onCancel: onCancel, onConfirm: onConfirm) {
             SeleneDialogNotes(detail: detail)
         }
     }
@@ -218,17 +223,23 @@ struct SeleneDialogCard: ViewModifier {
     }
 }
 
-/// The same card with one pill per choice. The caller owns input: it moves `focus` with arrows
-/// or hover and acts on `onChoose` (the choice's index); B and a click outside are the caller's cancel.
+/// The same card with one key per choice, in the order they are drawn: what erases apart on the far left, the way
+/// back, then the main answer last on the right. The caller owns input: it moves `focus` with arrows or hover and
+/// acts on `onChoose` (the choice's index); B and a click outside are the caller's cancel.
 struct SeleneChoiceDialog: View {
     @Environment(\.seleneCanvas) private var canvas
-    @State private var hover = SeleneHoverFocus()
 
     let title: String
     let message: String
     let choices: [String]
     @Binding var focus: Int
     var cancelIndex: Int? = nil
+    /// The choices that delete, replace or end something.
+    var destructive: Set<Int> = []
+    /// What B says when no choice is the way back.
+    var backTitle = "Cancel"
+    /// A list of things to pick, one a line, the way back at the bottom.
+    var list = false
     var details: [String: String] = [:]
     var notes: String? = nil
     var notesScrollRequest = 0
@@ -236,8 +247,25 @@ struct SeleneChoiceDialog: View {
     let onChoose: (Int) -> Void
 
     var body: some View {
+        ViewThatFits(in: .horizontal) {
+            card.fixedSize(horizontal: true, vertical: false).modifier(dialogCard(width: nil))
+            card.modifier(dialogCard(width: SeleneTokens.Space.questionMeasure))
+        }
+    }
+
+    private func dialogCard(width: CGFloat?) -> SeleneDialogCard {
+        SeleneDialogCard(width: width,
+            cancelHint: onCancel.map { HintItem(.b, backWords, action: $0) },
+            confirmHint: choices.indices.contains { $0 != cancelIndex }
+                ? HintItem(.a, "Select", action: { onChoose(focus) }) : nil)
+    }
+
+    /// The hint says the key's own words.
+    private var backWords: String { choices.count == 1 ? choices[0] : cancelIndex.map { choices[$0] } ?? backTitle }
+
+    private var card: some View {
         let textWidth = canvas.u(560)
-        VStack(spacing: 0) {
+        return VStack(spacing: 0) {
             Text(L10n.text(title))
                 .seleneFont(.screen, .semibold)
                 .foregroundColor(SeleneTheme.ink)
@@ -251,32 +279,19 @@ struct SeleneChoiceDialog: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.line))
             SeleneDialogNotes(detail: notes, scrollRequest: notesScrollRequest, plainText: true)
                 .frame(width: textWidth)
-            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.control)) {
-                ForEach(Array(choices.enumerated()), id: \.offset) { index, choice in
-                    VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                        SelenePillButton(title: choice, minWidth: 0, horizontalPadding: 24, focused: focus == index,
-                                         fillsOnFocus: index != cancelIndex, scalesOnFocus: false) { onChoose(index) }
-                            .onHover { if hover.moved($0) { focus = index } }
-                            .accessibilityLabel(L10n.text(choice))
-                            .accessibilityHint(details[choice] ?? "")
-                        if let detail = details[choice] {
-                            Text(detail)
-                                .seleneFont(.text)
-                                .foregroundColor(SeleneTheme.ink60)
-                                .frame(idealWidth: canvas.u(186), maxWidth: canvas.u(220))
-                                .fixedSize(horizontal: false, vertical: true)
-                                .accessibilityHidden(true)
-                        }
-                    }
-                }
+            OortActionBar(actions: keys, focused: focus, stacked: list) { id in
+                if let index = id.base as? Int { focus = index }
             }
-            .fixedSize(horizontal: true, vertical: false)
             .padding(.top, canvas.u(SeleneTokens.Space.dialogActionGap))
         }
-        .fixedSize(horizontal: true, vertical: false)
-        .modifier(SeleneDialogCard(width: nil,
-            cancelHint: onCancel.map { HintItem(.b, "Cancel", action: $0) },
-            confirmHint: choices.indices.contains { $0 != cancelIndex }
-                ? HintItem(.a, "Select", action: { onChoose(focus) }) : nil))
+    }
+
+    private var keys: [OortActionBar.Action] {
+        choices.enumerated().map { index, choice in
+            let last = index == choices.count - 1
+            let role: ActionBarRole = choices.count == 1 ? .primary : index == cancelIndex ? .back
+                : destructive.contains(index) ? .destructive : list ? .secondary : last ? .primary : .secondary
+            return .init(id: index, title: choice, role: role, detail: details[choice]) { onChoose(index) }
+        }
     }
 }

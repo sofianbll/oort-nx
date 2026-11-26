@@ -42,12 +42,12 @@ final class ArcaneWelcomeTests: XCTestCase {
 
     func testFocusOrder() {
         let offer = ArcaneWelcome.Offer.steam(gameCount: 3)
-        XCTAssertEqual(ArcaneWelcome.Focus.order(offer: offer), [.add, .notNow, .openLibrary])
+        XCTAssertEqual(ArcaneWelcome.Focus.order(offer: offer), [.notNow, .add, .openLibrary])
         XCTAssertEqual(ArcaneWelcome.Focus.order(offer: nil), [.openLibrary])
         XCTAssertEqual(ArcaneWelcome.Focus.initial(offer: offer), .add)
         XCTAssertEqual(ArcaneWelcome.Focus.initial(offer: nil), .openLibrary)
-        XCTAssertEqual(ArcaneWelcome.Focus.add.moved(.right, offer: offer), .notNow)
-        XCTAssertEqual(ArcaneWelcome.Focus.notNow.moved(.left, offer: offer), .add)
+        XCTAssertEqual(ArcaneWelcome.Focus.notNow.moved(.right, offer: offer), .add)
+        XCTAssertEqual(ArcaneWelcome.Focus.add.moved(.left, offer: offer), .notNow)
         XCTAssertEqual(ArcaneWelcome.Focus.add.moved(.down, offer: offer), .openLibrary)
         XCTAssertEqual(ArcaneWelcome.Focus.notNow.moved(.down, offer: offer), .openLibrary)
         XCTAssertEqual(ArcaneWelcome.Focus.openLibrary.moved(.up, offer: offer), .add)

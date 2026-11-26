@@ -15,20 +15,28 @@ struct SettingsNotice: Identifiable {
     var actionTitle = "Retry"
     var cancelTitle = "Back"
     var alternatives: [(title: String, run: () -> Void)] = []
+    /// The question opens on its main answer: without risk, and never one of `destructive`.
     var primaryFirst = false
+    /// The titles of the answers that delete, replace or end something.
+    var destructive: Set<String> = []
     var choiceDetails: [String: String] = [:]
     var duringSetup = false
-    var initialFocus: Int { primaryFirst && retry != nil ? 0 : cancelIndex }
-    var cancelIndex: Int { choices.count - 1 }
-    var choices: [String] {
-        let actions = (retry == nil ? [] : [actionTitle]) + alternatives.map(\.title)
-        return actions + [cancelTitle]
+
+    private typealias Answer = (title: String, run: () -> Void)
+    /// As drawn, left to right: what erases, the way back, the others, the main answer last.
+    private var keys: [(item: Answer, role: ActionBarRole)] {
+        ActionBarOrder.question(main: retry.map { (actionTitle, $0) }, others: alternatives.map { ($0.title, $0.run) },
+                                back: (cancelTitle, {})) { destructive.contains($0.title) }
     }
+    var initialFocus: Int { primaryFirst && retry != nil && !destructive.contains(actionTitle) ? choices.count - 1 : cancelIndex }
+    var cancelIndex: Int { keys.firstIndex { $0.role == .back } ?? 0 }
+    var choices: [String] { keys.map(\.item.title) }
+    var destructiveIndexes: Set<Int> { Set(choices.indices.filter { $0 != cancelIndex && destructive.contains(choices[$0]) }) }
 
     func runChoice(_ index: Int?) {
         guard let index, index != cancelIndex else { return }
-        let actions = (retry.map { [$0] } ?? []) + alternatives.map(\.run)
-        if actions.indices.contains(index) { actions[index]() }
+        let keys = keys
+        if keys.indices.contains(index) { keys[index].item.run() }
     }
 }
 
@@ -74,26 +82,29 @@ final class AppViewModel: ObservableObject {
 
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry",
                             cancelTitle: String = "Back", alternatives: [(title: String, run: () -> Void)] = [],
-                            primaryFirst: Bool = false, choiceDetails: [String: String] = [:], duringSetup: Bool = false,
+                            primaryFirst: Bool? = nil, destructive: Set<String> = [],
+                            choiceDetails: [String: String] = [:], duringSetup: Bool = false,
                             retry: (() -> Void)? = nil) {
         let notice = SettingsNotice(title: title, message: message, retry: retry,
                                     actionTitle: actionTitle, cancelTitle: cancelTitle, alternatives: alternatives,
-                                    primaryFirst: primaryFirst, choiceDetails: choiceDetails, duringSetup: duringSetup)
+                                    // Trying again risks nothing.
+                                    primaryFirst: primaryFirst ?? (actionTitle == "Retry"), destructive: destructive, choiceDetails: choiceDetails, duringSetup: duringSetup)
         settingsNoticeFocus = notice.initialFocus
         settingsNotice = notice
     }
 
     /// Settings keep their current value until a choice other than Cancel is activated.
     func confirmSetting(_ title: String, message: String,
-                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:], duringSetup: Bool = false) {
+                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:],
+                        destructive: Set<String> = [], duringSetup: Bool = false) {
         guard settingsNotice == nil else { return }
         showSettingsNotice(title: title, message: message, cancelTitle: "Cancel",
-                           alternatives: choices, choiceDetails: details, duringSetup: duringSetup)
+                           alternatives: choices, destructive: destructive, choiceDetails: details, duringSetup: duringSetup)
     }
 
-    func confirmSetting(_ title: String, message: String, action: String, duringSetup: Bool = false,
+    func confirmSetting(_ title: String, message: String, action: String, destructive: Bool = false, duringSetup: Bool = false,
                         apply: @escaping () -> Void) {
-        confirmSetting(title, message: message, choices: [(action, apply)], duringSetup: duringSetup)
+        confirmSetting(title, message: message, choices: [(action, apply)], destructive: destructive ? [action] : [], duringSetup: duringSetup)
     }
 
     // MARK: - Storage Keys for Persistence

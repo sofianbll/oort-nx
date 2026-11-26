@@ -15,10 +15,31 @@ public enum ActionBarOrder {
         }.map(\.element)
     }
 
+    /// Top to bottom when the keys are a list: the way forward first, what erases then the way back at the bottom.
+    public static func stacked<Item>(_ items: [Item], role: (Item) -> ActionBarRole) -> [Item] {
+        let place: [ActionBarRole: Int] = [.primary: 0, .secondary: 1, .destructive: 2, .back: 3]
+        return items.enumerated().sorted {
+            (place[role($0.element)]!, $0.offset) < (place[role($1.element)]!, $1.offset)
+        }.map(\.element)
+    }
+
+    /// The roles of a question's keys from the answers in the order they are offered, the main one first.
+    public static func question<Item>(main: Item?, others: [Item], back: Item, erases: (Item) -> Bool) -> [(item: Item, role: ActionBarRole)] {
+        var keys = [(item: Item, role: ActionBarRole)]()
+        // The first answer that does not erase leads, even when the nominal main answer erases.
+        let answers = (main.map { [$0] } ?? []) + others
+        let primary = answers.firstIndex { !erases($0) }
+        for (index, answer) in answers.enumerated().reversed() {
+            keys.append((answer, erases(answer) ? .destructive : index == primary ? .primary : .secondary))
+        }
+        keys.append((back, answers.isEmpty ? .primary : .back))
+        return sorted(keys) { $0.role }
+    }
+
     /// What Return and A press when the player has not moved: the way forward, or the way back when going forward erases
     /// or moves things.
     public static func initial<Item>(_ items: [Item], safe: Bool = false, role: (Item) -> ActionBarRole) -> Item? {
-        let order: [ActionBarRole] = safe ? [.back, .secondary, .primary, .destructive] : [.primary, .secondary, .back, .destructive]
+        let order: [ActionBarRole] = safe ? [.back, .secondary, .primary] : [.primary, .secondary, .back]
         for wanted in order { if let item = items.first(where: { role($0) == wanted }) { return item } }
         return nil
     }

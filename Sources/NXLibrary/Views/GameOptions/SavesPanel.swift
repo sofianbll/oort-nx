@@ -11,6 +11,8 @@ struct SavesPanel: View {
     @State private var target: SaveSlot = .account
     @State private var focus = 0
     @State private var confirmFocus: SeleneConfirmButton = .cancel
+    /// Opening the settings or the file risks nothing: the question opens on it.
+    @State private var cloudFocus: SeleneConfirmButton = .confirm
     @State private var keyMonitor: Any?
     @State private var cloudPrompt = false
     @State private var copyFrom: [LocalProfile] = []
@@ -185,7 +187,7 @@ struct SavesPanel: View {
         } else if let preview = model.preview, let context = model.context {
             SeleneConfirmDialog(title: L10n.text("Import this save?"),
                                 message: SavePresentation.importSummary(preview, version: game.versionString),
-                                confirmTitle: L10n.text("Import"), focus: $confirmFocus,
+                                confirmTitle: L10n.text("Import"), destructive: true, focus: $confirmFocus,
                                 onCancel: { if !model.busy { model.cancelPreview() } },
                                 onConfirm: { if !model.busy { model.confirmImport() } }) {
                 SaveImportDetails(source: preview.source, destination: context.location.directory(preview.slot))
@@ -193,16 +195,16 @@ struct SavesPanel: View {
             .disabled(model.busy)
         } else if let snapshot = model.restorePreview?.snapshot {
             SeleneConfirmDialog(title: L10n.text("Restore this backup?"), message: SavePresentation.restoreMessage(snapshot, installedVersion: game.versionString),
-                confirmTitle: L10n.text("Restore"), focus: $confirmFocus,
+                confirmTitle: L10n.text("Restore"), destructive: true, focus: $confirmFocus,
                 onCancel: { if !model.busy { model.cancelPreview() } }, onConfirm: { if !model.busy { model.confirmRestore() } }).disabled(model.busy)
         } else if !copyFrom.isEmpty {
             SeleneChoiceDialog(title: L10n.text("Copy saves from another profile"),
                                message: L10n.text("Only an empty profile can receive a copy of this game's saves."),
-                               choices: copyFrom.map(\.name) + [L10n.text("Cancel")],
-                               focus: $copyFocus, cancelIndex: copyFrom.count, onCancel: close, onChoose: chooseCopySource)
+                               choices: copyChoices.titles,
+                               focus: $copyFocus, cancelIndex: copyChoices.cancel, list: copyChoices.cancel > 0, onCancel: close, onChoose: chooseCopySource)
         } else if cloudPrompt {
             SeleneConfirmDialog(title: L10n.text("Cloud saves on"), message: cloudHelp.message + "\n\n" + SavePresentation.cloudNotice, confirmTitle: cloudHelp.button,
-                focus: $confirmFocus, onCancel: { cloudPrompt = false }, onConfirm: resolveCloud)
+                cancelTitle: cloudHelp.button == "OK" ? nil : "Cancel", focus: $cloudFocus, onCancel: { cloudPrompt = false }, onConfirm: resolveCloud)
 
         }
     }
@@ -234,11 +236,11 @@ struct SavesPanel: View {
         case .backup: model.backUp()
         case .target: target = target == .account ? .device : .account
         case .add:
-            if model.importAction == .cloudSettings { cloudPrompt = true; confirmFocus = .cancel }
+            if model.importAction == .cloudSettings { cloudPrompt = true; cloudFocus = .confirm }
             else { model.chooseImport(slot: target) }
         case .refresh: model.refresh()
         case .backups: model.showBackups()
-        case .copy: copyFrom = model.saveCopySources; copyFocus = copyFrom.count
+        case .copy: copyFrom = model.saveCopySources; copyFocus = copyChoices.cancel
         }
     }
     private func close() {
@@ -250,10 +252,16 @@ struct SavesPanel: View {
         onClose()
         embedding?.onBack()
     }
+    /// Two profiles fit beside Cancel; more make a list, Cancel at the bottom.
+    private var copyChoices: (titles: [String], cancel: Int) {
+        let names = copyFrom.map(\.name), cancel = L10n.text("Cancel")
+        return names.count > 2 ? (names + [cancel], names.count) : ([cancel] + names, 0)
+    }
     private func chooseCopySource(_ index: Int) {
-        let sources = copyFrom
+        let sources = copyFrom, cancel = copyChoices.cancel
         copyFrom = []
-        if sources.indices.contains(index) { model.copySaves(from: sources[index]) }
+        let chosen = cancel == 0 ? index - 1 : index
+        if sources.indices.contains(chosen) { model.copySaves(from: sources[chosen]) }
     }
     private func handle(_ action: GamepadAction) {
         guard embedding?.active.wrappedValue != false else { return }
@@ -270,12 +278,14 @@ struct SavesPanel: View {
                 return
             }
             switch action {
-            case .navigateLeft: confirmFocus = .left
-            case .navigateRight: confirmFocus = .right
+            case .navigateLeft where cloudPrompt: if cloudHelp.button != "OK" { cloudFocus = .left }
+            case .navigateRight where cloudPrompt: cloudFocus = .right
+            case .navigateLeft, .navigateRight:
+                confirmFocus = .onSide(left: action == .navigateLeft, destructive: true)
             case .cancel: close()
             case .confirm:
                 if model.issue != nil { model.dismissIssue() }
-                else if confirmFocus == .cancel { close() }
+                else if (cloudPrompt ? cloudFocus : confirmFocus) == .cancel { close() }
                 else if model.preview != nil { model.confirmImport() }
                 else if model.restorePreview != nil { model.confirmRestore() }
                 else if cloudPrompt { resolveCloud() }

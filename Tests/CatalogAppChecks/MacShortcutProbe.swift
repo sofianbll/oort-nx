@@ -144,7 +144,7 @@ extension ProfileScreenProbe {
                 spotlight().seleneOverlayOwnership(false)
                 SeleneOverlay(style: .dialog) {
                     SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                       focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex,
+                                       focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
                                        onCancel: {}, onChoose: { _ in })
                 }
             }

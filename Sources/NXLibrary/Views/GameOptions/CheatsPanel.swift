@@ -52,6 +52,14 @@ struct CheatsPanel: View {
     enum Confirm: Equatable {
         case install(data: Data, file: CheatFile, unnamed: Bool, replacing: Bool)
         case remove(build: String)
+
+        /// It removes a file of cheats, or writes over one.
+        var erases: Bool {
+            switch self {
+            case .install(_, _, _, let replacing): replacing
+            case .remove: true
+            }
+        }
     }
 
     init(viewModel: AppViewModel, game: PortedGame, onRebuild: @escaping () -> Void, onClose: @escaping () -> Void) {
@@ -308,7 +316,7 @@ struct CheatsPanel: View {
                 .contentShape(Rectangle())
                 .onTapGesture { dismissConfirm() }
             SeleneConfirmDialog(title: copy.title, message: copy.message, confirmTitle: copy.confirm,
-                                focus: $confirmFocus, onCancel: dismissConfirm, onConfirm: runConfirm)
+                                destructive: target.erases, focus: $confirmFocus, onCancel: dismissConfirm, onConfirm: runConfirm)
         }
     }
 
@@ -515,10 +523,10 @@ struct CheatsPanel: View {
 
     private func handleGamepad(_ action: GamepadAction) {
         guard embedding?.active.wrappedValue != false else { return }
-        if confirm != nil {
+        if let confirm {
             switch action {
-            case .navigateLeft: moveConfirmFocus(.left)
-            case .navigateRight: moveConfirmFocus(.right)
+            case .navigateLeft, .navigateRight:
+                moveConfirmFocus(.onSide(left: action == .navigateLeft, destructive: confirm.erases))
             case .confirm: confirmFocus == .confirm ? runConfirm() : dismissConfirm()
             case .cancel: dismissConfirm()
             default: break

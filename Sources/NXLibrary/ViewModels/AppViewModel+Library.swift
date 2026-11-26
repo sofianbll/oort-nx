@@ -78,7 +78,7 @@ extension AppViewModel {
                 if plan.conflicts {
                     showSettingsNotice(title: L10n.text("Replace game app?"),
                         message: L10n.text("This title already exists. Replace it in the library with a copy of the selected app? The selected app stays where it is."),
-                        actionTitle: L10n.text("Replace"), cancelTitle: L10n.text("Cancel")) { [weak self] in
+                        actionTitle: L10n.text("Replace"), cancelTitle: L10n.text("Cancel"), destructive: [L10n.text("Replace")]) { [weak self] in
                             self?.installLocalApp(plan, in: folder, replacing: true)
                         }
                 } else {

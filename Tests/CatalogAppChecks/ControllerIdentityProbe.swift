@@ -36,6 +36,7 @@ private final class FakeSource: ControllerSource {
 
 @main struct ControllerIdentityProbe {
     static func main() {
+        if CommandLine.arguments.contains("--fallback") { lastPressedLeads(); return }
         hashes()
         gameControllerTwins()
         mixedSourcesAndWake()
@@ -80,12 +81,14 @@ private final class FakeSource: ControllerSource {
         precondition(service.activeBrand == .playstation, "A refresh keeps the pad in use")
         press(first)
         precondition(service.activeBrand == .xbox && actions == [.confirm, .confirm])
-        hid.add(raw)
+        hid.add(raw, claimed: true)
+        hid.onEvent?(.buttonPressed(raw.id))
+        precondition(service.activeBrand == .xbox, "A claimed HID pad waits for a matching GameController profile")
         RunLoop.main.run(until: Date().addingTimeInterval(2.2))
-        service.refreshControllers()
         precondition(service.activeBrand == .xbox)
         hid.onEvent?(.buttonPressed(raw.id))
-        precondition(service.activeBrand == .nintendoSwitch && hid.selected == raw.id)
+        precondition(service.activeBrand == .nintendoSwitch && hid.selected == raw.id,
+                     "The fallback deadline admits the second pad without a manual refresh")
         hid.onEvent?(.input(raw.id, .button(.b, true)))
         drain()
         precondition(actions.last == .cancel)

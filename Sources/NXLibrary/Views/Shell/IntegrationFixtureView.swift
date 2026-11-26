@@ -187,7 +187,9 @@ struct IntegrationFixtureView: View {
                                                    (SettingsSoundSection.removalQuestion(pack.manifest.name, locale: locale), "remove")] {
                             try render(SeleneOverlay(style: .dialog) {
                                 SeleneChoiceDialog(title: question.title, message: question.message,
-                                                   choices: [question.action, "Cancel"], focus: .constant(1), cancelIndex: 1,
+                                                   choices: suffix == "remove" ? [question.action, "Cancel"] : ["Cancel", question.action],
+                                                   focus: .constant(suffix == "remove" ? 1 : 0), cancelIndex: suffix == "remove" ? 1 : 0,
+                                                   destructive: suffix == "remove" ? [0] : [],
                                                    onCancel: {}, onChoose: { _ in })
                             }, as: "sound-\(suffix)")
                         }

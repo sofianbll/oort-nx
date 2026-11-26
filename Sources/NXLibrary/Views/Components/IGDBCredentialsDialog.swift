@@ -42,15 +42,14 @@ struct IGDBCredentialsDialog: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     HStack {
-                        Button(L10n.text("Developer portal")) {
+                        OortLink(title: "Developer portal") {
                             NSWorkspace.shared.open(URL(string: "https://dev.twitch.tv/console/apps/create")!)
                         }
                         Spacer(minLength: 0)
-                        Button(L10n.text("Setup guide")) {
+                        OortLink(title: "Setup guide") {
                             NSWorkspace.shared.open(URL(string: "https://api-docs.igdb.com/#account-creation")!)
                         }
                     }
-                    .buttonStyle(OortPressStyle()).seleneFont(.text).foregroundColor(SeleneTheme.focus)
                 }
                 .textFieldStyle(.plain)
                 .font(.system(size: max(13, canvas.u(17)), design: .monospaced))

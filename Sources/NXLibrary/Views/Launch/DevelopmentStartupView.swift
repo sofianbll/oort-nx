@@ -218,44 +218,14 @@ struct DevelopmentStartupView: View {
                     }
                 }).seleneCanvasRoot()
             } else if let failure = startup.failure {
-                VStack(spacing: SeleneTokens.Space.panel) {
-                    if startup.working { ProgressView().controlSize(.large) }
-                    Text(L10n.text("Library unavailable", context: context))
-                        .font(.system(size: SeleneTokens.Text.heading.rawValue, weight: .semibold))
-                    Text(failure)
-                        .font(.system(size: SeleneTokens.Text.badge.rawValue)).multilineTextAlignment(.center)
-                    if startup.legacyConflict != nil {
-                        Text(L10n.text("Keep the games and sources in Arcane. The older app's changes will be archived separately, without merging the libraries.", context: context))
-                            .font(.system(size: SeleneTokens.Text.badge.rawValue)).multilineTextAlignment(.center)
-                        Button(L10n.text("Keep Arcane's library", context: context)) {
-                            Task { await startup.keepCurrentLibrary() }
-                        }.keyboardShortcut("k", modifiers: [.command, .shift])
-                            .disabled(startup.working)
-                    }
-                    if let candidate = startup.recovery {
-                        Button(L10n.count("Restore backup (%lld games)", candidate.gameCount, context: context)) {
-                            Task { await startup.restoreBackup() }
-                        }.keyboardShortcut("r", modifiers: [.command, .shift])
-                            .disabled(startup.working)
-                    }
-                    HStack(spacing: SeleneTokens.Space.large) {
-                        Button(L10n.text("Close", context: context)) { NSApplication.shared.terminate(nil) }
-                            .keyboardShortcut(.cancelAction)
-                        Button(L10n.text("Open library folder", context: context)) { NSWorkspace.shared.open(AppData.supportRoot) }
-                            .keyboardShortcut("o", modifiers: [.command])
-                        Button(L10n.text("Retry", context: context)) { Task { await startup.prepare() } }
-                            .keyboardShortcut(.defaultAction)
-                        if startup.canStartWithoutLibraryCopy {
-                            Button(L10n.text("Start without a copy", context: context)) {
-                                Task { await startup.chooseLibraryCopy(false) }
-                            }
-                        }
-                    }.disabled(startup.working)
-                }
-                .foregroundColor(SeleneTheme.artInk)
-                .padding(SeleneTokens.Space.group).frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(hex: SeleneTokens.Palette.glass))
-                .onAppear { LaunchReveal.show() }
+                LibraryUnavailableView(failure: failure, working: startup.working, conflict: startup.legacyConflict != nil,
+                                       backupGames: startup.recovery?.gameCount,
+                                       startsWithoutCopy: startup.canStartWithoutLibraryCopy, context: context,
+                                       keep: { Task { await startup.keepCurrentLibrary() } },
+                                       restore: { Task { await startup.restoreBackup() } },
+                                       startWithoutCopy: { Task { await startup.chooseLibraryCopy(false) } },
+                                       retry: { Task { await startup.prepare() } })
+                    .seleneCanvasRoot()
             } else if startup.showCopyProgress {
                 DowngradeCopyProgress(context: context).seleneCanvasRoot()
             } else {
@@ -269,5 +239,136 @@ struct DevelopmentStartupView: View {
             if startup.shell == nil { ThemeStore.shared.apply(id: id) }
         }
         .task { await startup.prepare() }
+    }
+}
+
+/// The library could not be opened: its repairs, then the way out on the left and Retry last. Mouse, arrows, Tab,
+/// Return, Esc and the controller all reach every key.
+struct LibraryUnavailableView: View {
+    private enum Key: Hashable { case keep, restore, close, folder, withoutCopy, retry }
+    private final class ControllerInput: ObservableObject {
+        var handle: ((GamepadAction) -> Void)?
+    }
+
+    let failure: String
+    let working: Bool
+    let conflict: Bool
+    let backupGames: Int?
+    let startsWithoutCopy: Bool
+    let context: AppLocale
+    let keep: () -> Void
+    let restore: () -> Void
+    let startWithoutCopy: () -> Void
+    let retry: () -> Void
+    @Environment(\.seleneCanvas) private var canvas
+    @StateObject private var controller = ControllerInput()
+    @State private var focus = Key.retry
+    @FocusState private var acceptsKeys: Bool
+
+    private var repairs: [Key] { (conflict ? [.keep] : []) + (backupGames == nil ? [] : [.restore]) }
+    private var foot: [Key] { [.close, .folder] + (startsWithoutCopy ? [.withoutCopy] : []) + [.retry] }
+
+    var body: some View {
+        VStack(spacing: canvas.u(SeleneTokens.Space.panel)) {
+            if working { WaveDots() }
+            Text(text("Library unavailable")).seleneFont(.screen, .semibold).accessibilityAddTraits(.isHeader)
+            Text(failure).seleneFont(.text).foregroundStyle(SeleneTheme.ink90)
+            if conflict {
+                Text(text("Keep the games and sources in Arcane. The older app's changes will be archived separately, without merging the libraries."))
+                    .seleneFont(.text).foregroundStyle(SeleneTheme.ink75)
+            }
+            ForEach(repairs, id: \.self) { key in
+                OortButton(title: title(key), focused: focus == key, state: working ? .blocked : .ready, preset: .card) { perform(key) }
+                    .seleneHover { focus = key }
+            }
+            OortActionBar(actions: foot.map { key in
+                .init(id: key, title: title(key), role: key == .close ? .back : key == .retry ? .primary : .secondary,
+                      enabled: !working) { perform(key) }
+            }, focused: focus, preset: .card) { id in
+                if let key = id.base as? Key { focus = key }
+            }
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: canvas.u(SeleneTokens.Space.questionMeasure))
+        .foregroundStyle(SeleneTheme.ink)
+        .padding(canvas.u(SeleneTokens.Space.group))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottom) {
+            SeleneHintsBar(left: [HintItem(.b, "Close") { perform(.close) }],
+                           right: [HintItem(.a, "Select") { perform(focus) }])
+        }
+        // Recovery keeps a fixed background even when the player's palette couldn't be read.
+        .background(SeleneTheme.baseGradient(for: .fallback))
+        .environment(\.nxAppLocale, context)
+        .focusable()
+        .focused($acceptsKeys)
+        .defaultFocus($acceptsKeys, true)
+        .onKeyPress(keys: [.leftArrow, .rightArrow, .upArrow, .downArrow, .tab, .return, .space, .escape]) { key in
+            switch key.key {
+            case .leftArrow: input(.navigateLeft)
+            case .rightArrow: input(.navigateRight)
+            case .upArrow: input(.navigateUp)
+            case .downArrow: input(.navigateDown)
+            case .tab: step(key.modifiers.contains(.shift) ? -1 : 1, in: repairs + foot)
+            case .escape: input(.cancel)
+            default: input(.confirm)
+            }
+            return .handled
+        }
+        .onAppear {
+            acceptsKeys = true
+            let receiver = controller
+            receiver.handle = input
+            GameControllerService.shared.onAction = { [weak receiver] in receiver?.handle?($0) }
+            LaunchReveal.show()
+        }
+        // Do not clear the shared router: the shell can already have installed its own handler.
+        .onDisappear { controller.handle = nil }
+        .onChange(of: repairs) { if !(repairs + foot).contains(focus) { focus = .retry } }
+    }
+
+    private func title(_ key: Key) -> String {
+        switch key {
+        case .keep: text("Keep Arcane's library")
+        case .restore: L10n.count("Restore backup (%lld games)", backupGames ?? 0, context: context)
+        case .close: text("Close")
+        case .folder: text("Open library folder")
+        case .withoutCopy: text("Start without a copy")
+        case .retry: text("Retry")
+        }
+    }
+
+    private func text(_ key: String) -> String { L10n.text(key, context: context) }
+
+    private func perform(_ key: Key) {
+        if key == .close { NSApplication.shared.terminate(nil); return }
+        guard !working else { return }
+        switch key {
+        case .keep: keep()
+        case .restore: restore()
+        case .folder: NSWorkspace.shared.open(AppData.supportRoot)
+        case .withoutCopy: startWithoutCopy()
+        case .retry: retry()
+        case .close: break
+        }
+    }
+
+    private func step(_ delta: Int, in keys: [Key]) {
+        guard let index = keys.firstIndex(of: focus), keys.indices.contains(index + delta) else { return }
+        focus = keys[index + delta]
+    }
+
+    private func input(_ action: GamepadAction) {
+        switch action {
+        case .navigateLeft: step(-1, in: foot)
+        case .navigateRight: step(1, in: foot)
+        case .navigateUp:
+            if foot.contains(focus) { focus = repairs.last ?? focus } else { step(-1, in: repairs) }
+        case .navigateDown:
+            if focus == repairs.last { focus = .retry } else { step(1, in: repairs) }
+        case .confirm: perform(focus)
+        case .cancel: perform(.close)
+        default: break
+        }
     }
 }
