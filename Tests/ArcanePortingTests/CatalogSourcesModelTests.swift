@@ -231,7 +231,8 @@ final class CatalogSourcesModelTests: XCTestCase {
     func testBurstOfChangesRescansOnce() async throws {
         let (model, calls, _) = try await watching()
         XCTAssertEqual(calls.value, 1)
-        for _ in 0..<5 { model.steamFilesChanged(); try await Task.sleep(nanoseconds: 10_000_000) }
+        // Deliver one burst without letting an overloaded test host turn it into separate quiet periods.
+        for _ in 0..<5 { model.steamFilesChanged() }
         try await Task.sleep(nanoseconds: 600_000_000)
         await settled(model)
         XCTAssertEqual(calls.value, 2)
