@@ -114,6 +114,11 @@ class OortCase: XCTestCase {
     func tab(_ key: String) {
         let label = say(key)
         let bar = app.tabBars.buttons[label].firstMatch
+        let sidebar = app.cells[label].firstMatch
+        if pad, sidebar.exists && sidebar.isHittable {
+            sidebar.tap()
+            return
+        }
         // A scrolled list folds the tab bar into the one button of the tab in hand: a touch unfolds it.
         if !(bar.exists && bar.isHittable), app.tabBars.buttons.count == 1 {
             app.tabBars.buttons.firstMatch.tap()
