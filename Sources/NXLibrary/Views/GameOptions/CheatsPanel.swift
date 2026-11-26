@@ -523,7 +523,7 @@ struct CheatsPanel: View {
 
     private func handleGamepad(_ action: GamepadAction) {
         guard embedding?.active.wrappedValue != false else { return }
-        if let confirm {
+        if confirm != nil {
             switch action {
             case .navigateLeft, .navigateRight:
                 moveConfirmFocus(action == .navigateLeft ? .left : .right)
