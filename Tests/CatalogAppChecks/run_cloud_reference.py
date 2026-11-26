@@ -48,7 +48,7 @@ SCENARIO = r'''
                 model.referenceCheck = check
                 labels = []
                 try render("reference-\(name)\(suffix)", output, SettingsCloudLibrarySection(
-                    viewModel: vm, model: model, settings: /* CLOUD_SETTINGS */ SettingsEditor(settings), advanced: .constant(false),
+                    viewModel: vm, model: model, settings: /* CLOUD_SETTINGS */ SettingsEditor(settings), advanced: .constant(true),
                     onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
                     .environment(\.nxAppLocale, fr).padding(24).frame(width: min(1040, width - 48)), size: size)
                 if !labels.contains(label) { failures.append("\(name)\(suffix): \(labels)") }

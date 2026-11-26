@@ -6,7 +6,7 @@ func checkNextStepOCR(_ output: URL) throws {
         ("online-app", ["app dans ton cloud", "telecharger l'app", "temps de jeu", "derniere partie", "plateforme", "aucune description"], []),
         ("offline-local", ["app sur ce mac", "jouer"], ["telecharger"]),
         ("offline-app", ["dernier emplacement connu", "app dans ton cloud"], []),
-        ("reference-files", ["bibliotheque de reference", "telecharger les fichiers du jeu", "compile apres le telechargement"], []),
+        ("reference-files", ["bibliotheque suivie", "telecharger les fichiers du jeu", "compile apres le telechargement"], []),
         ("local-files", ["fichiers du jeu sur ce mac", "compiler"], []),
         ("engine-blocked", ["verifie le moteur avant de compiler"], []),
         ("offline-cache", ["cloud indisponible"], ["telecharger", "jouer", "localise"]),
