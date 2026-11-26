@@ -380,7 +380,8 @@ final class AppViewModel: ObservableObject {
     var gameSaveLaunches: [UUID: (pid: pid_t, date: Date?, profile: UUID?)] = [:]
     let sourceCatalog = SourceCatalog()
     lazy var workspaceManager = WorkspaceManager(root: core.appendingPathComponent("workspaces"))
-    var libraryRescanRequested = false
+    var libraryScanRequest = LibraryScanRequest.standalone
+    var pendingLibraryScan: LibraryScanRequest?
 
     init(settingsStore: AppSettingsStore, catalog: CatalogDocument, repository: CatalogRepository,
          localProfiles: LocalProfileStore? = nil, registerNotifications: Bool = true) {

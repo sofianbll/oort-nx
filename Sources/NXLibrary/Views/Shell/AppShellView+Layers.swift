@@ -312,7 +312,7 @@ extension AppShellView {
         .onChange(of: viewModel.isScanningLibrary) { _, scanning in
             if !scanning {
                 viewModel.restoreCloudQueue()
-                viewModel.importCloudGames()
+                if viewModel.libraryScanRequest.isCurrent { viewModel.importCloudGames() }
                 viewModel.porting.scheduleNextBuild()
             }
         }

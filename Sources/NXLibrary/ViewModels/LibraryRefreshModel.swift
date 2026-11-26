@@ -47,7 +47,7 @@ final class LibraryRefreshModel: ObservableObject {
             await withTaskGroup(of: Void.self) { group in
                 for part in refresh.states.keys {
                     group.addTask { [weak self] in
-                        guard let state = await self?.read(part) else { return }
+                        guard let state = await self?.read(part, of: refresh.id) else { return }
                         await self?.end(part, state, of: refresh.id, known: known)
                     }
                 }
@@ -100,19 +100,22 @@ final class LibraryRefreshModel: ObservableObject {
         }
     }
 
-    private func read(_ part: LibraryRefresh.Part) async -> LibraryRefresh.State {
+    private func read(_ part: LibraryRefresh.Part, of id: UUID) async -> LibraryRefresh.State {
+        guard current?.id == id, !Task.isCancelled else { return .cancelled }
         switch part {
-        case .apps: return await readApps()
+        case .apps:
+            guard let work else { return .cancelled }
+            return await readApps(work)
         case .steam: return await readSteam()
         case .cloud: return await readCloud()
         }
     }
 
-    private func readApps() async -> LibraryRefresh.State {
-        app.loadLibrary()
+    private func readApps(_ work: Task<Void, Never>) async -> LibraryRefresh.State {
+        app.loadLibrary(request: .refresh(work))
         // A transfer may move an app: the scan waits for it, and runs by itself then.
         guard !app.cloudLibrary.isWorking else { return .stale(L10n.text("After the cloud transfer")) }
-        for await _ in app.$isScanningLibrary.values where !app.isScanningLibrary && !app.libraryRescanRequested { break }
+        for await _ in app.$isScanningLibrary.values where !app.isScanningLibrary && app.pendingLibraryScan == nil { break }
         return app.libraryScanWarnings.isEmpty ? .read : .stale(app.libraryScanWarnings.joined(separator: "\n"))
     }
 
@@ -130,8 +133,9 @@ final class LibraryRefreshModel: ObservableObject {
 
     private func readCloud() async -> LibraryRefresh.State {
         let cloud = app.cloudLibrary
-        guard await isOnline() else { return stale(.offline) }
+        let online = await isOnline()
         guard !Task.isCancelled else { return .cancelled }
+        guard online else { return stale(.offline) }
         if cloud.archive == nil { await cloud.checkDriveScope()?.value }
         guard !Task.isCancelled else { return .cancelled }
         guard cloud.archive != nil else { return stale(cloud.connectionCheck?.failure ?? .unavailable) }

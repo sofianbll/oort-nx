@@ -242,6 +242,34 @@ import SwiftUI
         expect(alive() == 0, "no rclone outlives the connection")
         let kept = snapshots().subtracting(earlier)
         expect(kept.isEmpty, "no private configuration stays on disk: \(kept)")
+
+        // Cancel on the scan's first publication, before its worker can return.
+        cloud.useSettingsActivation(cloud.activationChoice(enabled: false))
+        let localTitle = "0100000000050000"
+        let contents = vm.gameAppsFolder.appendingPathComponent("Local fixture.app/Contents")
+        try FileManager.default.createDirectory(at: contents, withIntermediateDirectories: true)
+        try PropertyListSerialization.data(fromPropertyList: ["DMTitleID": localTitle], format: .xml, options: 0)
+            .write(to: contents.appendingPathComponent("Info.plist"))
+        let revision = try repository.load().revision
+        let cancelScan = vm.$isScanningLibrary.filter { $0 }.prefix(1).sink { _ in refresh.cancel() }
+        refresh.start()
+        try await finish(refresh)
+        cancelScan.cancel()
+        func waitForScan() async throws {
+            for _ in 0..<500 where vm.isScanningLibrary { try await Task.sleep(for: .milliseconds(10)) }
+            expect(!vm.isScanningLibrary, "the local scan releases the library")
+        }
+        try await waitForScan()
+        expect(refresh.current?.outcome == .cancelled, "the local refresh is cancelled")
+        let cancelledRevision = try repository.load().revision
+        expect(cancelledRevision == revision && !vm.libraryGames.contains { $0.titleId == localTitle },
+               "the cancelled worker does not publish on disk or in the library")
+
+        vm.loadLibrary()
+        try await waitForScan()
+        let savedGames = try repository.load().nxnativeGames
+        expect(savedGames.contains { $0.titleId == localTitle } && vm.libraryGames.contains { $0.titleId == localTitle },
+               "an independent scan still publishes the same fixture")
         try await checkDaemonLifetime()
         exit(failures.isEmpty ? 0 : 3)
     }

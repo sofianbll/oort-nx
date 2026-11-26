@@ -9,7 +9,7 @@ Come si aggiorna:
 
 ## Release del fork
 
-- **Library refresh unico (25 nov 2026)** — in attesa: Drive reale, rete assente a metà, pulsante ripetuto con tastiera e controller, lettura del messaggio e della riga nel centro attività.
+- **Library refresh unico (25 nov 2026)** — in attesa: Drive reale, rete assente a metà, pulsante ripetuto con tastiera e controller, lettura del messaggio e della riga nel centro attività. Annullare durante la scansione di una nuova app di prova: non compare e Drive non riparte; una scansione avviata a parte la ritrova.
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
