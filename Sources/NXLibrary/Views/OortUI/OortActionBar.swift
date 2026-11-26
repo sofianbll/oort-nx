@@ -28,14 +28,26 @@ struct OortActionBar: View {
         let sorted = ActionBarOrder.sorted(actions, role: \.role)
         Group {
             if stacked {
-                VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                    ForEach(ActionBarOrder.stacked(actions, role: \.role)) { key($0, fills: true) }
+                ViewThatFits(in: .vertical) {
+                    column.fixedSize(horizontal: false, vertical: true)
+                    ScrollViewReader { proxy in
+                        ScrollView { column }
+                            .onChange(of: focused, initial: true) { _, id in
+                                if let id { proxy.scrollTo(id) }
+                            }
+                    }
                 }
             } else {
                 row(sorted)
             }
         }
         .accessibilityElement(children: .contain)
+    }
+
+    private var column: some View {
+        VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+            ForEach(ActionBarOrder.stacked(actions, role: \.role)) { key($0, fills: true).id($0.id) }
+        }
     }
 
     private func row(_ sorted: [Action]) -> some View {

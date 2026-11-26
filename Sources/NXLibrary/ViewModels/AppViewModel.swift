@@ -21,6 +21,7 @@ struct SettingsNotice: Identifiable {
     var destructive: Set<String> = []
     var choiceDetails: [String: String] = [:]
     var duringSetup = false
+    var notes: String? = nil
 
     enum AnswerID: Hashable {
         case back, retry, alternative(Int)
@@ -87,6 +88,7 @@ final class AppViewModel: ObservableObject {
         }
     }
     @Published var settingsNoticeAnswer = SettingsNotice.AnswerID.back
+    @Published var settingsNoticeNotesScroll = 0
     var settingsNoticeFocus: Int {
         settingsNotice?.answers.firstIndex { $0.id == settingsNoticeAnswer } ?? 0
     }
@@ -107,12 +109,14 @@ final class AppViewModel: ObservableObject {
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry",
                             cancelTitle: String = "Back", alternatives: [(title: String, run: () -> Void)] = [],
                             primaryFirst: Bool? = nil, destructive: Set<String> = [],
-                            choiceDetails: [String: String] = [:], duringSetup: Bool = false,
+                            choiceDetails: [String: String] = [:], duringSetup: Bool = false, notes: String? = nil,
                             retry: (() -> Void)? = nil) {
         let notice = SettingsNotice(title: title, message: message, retry: retry,
                                     actionTitle: actionTitle, cancelTitle: cancelTitle, alternatives: alternatives,
                                     // Trying again risks nothing.
-                                    primaryFirst: primaryFirst ?? (actionTitle == "Retry"), destructive: destructive, choiceDetails: choiceDetails, duringSetup: duringSetup)
+                                     primaryFirst: primaryFirst ?? (actionTitle == "Retry"), destructive: destructive,
+                                     choiceDetails: choiceDetails, duringSetup: duringSetup, notes: notes)
+        settingsNoticeNotesScroll = 0
         settingsNoticeAnswer = notice.defaultAnswer
         settingsNotice = notice
     }

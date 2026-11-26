@@ -395,8 +395,11 @@ import ArcanePorting
             case .keyboard: reach(.secret) { key(48, typing: true) }
             case .controller: travel(to: .secret)
             case .mouse:
-                let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: -400, wheel2: 0, wheel3: 0)!
-                scroll.scrollWheel(with: NSEvent(cgEvent: wheel)!)
+                // AppKit doesn't deliver wheel gestures to an unordered window. Move its real clip, then hit-test.
+                var end = clip.bounds
+                end.origin.y = clip.isFlipped ? scroll.documentRect.maxY - end.height : scroll.documentRect.minY
+                clip.scroll(to: clip.constrainBoundsRect(end).origin)
+                scroll.reflectScrolledClipView(clip)
             }
             host.settle(0.4)
             precondition(visible(), "\(driver.rawValue): Secret Google is still outside the scroll viewport")

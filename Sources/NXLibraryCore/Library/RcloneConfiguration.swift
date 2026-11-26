@@ -523,12 +523,12 @@ public struct RcloneConfiguration: Sendable {
     public func disconnect(_ remote: String, keepingClient: Bool = false) async throws {
         guard CloudLibraryPreference.validRemote(remote) else { throw Failure.disconnect }
         if keepingClient {
+            // Check before the write: if verification failed afterwards, the user would already be signed out.
+            guard try await account(remote).hasClient else { throw Failure.disconnect }
             _ = try await checked(["config", "update", remote, "token=", "--non-interactive", "--no-output"], or: .disconnect)
-            guard try await account(remote).keepsClient else { throw Failure.disconnect }
             return
         }
         _ = try await checked(["config", "delete", remote], or: .disconnect)
-        guard try await !remotes().contains(where: { $0.name == remote }) else { throw Failure.disconnect }
     }
 
     public static func validCredential(_ text: String) -> Bool {

@@ -123,6 +123,7 @@ extension AppShellView {
                 cloudQuitKey(event.keyCode)
                 return nil
             }
+            if viewModel.noticeFocus.isActive, !leavesNoticesRoom { viewModel.noticeFocus.leave() }
             if viewModel.noticeFocus.isActive, mods.isEmpty {
                 if let action = noticeKeyAction(event.keyCode), !event.isARepeat || action != .confirm {
                     GameControllerService.shared.onAction?(action)
@@ -270,7 +271,7 @@ extension AppShellView {
     /// Nothing that comes first is open.
     var leavesNoticesRoom: Bool {
         !router.isMenuPresented && !router.isPalettePresented && !router.isScreenshotViewerOpen && !isCloseGameOpen && !viewModel.showSetupCheck && !showsWelcome
-            && viewModel.launchOverlay == nil && !nativeDialogOwnsInput && !viewModel.profileOwnsInput
+            && viewModel.launchOverlay == nil && !nativeDialogOwnsInput && !viewModel.profileOwnsInput && !viewModel.isGameOptionsOpen
     }
 
     func undoLastChange() {

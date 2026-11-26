@@ -36,7 +36,7 @@ extension NXNativeGameSettings {
         let before = savedChoices()
         do { for change in copy.changes { try set(change.env, to: change.value) } }
         catch {
-            try? restore(before)
+            try? restore(before, only: Set(copy.changes.map(\.env)))
             throw error
         }
     }

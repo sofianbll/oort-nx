@@ -92,20 +92,19 @@ struct CopySettingsPanel: View {
         }
         focus = index
         SoundEffectService.shared.play(.click)
-        let target = targets[index]
-        viewModel.showSettingsNotice(title: L10n.format("Copy settings to %@?", [target.game.name]),
-                                      message: CopySettingsPanel.summary(target.copy), actionTitle: "Copy", cancelTitle: "Cancel") {
-            guard viewModel.runtimeSettings.copySettings(from: game, to: target.game) else { return }
-            onClose()
-        }
+        let target = targets[index].game
+        if let plan = viewModel.runtimeSettings.copyPlan(from: game, to: target) { confirm(plan, to: target) }
     }
 
-    /// The first lines, then how many more.
-    static func summary(_ copy: GameSettingsCopy, limit: Int = 8) -> String {
-        var lines = copy.changes.prefix(limit).map(\.line)
-        let more = copy.changes.count - lines.count
-        if more > 0 { lines.append(L10n.count("and %lld more", more)) }
-        return lines.joined(separator: "\n")
+    private func confirm(_ plan: GameSettingsCopy, to target: PortedGame) {
+        guard !plan.changes.isEmpty else { return }
+        viewModel.showSettingsNotice(title: L10n.format("Copy settings to %@?", [target.name]),
+            message: L10n.count("%lld settings change", plan.changes.count), actionTitle: "Copy", cancelTitle: "Cancel",
+            notes: plan.changes.map(\.line).joined(separator: "\n")) {
+                guard let current = viewModel.runtimeSettings.copyPlan(from: game, to: target) else { return }
+                guard current == plan else { confirm(current, to: target); return }
+                if viewModel.runtimeSettings.copySettings(plan, to: target) { onClose() }
+            }
     }
 
     private func handle(_ action: GamepadAction) {

@@ -19,6 +19,7 @@ gesture = (member(shell, "func installGestureKeyMonitor()")
            .replace("[router, viewModel]", "[self, router, viewModel]"))
 restart = member(shell, "func relaunchApp()")
 notice_key = member(shell, "func noticeKeyAction(")
+notice_room = member(shell, "var leavesNoticesRoom:")
 palette = member("AppShellView+Palette.swift", "func paletteKey(")
 modes = sys.argv[1:] or ["restart", "repeat", "palette"]
 actions = {"restart": "restart", "repeat": "repeatKeys", "palette": "paletteKeyboard"}
@@ -109,6 +110,7 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
     // GESTURE
     // RESTART
     // NOTICE_KEY
+    // NOTICE_ROOM
     // PALETTE
 
     func key(_ code: UInt16, repeated: Bool = false, modifiers: NSEvent.ModifierFlags = []) -> NSEvent {
@@ -184,6 +186,12 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
                 print("Repeated arrow did not reach \(name)"); ok = false
             }
         }
+        viewModel.cloudQuitRequested = false
+        viewModel.noticeFocus.enter(keys: 1)
+        viewModel.isGameOptionsOpen = true
+        actions = []
+        let optionsOwnReturn = deliver(key(36)) != nil && !viewModel.noticeFocus.isActive && actions.isEmpty
+        if !optionsOwnReturn { print("A notice took Return from Game Options"); ok = false }
         if ok { print("Single confirmations and repeating arrows in all shell layers (no power action executed)") }
         return ok
     }
@@ -213,5 +221,5 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
     }
 }
 '''.replace("// GESTURE", gesture).replace("// RESTART", restart).replace("// PALETTE", palette)
-    .replace("// NOTICE_KEY", notice_key)
+    .replace("// NOTICE_KEY", notice_key).replace("// NOTICE_ROOM", notice_room)
     .replace("// CHECKS", "\n        ".join(f"if !ShellProbe().{actions[mode]}() {{ ok = false }}" for mode in modes)))

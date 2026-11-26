@@ -134,7 +134,7 @@ struct UndoNoticeLayer: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             // A click anywhere else gives the screen back.
-            if focus.isActive {
+            if focus.isActive && !isBlocked {
                 Color.clear.contentShape(Rectangle()).onTapGesture { focus.leave() }.accessibilityHidden(true)
             }
             card
@@ -144,7 +144,7 @@ struct UndoNoticeLayer: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         .overlay(alignment: .bottom) {
-            if focus.isActive {
+            if focus.isActive && !isBlocked {
                 SeleneHintsBar(left: [HintItem(.b, "Back", action: { focus.leave() })],
                                right: [HintItem(.a, L10n.text(keyTitle, context: localization))], bottom: SeleneBottomScrim.hintsBottom)
             }

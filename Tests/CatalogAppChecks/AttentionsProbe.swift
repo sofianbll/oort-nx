@@ -166,10 +166,20 @@ extension SettingsConfirmationProbe {
                 precondition(vm.settingsNotice != nil && vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "1")
             }
             try withHost(input.settingsNoticeOverlay(vm.settingsNotice!), locale) { _, capture in try capture("copie-apercu-\(tag)") }
+            let originalPreview = vm.settingsNotice!.id
+            precondition(vm.runtimeSettings.setGameSetting("DM_DYNAMIC_RESOLUTION", to: "1", for: two))
+            input.settingsNoticeInput(.navigateRight)
+            input.settingsNoticeInput(.confirm)
+            precondition(vm.settingsNotice?.id != originalPreview && vm.settingsNotice?.notes != nil
+                         && vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "1",
+                         "A different plan needs a fresh answer")
             input.settingsNoticeInput(.navigateRight)
             input.settingsNoticeInput(.confirm)
             precondition(vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "0")
+            precondition(vm.runtimeSettings.setGameSetting("DM_DYNAMIC_RESOLUTION", to: "0", for: two))
             precondition(vm.undoOffers.perform() && vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "1")
+            precondition(vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_DYNAMIC_RESOLUTION") == "0",
+                         "Undo leaves an unrelated edit alone")
             vm.gameForSettingsSheet = nil
             for env in ["DM_RUMBLE": "1", "DM_DYNAMIC_RESOLUTION": "0"] { vm.runtimeSettings.setGameSetting(env.key, to: env.value, for: one) }
 

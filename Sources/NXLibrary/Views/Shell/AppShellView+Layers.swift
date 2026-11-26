@@ -241,7 +241,7 @@ extension AppShellView {
             SessionCardLayer(presenter: sessionCard, refresh: viewModel.libraryRefresh, game: playedGame,
                              metadata: store.storeMetadata, artwork: artwork)
         }
-        .seleneOverlayOwnership(!viewModel.noticeFocus.isActive)
+        .seleneOverlayOwnership(!viewModel.noticeFocus.isActive || !leavesNoticesRoom)
         .overlay {
             UndoNoticeLayer(offers: viewModel.undoOffers, tips: viewModel.tips,
                             isBlocked: !leavesNoticesRoom,

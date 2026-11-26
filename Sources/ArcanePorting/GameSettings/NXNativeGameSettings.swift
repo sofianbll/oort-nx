@@ -262,9 +262,9 @@ public struct NXNativeGameSettings {
         (settings.map(\.env) + [Self.multiplayerKey]).reduce(into: [:]) { $0[$1] = store.value($1, domain: domain) }
     }
 
-    /// Puts back what `savedChoices` read; a choice made since is removed.
-    public func restore(_ choices: [String: String]) throws {
-        for env in settings.map(\.env) + [Self.multiplayerKey] {
+    /// Puts back the requested keys exactly as `savedChoices` read them, including absent keys.
+    public func restore(_ choices: [String: String], only keys: Set<String>? = nil) throws {
+        for env in settings.map(\.env) + [Self.multiplayerKey] where keys?.contains(env) != false {
             try store.set(choices[env], env, domain: domain)
         }
     }

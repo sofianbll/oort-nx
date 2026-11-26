@@ -38,7 +38,8 @@ extension AppShellView {
         }) {
             SeleneChoiceDialog(title: notice.title, message: notice.message,
                                answers: notice.answers, focus: $viewModel.settingsNoticeAnswer,
-                               details: notice.choiceDetails,
+                               details: notice.choiceDetails, notes: notice.notes,
+                               notesScrollRequest: viewModel.settingsNoticeNotesScroll,
                                onCancel: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() } },
                                onAnswer: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(answer: $0) } })
         }
@@ -140,6 +141,11 @@ extension AppShellView {
         case .navigateLeft, .navigateUp, .navigateRight, .navigateDown:
             guard let notice = viewModel.settingsNotice else { return }
             let direction = action == .navigateLeft || action == .navigateUp ? -1 : 1
+            if let notes = notice.notes, action == .navigateUp || action == .navigateDown {
+                let last = max(0, ReleaseNotesLayout.lines(notes).count - 1)
+                viewModel.settingsNoticeNotesScroll = min(last, max(0, viewModel.settingsNoticeNotesScroll + direction))
+                return
+            }
             viewModel.settingsNoticeAnswer = ActionBarOrder.move(viewModel.settingsNoticeAnswer, by: direction, in: notice.answers.map(\.id))
         case .confirm: finishSettingsNotice(answer: viewModel.settingsNoticeAnswer)
         case .cancel: finishSettingsNotice()

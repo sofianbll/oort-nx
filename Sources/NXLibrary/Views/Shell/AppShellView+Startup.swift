@@ -148,6 +148,7 @@ extension AppShellView {
                 cloudQuitInput(action)
                 return
             }
+            if viewModel.noticeFocus.isActive, !leavesNoticesRoom { viewModel.noticeFocus.leave() }
             if viewModel.noticeFocus.isActive {
                 noticeInput(action)
                 return
@@ -163,10 +164,6 @@ extension AppShellView {
             if viewModel.showSetupCheck {
                 // The Setup check owns the controller; Menu does nothing there (as in Selene).
                 NotificationCenter.default.post(name: .nxSetupCheckGamepadAction, object: action)
-                return
-            }
-            if showsSettingsNotice {
-                settingsNoticeInput(action)
                 return
             }
             if router.settingsDecision != nil {

@@ -67,17 +67,29 @@ final class RuntimeSettingsModel {
         }
     }
 
-    /// Computed again at the last moment: the other game's own window may have changed a choice since the preview.
-    @discardableResult func copySettings(from game: PortedGame, to other: PortedGame) -> Bool {
-        guard let source = settingsSnapshot(for: game), let target = settingsSnapshot(for: other),
-              let settings = gameSettings(for: other) else { return false }
-        let wayBack = wayBack(for: other)
-        do { try settings.apply(GameSettingsCopy(from: source, to: target)) }
+    func copyPlan(from game: PortedGame, to other: PortedGame) -> GameSettingsCopy? {
+        guard let source = settingsSnapshot(for: game), let target = settingsSnapshot(for: other) else { return nil }
+        return GameSettingsCopy(from: source, to: target)
+    }
+
+    func copySettings(_ copy: GameSettingsCopy, to other: PortedGame) -> Bool {
+        guard !copy.changes.isEmpty, let settings = gameSettings(for: other) else { return false }
+        let before = settings.savedChoices()
+        do { try settings.apply(copy) }
         catch {
             settingsNotSaved(other, error)
             return false
         }
-        app.undoOffers.offer(L10n.format("Settings copied to %@", [other.name]), undo: wayBack)
+        let written = settings.savedChoices()
+        app.undoOffers.offer(L10n.format("Settings copied to %@", [other.name])) { [weak self] in
+            guard let self, let game = self.app.libraryGames.first(where: { $0.id == other.id }),
+                  let settings = self.gameSettings(for: game) else { return }
+            let current = settings.savedChoices()
+            let unchanged = Set(copy.changes.map(\.env).filter { current[$0] == written[$0] })
+            do { try settings.restore(before, only: unchanged) }
+            catch { self.settingsNotSaved(game, error); return }
+            NotificationCenter.default.post(name: .nxGameSettingsRestored, object: game.id)
+        }
         NotificationCenter.default.post(name: .nxGameSettingsRestored, object: other.id)
         return true
     }

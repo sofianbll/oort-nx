@@ -321,6 +321,7 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     let viewModel = ViewModel()
     let nativeMenus = NativeMenus()
     var isCloseGameOpen = false
+    var leavesNoticesRoom: Bool { !isCloseGameOpen && !viewModel.isGameOptionsOpen }
     var canUndoLastChange = false
     func undoLastChange() {}
     var showsWelcome = false
@@ -656,9 +657,10 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
         }
         input.showsUpdateOffer = true
         input.isCloseGameOpen = true
+        input.viewModel.noticeFocus.enter(keys: 1)
         GameControllerService.shared.onAction?(.confirm)
-        require(input.dialogActions == [.confirm] && received.actions.isEmpty,
-                "An internal update dialog must still receive input when no native window is open")
+        require(input.dialogActions == [.confirm] && received.actions.isEmpty && !input.viewModel.noticeFocus.isActive,
+                 "An internal update dialog takes input back from a previously focused notice")
         input.showsUpdateOffer = false
         input.viewModel.cloudLibraryGameID = firstModsGame.id
         let cloud = InputRecorder()

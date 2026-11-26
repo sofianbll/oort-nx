@@ -181,14 +181,14 @@ final class RcloneConfigurationTests: XCTestCase {
     }
 
     func testReadOnlyFolderTestRejectsFilesAndDisconnectDeletesOnlyLocalConfig() async throws {
-        let folder = Fixture([.ok(Self.list), .ok(#"{"IsDir":true}"#), .ok("synthetic-file"), .ok(), .ok("[]")])
+        let folder = Fixture([.ok(Self.list), .ok(#"{"IsDir":true}"#), .ok("synthetic-file"), .ok()])
         let config = CloudLibraryPreference(storage: "gdrive:Games", enabled: true)
         try await folder.client.test(config)
         try await folder.client.disconnect("gdrive")
         let commands = await folder.recorder.commands.map { Array($0.prefix(3)) }
         XCTAssertEqual(commands, [["listremotes", "--json", "--ask-password=false"],
                                   ["lsjson", "gdrive:Games", "--stat"], ["lsf", "gdrive:Games", "--max-depth"],
-                                  ["config", "delete", "gdrive"], ["listremotes", "--json", "--ask-password=false"]])
+                                  ["config", "delete", "gdrive"]])
 
         let file = Fixture([.ok(Self.list), .ok(#"{"IsDir":false}"#)])
         do {
@@ -202,21 +202,25 @@ final class RcloneConfigurationTests: XCTestCase {
     }
 
     func testDisconnectCanKeepTheGoogleClientAndNeverHandlesItsValues() async throws {
-        let kept = "[gdrive]\ntype = drive\nclient_id = XXX\nclient_secret = XXX\ntoken = \n### Double check the config\n"
-        let fixture = Fixture([.ok(), .ok(kept)])
+        let signedIn = "[gdrive]\ntype = drive\nclient_id = XXX\nclient_secret = XXX\ntoken = XXX\n"
+        let fixture = Fixture([.ok(signedIn), .ok()])
         try await fixture.client.disconnect("gdrive", keepingClient: true)
         let commands = await fixture.recorder.commands
         XCTAssertEqual(commands.map { Array($0.prefix { !$0.hasPrefix("--ask") }) }, [
-            ["config", "update", "gdrive", "token=", "--non-interactive", "--no-output"], ["config", "redacted", "gdrive"],
+            ["config", "redacted", "gdrive"], ["config", "update", "gdrive", "token=", "--non-interactive", "--no-output"],
         ])
 
-        // Nothing is called disconnected while a sign-in remains, or kept when the client is gone.
-        for left in ["client_id = XXX\nclient_secret = XXX\ntoken = XXX\n", "token = \n", ""] {
-            let failed = Fixture([.ok(), .ok("[gdrive]\n" + left)])
+        // A missing or unreadable client never reaches the write.
+        for result in [.ok("[gdrive]\ntoken = XXX\n"), CommandResult(status: 1, stdout: "", stderr: "")] {
+            let failed = Fixture([result])
             do {
                 try await failed.client.disconnect("gdrive", keepingClient: true)
-                XCTFail("The connection is not in the requested state")
-            } catch { XCTAssertEqual(error as? RcloneConfiguration.Failure, .disconnect) }
+                XCTFail("The client is not available")
+            } catch {
+                XCTAssertNotNil(error as? RcloneConfiguration.Failure)
+            }
+            let attempted = await failed.recorder.commands.map { Array($0.prefix(3)) }
+            XCTAssertEqual(attempted, [["config", "redacted", "gdrive"]])
         }
         do {
             try await Fixture([]).client.disconnect("gdrive:", keepingClient: true)
