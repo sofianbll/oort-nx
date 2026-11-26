@@ -124,11 +124,16 @@ final class LibraryPathsTests: XCTestCase {
         XCTAssertEqual(try text("catalog.json", in: new), try text("catalog.json", in: old))
     }
 
-    func testAnInterruptedRemovalKeepsItsCatalogForItsOwnRecovery() throws {
-        try put(try json(["workspacePath": old.path]), "catalog.json", in: old)
-        try put("{}", "catalog-removal-pending.json", in: old)
+    func testAnInterruptedRemovalKeepsItsOriginalCatalogAndDoesNotArmTheCopy() throws {
+        let original = try json(["workspacePath": old.path])
+        try put(original, "catalog.json", in: old)
+        try put("{}", LibraryPaths.removalJournal, in: old)
         _ = try move()
-        XCTAssertEqual(try text("catalog.json", in: new), try text("catalog.json", in: old))
+        XCTAssertEqual(try text("catalog.json", in: old), original)
+        XCTAssertEqual(try text(LibraryPaths.removalJournal, in: old), "{}")
+        XCTAssertEqual(try values("catalog.json", in: new)["workspacePath"] as? String, new.path)
+        XCTAssertEqual(try text(LibraryPaths.inheritedRemoval, in: new), "{}")
+        XCTAssertFalse(fm.fileExists(atPath: new.appendingPathComponent(LibraryPaths.removalJournal).path))
     }
 
     // MARK: - Once, for a library already copied
