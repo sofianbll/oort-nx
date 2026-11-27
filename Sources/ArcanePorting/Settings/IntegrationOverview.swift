@@ -205,6 +205,12 @@ public struct IntegrationOverview {
             case .checking: ("Nextendo account operation in progress", .working)
             case .unavailable: ("Nextendo unavailable", .attention)
             }
+            let says: IntegrationWords? = switch nextendo {
+            case .unavailable: .init("Nextendo cannot be reached right now.")
+            // Not checked in this session, or being checked: maybe signed in, maybe not.
+            case .unchecked, .checking: .init("Account not checked yet: open the Nextendo settings.")
+            default: nil
+            }
             return .init(id: id, purpose: "Play compatible nxnative games online and see your Nextendo friends.",
                          status: state.0, emphasis: state.1,
                          action: nextendo == .noLocalProfile ? "Open profile settings" : "Open Nextendo settings",
@@ -212,12 +218,7 @@ public struct IntegrationOverview {
                          writes: "Your sign-in on this computer, and the friend changes you ask for.",
                          sends: "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings.",
                          settingID: nextendo == .noLocalProfile ? "showProfilePicker" : "nextendo", link: nextendo == .noLocalProfile || nextendo == .expired,
-                         linked: nextendo == .connected, says: switch nextendo {
-                             case .unavailable: .init("Nextendo cannot be reached right now.")
-                             // Not checked in this session, or being checked: maybe signed in, maybe not.
-                             case .unchecked, .checking: .init("Account not checked yet: open the Nextendo settings.")
-                             default: nil
-                         })
+                         linked: nextendo == .connected, says: says)
         case .images:
             let state: String
             switch (steamGridDB, igdb) {
