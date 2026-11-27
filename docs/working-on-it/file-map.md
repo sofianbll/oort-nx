@@ -1055,7 +1055,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [scripts/tests/CIChecks/test_changed_areas.py](../../scripts/tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [scripts/tests/CIChecks/test_catalog_checks.py](../../scripts/tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [scripts/tests/ModuleChecks/test_module_boundaries.py](../../scripts/tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
-| [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
+| [scripts/tests/SkillChecks/test_skills.py](../../scripts/tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
 | [scripts/tests/RepoChecks/support.py](../../scripts/tests/RepoChecks/support.py) | Repository Git usa e getta per i controlli del repository. |
 | [scripts/tests/RepoChecks/test_structure.py](../../scripts/tests/RepoChecks/test_structure.py) | Esempi rossi di R1: cartella, sottocartella e file non dichiarati, dichiarazione senza file. |
 | [scripts/tests/RepoChecks/test_docs.py](../../scripts/tests/RepoChecks/test_docs.py) | Esempi rossi di R8: documentazione fuori posto, link morto, marcatore privato, eccezione nuova o superata. |

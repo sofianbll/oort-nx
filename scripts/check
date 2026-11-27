@@ -52,7 +52,7 @@ RULES = [
      "Tests/UIRulesChecks, scripts/tests/PublicationChecks/test_selene_tokens.py"),
     ("docs", "R8", "Docs only in documentation folders, links resolve, no private marker; player guides",
      lambda base: [script("check_docs.py", *(["--base", base] if base else [])), script("check_guides.py")],
-     "scripts/tests/RepoChecks/test_docs.py, scripts/tests/PublicationChecks/test_check_guides.py, Tests/SkillChecks"),
+     "scripts/tests/RepoChecks/test_docs.py, scripts/tests/PublicationChecks/test_check_guides.py, scripts/tests/SkillChecks"),
     ("publication", "R10", "No private or game file, no secret; LICENSE keeps its reviewed digest",
      lambda base: [script("check_publication.py")],
      "scripts/tests/PublicationChecks/test_publication.py"),

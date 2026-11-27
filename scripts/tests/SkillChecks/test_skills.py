@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import unittest
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 SKILLS = ROOT / ".agents" / "skills"
 REQUIRED_SECTIONS = ("## When to use", "## Steps", "## Proof", "## Stop")
 CASE = re.compile(r"^### Case \d+:", re.MULTILINE)
