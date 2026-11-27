@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class IGDBRatingTests: XCTestCase {
     private let credentials = IGDBCredentials(clientID: "fixtureClient123456", clientSecret: "fixtureSecret123456")!

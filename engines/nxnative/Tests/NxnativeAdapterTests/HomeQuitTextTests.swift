@@ -1,6 +1,6 @@
 import XCTest
 import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class HomeQuitTextTests: XCTestCase {
     override func tearDown() { L10n.setContext(AppLocale(language: .english, region: "US")) }

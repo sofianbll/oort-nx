@@ -26,7 +26,7 @@ import AppKit
 import Combine
 import Darwin
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 import os
 
 enum AppData {

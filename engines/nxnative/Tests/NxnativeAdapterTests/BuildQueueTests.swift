@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class BuildQueueTests: XCTestCase {
     func testQueueWriteFailureIsReported() async throws {

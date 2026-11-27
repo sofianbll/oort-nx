@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class PortingFailureReasonTests: XCTestCase {
     /// One real line per table row, as the pinned engine prints it ("[RED] " + its BuildError text).

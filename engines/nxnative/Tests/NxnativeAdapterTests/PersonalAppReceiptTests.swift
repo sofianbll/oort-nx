@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 @testable import OortLibrary
 
 final class PersonalAppReceiptTests: XCTestCase {

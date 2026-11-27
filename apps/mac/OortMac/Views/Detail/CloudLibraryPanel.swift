@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension Notification.Name {
     static let nxCloudLibraryGamepadAction = Notification.Name("nxCloudLibraryGamepadAction")

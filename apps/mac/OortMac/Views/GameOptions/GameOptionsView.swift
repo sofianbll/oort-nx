@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Players is a local launcher action, not an engine setting or game capability.
 enum GameOptionsItem: Hashable {

@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension SpotlightView {
     /// What the platform preview waits on. A probe counts only the time its screen runs, not the time it spends capturing.

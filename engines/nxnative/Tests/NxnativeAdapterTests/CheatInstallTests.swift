@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CheatInstallTests: XCTestCase {
     private let tid = "0100000000010000"

@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension EnvironmentValues {
     @Entry var integrationBar: AnyView? = nil

@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// One inventory for change detection, previews, row details and the save summary.
 enum SettingsDraftFields {

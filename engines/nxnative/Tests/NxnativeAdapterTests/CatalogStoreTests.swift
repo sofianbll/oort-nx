@@ -1,7 +1,7 @@
 import XCTest
 import Darwin
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CatalogStoreTests: XCTestCase {
     private func fixture() throws -> SteamTestFixture { try .temporary(in: self) }

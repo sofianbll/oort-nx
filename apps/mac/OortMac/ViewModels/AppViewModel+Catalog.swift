@@ -1,5 +1,5 @@
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension AppViewModel {
     func personalizationKey(for game: PortedGame) -> String { personalizations.nxnativeKey(for: game) }

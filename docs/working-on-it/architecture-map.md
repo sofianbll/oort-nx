@@ -49,7 +49,7 @@ The check compares `swiftModule` declarations with the regular and executable ta
 |---|---|---|
 | Is pure logic with no Apple framework, and is shared by every system | `OortCore` | version numbers, focus index, hold detector |
 | Describes the catalog, library, settings, artwork or achievements | `OortLibrary` | a catalog record, a library filter, a settings key |
-| Talks to nxnative, the engine, Steam files, rclone, Keychain, or Mac paths for a game | `ArcanePorting` | a build step, a save transaction, a cloud archive |
+| Talks to nxnative, the engine, Steam files, rclone, Keychain, or Mac paths for a game | `NxnativeAdapter` | a build step, a save transaction, a cloud archive |
 | Draws a view, handles a window, a focus or the pad, or plays a sound | `NXLibrary` | a screen, a Selene component, a controller binding |
 | Is needed by the Windows and Linux core | `OortCore`, or `OortLibrary` files listed in `Package.swift` | the portable subset |
 

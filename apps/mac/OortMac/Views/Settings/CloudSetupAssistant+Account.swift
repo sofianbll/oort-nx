@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 import SwiftUI
 
 /// Step 1: keep the account, paste a Google client ID, or be guided to create one.

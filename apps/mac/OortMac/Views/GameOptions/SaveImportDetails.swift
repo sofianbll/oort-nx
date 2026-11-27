@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct SaveImportDetails: View {
     let source: URL

@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension CloudSetupAssistant {
     var focusedTarget: Target { focus.current(in: focusRows, rail: focusRail, initial: initialTarget) }

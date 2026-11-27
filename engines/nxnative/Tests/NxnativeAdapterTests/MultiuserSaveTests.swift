@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class MultiuserSaveTests: XCTestCase {
     private func seed(_ prefix: String, _ h: SaveTestHome, _ location: SaveLocation) throws {

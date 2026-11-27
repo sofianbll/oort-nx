@@ -1,5 +1,5 @@
 import SwiftUI
-import ArcanePorting
+import NxnativeAdapter
 import AppKit
 import Combine
 import OortLibrary

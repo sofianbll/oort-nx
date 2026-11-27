@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension AppViewModel {
     @MainActor var playProfile: PlayProfile {

@@ -1,7 +1,7 @@
 import Darwin
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class NXNativeGameSettingsTests: XCTestCase {
     private let titleID = "040074A01BF12000"

@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Game options → Mods: file mods apply on Play; code mods may require Rebuild.
 ///

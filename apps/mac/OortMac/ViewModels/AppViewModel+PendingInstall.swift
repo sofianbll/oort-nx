@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Builds that finished while their game was running (`PendingInstall`): installed once the game is no longer
 /// running, when a game quits, at launch of Arcane and before the game is played again.

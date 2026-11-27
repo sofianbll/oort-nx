@@ -1,7 +1,7 @@
 import XCTest
 import Darwin
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class BuildServiceTests: XCTestCase {
     /// A build that cannot even start (here: its working folder is gone) closes its log and its output pipes.

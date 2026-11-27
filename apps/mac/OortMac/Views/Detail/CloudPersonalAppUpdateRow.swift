@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct CloudPersonalAppUpdateRow: View {
     @Environment(\.nxAppLocale) private var locale

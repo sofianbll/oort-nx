@@ -1,7 +1,7 @@
 import XCTest
 import ImageIO
 import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class PlayersLaunchTests: XCTestCase {
     private let merge = PlayerLaunchEnvironment.mergeKey

@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class ProdKeysLocationsTests: XCTestCase {
     private let home = URL(fileURLWithPath: "/Users/someone")

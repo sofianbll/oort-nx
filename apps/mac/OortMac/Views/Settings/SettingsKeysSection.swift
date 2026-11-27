@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Porting → Keys: the private copy of prod.keys that new portings need.
 struct SettingsKeysSection: View {

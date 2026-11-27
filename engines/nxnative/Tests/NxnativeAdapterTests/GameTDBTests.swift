@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class GameTDBTests: XCTestCase {
     // Trimmed from switchtdb.xml (LANG=EN): the shapes the parser must read and skip.

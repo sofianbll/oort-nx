@@ -10,7 +10,7 @@ from audit_probe_host import ROOT, run_host
 
 HOST = r'''
 import AppKit
-import ArcanePorting
+import NxnativeAdapter
 import CoreText
 import SwiftUI
 @testable import NXLibrary

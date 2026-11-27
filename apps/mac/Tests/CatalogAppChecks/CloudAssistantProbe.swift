@@ -2,7 +2,7 @@ import AppKit
 import CoreText
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main struct CloudAssistantProbe {
     /// The live assistant, captured as its body is drawn: the probe presses the same view a player would.

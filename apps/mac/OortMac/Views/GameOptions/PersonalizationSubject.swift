@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The game Change artwork and Change metadata personalize, whatever its source. nxnative
 /// games keep their picks in `ArtworkPicks`/`MetadataPicks` and their Mac app icon flow;

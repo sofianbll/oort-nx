@@ -1,7 +1,7 @@
 import AppKit
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// A catalog link and a handoff to macOS. No process, save, or session observation.
 @MainActor final class MacShortcutAdapter: PlayAdapter {

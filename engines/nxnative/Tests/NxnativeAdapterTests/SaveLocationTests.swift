@@ -1,7 +1,7 @@
 import XCTest
 import Darwin
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class SaveLocationTests: XCTestCase {
     func testOwnCloudPreferenceBlocksDespiteLibraryOff() throws {

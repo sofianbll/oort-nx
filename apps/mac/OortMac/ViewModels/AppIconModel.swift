@@ -1,7 +1,7 @@
 import AppKit
 import CoreServices
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The Icon chosen in Change artwork can stay only inside Arcane or also appear in Finder and the Dock.
 /// The explicit choice applies to every game, including apps with no original icon. Legacy libraries keep their

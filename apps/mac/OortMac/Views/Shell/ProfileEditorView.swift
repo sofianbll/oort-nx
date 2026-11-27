@@ -3,7 +3,7 @@ import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct ProfileEditorView: View {
     enum Step: Int, CaseIterable { case name, avatar, theme, background }

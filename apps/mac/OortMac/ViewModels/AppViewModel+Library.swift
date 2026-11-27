@@ -3,7 +3,7 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 enum LibraryScanRequest: Sendable {
     case standalone

@@ -1,5 +1,5 @@
 import AppKit
-import ArcanePorting
+import NxnativeAdapter
 import Combine
 import OortLibrary
 

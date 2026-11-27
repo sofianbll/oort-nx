@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Collection's controller, keyboard and pointer input.
 extension CollectionView {

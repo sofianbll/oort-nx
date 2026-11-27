@@ -23,7 +23,7 @@ host = r'''
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct ProbeCanvas {
     var scale: CGFloat = 1

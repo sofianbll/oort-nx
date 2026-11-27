@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Results for the query in the sidebar.
 struct SettingsSearchSection: View {

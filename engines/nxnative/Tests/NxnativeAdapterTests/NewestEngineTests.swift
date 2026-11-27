@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class NewestEngineTests: XCTestCase {
     private let pin = "4a0551e4b9abc75ea736006e4dbd30fcac0d03a4"

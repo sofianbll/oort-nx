@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// What the Cheats row, panel, detail label and diagnostics know about one game's cheats.
 struct CheatContext {

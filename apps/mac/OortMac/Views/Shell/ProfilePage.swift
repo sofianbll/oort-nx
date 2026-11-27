@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension Notification.Name {
     static let nxProfileCardsSaveFailed = Self("NXProfileCardsSaveFailed")

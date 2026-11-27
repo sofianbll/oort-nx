@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// A game the launch screen and the session card show: an nxnative build or a Steam game. Both read the same
 /// way; only where their art comes from differs (`GameArtLoader`).

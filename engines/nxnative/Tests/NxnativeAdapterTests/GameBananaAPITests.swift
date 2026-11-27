@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// Synthetic responses shaped like GameBanana's apiv11 and legacy Core API (verified 2026-11-06).
 final class GameBananaAPITests: XCTestCase {

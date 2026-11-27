@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The one refresh behind every « Library refresh »: the game apps, the enabled sources and the cloud, at the same time.
 /// Asking again replaces the refresh that runs. A source that is off and a Mac that is offline are never asked.

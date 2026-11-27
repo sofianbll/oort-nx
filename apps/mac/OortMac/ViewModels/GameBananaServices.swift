@@ -1,7 +1,7 @@
 import Foundation
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// One GameBanana client, image cache and match store for the whole app (caches in
 /// `~/Library/Caches/Oort NX/gamebanana`, matches in `~/Library/Application Support/Oort NX/gamebanana`).

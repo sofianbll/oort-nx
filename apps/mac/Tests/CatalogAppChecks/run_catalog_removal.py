@@ -20,7 +20,7 @@ import Darwin
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main struct RemovalProbe {
     @MainActor static func main() async throws {

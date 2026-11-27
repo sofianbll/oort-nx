@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class HomeMenuTests: XCTestCase {
     func testLaunchOptsInOnlyWithTheBuiltHostCapabilityAndLauncherBundleID() throws {

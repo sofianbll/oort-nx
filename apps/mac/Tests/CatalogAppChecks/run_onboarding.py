@@ -56,7 +56,7 @@ host = '''
 import Foundation
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 enum AppData {
     static let domain = CommandLine.arguments[1]

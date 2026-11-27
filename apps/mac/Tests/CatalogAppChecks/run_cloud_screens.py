@@ -20,7 +20,7 @@ import CoreText
 import CryptoKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main struct CloudScreenProbe {
     @MainActor static func main() async throws {

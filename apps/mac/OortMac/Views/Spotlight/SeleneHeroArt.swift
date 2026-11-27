@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The selected game's backdrop art and logo for a screen: loads them after a
 /// 150 ms settle (a held stick does not load every game it passes) and

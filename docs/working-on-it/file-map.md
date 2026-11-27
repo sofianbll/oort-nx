@@ -2,7 +2,7 @@
 
 Aggiornato il 27 novembre 2026. Il repository versiona **1666 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
-La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
+La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
 Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Application Support sono descritti nella guida.
 
@@ -91,7 +91,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
 | [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
 | [NOTICE](../../NOTICE) | Conserva attribuzioni del motore al pin corrente, di rclone, dei componenti, dei loghi e delle altre risorse riutilizzate. |
-| [Package.swift](../../Package.swift) | Dichiara `OortCore` portabile, `OortLibrary`, il modulo `ArcanePorting`, l’app, i tre target di test e il deployment macOS minimo. |
+| [Package.swift](../../Package.swift) | Dichiara `OortCore` portabile, `OortLibrary`, il modulo `NxnativeAdapter`, l’app, i tre target di test e il deployment macOS minimo. |
 | [README.md](../../README.md) | Presenta Arcane come libreria e launcher Mac, con guide d'uso (anche per la prima connessione cloud), requisiti e crediti. |
 | [engines/nxnative/runtime.lock](../../engines/nxnative/runtime.lock) | Fissa versioni, download e hash del runtime Python e degli strumenti inclusi nel bundle. |
 | [VERSION](../../VERSION) | Versione in sviluppo usata dal packaging e verificata dalla procedura di release. |
@@ -305,7 +305,7 @@ Cartella `core/OortLibrary/Library/`.
 | [core/OortLibrary/Library/LibraryFilter.swift](../../core/OortLibrary/Library/LibraryFilter.swift) | Definisce filtri, storico e query condivisa del catalogo misto; Cloud riceve gli ID solo remoti dal chiamante. `LibraryQueryRecord` è il contratto comune con ricerca e Surprise. |
 | [core/OortLibrary/Library/RecentSearches.swift](../../core/OortLibrary/Library/RecentSearches.swift) | Le ultime quattro ricerche che hanno portato a un gioco, per profilo e solo su questo Mac; si cancellano. |
 | [core/OortLibrary/Library/LibrarySelectionState.swift](../../core/OortLibrary/Library/LibrarySelectionState.swift) | Mantiene selezione e spostamento nel risultato filtrato della Collection. |
-| [core/OortLibrary/Library/LibraryPresentation.swift](../../core/OortLibrary/Library/LibraryPresentation.swift) | Formatta metadati e statistiche temporali per le schermate della libreria: i valori pronti e la strada Steam; quella Switch sta in `ArcanePorting/Library/LibraryPresentation+Porting.swift`. |
+| [core/OortLibrary/Library/LibraryPresentation.swift](../../core/OortLibrary/Library/LibraryPresentation.swift) | Formatta metadati e statistiche temporali per le schermate della libreria: i valori pronti e la strada Steam; quella Switch sta in `NxnativeAdapter/Library/LibraryPresentation+Porting.swift`. |
 | [core/OortLibrary/Library/PlaySession.swift](../../core/OortLibrary/Library/PlaySession.swift) | Descrive una sessione persistibile con gioco e riferimenti temporali. |
 | [core/OortLibrary/Library/ActivitySummary.swift](../../core/OortLibrary/Library/ActivitySummary.swift) | Aggrega sessioni, giorni e tempi della settimana per la scheda Activity. |
 | [core/OortLibrary/Library/ProfilePageCards.swift](../../core/OortLibrary/Library/ProfilePageCards.swift) | Ordine e visibilità per profilo, gruppi dell’attività e geometria della griglia. |
@@ -386,7 +386,7 @@ Cartella `core/OortLibrary/Details/`.
 |---|---|
 | [core/OortLibrary/Details/GameDetailPresentation.swift](../../core/OortLibrary/Details/GameDetailPresentation.swift) | Prepara i dati della pagina Details e compone estratto, testo lungo e crediti per Details e Spotlight; le entrate Steam e Switch sono in estensioni distinte. |
 | [core/OortLibrary/Details/MoreLikeThis.swift](../../core/OortLibrary/Details/MoreLikeThis.swift) | Ordina i giochi correlati per generi, sviluppatore ed editore, con precedenza alla stessa fonte e ripiego facoltativo. |
-| [core/OortLibrary/Details/DetailsFacts.swift](../../core/OortLibrary/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
+| [core/OortLibrary/Details/DetailsFacts.swift](../../core/OortLibrary/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `NxnativeAdapter/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
 | [core/OortLibrary/Details/DetailsFocus.swift](../../core/OortLibrary/Details/DetailsFocus.swift) | Gestisce zone e spostamenti del focus nei link e nelle bande di Details. |
 | [core/OortLibrary/Details/GameOptionsPresentation.swift](../../core/OortLibrary/Details/GameOptionsPresentation.swift) | Righe, livelli, focus e titolo Next launch localizzato: Play, rete, azione RomFS in Online e schermo solo per gli host compatibili. |
 | [core/OortLibrary/Details/GameDetailPresentation+Steam.swift](../../core/OortLibrary/Details/GameDetailPresentation+Steam.swift) | Dati della pagina Steam e generi della testata Spotlight; ignora i dati di altri AppID e dà precedenza ai campi personali. |
@@ -399,7 +399,7 @@ Cartella `core/OortLibrary/Artwork/`.
 |---|---|
 | [core/OortLibrary/Artwork/AutomaticIconResolver.swift](../../core/OortLibrary/Artwork/AutomaticIconResolver.swift) | Risolve icone automatiche con cache, abbinamento prudente e rispetto delle restrizioni del provider. |
 | [core/OortLibrary/Artwork/ArtworkStore.swift](../../core/OortLibrary/Artwork/ArtworkStore.swift) | Scarica, ridimensiona e conserva immagini e screenshot nella cache per titolo e tipo. |
-| [core/OortLibrary/Artwork/ArtworkPicker.swift](../../core/OortLibrary/Artwork/ArtworkPicker.swift) | Aggrega candidati per cover, sfondo, icona e logo (quelli Steam qui, quelli Switch in `ArcanePorting/Store/ArtworkCandidates+Porting.swift`) e conserva le scelte manuali. |
+| [core/OortLibrary/Artwork/ArtworkPicker.swift](../../core/OortLibrary/Artwork/ArtworkPicker.swift) | Aggrega candidati per cover, sfondo, icona e logo (quelli Steam qui, quelli Switch in `NxnativeAdapter/Store/ArtworkCandidates+Porting.swift`) e conserva le scelte manuali. |
 | [core/OortLibrary/Artwork/MetadataPicker.swift](../../core/OortLibrary/Artwork/MetadataPicker.swift) | Campi alternativi e override per campo: `MetadataPicks` scrive atomicamente prima di pubblicare la modifica. |
 | [core/OortLibrary/Artwork/GameTitleKey.swift](../../core/OortLibrary/Artwork/GameTitleKey.swift) | Un titolo come parole da confrontare (minuscole, senza ™ ® © né punteggiatura, "&" come "and"), per le ricerche di artwork online e GameTDB. |
 | [core/OortLibrary/Artwork/HTMLPlainText.swift](../../core/OortLibrary/Artwork/HTMLPlainText.swift) | Una descrizione HTML (store, Steam, database, mod) come testo semplice: righe ed elenchi tenuti, altri tag tolti, entità decodificate. |
@@ -560,7 +560,7 @@ Cartella `engines/nxnative/NxnativeAdapter/Details/`.
 
 ## Porting · impostazioni e app
 
-Cartelle `engines/nxnative/NxnativeAdapter/Settings/` e `ArcanePorting/App/`.
+Cartelle `engines/nxnative/NxnativeAdapter/Settings/` e `NxnativeAdapter/App/`.
 
 | File | Responsabilità |
 |---|---|
@@ -725,7 +725,7 @@ Cartella `engines/nxnative/NxnativeAdapter/Saves/`.
 
 ## Porting · mod RomFS e GameBanana
 
-Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBanana/`.
+Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|

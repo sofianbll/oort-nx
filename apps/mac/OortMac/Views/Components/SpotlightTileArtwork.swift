@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Square tile art: the player's pick first. Then, with `ownIconFirst`, the
 /// game's own icon art (the built app's icon, as on the Mac), so every tile is

@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Mods: the game's RomFS and ExeFS folders, their order and on/off state, and the RomFS overlay the game reads.
 extension AppViewModel {

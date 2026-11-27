@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// One panel's state; filesystem work runs on the library's serial save queue.
 final class SavePanelModel: ObservableObject {

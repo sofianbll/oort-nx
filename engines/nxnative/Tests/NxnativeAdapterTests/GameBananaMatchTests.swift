@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class GameBananaMatchTests: XCTestCase {
     private func game(_ id: Int, _ name: String) -> GameBananaGame { GameBananaGame(id: id, name: name) }

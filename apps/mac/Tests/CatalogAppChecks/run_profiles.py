@@ -20,7 +20,7 @@ import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main struct ProfileScreenProbe {
     @MainActor static var regressions: [String] = []

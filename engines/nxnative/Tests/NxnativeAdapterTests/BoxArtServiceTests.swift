@@ -2,7 +2,7 @@ import XCTest
 import AppKit
 import Synchronization
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class BoxArtServiceTests: XCTestCase {
     /// Answers by URL; anything unknown is a 404.

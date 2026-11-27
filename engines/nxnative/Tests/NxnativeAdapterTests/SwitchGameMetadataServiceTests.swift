@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 @testable import OortLibrary
 
 final class SwitchGameMetadataServiceTests: XCTestCase {

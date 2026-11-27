@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class PlayAttributionTests: XCTestCase {
     func testOnlyOneNewProcessBornAfterTheGestureCanBeAttributed() {

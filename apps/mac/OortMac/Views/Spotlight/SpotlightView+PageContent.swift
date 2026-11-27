@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// What the page below the row holds for a Switch or Steam game: About, Details, screenshots and related games.
 extension SpotlightView {

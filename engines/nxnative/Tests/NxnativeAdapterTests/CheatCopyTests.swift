@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CheatCopyTests: XCTestCase {
     private let build = "B424BE150A8E7D78"

@@ -18,7 +18,7 @@ BIN = ROOT / '.build/debug'
 host = r'''
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main struct Check {
     static func main() throws {

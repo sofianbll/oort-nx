@@ -4,7 +4,7 @@ import AppKit
 import Combine
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct SettingsNotice: Identifiable {
     let id = UUID()

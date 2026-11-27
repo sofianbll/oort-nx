@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The Switch Setup's state: the engine (folder, commit, upstream, newest engine), the keys, the environment check
 /// and the Metal gate. The screens that show any of it observe it on their own: Settings, Add Game, Game options, the

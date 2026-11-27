@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// One game page's Mods band (Spotlight's page and Details share it, so they behave the same): the installed mods,
 /// the GameBanana part, and the mod detail and Find the game panels over the page. The installed mods are read when

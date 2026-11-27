@@ -2,7 +2,7 @@ import Foundation
 import UserNotifications
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 import os
 
 extension Notification.Name {

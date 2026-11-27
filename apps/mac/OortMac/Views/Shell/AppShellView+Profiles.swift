@@ -2,7 +2,7 @@ import AppKit
 import LocalAuthentication
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct ProfileFlow {
     enum Page { case picker }

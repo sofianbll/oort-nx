@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 private struct SplitMix64: RandomNumberGenerator {
     var state: UInt64

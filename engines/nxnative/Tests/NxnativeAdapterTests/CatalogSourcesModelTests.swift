@@ -1,7 +1,7 @@
 import XCTest
 import Combine
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 @MainActor
 final class CatalogSourcesModelTests: XCTestCase {

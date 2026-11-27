@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class LocalBuildCacheTests: XCTestCase {
     private func cache(in root: URL, name: String, chain: String, ready: String?) throws -> URL {

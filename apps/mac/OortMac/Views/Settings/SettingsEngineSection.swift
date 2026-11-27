@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct SettingsEngineSection: View {
     @ObservedObject var viewModel: AppViewModel

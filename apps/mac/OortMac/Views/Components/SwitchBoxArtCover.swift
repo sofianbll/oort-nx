@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// A portrait cover in Switch case proportions (Collection, More like this):
 /// the player's pick, else the game's real box cover from GameTDB, never a

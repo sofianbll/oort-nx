@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// Event sequences shaped like LumenTale's porting log (the engine's `BuildEvent`s).
 final class PortingProgressTests: XCTestCase {

@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension AppViewModel {
     /// The game the menu-bar Play / Details / Options commands act on. On

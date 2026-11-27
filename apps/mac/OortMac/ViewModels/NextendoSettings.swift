@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Owns only the state of the Online services connection; tokens stay in the engine's store.
 @MainActor final class NextendoSettings: ObservableObject {

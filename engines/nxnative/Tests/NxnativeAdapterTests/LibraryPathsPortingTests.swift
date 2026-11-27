@@ -1,6 +1,6 @@
 import XCTest
 import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// The records the app really writes, through the app's own store and checks, with synthetic games.
 final class LibraryPathsPortingTests: XCTestCase {

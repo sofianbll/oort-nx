@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension SetupCheckView {
     /// The shell sends every controller action (and the keys, mapped) here while

@@ -2,7 +2,7 @@ import AppKit
 import CryptoKit
 import ImageIO
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Loads and caches a game's hero art and logo for Spotlight (and, until it is
 /// replaced, the legacy library). Every lookup goes through the shared

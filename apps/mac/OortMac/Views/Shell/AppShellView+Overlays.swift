@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The shell's dialogs and notices: settings notices, welcome, install failure, Close Game, removal and the update offer.
 extension AppShellView {

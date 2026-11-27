@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// What the Nintendo store says about each Switch game (name, description, screenshots, store page), in the app
 /// language: loaded when a game is selected or opened, kept on disk, brought to a new language in the background one

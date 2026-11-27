@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Porting → Cloud saves: one save-sync choice for every ported game, applied at its next launch.
 struct SettingsCloudSavesSection: View {

@@ -4,7 +4,7 @@ import CoreText
 import SwiftUI
 import Vision
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main enum SettingsConfirmationProbe {
     static let remotes = try! JSONDecoder().decode([RcloneRemote].self,

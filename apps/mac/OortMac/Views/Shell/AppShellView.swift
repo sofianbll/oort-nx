@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct AppShellView: View {
     @ObservedObject var gamepad = GameControllerService.shared

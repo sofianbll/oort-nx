@@ -15,7 +15,7 @@ import names  # noqa: E402  architecture/names.json
 
 HOST = r'''
 import AppKit
-import ArcanePorting
+import NxnativeAdapter
 import CoreText
 import OortLibrary
 import SwiftUI

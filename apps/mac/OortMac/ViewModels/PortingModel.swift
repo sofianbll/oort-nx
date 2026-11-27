@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// What the Porting screens (Add Game and its Porting step) show of a build: the wizard step, the live stages and
 /// how the last porting ended. Add Game observes it on its own, so a stage or progress change redraws only those

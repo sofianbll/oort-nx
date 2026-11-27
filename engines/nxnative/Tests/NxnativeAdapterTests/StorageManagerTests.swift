@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class StorageManagerTests: XCTestCase {
     private let title = "0100000000010000"

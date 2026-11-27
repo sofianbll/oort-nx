@@ -1,7 +1,7 @@
 import CryptoKit
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// The library as a refresh reads it: few requests, the same refusals, and nothing a transfer could use.
 final class CloudReadingTests: XCTestCase {

@@ -1,7 +1,7 @@
 import XCTest
 import Synchronization
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class MoreArtworkSourcesTests: XCTestCase {
     private final class RoutedClient: ArtworkHTTPClient {

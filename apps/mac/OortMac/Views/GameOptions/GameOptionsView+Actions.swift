@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Actions: changing a setting or the language, each row's action and Rebuild.
 extension GameOptionsView {

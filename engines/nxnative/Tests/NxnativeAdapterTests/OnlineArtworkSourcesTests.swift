@@ -2,7 +2,7 @@ import XCTest
 import AppKit
 import Synchronization
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class OnlineArtworkSourcesTests: XCTestCase {
     private final class RoutedClient: ArtworkHTTPClient {

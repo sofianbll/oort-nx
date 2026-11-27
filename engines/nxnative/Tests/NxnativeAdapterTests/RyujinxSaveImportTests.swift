@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class RyujinxSaveImportTests: XCTestCase {
     private func makeContainer(_ h: SaveTestHome, titleID: String? = nil,

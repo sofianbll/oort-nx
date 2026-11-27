@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class PipelineArchiveProgressTests: XCTestCase {
     private let start = Date(timeIntervalSince1970: 1000)

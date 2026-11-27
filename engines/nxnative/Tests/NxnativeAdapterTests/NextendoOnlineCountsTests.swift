@@ -2,7 +2,7 @@ import Foundation
 import os
 import XCTest
 import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 private final class OnlineCountsStub: URLProtocol {
     static let requests = OSAllocatedUnfairLock(initialState: 0)

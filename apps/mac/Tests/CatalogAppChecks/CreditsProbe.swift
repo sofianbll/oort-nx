@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 @testable import NXLibrary
 
 /// Settings › About and its credits, with the controller, in both languages. No window, no network, no link opened.

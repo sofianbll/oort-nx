@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CatalogRepositoryTests: XCTestCase {
     private func mixed() throws -> (SteamTestFixture, CatalogStore, CatalogDocument) {

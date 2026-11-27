@@ -16,7 +16,7 @@ model {
     }
   }
   extend oort.mac {
-    nxnativeModule = swiftModule "ArcanePorting" {
+    nxnativeModule = swiftModule "NxnativeAdapter" {
       metadata {
         layer "2"
         folder "engines/nxnative/NxnativeAdapter"

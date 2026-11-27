@@ -1,6 +1,6 @@
 import XCTest
 import Synchronization
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class NextendoOAuthTests: XCTestCase {
     func testRFC7636ChallengeAndRandomVerifier() throws {

@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class LauncherSettingsTests: XCTestCase {
     private func makeApp(_ body: (URL) throws -> Void) throws -> URL {

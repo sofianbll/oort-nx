@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Add Game: reading the chosen folder or files, the selection and the wizard's steps.
 extension PortingModel {

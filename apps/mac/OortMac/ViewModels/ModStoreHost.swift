@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 import os
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The Mods card's store: the catalog of your games' mods, the sort, the focus on the page and the mod panel over
 /// it. Sections are built once per change of mods or sort, never per frame, and mods found in the background wait

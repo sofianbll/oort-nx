@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class DetailsFactsTests: XCTestCase {
     private let en = Locale(identifier: "en_US")

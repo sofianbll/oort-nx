@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CompatibilityCheckerTests: XCTestCase {
     private final class FakeRunner: CommandRunning, @unchecked Sendable {

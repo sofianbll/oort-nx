@@ -1,7 +1,7 @@
 import Darwin
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class NXNativeCatalogPersistenceTests: XCTestCase {
     private var dir: URL!

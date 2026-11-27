@@ -5,7 +5,7 @@ HOST = r'''
 import Foundation
 @testable import NXLibrary
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @main struct Check {
     @MainActor static func main() async throws {

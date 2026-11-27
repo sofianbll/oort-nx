@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Settings → Setup and engine, Newest engine: the player may build with nxnative main before Arcane has tested it.
 /// Never automatic (AGENTS.md): only these two actions move the checkout away from, or back to, the tested pin.

@@ -62,7 +62,7 @@ host = r'''
 import Foundation
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @MainActor var failures = 0
 enum OortPulse { static let press = PassthroughSubject<Void, Never>() }

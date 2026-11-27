@@ -2,7 +2,7 @@ import Combine
 import Foundation
 import GameController
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension AppViewModel {
     private static let playerPlanLibrary = PlayerPlanLibrary(

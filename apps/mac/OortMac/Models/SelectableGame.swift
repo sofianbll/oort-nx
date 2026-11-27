@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct SelectableGame: Identifiable, Equatable {
     let id: String

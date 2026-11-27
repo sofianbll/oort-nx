@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Library → Games: how every game launches and closes, Surprise me and the hidden games.
 struct SettingsLibraryGamesSection: View {

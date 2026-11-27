@@ -1,6 +1,6 @@
 #if DEBUG
 import AppKit
-import ArcanePorting
+import NxnativeAdapter
 import OortLibrary
 import SwiftUI
 

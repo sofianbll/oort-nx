@@ -57,7 +57,7 @@ import AppKit
 import SwiftUI
 import Metal
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 @MainActor enum LaunchReveal { static func moonlightShown() {} }
 @MainActor final class SoundEffectService {

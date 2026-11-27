@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class BuildOutputInstallerTests: XCTestCase {
     private var root: URL!

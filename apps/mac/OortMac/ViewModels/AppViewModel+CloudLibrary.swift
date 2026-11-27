@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 import os
 
 private struct CloudDownloadDestinationChanged: Error {}

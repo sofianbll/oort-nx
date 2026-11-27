@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class DevelopmentProfileTests: XCTestCase {
     private func fixture() throws -> (URL, AppDataProfile) {

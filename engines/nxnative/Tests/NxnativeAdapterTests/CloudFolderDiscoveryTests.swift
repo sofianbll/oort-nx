@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CloudFolderDiscoveryTests: XCTestCase {
     private typealias Entry = CloudFolderDiscovery.Entry

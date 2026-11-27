@@ -1,6 +1,6 @@
 import Darwin
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class NextendoTokenStoreTests: XCTestCase {
     private func fixture() -> NextendoTokenStore {

@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class KeyCheckTests: XCTestCase {
     /// A random header key, generated per run: no real key material in the repository.

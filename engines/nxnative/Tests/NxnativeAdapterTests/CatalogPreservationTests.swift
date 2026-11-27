@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// A catalog written with a source this version does not know (a newer Arcane, or one without the Porting module)
 /// opens, shows the games it knows and writes the others back untouched.

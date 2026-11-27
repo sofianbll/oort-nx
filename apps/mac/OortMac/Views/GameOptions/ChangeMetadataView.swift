@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Game options → Edit details → Change metadata: field by field (description,
 /// genres, developer, publisher, release date), Automatic (the store's value, as

@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The hints bar: what the buttons do for the focus and state on screen.
 extension SpotlightView {

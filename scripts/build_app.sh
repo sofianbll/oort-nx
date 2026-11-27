@@ -15,7 +15,7 @@ APP_PRODUCT="NXLibrary"
 RESOURCE_BUNDLE="NXLibrary_OortLibrary.bundle"
 CORE_MODULE="OortCore"
 LIBRARY_MODULE="OortLibrary"
-NXNATIVE_MODULE="ArcanePorting"
+NXNATIVE_MODULE="NxnativeAdapter"
 # END GENERATED NAMES
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

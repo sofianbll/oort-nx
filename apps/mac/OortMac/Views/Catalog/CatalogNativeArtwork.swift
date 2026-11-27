@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Native-app artwork for non-nxnative entries, in the tile's layout role: a square
 /// shows the app's own icon (or the player's pick), a portrait the cover. It never

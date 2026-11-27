@@ -23,7 +23,7 @@ host = r'''
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 private struct MotionKey: EnvironmentKey { static let defaultValue = true }
 private struct LocaleKey: EnvironmentKey { static let defaultValue = L10n.context }

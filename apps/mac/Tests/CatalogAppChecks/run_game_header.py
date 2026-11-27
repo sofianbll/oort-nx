@@ -11,7 +11,7 @@ files=[ROOT/'apps/mac/OortMac/Views/Components/GameLogoArea.swift', ROOT/'apps/m
 actual='\n'.join(p.read_text() for p in files)
 host='''import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 struct HeaderCanvas { func u(_ value: CGFloat) -> CGFloat { value } }
 private struct CanvasKey: EnvironmentKey { static let defaultValue = HeaderCanvas() }
 extension EnvironmentValues { var seleneCanvas: HeaderCanvas { get { self[CanvasKey.self] } set { self[CanvasKey.self] = newValue } } }

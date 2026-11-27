@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// A band's title (Selene's SeleneBandLabel): 21 SemiBold, 2 above, 14 below.
 struct DetailsBandTitle: View {

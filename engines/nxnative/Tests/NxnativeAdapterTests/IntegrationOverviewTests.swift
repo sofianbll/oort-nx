@@ -1,6 +1,6 @@
 import XCTest
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 final class IntegrationOverviewTests: XCTestCase {
     func testAnEmptySteamScanIsNotAnUnfinishedOrSuccessfulPlayCheck() throws {

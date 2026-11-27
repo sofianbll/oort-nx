@@ -1,7 +1,7 @@
 import XCTest
 import CryptoKit
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// Runs bsdtar for real, except `-x` when told to fail, and can flip "game running" on `-x`.
 private final class ScriptedRunner: CommandRunning {

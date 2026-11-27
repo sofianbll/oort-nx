@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The library half of first launch. It uses the same backdrop, rows, pills and input channel as Get ready.
 struct YourGamesSetupView: View {

@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// What a failed porting offers: Port anyway, the notification and the failure's actions.
 extension PortingModel {

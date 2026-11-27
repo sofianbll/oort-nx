@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class RunningGamesTests: XCTestCase {
     private func game(_ name: String, bundleId: String? = nil, titleId: String? = nil) -> PortedGame {

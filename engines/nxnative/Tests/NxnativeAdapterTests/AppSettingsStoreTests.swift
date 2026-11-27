@@ -1,7 +1,7 @@
 import XCTest
 import Combine
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class AppSettingsStoreTests: XCTestCase {
     func testRemovedStoreCardKeepsOtherSpotlightPreferences() throws {

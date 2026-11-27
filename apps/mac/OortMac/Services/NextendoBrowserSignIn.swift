@@ -1,7 +1,7 @@
 import AppKit
 import Network
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Nextendo redirects to an HTTP loopback URL, not an app scheme. Use the default browser.
 @MainActor enum NextendoBrowserSignIn {

@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CheatStatusTests: XCTestCase {
     private func status(commit: String? = "abc", build: String? = "B424BE150A8E7D78", tid: String? = "0100000000010000",

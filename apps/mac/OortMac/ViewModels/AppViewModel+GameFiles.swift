@@ -3,7 +3,7 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// A game's files: removing its sources, deleting it, the file pickers and its porting log.
 extension AppViewModel {

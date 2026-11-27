@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// The installed app has the game's icon. Before a build succeeds, use the
 /// icon nxnative already extracted into the workspace instead of the generic

@@ -1,7 +1,7 @@
 import XCTest
 import os
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CodeModStoreTests: XCTestCase {
     func testSyncKeepsMissingModRecordUntilOverlayCanBeWritten() throws {

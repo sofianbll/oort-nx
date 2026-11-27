@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 enum NXLibraryError: Error, LocalizedError {
     case baseRequired

@@ -1,6 +1,6 @@
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 struct LibraryMoveActivity {
     static let unfinished = "Could not finish moving games. Try again to move the remaining files."

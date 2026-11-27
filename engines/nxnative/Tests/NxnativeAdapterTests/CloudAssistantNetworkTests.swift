@@ -2,7 +2,7 @@ import CryptoKit
 import Foundation
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 /// What the cloud assistant costs on a synthetic Drive that answers in 200 ms.
 /// Off unless OORT_MEASURE_CLOUD names the report to write: it waits for real.

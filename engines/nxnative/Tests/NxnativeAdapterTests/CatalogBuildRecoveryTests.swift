@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CatalogBuildRecoveryTests: XCTestCase {
     private func generation(_ name: String, basedOn original: PortedGame) -> PortedGame {

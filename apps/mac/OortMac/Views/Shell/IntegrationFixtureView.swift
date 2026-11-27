@@ -2,7 +2,7 @@
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// No startup importer, app model, network client or real Play command is mounted in the fixture.
 struct IntegrationFixtureView: View {

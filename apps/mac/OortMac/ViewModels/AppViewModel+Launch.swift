@@ -3,7 +3,7 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Launching a Switch game: the launch screen, its checks and watching the launch.
 extension AppViewModel {

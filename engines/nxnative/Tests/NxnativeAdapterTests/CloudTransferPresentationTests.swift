@@ -1,5 +1,5 @@
 import XCTest
-import ArcanePorting
+import NxnativeAdapter
 import OortLibrary
 
 final class CloudTransferPresentationTests: XCTestCase {

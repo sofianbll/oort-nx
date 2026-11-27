@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class SettingsCatalogTests: XCTestCase {
     private static let english = AppLocale(language: .english, region: nil, preferredLanguages: ["en"])

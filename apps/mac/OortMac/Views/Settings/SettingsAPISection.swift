@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// General, optional connections; moving them here leaves stored credentials and provider behaviour intact.
 struct SettingsAPISection: View {

@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class GameResourceStateTests: XCTestCase {
     private func game(_ status: GameStatus, app: Bool = true) -> PortedGame {

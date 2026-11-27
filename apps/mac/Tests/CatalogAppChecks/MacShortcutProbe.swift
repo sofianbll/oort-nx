@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 extension ProfileScreenProbe {
     @MainActor static func checkMacShortcuts(in out: URL, refs: URL) async throws {

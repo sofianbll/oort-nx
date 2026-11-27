@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 enum CatalogTestSupport {
     /// Reads every kind the app knows, as `CatalogStore(directory:)` does.

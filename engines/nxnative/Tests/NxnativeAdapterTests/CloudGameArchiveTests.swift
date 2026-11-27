@@ -3,7 +3,7 @@ import Foundation
 import OSLog
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class CloudGameArchiveTests: XCTestCase {
     private let title = "0100E65002BB8000"

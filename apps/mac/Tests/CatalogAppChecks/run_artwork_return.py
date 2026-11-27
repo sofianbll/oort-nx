@@ -73,7 +73,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-artwork-return-') as temporary:
 import SwiftUI
 import AppKit
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 @MainActor enum Fixture {
     static let root = URL(fileURLWithPath: CommandLine.arguments[1])
@@ -217,7 +217,7 @@ import Foundation
 import AppKit
 import Combine
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 enum AppData { static let cacheRoot = URL(fileURLWithPath: CommandLine.arguments[1]) }
 struct NoHTTP: ArtworkHTTPClient {

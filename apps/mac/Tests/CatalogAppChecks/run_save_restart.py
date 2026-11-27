@@ -21,7 +21,7 @@ HOST = r'''
 import Foundation
 import Darwin
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 let fm = FileManager.default
 let slots: [SaveSlot] = [.account, .device, .user2, .user3, .user4,

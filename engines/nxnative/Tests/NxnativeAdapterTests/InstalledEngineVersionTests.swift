@@ -1,7 +1,7 @@
 import Foundation
 import OortLibrary
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class InstalledEngineVersionTests: XCTestCase {
     func testBundleVersionAndGitAncestry() async throws {

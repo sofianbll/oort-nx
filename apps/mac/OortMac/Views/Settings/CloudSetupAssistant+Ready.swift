@@ -1,5 +1,5 @@
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 import SwiftUI
 
 /// Step 3: both folders answered, what is in them, and the way to the games.

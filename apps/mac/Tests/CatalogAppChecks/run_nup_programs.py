@@ -55,7 +55,7 @@ fixture.write_nup(pathlib.Path(sys.argv[2]),fixture.edition())
     host = '''
 import Foundation
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 struct Host {
     // CONVERTERS
 }

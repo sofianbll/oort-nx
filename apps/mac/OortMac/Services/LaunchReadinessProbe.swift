@@ -1,5 +1,5 @@
 import AppKit
-import ArcanePorting
+import NxnativeAdapter
 import CoreGraphics
 
 /// Waits for a launched game to put a real window on screen. Reads only each

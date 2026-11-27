@@ -1,6 +1,6 @@
 import SwiftUI
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// A game's art while it ports (`PortingTileLook`): black and white, colour rising
 /// from the bottom with the progress and a thin luminous line on its edge. Before

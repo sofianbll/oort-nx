@@ -1,6 +1,6 @@
 import XCTest
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class ToolchainRequirementsTests: XCTestCase {
     func testCandidateRequirementsCertifyTheInstalledXcode27_2Compiler() {

@@ -1,7 +1,7 @@
 import XCTest
 import AppKit
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class AppIconWriterTests: XCTestCase {
     private final class Runner: CommandRunning {

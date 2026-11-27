@@ -17,7 +17,7 @@ from audit_probe_host import run_host
 
 HOST = r'''
 import AppKit
-import ArcanePorting
+import NxnativeAdapter
 import Combine
 import Darwin
 import OortLibrary

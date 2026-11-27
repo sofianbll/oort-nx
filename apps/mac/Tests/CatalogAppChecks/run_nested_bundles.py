@@ -96,7 +96,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-nested-check-') as temporary:
 import Foundation
 import CryptoKit
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 struct CheckFailure: Error {}
 func require(_ condition: @autoclosure () throws -> Bool) throws {

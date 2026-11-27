@@ -1,6 +1,6 @@
 import AppKit
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 /// Copy diagnostics: what an issue needs, scrubbed by `DiagnosticsReport` (no key values, no
 /// environment, the home folder as `~`).

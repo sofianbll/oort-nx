@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class GameInboxTests: XCTestCase {
     private let title: UInt64 = 0x0100F43008C44000

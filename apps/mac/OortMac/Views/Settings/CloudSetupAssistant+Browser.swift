@@ -1,5 +1,5 @@
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 import SwiftUI
 
 /// Changing one folder: the whole panel is a folder browser.

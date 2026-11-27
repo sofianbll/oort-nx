@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class LocalAchievementTests: XCTestCase {
     func testBeforeAndAfterEveryThresholdWithSeparateProfiles() throws {

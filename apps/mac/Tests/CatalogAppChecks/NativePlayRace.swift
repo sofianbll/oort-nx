@@ -2,7 +2,7 @@ import AppKit
 import ObjectiveC
 @testable import NXLibrary
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 private let env = ProcessInfo.processInfo.environment
 private let root = URL(fileURLWithPath: env["OORT_PLAY_FIXTURE_DIR"]!, isDirectory: true)

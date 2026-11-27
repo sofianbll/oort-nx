@@ -1,6 +1,6 @@
 import XCTest
 import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class NextendoAccountServiceTests: XCTestCase {
     @MainActor

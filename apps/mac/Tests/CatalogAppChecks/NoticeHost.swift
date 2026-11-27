@@ -1,6 +1,6 @@
 import Foundation
 @testable import OortLibrary
-@testable import ArcanePorting
+@testable import NxnativeAdapter
 
 final class AppViewModel {
     let catalogRepository: CatalogRepository

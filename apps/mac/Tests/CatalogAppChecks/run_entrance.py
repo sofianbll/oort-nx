@@ -43,7 +43,7 @@ def declaration(path, signature):
 host = r'''
 import Foundation
 import OortLibrary
-import ArcanePorting
+import NxnativeAdapter
 
 typealias CFTimeInterval = Double
 func CACurrentMediaTime() -> Double { 0 }
