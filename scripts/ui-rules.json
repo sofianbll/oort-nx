@@ -936,7 +936,7 @@
    }
   },
   "untranslated": {
-   "Sources/ArcanePorting/Library/CloudGameArchive.swift": {
+   "engines/nxnative/NxnativeAdapter/Library/CloudGameArchive.swift": {
     "Send both the app and the build cache to create a complete cloud copy.": 1
    },
    "Sources/NXLibrary/NXLibraryApp.swift": {

@@ -1412,7 +1412,7 @@ def main():
         names.stage(package, "528f4fb" if before else baseline or None)
         app = package / "Sources/NXLibrary"
         if not before and not baseline:
-            queue_file = package / "Sources/ArcanePorting/Library/ActivityQueueFile.swift"
+            queue_file = package / "engines/nxnative/NxnativeAdapter/Library/ActivityQueueFile.swift"
             write = 'try JSONEncoder().encode(WriteSnapshot(entries: entries)).write(to: self.file, options: .atomic)'
             change(queue_file, re.escape(write),
                    f'try CloudWriteFault.check(self.file, "before")\n        {write}\n'
@@ -1503,7 +1503,7 @@ extension CloudSetupAssistant {
                    r'                            LazyVStack', '                    VStack')
             change(assistant, r'                        }\n                        \.frame\(height: canvas.u\(CGFloat\(min\(folderNames.count.*?\n'
                    r'                    }\n                    option\(\.newFolder', '                    option(.newFolder')
-            with (package / "Sources/ArcanePorting/Library/CloudDriveFolders.swift").open("a") as swift:
+            with (package / "engines/nxnative/NxnativeAdapter/Library/CloudDriveFolders.swift").open("a") as swift:
                 swift.write('''
 extension CloudDriveFolders.Listing {
     public static var screenFixture: Self { .init(ticket: UUID(), names: ["Nintendo", "Switch"]) }
@@ -1551,7 +1551,7 @@ extension ActivityCenterView {
         })
 ''')
             host += SOURCE_ONLY
-            source_catalog = package / "Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift"
+            source_catalog = package / "engines/nxnative/NxnativeAdapter/Catalog/CatalogRepository+Porting.swift"
             change(source_catalog, r'(        return try transactionIfChanged \{ draft in\n            try Task\.checkCancellation\(\))',
                    lambda match: '        precondition(!Thread.isMainThread, "Cloud import catalog disk work ran on the UI thread")\n'
                                  + match[1])
@@ -1573,7 +1573,7 @@ extension ActivityCenterView {
                    '        if !syntheticEngine && !report.ok && !app.setup.allowUntestedToolchain {')
             change(build, r'        NotificationService\.shared\.requestAuthorization\(\)',
                    '        if !syntheticEngine { NotificationService.shared.requestAuthorization() }')
-            with (package / "Sources/ArcanePorting/Setup/NXNativeEnvironment.swift").open("a") as swift:
+            with (package / "engines/nxnative/NxnativeAdapter/Setup/NXNativeEnvironment.swift").open("a") as swift:
                 swift.write('''
 extension EnvironmentStatus {
     public static func screenCloudFixture(_ repo: URL) -> Self {
@@ -1634,7 +1634,7 @@ extension CloudSetupAssistant {
     }
 }
 ''')
-            with (package / "Sources/ArcanePorting/Library/CloudDriveFolders.swift").open("a") as swift:
+            with (package / "engines/nxnative/NxnativeAdapter/Library/CloudDriveFolders.swift").open("a") as swift:
                 swift.write('''
 extension CloudDriveFolders.Sources {
     public static var switchGamesScreenFixture: Self { .init(path: "Games/Switch/Games", games: 1) }
@@ -1643,7 +1643,7 @@ extension CloudDriveFolders.Sources {
         if not before and not baseline:
             host = host.replace("// ENGINE_VERSION", "try await checkEngineVersion(vm, output, settings)")
             host = host.replace("    static func compareDetails", ENGINE_VERSION + "\n    static func compareDetails")
-            with (package / "Sources/ArcanePorting/Library/CloudGameSources.swift").open("a") as swift:
+            with (package / "engines/nxnative/NxnativeAdapter/Library/CloudGameSources.swift").open("a") as swift:
                 swift.write('''
 extension CloudSourcesStatus {
     public static func versionFixture(_ url: URL) -> Self {
@@ -1652,7 +1652,7 @@ extension CloudSourcesStatus {
     }
 }
 ''')
-        has_display = (package / "Sources/ArcanePorting/Launch/GameDisplay.swift").is_file()
+        has_display = (package / "engines/nxnative/NxnativeAdapter/Launch/GameDisplay.swift").is_file()
         if not before:
             host = host.replace("// DISPLAY_FIXTURE", DISPLAY_FIXTURE)
             host += "\n@MainActor enum DisplayScreenProbe { static var capable = false; static var expanded = false }\n"
@@ -1664,7 +1664,7 @@ extension CloudSourcesStatus {
         host = host.replace("/* ACTIVITY_DISMISS */",
                             "onBack: {}, onOutside: {}" if "let onBack:" in view
                             else "onClose: {}")
-        unified = (package / "Sources/ArcanePorting/Library/CloudTransferPresentation.swift").exists()
+        unified = (package / "engines/nxnative/NxnativeAdapter/Library/CloudTransferPresentation.swift").exists()
         download = "Download cache and rebuild" if unified else "Download the cloud cache"
         cache_order = [download, "Rebuild with this Mac’s cache", "Rebuild without cache", "Cancel"]
         host = (host.replace("CACHE_ORDER", ", ".join(f'"{title}"' for title in (cache_order[::-1] if before else cache_order)))
@@ -1880,7 +1880,7 @@ extension CloudSetupAssistant {
             change(assistant, r'@State private var selectingSources = false', '@State private var selectingSources = true')
             change(assistant, r'@State private var sourcesPath = ""', '@State private var sourcesPath = "Games/GameFiles"')
         host = multiplayer_fixture(app, host, before)
-        adapters = package / "Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift"
+        adapters = package / "engines/nxnative/NxnativeAdapter/GameSettings/RemotePlayAdapters.swift"
         with adapters.open("a") as swift:
             swift.write('''
 extension RemotePlayAdapters {
@@ -2252,7 +2252,7 @@ extension CloudScreenProbe {
     }
 }
 ''')
-        with (package / "Sources/ArcanePorting/Library/CloudGameArchive.swift").open("a") as swift:
+        with (package / "engines/nxnative/NxnativeAdapter/Library/CloudGameArchive.swift").open("a") as swift:
             swift.write('''
 extension CloudArtifactStatus {
     public static func screenFixture(_ state: State, hasLocalCopy: Bool? = nil, fileByFile: Bool = false) -> Self {

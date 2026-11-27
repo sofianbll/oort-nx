@@ -263,7 +263,7 @@ These are distribution decisions. Do not bypass the dirty-tree check, change the
 | Path | Responsibility |
 |---|---|
 | `core/OortLibrary/` | Models, rules and services without SwiftUI, one folder per area (`App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`); nothing Switch. |
-| `Sources/ArcanePorting/` | The `ArcanePorting` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `NXLibraryCore`. |
+| `engines/nxnative/NxnativeAdapter/` | The `ArcanePorting` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `NXLibraryCore`. |
 | `Sources/NXLibrary/` | App entry, coordination, SwiftUI screens, theme and macOS integration. |
 | `core/Tests/OortLibraryTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `NXLibraryCore`. |
 | `Tests/ArcanePortingTests/` | Automated regressions of every file that uses the `ArcanePorting` module. |

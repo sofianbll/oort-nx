@@ -38,7 +38,7 @@ class ReleaseTarget(unittest.TestCase):
         self.write("VERSION", "0.3.1\n")
         self.write("notes.md", "Fixture release notes\n")
         self.write(".gitignore", "/work/\n/dist/\n")
-        self.write("Sources/ArcanePorting/Setup/ToolchainRequirements.swift", 'minimumXcode: "27.2"\n')
+        self.write("engines/nxnative/NxnativeAdapter/Setup/ToolchainRequirements.swift", 'minimumXcode: "27.2"\n')
         self.write("Tests/CatalogAppChecks/run_fixture.py", "")
         self.write("Tests/PublicationChecks/__init__.py", "")
         self.write("scripts/check_publication.py", "")

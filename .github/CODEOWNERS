@@ -8,10 +8,10 @@
 /scripts/release.sh                 @sofianbll
 /scripts/build_app.sh               @sofianbll
 /scripts/check_publication.py       @sofianbll
-/Sources/ArcanePorting/Saves/       @sofianbll
-/Sources/ArcanePorting/Library/     @sofianbll
-/Sources/ArcanePorting/Setup/       @sofianbll
-/Sources/ArcanePorting/Build/       @sofianbll
+/engines/nxnative/NxnativeAdapter/Saves/       @sofianbll
+/engines/nxnative/NxnativeAdapter/Library/     @sofianbll
+/engines/nxnative/NxnativeAdapter/Setup/       @sofianbll
+/engines/nxnative/NxnativeAdapter/Build/       @sofianbll
 /Package.swift                      @sofianbll
 /runtime.lock                       @sofianbll
 /NOTICE                             @sofianbll

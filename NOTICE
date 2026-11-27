@@ -98,7 +98,7 @@ SOFTWARE.
 --------------------------------------------------------------------------------
 LNPANDY/NX2Apple
 https://github.com/LNPANDY/NX2Apple
-Adapted: the key check (Sources/ArcanePorting/Setup/KeyCheck.swift), the
+Adapted: the key check (engines/nxnative/NxnativeAdapter/Setup/KeyCheck.swift), the
 engine failure-message table (PortingFailureReason.swift) and the diagnostics
 report idea (DiagnosticsReport.swift) and the self-update rules (AppUpdate.swift).
 Also references for dependency detection, HID controller discovery (HIDControllerSource.swift)

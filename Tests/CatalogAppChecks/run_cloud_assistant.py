@@ -186,7 +186,7 @@ extension SettingsCloudLibrarySection {
         account = views / "CloudSetupAssistant+Account.swift"
         change(account, r'NSWorkspace\.shared\.open\(url\)', 'CloudAssistantProbe.opened.append(url)')
         append(assistant, STATE)
-        porting = package / "Sources/ArcanePorting/Library"
+        porting = package / "engines/nxnative/NxnativeAdapter/Library"
         append(porting / "CloudDriveFolders.swift",
                "\nextension CloudDriveFolders.Listing {\n    public static func screenFixture(_ names: [String]) -> Self { .init(ticket: UUID(), names: names) }\n}\n")
         append(porting / "CloudFolderDiscovery.swift", """

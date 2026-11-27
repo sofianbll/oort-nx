@@ -60,7 +60,7 @@ class IntegrationContract(unittest.TestCase):
         self.assertRegex(shared, r"guard let id, old != id \|\| id != initialFocus \|\| restoreScroll")
 
     def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
-        source = (ROOT / "Sources/ArcanePorting/Settings/IntegrationOverview.swift").read_text()
+        source = (ROOT / "engines/nxnative/NxnativeAdapter/Settings/IntegrationOverview.swift").read_text()
         catalog = json.loads((ROOT / "core/OortLibrary/Resources/Localizable.xcstrings").read_text())["strings"]
         sections = re.split(r"^        case \.(\w+):$", source, flags=re.MULTILINE)
         for row, body in zip(sections[1::2], sections[2::2]):

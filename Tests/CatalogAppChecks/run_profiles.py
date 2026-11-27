@@ -1809,7 +1809,7 @@ extension ProfilePage {
                 "@State private var friendsExpanded = true")
         replace(api, r'            TextField\(text\("Friend code"\).*?\n                \.onSubmit\(sendFriendCode\)',
                 '            Text(verbatim: "SW-0000-0000-0000")')
-        with (package / "Sources/ArcanePorting/Launch/NextendoAccountService.swift").open("a") as swift:
+        with (package / "engines/nxnative/NxnativeAdapter/Launch/NextendoAccountService.swift").open("a") as swift:
             swift.write(r'''
 extension NextendoAccountSnapshot {
     package static func screenFixture(second: Bool) -> Self {

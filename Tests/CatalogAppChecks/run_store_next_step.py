@@ -119,7 +119,7 @@ extension CloudLibraryModel {
     }
 }
 ''')
-        with (package / "Sources/ArcanePorting/Library/CloudGameArchive.swift").open("a") as file:
+        with (package / "engines/nxnative/NxnativeAdapter/Library/CloudGameArchive.swift").open("a") as file:
             file.write('''
 extension CloudArtifactStatus {
     public static func nextStepFixture(_ state: State) -> Self {

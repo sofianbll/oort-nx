@@ -41,7 +41,7 @@ GIT_STATUS = re.compile(r'"status"\s*,\s*"--porcelain"')
 LEGACY_PLAY = re.compile(r"\b(?:GamePlay|PlayConnector|NXNativePlayConnector|playRouter|playNXNative)\b")
 NATIVE_PLAY = re.compile(r"\bNSWorkspace\.shared\.openApplication\s*\(")
 NATIVE_PLAY_ADAPTERS = {
-    "Sources/ArcanePorting/Launch/LaunchService.swift",
+    "engines/nxnative/NxnativeAdapter/Launch/LaunchService.swift",
     "Sources/NXLibrary/Services/MacShortcutAdapter.swift",
 }
 
@@ -111,11 +111,11 @@ def check(root):
             violations.append(f"{relative}: resume through engine.play")
         if relative != "core/OortLibrary/Catalog/PlayEngine.swift" and re.search(r"\.admit\([^\n]*gesture:", text):
             violations.append(f"{relative}: only PlayEngine admits a gesture")
-        if relative == "Sources/ArcanePorting/Setup/MacNXNative.swift":
+        if relative == "engines/nxnative/NxnativeAdapter/Setup/MacNXNative.swift":
             continue
         matches = list(ENGINE_READ.finditer(text))
         # Keep the existing write-time guard immediately before changing the checkout.
-        if relative != "Sources/ArcanePorting/Setup/NewestEngine.swift":
+        if relative != "engines/nxnative/NxnativeAdapter/Setup/NewestEngine.swift":
             matches.extend(GIT_STATUS.finditer(text))
         for match in matches:
             line = text.count("\n", 0, match.start()) + 1

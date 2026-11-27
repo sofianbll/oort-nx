@@ -6,7 +6,7 @@ import PackageDescription
 let packageName = "NXLibrary"
 let core = (name: "OortCore", path: "core/OortCore")
 let library = (name: "NXLibraryCore", path: "core/OortLibrary")
-let nxnative = (name: "ArcanePorting", path: "Sources/ArcanePorting")
+let nxnative = (name: "ArcanePorting", path: "engines/nxnative/NxnativeAdapter")
 let mac = (name: "NXLibrary", path: "Sources/NXLibrary")
 let coreTests = (name: "OortCoreTests", path: "core/Tests/OortCoreTests")
 let libraryTests = (name: "NXLibraryCoreTests", path: "core/Tests/OortLibraryTests")

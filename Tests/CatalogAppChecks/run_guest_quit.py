@@ -7,7 +7,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 delegate = (ROOT / 'Sources/NXLibrary/AppDelegate.swift').read_text()
-queue = (ROOT / 'Sources/ArcanePorting/Library/CloudTransferQueue.swift').read_text()
+queue = (ROOT / 'engines/nxnative/NxnativeAdapter/Library/CloudTransferQueue.swift').read_text()
 decision = queue[queue.index('public enum CloudQuitDecision'):queue.index('/// Profile-local snapshot')]
 methods = delegate[delegate.index('    func applicationShouldTerminate('):
                    delegate.index('    func applicationShouldHandleReopen(')]

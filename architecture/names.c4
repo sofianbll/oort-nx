@@ -19,7 +19,7 @@ model {
     nxnativeModule = swiftModule "ArcanePorting" {
       metadata {
         layer "2"
-        folder "Sources/ArcanePorting"
+        folder "engines/nxnative/NxnativeAdapter"
       }
     }
     macModule = swiftModule "NXLibrary" {

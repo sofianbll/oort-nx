@@ -315,13 +315,13 @@ def main():
         change(app / "Views/Shell/MenuOverlayView.swift", "var presented = false", "var presented = true")
         install_settings_reset_fixture(app)
         # Observe the actual directory reader in the copied target, not just the resulting availability.
-        change(package / "Sources/ArcanePorting/Library/GameInbox.swift",
+        change(package / "engines/nxnative/NxnativeAdapter/Library/GameInbox.swift",
                "    public static func files(in folder: URL) throws -> [URL] {\n",
                "    public static func files(in folder: URL) throws -> [URL] {\n"
                '        if folder.lastPathComponent == "Inbox" {\n'
                '            try Data().write(to: folder.appendingPathComponent(".probe-read"))\n'
                "        }\n")
-        reader = package / "Sources/ArcanePorting/Setup/EnginePackageReader.swift"
+        reader = package / "engines/nxnative/NxnativeAdapter/Setup/EnginePackageReader.swift"
         declaration = "    public func contents(of packages: [(url: URL, alreadyIdentified: Bool)]) throws -> [URL: PackageReading] {\n"
         change(reader, declaration, declaration + r'''
         let home = AppData.profile.home
@@ -336,7 +336,7 @@ def main():
                '        guard FileManager.default.fileExists(atPath: AppData.profile.home.appendingPathComponent("audit-reader").path)\n'
                '        else { return nil }')
         # Replace the only reachable Inbox Trash implementation with a fixture-local rename.
-        inbox_service = package / "Sources/ArcanePorting/Library/GameInbox.swift"
+        inbox_service = package / "engines/nxnative/NxnativeAdapter/Library/GameInbox.swift"
         worker = "                for entry in requested {\n                    do {\n"
         change(inbox_model, worker, worker + r'''
                         let home = AppData.profile.home
@@ -354,7 +354,7 @@ def main():
                                     f'try FileManager.default.moveItem(at: {url}, to: AppData.profile.home.appendingPathComponent("audit-trash"))')
             assert ".trashItem(" not in text
             path.write_text(text)
-        inventory = package / "Sources/ArcanePorting/Library/CloudArchiveInventory.swift"
+        inventory = package / "engines/nxnative/NxnativeAdapter/Library/CloudArchiveInventory.swift"
         text = inventory.read_text()
         start = text.index("    static func hashes(at url: URL")
         body = text.index("{", start) + 1
