@@ -15,7 +15,7 @@ import re
 ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
-import names  # noqa: E402  architecture/names.json
+import names as package_names  # noqa: E402  architecture/names.json ("names" is a list below)
 BIN = ROOT / '.build/debug'
 
 
@@ -841,7 +841,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-review-check-') as folder:
                     str(ROOT / 'apps/mac/OortMac/Services/SteamAchievementsStore.swift'),
                     str(ROOT / 'apps/mac/OortMac/Views/Spotlight/GameArtLoader.swift'),
                     str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
-                    *map(str, names.objects(BIN)),
+                    *map(str, package_names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch)], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
