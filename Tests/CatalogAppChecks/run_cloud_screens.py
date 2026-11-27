@@ -898,11 +898,12 @@ extension CloudScreenProbe {
         try await until { vm.cloudLibrary.states[game.id]?.refreshing != true }
 
         // Reference may replace an installed, older bundle, but never while it's running.
-        // Build 2.0 in a copy beside the installed app. Hosted runners can update a fresh clone's ctime a second
-        // or two later: installing that clone here let the update land after the approval, a local change to the swap.
+        // Build 2.0 from scratch beside the installed app, as 1.0 was built. Hosted runners can update a fresh clone's
+        // ctime a second or two later: installing a clone of 1.0 here let the update land after the approval,
+        // a local change to the swap, and a cloned 2.0 could change during its upload.
         let build = folder.appendingPathComponent("reference-build/Running.app")
-        try fm.createDirectory(at: build.deletingLastPathComponent(), withIntermediateDirectories: false)
-        try fm.copyItem(at: app, to: build)
+        try fm.createDirectory(at: build.appendingPathComponent("Contents/MacOS"), withIntermediateDirectories: true)
+        try fm.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: build.appendingPathComponent("Contents/MacOS/Fixture"))
         try await Task.sleep(for: .seconds(1))
         try sign("2.0", bundle: build)
         _ = try await CloudGameArchive(backend: referenceWrite).upload(.init(titleID: title, locations: [.app: build]), kinds: [.app])
