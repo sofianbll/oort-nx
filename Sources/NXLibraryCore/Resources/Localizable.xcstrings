@@ -59,7 +59,6 @@
     "Checked: %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Checked: %@"}},"fr":{"stringUnit":{"state":"translated","value":"Vérifié le %@"}},"de":{"stringUnit":{"state":"translated","value":"Geprüft: %@"}},"es":{"stringUnit":{"state":"translated","value":"Verificado: %@"}},"it":{"stringUnit":{"state":"translated","value":"Verificato: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Verificado: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"检查时间：%@"}}}},
     "Covers, icons and game scores": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Covers, icons and game scores"}},"fr":{"stringUnit":{"state":"translated","value":"Jaquettes, icônes et notes des jeux"}},"de":{"stringUnit":{"state":"translated","value":"Cover, Symbole und Spielbewertungen"}},"es":{"stringUnit":{"state":"translated","value":"Carátulas, iconos y valoraciones de juegos"}},"it":{"stringUnit":{"state":"translated","value":"Copertine, icone e valutazioni dei giochi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Capas, ícones e avaliações dos jogos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏封面、图标和评分"}}}},
     "Open Steam games": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Open Steam games"}},"fr":{"stringUnit":{"state":"translated","value":"Ouvrir les jeux Steam"}},"de":{"stringUnit":{"state":"translated","value":"Steam-Spiele öffnen"}},"es":{"stringUnit":{"state":"translated","value":"Abrir juegos de Steam"}},"it":{"stringUnit":{"state":"translated","value":"Apri i giochi Steam"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abrir jogos do Steam"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"打开 Steam 游戏"}}}},
-
     "nxnative": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"nxnative"}},"fr":{"stringUnit":{"state":"translated","value":"nxnative"}},"de":{"stringUnit":{"state":"translated","value":"nxnative"}},"es":{"stringUnit":{"state":"translated","value":"nxnative"}},"it":{"stringUnit":{"state":"translated","value":"nxnative"}},"pt-BR":{"stringUnit":{"state":"translated","value":"nxnative"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"nxnative"}}}},
     "Engines": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Engines"}},"fr":{"stringUnit":{"state":"translated","value":"Moteurs"}},"de":{"stringUnit":{"state":"translated","value":"Engines"}},"es":{"stringUnit":{"state":"translated","value":"Motores"}},"it":{"stringUnit":{"state":"translated","value":"Motori"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Motores"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"引擎"}}}},
     "Services": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Services"}},"fr":{"stringUnit":{"state":"translated","value":"Services"}},"de":{"stringUnit":{"state":"translated","value":"Dienste"}},"es":{"stringUnit":{"state":"translated","value":"Servicios"}},"it":{"stringUnit":{"state":"translated","value":"Servizi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Serviços"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"服务"}}}},
@@ -5215,7 +5214,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Add an app…"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiungi un’app…"}}, "fr": {"stringUnit":{"state":"translated","value":"Ajouter une app…"}}, "de": {"stringUnit":{"state":"translated","value":"App hinzufügen…"}}, "es": {"stringUnit":{"state":"translated","value":"Añadir una app…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Adicionar um app…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"添加应用…"}}
     }},
     "Mac apps": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Mac apps"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"Apps Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-Apps"}}, "es": {"stringUnit":{"state":"translated","value":"Apps de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Apps do Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
+      "en": {"stringUnit":{"state":"translated","value":"Mac apps"}}, "fr": {"stringUnit":{"state":"translated","value":"Apps Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-Apps"}}, "es": {"stringUnit":{"state":"translated","value":"Apps de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Apps para Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
     }},
     "Mac app shortcut": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Mac app shortcut"}}, "it": {"stringUnit":{"state":"translated","value":"Collegamento a un’app Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"Raccourci d’app Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-App-Verknüpfung"}}, "es": {"stringUnit":{"state":"translated","value":"Acceso directo a una app de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atalho de app do Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用快捷方式"}}
@@ -5473,7 +5472,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Member since"}}, "it": {"stringUnit":{"state":"translated","value":"Membro da"}}, "fr": {"stringUnit":{"state":"translated","value":"Membre depuis"}}, "de": {"stringUnit":{"state":"translated","value":"Mitglied seit"}}, "es": {"stringUnit":{"state":"translated","value":"Miembro desde"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Membro desde"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"加入时间"}}
     }},
     "Nextendo settings": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Nextendo settings"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni Nextendo"}}, "fr": {"stringUnit":{"state":"translated","value":"Paramètres Nextendo"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo-Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes de Nextendo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações do Nextendo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 设置"}}
+      "en": {"stringUnit":{"state":"translated","value":"Nextendo settings"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni Nextendo"}}, "fr": {"stringUnit":{"state":"translated","value":"Réglages Nextendo"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo-Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes de Nextendo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações do Nextendo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 设置"}}
     }},
     "Connect your cloud library in Settings → Porting → Cloud library.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Connect your cloud library in Settings → Cloud library."}},
@@ -9526,17 +9525,6 @@
         "es": {"stringUnit": {"state": "translated", "value": "Descargar la caché"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Baixar cache"}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "下载缓存"}}
-      }
-    },
-    "Rebuild without cache": {
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Rebuild without cache"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Ricompila senza cache"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Reconstruire sans le cache"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Ohne Cache neu bauen"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Recompilar sin caché"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Recompilar sem cache"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "不使用缓存重新构建"}}
       }
     },
     "This Mac’s build cache differs from the cloud copy.\nDownloading keeps the local cache as a backup.": {
@@ -43903,7 +43891,7 @@
         }
       }
     },
-"Hold Space": {
+    "Hold Space": {
       "comment": "ControlsView.swift:36",
       "localizations": {
         "en": {
@@ -53632,7 +53620,7 @@
         }
       }
     },
-"Navigation": {
+    "Navigation": {
       "comment": "SettingsSection.swift:16",
       "localizations": {
         "en": {
@@ -98506,17 +98494,6 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "游戏：%@ · 检查时间：%@"}}
       }
     },
-    "Follow": {
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Follow"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Segui"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Suivre"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Folgen"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Seguir"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Seguir"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "关注"}}
-      }
-    },
     "Unfollow": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Unfollow"}},
@@ -99157,7 +99134,195 @@
     "In Details": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In Details"}},"fr":{"stringUnit":{"state":"translated","value":"Dans Détails"}},"it":{"stringUnit":{"state":"translated","value":"Nei dettagli"}},"de":{"stringUnit":{"state":"translated","value":"In den Details"}},"es":{"stringUnit":{"state":"translated","value":"En Detalles"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Em Detalhes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在详情中"}}}},
     "On the game page": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"On the game page"}},"fr":{"stringUnit":{"state":"translated","value":"Sur la fiche du jeu"}},"it":{"stringUnit":{"state":"translated","value":"Nella scheda del gioco"}},"de":{"stringUnit":{"state":"translated","value":"Auf der Spielseite"}},"es":{"stringUnit":{"state":"translated","value":"En la ficha del juego"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Na página do jogo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在游戏页面上"}}}},
     "Choose where to show Nextendo players. Turn off all four to stop the requests.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose where to show Nextendo players. Turn off all four to stop the requests."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis où afficher les joueurs Nextendo. Désactive les quatre options pour arrêter les requêtes."}},"it":{"stringUnit":{"state":"translated","value":"Scegli dove mostrare i giocatori Nextendo. Disattiva tutte e quattro le opzioni per interrompere le richieste."}},"de":{"stringUnit":{"state":"translated","value":"Wähle, wo Nextendo-Spieler angezeigt werden. Schalte alle vier Optionen aus, um die Abfragen zu stoppen."}},"es":{"stringUnit":{"state":"translated","value":"Elige dónde mostrar los jugadores de Nextendo. Desactiva las cuatro opciones para detener las solicitudes."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha onde mostrar os jogadores do Nextendo. Desative as quatro opções para interromper as consultas."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择在哪里显示 Nextendo 玩家。关闭全部四个选项即可停止请求。"}}}},
-    "%lld Nextendo players": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo player"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo players"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld joueur Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld joueurs Nextendo"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld giocatore Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld giocatori Nextendo"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jugador de Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jugadores de Nextendo"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogador do Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogadores do Nextendo"}}}}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 位 Nextendo 玩家"}}}}
+    "%lld Nextendo players": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo player"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo players"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld joueur Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld joueurs Nextendo"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld giocatore Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld giocatori Nextendo"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jugador de Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jugadores de Nextendo"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogador do Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogadores do Nextendo"}}}}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 位 Nextendo 玩家"}}}},
+    "Hold: Profile page": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold: Profile page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto: pagina del profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenir : page du profil"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gedrückt halten: Profilseite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado: página del perfil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha pressionado: página do perfil"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住：个人资料页"
+          }
+        }
+      }
+    },
+    "Most played game": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most played game"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioco più giocato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeu le plus joué"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meistgespieltes Spiel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juego más jugado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogo mais jogado"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩得最多的游戏"
+          }
+        }
+      }
+    },
+    "No playtime this week.": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No playtime this week."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna partita questa settimana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune partie cette semaine."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Woche noch nicht gespielt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin partidas esta semana."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma partida nesta semana."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本周还没有游戏时间。"
+          }
+        }
+      }
+    },
+    "Play a game and it shows up here.": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play a game and it shows up here."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioca a un gioco e comparirà qui."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joue à un jeu : il apparaîtra ici."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiele ein Spiel, dann erscheint es hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juega a un juego y aparecerá aquí."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogue um jogo e ele aparecerá aqui."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩一款游戏，它就会显示在这里。"
+          }
+        }
+      }
+    }
   },
   "version": "1.0"
 }

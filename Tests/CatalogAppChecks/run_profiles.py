@@ -1713,7 +1713,8 @@ extension ProfilePage {
             }
             if !targets.isEmpty {
                 let _ = {
-                    precondition(Set(targets.keys) == Set(ProfilePageCard.allCases.map(Focus.card)))
+                    // An empty card offers no "See all": the fixture leaves only Pick up again empty.
+                    precondition(Set(targets.keys) == Set(ProfilePageCard.allCases.filter { $0 != .resume }.map(Focus.card)))
                     for rect in targets.values {
                         // At 1440 × 810 the pill is 36 px high, not the width of either section column.
                         precondition(rect.width > 0 && rect.width < 180 && rect.height == 36 && rect.minX > 0)

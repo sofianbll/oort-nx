@@ -1191,7 +1191,8 @@
   "Sources/NXLibrary/Views/Shell/ProfilePage.swift": {
    "lb Previous": "a click on the card",
    "rb Next": "a click on the card",
-   "y Edit profile": "the Edit profile pill"
+   "y Edit profile": "the Edit profile pill",
+   "menu Menu": "the macOS menu bar › Menu (⇧⌘K)"
   },
   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
    "lb Previous": "the shoulder buttons",
