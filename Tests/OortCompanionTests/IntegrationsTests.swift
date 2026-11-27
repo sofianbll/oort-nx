@@ -280,6 +280,41 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertEqual(question?["text"], entry(try ask(c, "integrations"), "online")?["sub"], "what the switch says")
     }
 
+    /// Where a game comes from besides Steam, and what a game's page says of information online: decided once by the core,
+    /// the same wherever the page offers them (hello, game).
+    func testGameSourcesAndInformationOnlineAreTheCores() throws {
+        let c = try companion(), windows = try Companion(.init(data: root + "/w", system: "windows", home: root + "/home", languages: ["en"]), now: { [unowned self] in clock })
+        let sources = try ask(c, "hello")["gameSources"].items
+        XCTAssertEqual(sources.map { $0["id"] }, ["program", "folder"])
+        XCTAssertEqual(sources.map { $0["open"] }, ["programs", "folder"])
+        XCTAssertEqual(sources.first?["sub"], ["Any game or emulator, or its menu entry. Its name and icon come with it."])
+        XCTAssertEqual(try ask(windows, "hello")["gameSources"].items.first?["sub"], ["Any game or emulator you start with an .exe file. Its name and icon come with it."])
+        let program = root + "/emulator"
+        FileManager.default.createFile(atPath: program, contents: Data())
+        let id = try XCTUnwrap(try ask(c, "programs.add", ["program": .string(program), "name": "Lamp Keeper"])["added"])
+        func information() throws -> CatalogJSON { try XCTUnwrap(try ask(c, "game", ["id": id])["information"]) }
+        let off = try information()
+        XCTAssertEqual([off["online"]?["value"], off["online"]?["open"], off["pictures"]],
+                       [["Off"], "onlineQuestion", ["Choose your own pictures, or turn on game information online."]])
+        _ = try ask(c, "online.set", ["on": true])
+        let uuid = try XCTUnwrap(id.stringValue.flatMap(UUID.init(uuidString:)))
+        let missed: CatalogJSON = ["Nothing was found online. Look for it by another name, or choose your own pictures."]
+        let found: CatalogJSON = ["Another cover, or another game if this is not the right one."]
+        let states: [(OnlineRecord?, CatalogJSON, CatalogJSON)] = [
+            (nil, ["Waiting"], ["Choose your own pictures, or look for this game online."]),
+            (.init(), ["Not found"], missed),
+            (.init(picked: true), ["None"], missed),
+            (.init(about: "A game"), ["Found"], found),
+            (.init(title: "An untranslated title", year: "2020"), ["%@", "An untranslated title"], found),
+        ]
+        for (record, value, pictures) in states {
+            c.records[uuid] = record
+            let shown = try information()
+            XCTAssertEqual([shown["online"]?["value"], shown["online"]?["open"], shown["pictures"]],
+                           [value, "match", pictures])
+        }
+    }
+
     /// Every page a row may open, in every place, is one the page knows (desktop/ui/app.js PAGES).
     func testEveryPageARowOpensIsOneThePageHas() throws {
         let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -298,8 +333,13 @@ final class IntegrationsTests: XCTestCase {
         _ = try ask(c, "online.set", ["on": true])
         pages += [try ask(c, "integrations", ["at": "activity"]), try ask(try companion(), "integrations"), try ask(try companion(), "integrations", ["at": "guide"])]
         let before = try ask(c, "guide")["steam"]
-        pages.append(["entries": .array([before?["looking"] ?? .null, before?["unanswered"] ?? .null])])
+        let hello = try ask(c, "hello", ["languages": ["fr-FR"]])
+        pages.append(["entries": .array([before?["looking"] ?? .null, before?["unanswered"] ?? .null] + hello["gameSources"].items)])
+        let id = try XCTUnwrap(try ask(c, "library")["games"].items.first?["id"])
+        let information = try ask(c, "game", ["id": id])["information"]
+        pages.append(["entries": .array(information?["online"].map { [$0] } ?? [])])
         var keys = Set<String>()
+        if let key = information?["pictures"].items.first?.stringValue { keys.insert(key) }
         for page in pages {
             for e in entries(page) {
                 for field in ["title", "value", "sub"] { if let key = e[field].items.first?.stringValue { keys.insert(key) } }
@@ -307,7 +347,7 @@ final class IntegrationsTests: XCTestCase {
                 for words in [e["confirm"]?["title"], e["confirm"]?["text"], e["confirm"]?["label"]] { if let key = words.items.first?.stringValue { keys.insert(key) } }
             }
         }
-        let question = try ask(c, "hello", ["languages": ["fr-FR"]])["onlineQuestion"]
+        let question = hello["onlineQuestion"]
         for field in ["title", "text", "no", "yes"] { if let key = question?[field].items.first?.stringValue { keys.insert(key) } }
         keys.remove("%@")
         XCTAssertGreaterThanOrEqual(keys.count, 14)

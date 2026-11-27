@@ -23,10 +23,10 @@ public enum IntegrationRequest: Equatable, Sendable {
     case online(on: Bool), clearOnline
 }
 
-/// A page an entry opens in the same app. An app that draws such entries has one way to each (Windows and Linux:
+/// A page, picker or dialog an entry opens in the same app. The app has one way to each (Windows and Linux:
 /// `PAGES` in desktop/ui/app.js, checked by IntegrationsTests).
 public enum IntegrationRoute: String, CaseIterable, Equatable, Sendable {
-    case programs, integrations
+    case programs, integrations, folder, match, onlineQuestion
 }
 
 /// How much an integration needs the player, beside its status in the overview of integrations.

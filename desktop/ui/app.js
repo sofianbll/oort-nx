@@ -291,15 +291,14 @@ const setTab = async x => { tab = x; await reload(); homeLayer.redraw(); };
 const shiftTab = d => { const i = Math.max(0, Math.min(TABS.length - 1, TABS.indexOf(tab) + d)); if (TABS[i] !== tab) { S.play('confirm'); const bar = $('.tabs', homeLayer.el); tab = TABS[i]; [...bar.querySelectorAll('[role=tab]')].forEach((b, k) => b.setAttribute('aria-selected', k === i)); pill(bar); setTimeout(() => setTab(tab), root.hasAttribute('data-still') ? 0 : 160); } else S.play('deny'); };
 
 /* Steam's row in Add game, as the core decides it when the sheet opens (integrations, at add). */
-let addable = [];
+let addable = [], gameSources = [];
 const added = async r => {
   // Refused (changed since the sheet opened): the sheet shows the core's row as it is now.
   if (!r) { addable = (await ask('integrations', { at: 'add' }).catch(() => ({ entries: [] }))).entries; return top().refresh?.(); }
   await reload(true); selected = L.games.find(g => g.kind === 'steam')?.id ?? selected; S.play('success'); while (layers.length > 1) pop(); homeLayer.redraw(); };
 const addRows = () => [
   ...addable.map(e => entryRow(e, added, { at: 'add' })),
-  row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
-  row(t('A folder of games'), icon('chevron'), () => pickFolder(() => { while (layers.length > 1) pop(); selected = L.games[0]?.id ?? null; homeLayer.redraw(); }), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
+  ...gameSources.map(e => entryRow(e, null, { after: () => { while (layers.length > 1) pop(); selected = L.games[0]?.id ?? null; homeLayer.redraw(); } })),
 ].filter(Boolean);
 
 const cards = [{ id: 'add', ic: 'add', name: () => t('Add game'), run: () => openAdd() }];
@@ -412,7 +411,7 @@ const openDetail = async (id, section) => {
       busy && h('div', { cls: 'wait' }, h('div', { cls: 'bar', role: 'progressbar', 'aria-label': t('Getting ready…'), style: `--at:${preparing.value}` }, h('i')), h('p', { cls: 'say' }, preparing.text || d.prepare?.label || ''), key(t('Cancel'), () => invoke('close_game'), { id: 'stop' })),
       stats(d), genres(d), d.state !== 'ready' && !busy && h('p', { cls: 'say' }, stateText(d)), d.unsupported?.length && h('p', { cls: 'say' }, because('unsupported-' + d.unsupported[0])),
       d.about && [h('h2', {}, t('About this game')), h('div', { cls: 'about', tabindex: '0', 'data-id': 'about' }, d.about.split(/\n+/).map(x => h('p', {}, x)), d.source && h('small', {}, t('Source: %@', d.source)))],
-      [h('h2', {}, t('Details')), h('dl', { cls: 'facts' }, [[t('Publisher'), d.publisher], [t('Developer'), d.developer], [t('Release date'), d.year], [t('Version'), d.version], [t('Installed in'), d.folder], [t('Saves and mods'), t('In the game')]].filter(x => x[1]).map(([a, b]) => h('div', {}, h('dt', {}, a), h('dd', {}, b)))), h('div', { cls: 'rows' }, d.page && row(t('Open the page this comes from'), icon('link'), () => link(d.page), { id: 'page', sub: d.page.replace(/^https:\/\//, '').split('/')[0] }), row(t('Pictures and information'), icon('chevron'), () => openOptions(id, 'look'), { id: 'look', ic: 'image', sub: d.online ? d.about || d.year ? t('Another cover, or another game if this is not the right one.') : d.searched ? t('Nothing was found online. Look for it by another name, or choose your own pictures.') : t('Choose your own pictures, or look for this game online.') : t('Choose your own pictures, or turn on game information online.') }))],
+      [h('h2', {}, t('Details')), h('dl', { cls: 'facts' }, [[t('Publisher'), d.publisher], [t('Developer'), d.developer], [t('Release date'), d.year], [t('Version'), d.version], [t('Installed in'), d.folder], [t('Saves and mods'), t('In the game')]].filter(x => x[1]).map(([a, b]) => h('div', {}, h('dt', {}, a), h('dd', {}, b)))), h('div', { cls: 'rows' }, d.page && row(t('Open the page this comes from'), icon('link'), () => link(d.page), { id: 'page', sub: d.page.replace(/^https:\/\//, '').split('/')[0] }), row(t('Pictures and information'), icon('chevron'), () => openOptions(id, 'look'), { id: 'look', ic: 'image', sub: wording(d.information.pictures) }))],
       d.inputs?.length && [h('h2', { 'data-part': 'inputs' }, t('Files')), h('div', { cls: 'rows' }, d.inputs.map(i => row(i.label || i.id, [i.path ? h('span', {}, i.path.split(/[\\/]/).pop()) : i.optional ? t('Optional') : t('Missing'), dot(i.path ? 'ok' : i.optional ? 'mark' : '')], () => pickFile({ title: i.label || t('Files'), extensions: i.extensions, folders: i.folder, files: i.file, done: path => change(ask('game.input', { id, input: i.id, path })) }), { id: 'input-' + i.id, ic: i.role === 'key' ? 'key' : 'folder', sub: i.path && i.unchecked ? t('Oort NX does not check this copy; the project does.') : i.shared ? t('Kept where it is. Only its path is remembered.') : null })))],
       d.prepare && [h('h2', { 'data-part': 'prepare' }, t('Get ready')), h('div', { cls: 'rows' }, d.prepare.options.map(o => row(o.label, h('span', { cls: 'sw' }), () => change(ask('game.option', { id, option: o.id, on: !o.on })), { id: 'option-' + o.id, role: 'switch', checked: o.on, sub: [o.note, o.license && t('Turning this on accepts: %@', o.license.name), o.required && t('Required')].filter(Boolean).join(' ') })), d.prepare.options.filter(o => o.license?.url).map(o => row(t('Read: %@', o.license.name), icon('link'), () => link(o.license.url), { id: 'license-' + o.id })), row(d.prepare.needed ? t('Get ready') : t('Get ready again'), d.prepare.needed ? t('Needed') : t('Done'), () => prepare(id), { id: 'prepare', ic: 'build', sub: d.prepare.label, off: busy || d.state === 'inputs' ? stateText(d) || true : null }))],
       d.repo && [h('h2', {}, t('Project')), h('div', { cls: 'rows' }, row(d.repo, icon('link'), () => link('https://github.com/' + d.repo), { id: 'repo' }))]);
@@ -448,7 +447,8 @@ const openOptions = async (id, start) => {
     out.push({ title: t('Pictures and information'), ic: 'image', rows: [
       ...kinds.map(([kind, label]) => row(label, [d.pictures?.includes(kind) ? t('Yours') : d[kind] || kind === 'icon' && d.mark ? t('Automatic') : t('No picture'), icon('chevron')], () => d.pictures?.includes(kind) ? dialog(label, t('Your own picture is copied into Oort NX’s folder. The file you chose is not changed.'), [[t('Cancel'), () => {}], [t('Put it away'), () => ask('game.picture', { id, kind }).then(changed)], [t('Choose another'), () => choosePicture(kind)]]) : choosePicture(kind), { id: 'pic-' + kind, ic: 'image', help: t('A PNG, JPEG or WebP of yours. It stays on this computer.') })),
       d.program && row(t('Name'), d.name, () => type(t('Name'), d.name, async name => { await ask('programs.rename', { key: d.program.key, name }); await reload(); await refresh(); }), { id: 'rename', ic: 'edit' }),
-      row(t('Information online'), d.online ? d.about || d.year ? d.title || t('Found') : d.chosen ? t('None') : d.searched ? t('Not found') : t('Waiting') : t('Off'), () => d.online ? openMatch(id, d.name, changed) : askOnline(async () => { await refresh(); if (d.online) openMatch(id, d.name, changed); }), { id: 'online', ic: 'search', help: d.online ? t('Choose the right game, or none.') : t('Off. Select to read what it does and what it sends.') }),
+      entryRow(d.information.online, null, { chevron: false, game: () => [id, d.name, changed],
+        after: async () => { await refresh(); if (d.information.online.open === 'match') openMatch(id, d.name, changed); } }),
     ].filter(Boolean) });
     const groupOf = s => s.advanced ? t('Advanced') : s.group ? word(s.group) : t('Game settings'), list = d.settings || [], names = [...new Set(list.map(groupOf))];
     for (const name of names) out.push({ title: name, ic: 'tune', rows: list.filter(s => groupOf(s) === name).map(s => s.kind === 'elsewhere' ? row(word(s.label), t('In the game’s own menu'), null, { id: 's-' + s.id, off: true, help: s.help })
@@ -486,15 +486,15 @@ const found = ({ id }) => { clearTimeout(redone); redone = setTimeout(async () =
 
 /* ---------- Rows about integrations: each as the core decides it (integrations), sent back as it was shown ---------- */
 /* The pages a row may open, each once. One the core names and this app does not have is refused. */
-const PAGES = { programs: () => openProgram(), integrations: () => openSettings('integrations') };
+const PAGES = { programs: () => openProgram(), folder: o => pickFolder(o.after), match: (o, el) => o.game ? openMatch(...o.game()) : deny(el, ''), onlineQuestion: o => askOnline(o.after), integrations: () => openSettings('integrations') };
 /* The core's words, [key, count?, args…]; "%@" alone is shown as it is (a path, a number). */
 const wording = w => w && (w[0] === '%@' ? String(w[1]) : t(...w));
 /* o.at: the place (Settings by default); o.chevron: false where a page opens without one; o.press: A, when the place keeps
-   the choice itself (the first steps). */
+   the choice itself (the first steps); o.game: the match page's arguments; o.after: what the caller does on return. */
 const entryRow = (e, done, o = {}) => row(wording(e.title), [wording(e.value), e.checked != null && h('span', { cls: 'sw' }), e.open && o.chevron !== false && icon('chevron')].filter(Boolean),
-  el => (o.press || askEntry)(e, el, done, o.at), { id: e.id, ic: e.icon, role: e.checked != null ? 'switch' : null, checked: e.checked, sub: wording(e.sub), help: e.help?.map(wording).join('. ') });
-const askEntry = (e, el, done, at) => {
-  if (e.open) return PAGES[e.open] ? PAGES[e.open]() : deny(el, '');
+  el => (o.press || askEntry)(e, el, done, o.at, o), { id: e.id, ic: e.icon, role: e.checked != null ? 'switch' : null, checked: e.checked, sub: wording(e.sub), help: e.help?.map(wording).join('. ') });
+const askEntry = (e, el, done, at, o = {}) => {
+  if (e.open) return PAGES[e.open] ? PAGES[e.open](o, el) : deny(el, '');
   if (!e.token) return;
   // The core does it if the row is still the one shown and was not done since; else the row is drawn again.
   const run = async () => { if (e.checked != null) S.play('confirm', document.activeElement); try { done(await ask('integrations.act', { at, id: e.id, token: e.token })); } catch (x) { deny(el, ['stale', 'entry-missing'].includes(x) ? '' : because(x)); done(null); } };
@@ -859,8 +859,7 @@ const openGuide = async (at = 'welcome') => {
     controller: () => ({ title: t('Your controller'), say: t('Plug one in or pair it, then press any button. Keyboard and mouse work everywhere too.'), rows: [row(pad ? padName(pad.name) || t('Controller') : plugged[0] || t('No Gamepad Connected'), pad ? [t('Controller recognised'), dot('ok')] : plugged.length ? t('Press any button') : t('Keyboard and mouse are ready'), () => {}, { id: 'pad', ic: 'gamepad' }), pick('buttonNames', 'tune')] }),
     games: () => ({ title: t('Where are your games?'), say: t('Add what you want now, or later with the + tile. Nothing is moved or changed.'), rows: [
       entryRow(steam ? { ...steam, checked: take ?? undefined } : before.looking, null, { press: () => { if (take == null) return; take = !take; S.play('confirm', document.activeElement); layer.refresh(); } }),
-      row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
-      row(t('A folder of games'), icon('chevron'), () => pickFolder(() => layer.refresh()), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
+      ...gameSources.map(e => entryRow(e, null, { after: () => layer.refresh() })),
     ], status: L.total ? t('%lld games in your library', L.total) : null }),
     online: () => ({ title: wording(question.title), say: wording(question.text), rows: [], keys: [key(wording(question.no), () => online(false), { id: 'continue' }), key(wording(question.yes), () => online(true), { id: 'yes' })], status: t('You can change this in Settings, Integrations.') }),
     done: () => ({ title: t('All set'), say: t('%lld games in your library', L.total), rows: [], status: t('The + tile adds games. Settings has these steps again, under General.'), next: t('Open library') }),
@@ -892,7 +891,7 @@ const openGuide = async (at = 'welcome') => {
 export const oort = { act, ask, hand, live, dropped, apply, layers, sounds: S, cloud: C, get view() { return V; }, get library() { return L; }, guide: openGuide, pad: s => padding.feed(s), fullscreen: setFullscreen };
 const start = async () => {
   const hello = await ask('hello', { languages: [...navigator.languages] });
-  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; onlineQuestion = hello.onlineQuestion; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
+  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; onlineQuestion = hello.onlineQuestion; gameSources = hello.gameSources; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
   apply(hello.view); tab = TABS.includes(hello.view.startingTab) ? hello.view.startingTab : TABS[0];
   if (hello.view.restore && hello.lastGame) selected = hello.lastGame;
   await reload();

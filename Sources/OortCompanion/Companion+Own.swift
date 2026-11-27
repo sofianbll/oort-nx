@@ -212,9 +212,7 @@ extension Companion {
         out["source"] = .text(record?.source)
         out["page"] = .text(record?.page)
         out["title"] = .text(record?.title)
-        out["online"] = .bool(choices.online == true)
-        out["searched"] = .bool(record != nil)
-        out["chosen"] = .bool(record?.picked == true)
+        out["information"] = informationJSON(of: game)
         let folder = Paths.join(setup.data, "art/" + game.id.uuidString.lowercased()), files = Library.names(folder)
         out["pictures"] = .list(["cover", "icon", "hero", "logo"].filter { kind in files.contains { $0.hasPrefix(kind + ".") } })
     }

@@ -65,6 +65,37 @@ extension Companion {
          "yes": words(.init("Yes, look online"))]
     }
 
+    /// What a game's page says of information online, decided once from what is known of the game: the row, and the
+    /// sentence under « Pictures and information ». Off (A asks first: the question, then on), or Waiting until the game
+    /// was looked for, then its title (or Found), None if the player chose none, Not found (A corrects what was found).
+    func informationJSON(of game: Game) -> CatalogJSON {
+        let on = choices.online == true, record = records[game.id]
+        let found = [record?.about, record?.year].contains { !($0 ?? "").isEmpty }
+        let value: IntegrationWords, pictures: IntegrationWords
+        switch (on, found, record) {
+        case (false, _, _): (value, pictures) = (.init("Off"), .init("Choose your own pictures, or turn on game information online."))
+        case (_, true, _): (value, pictures) = (record?.title.flatMap { $0.isEmpty ? nil : .verbatim($0) } ?? .init("Found"), .init("Another cover, or another game if this is not the right one."))
+        case (_, _, let record?): (value, pictures) = (record.picked == true ? .init("None") : .init("Not found"), .init("Nothing was found online. Look for it by another name, or choose your own pictures."))
+        default: (value, pictures) = (.init("Waiting"), .init("Choose your own pictures, or look for this game online."))
+        }
+        let online = IntegrationEntry(id: "online", title: .init("Information online"), value: value,
+                                      help: [on ? .init("Choose the right game, or none.") : .init("Off. Select to read what it does and what it sends.")],
+                                      icon: "search", control: .open(on ? .match : .onlineQuestion), request: nil)
+        return ["pictures": words(pictures), "online": json(online, token: nil)]
+    }
+
+    /// Where a game comes from besides Steam: a program, a folder of games. The same wherever the page offers them
+    /// (the first steps, Add game); it has them from the start (hello).
+    func gameSourcesJSON() -> CatalogJSON {
+        let program: IntegrationWords = setup.system == "windows"
+            ? .init("Any game or emulator you start with an .exe file. Its name and icon come with it.")
+            : .init("Any game or emulator, or its menu entry. Its name and icon come with it.")
+        let entries = [IntegrationEntry(id: "program", title: .init("A program"), about: program, icon: "terminal", control: .open(.programs), request: nil),
+                       IntegrationEntry(id: "folder", title: .init("A folder of games"), about: .init("For recompiled games: each one has its recomplauncher.json."),
+                                        icon: "folder", control: .open(.folder), request: nil)]
+        return .array(entries.map { json($0, token: nil) })
+    }
+
     /// Steam on this computer, as each place says it. The activity center reads nothing while Steam is off.
     func steamEntry(at place: IntegrationPlace) -> IntegrationEntry? {
         if place == .activity, choices.steam != true { return nil }

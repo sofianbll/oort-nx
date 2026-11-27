@@ -548,7 +548,7 @@ final class OwnCompanionTests: XCTestCase {
         XCTAssertEqual(try ask(c, "game", ["id": id])["about"], "About it.", "what is known stays meanwhile")
         // Not this one: nothing is shown, nothing is asked again.
         let none = try ask(c, "online.none", ["id": id])
-        XCTAssertEqual([none["about"], none["cover"], none["look"], none["chosen"]], [.null, false, false, true])
+        XCTAssertEqual([none["about"], none["cover"], none["look"], none["information"]?["online"]?["value"]], [.null, false, false, ["None"]])
         // Another name that only Wikipedia could know, and it says no: nothing is written, it is asked later.
         exe(root + "/b.exe", "Tidal Works")
         let tidal = try XCTUnwrap(try ask(c, "programs.add", ["program": .string(root + "/b.exe")])["added"])
@@ -556,7 +556,7 @@ final class OwnCompanionTests: XCTestCase {
         _ = try ask(c, "online.answer", ["status": 200, "text": #"{"items":[]}"#])
         XCTAssertEqual(try ask(c, "online.answer", ["status": 429])["later"], true)
         XCTAssertEqual(try ask(c, "game", ["id": tidal])["look"], false)
-        XCTAssertEqual(try ask(c, "game", ["id": tidal])["searched"], false)
+        XCTAssertEqual(try ask(c, "game", ["id": tidal])["information"]?["online"]?["value"], ["Waiting"])
         _ = try ask(c, "online.start", ["id": id, "want": "choices", "text": "Coast"])
         XCTAssertEqual(try ask(c, "online.answer", ["status": 200, "text": #"{"items":[]}"#])["done"], true, "left alone for a while")
         clock += 3700

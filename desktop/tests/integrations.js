@@ -5,24 +5,36 @@
    online (data=), in English. GUIDE=true keeps the first steps open. */
 window.GUIDE = true;
 const asked = [], heard = [];
-let bogus = false, hold = null, cut = false, fake = false;
+let wrongRoute = null, hold = null, cut = false, fake = false;
 (() => {
   const core = window.__TAURI__.core, real = core.invoke;
   // The transport is the real one; this only listens, once puts a page the core never sends in its reply, gives the
   // steps' row while Steam is looked for a word the page would not choose, and holds or cuts the steps' Steam row.
   core.invoke = async (name, args) => {
+    if (name === 'online_look') return null;
+    if (name === 'online_search') return { choices: [] };
     if (name === 'core') asked.push(args.method + (args.params?.at ? '@' + args.params.at : ''));
     if (name === 'core' && args.method === 'integrations' && args.params?.at === 'guide') { if (cut) throw 'core-lost'; await hold; }
     const r = await real(name, args);
     if (name === 'core' && args.method === 'guide' && r?.steam?.looking) r.steam.looking.value = ['Waiting'];
     // The question asked before information online is on, with a title the page would not choose (hello).
-    if (name === 'core' && args.method === 'hello' && r?.onlineQuestion) r.onlineQuestion.title = ['Information online'];
+    if (name === 'core' && args.method === 'hello') {
+      if (r?.onlineQuestion) r.onlineQuestion.title = ['Information online'];
+      if (r?.gameSources) {
+        r.gameSources.find(e => e.id === 'program').title = ['Programs'];
+        r.gameSources.find(e => e.id === 'folder').title = ['Game folders'];
+      }
+    }
+    if (name === 'core' && args.method === 'game' && r?.information?.online.open === 'onlineQuestion') {
+      r.information.online.value = ['Waiting'];
+      r.information.pictures = ['No picture'];
+    }
     // The activity center as the core could say it: games looked for online, Oort at work.
     if (fake && name === 'core' && args.method === 'integrations' && args.params?.at === 'activity') {
       r.entries = [{ id: 'online', title: ['Information online'], sub: ['Looking…'], value: ['%lld games', 7], icon: 'search', open: 'integrations' }, ...r.entries.filter(e => e.id !== 'online')];
       r.working = true;
     }
-    if (bogus && name === 'core' && args.method === 'integrations' && !args.params?.at) r.sections.at(-1).entries[0].open = 'not-a-real-destination';
+    if (wrongRoute && name === 'core' && args.method === 'integrations' && !args.params?.at) r.sections.at(-1).entries[0].open = wrongRoute;
     return r;
   };
 })();
@@ -35,6 +47,10 @@ probe(async P => {
   const text = (el, part) => el?.querySelector(part)?.textContent.replace(/[-]/g, '').trim() ?? null;  // without the icons' glyphs
   const ONLINE = 'Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.';
   const reads = 'Steam' + en['Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.'];
+  const sources = (at, place) => {
+    const title = id => at(id)?.querySelector('.what')?.firstChild?.textContent;
+    P.same([title('program'), title('folder')], [en['Programs'], en['Game folders']], `${place}: the two sources are the core’s`);
+  };
 
   // The first steps, games page: before Steam is read, the row is the core's too (guide), while it is looked for and
   // if the core does not answer; A does nothing there.
@@ -42,6 +58,7 @@ probe(async P => {
   let release; hold = new Promise(r => { release = r; });
   for (const want of ['2 / 5', '3 / 5']) await go(want);
   await P.until(() => step('steam'), 8000, 'the games page');
+  sources(step, 'first steps');
   P.same([text(step('steam'), '.what'), text(step('steam'), '.value'), step('steam').getAttribute('role')], ['Steam', en['Waiting'], null], 'while Steam is looked for: the core’s words');
   // The page asks the core one thing at a time: nothing is asked of it until Steam's row comes.
   const waited = asked.length; heard.length = 0;
@@ -74,6 +91,7 @@ probe(async P => {
 
   // Add game: Steam's row is the core's while Steam is here and off; A turns it on and closes the sheets.
   await P.key('n', { ctrlKey: true }); await P.until(() => document.querySelector('.sheet'), 5000, 'Add game');
+  sources(sheetRow, 'Add game');
   P.ok(asked.includes('integrations@add'), 'Add game’s Steam row is the core’s');
   P.same([text(sheetRow('steam'), '.value'), sheetRow('steam')?.getAttribute('role')], ['2 games', null], 'a row, not a switch');
   sheetRow('steam').focus(); await P.press('a');
@@ -154,12 +172,15 @@ probe(async P => {
   settings.actions.b = b;
   await close();
 
-  // A page the core never sends is refused where the row is drawn: nothing opens.
-  bogus = true; await open(); bogus = false;
-  const layers = oort.layers.length; heard.length = 0;
-  row('prog').focus(); await P.press('a'); await P.wait(300);
-  P.same([oort.layers.length, heard.includes('deny')], [layers, true], 'an unknown page is refused');
-  await close(); await open();
+  // A page the row cannot open is refused, including a match page without a game.
+  for (const route of ['not-a-real-destination', 'match']) {
+    wrongRoute = route; await open(); wrongRoute = null;
+    const layers = oort.layers.length; heard.length = 0;
+    row('prog').focus(); await P.press('a'); await P.wait(300);
+    P.same([oort.layers.length, heard.includes('deny')], [layers, true], `${route} is refused here`);
+    await close();
+  }
+  await open();
   row('prog').focus(); await P.press('a');
   await P.until(() => document.querySelector('.sheet [data-id=program]'), 3000, 'Programs opens Add a program');
   await close();
@@ -167,13 +188,22 @@ probe(async P => {
   // Asked from a game's page while information online is off: the same question, the core's; No changes nothing.
   P.same((await ask('online')).on, false, 'off');
   await P.press('lt'); oort.act('right'); await P.until(() => oort.library.games.some(g => g.id === document.activeElement?.dataset.id), 5000, 'a game chosen'); await P.press('x');
-  await P.until(() => document.querySelector('.detail [data-id=look]'), 5000, 'the game’s options'); document.querySelector('.detail [data-id=look]').click();
-  await P.until(() => document.querySelector('.shell [data-id=online]'), 5000, 'its information'); document.querySelector('.shell [data-id=online]').click();
+  const pictures = await P.until(() => document.querySelector('.detail [data-id=look]'), 5000, 'the game’s options');
+  P.same(text(pictures, '.what small'), en['No picture'], 'the game’s pictures sentence is the core’s');
+  pictures.click();
+  const gameOnline = await P.until(() => document.querySelector('.shell [data-id=online]'), 5000, 'its information');
+  P.same(text(gameOnline, '.value'), en['Waiting'], 'the game’s online row is the core’s');
+  gameOnline.click();
   await P.until(() => document.querySelector('[role=alertdialog]'), 3000, 'asked first');
   P.same([P.text('[role=alertdialog] h1'), P.text('[role=alertdialog] p'), [...document.querySelectorAll('[role=alertdialog] .keys button')].map(b => b.textContent.trim())],
     [en['Information online'], en[ONLINE], [en['No'], en['Yes, look online']]], 'the game’s page asks the core’s question');
   document.querySelector('[role=alertdialog] .keys button').click(); await P.wait(300);
   P.same([(await ask('online')).on, !!document.querySelector('[role=alertdialog]')], [false, false], 'No changes nothing');
+  document.querySelector('.shell [data-id=online]').click();
+  document.querySelectorAll('[role=alertdialog] .keys button')[1].click();
+  await P.until(() => document.querySelector('.sheet [data-id=none]'), 5000, 'Yes opens the match page');
+  P.same((await ask('online')).on, true, 'Yes enables online before matching');
+  await ask('online.set', { on: false });
   await close();
 
   // The same rules on the core's own transport: a row changed since it was shown, or done twice, is refused.

@@ -11,10 +11,10 @@ An `error` is a short code the window puts into words; `disk` comes with a `deta
 
 | Methods | What they do |
 |---|---|
-| `hello`, `view` | What the window needs to draw itself; `hello` takes the system's `languages`, and gives `onlineQuestion`: the question asked before information online is on (`title`, `text`, `no`, `yes`, as `[key, count?, args…]`), in the first steps and from a game's details |
+| `hello`, `view` | What the window needs to draw itself; `hello` takes the system's `languages`, and gives `onlineQuestion`: the question asked before information online is on (`title`, `text`, `no`, `yes`, as `[key, count?, args…]`), in the first steps and from a game's details, and `gameSources`: a program, a folder of games, as rows (`id`, `title`, `sub`, `icon`, `open`) for the first steps and Add game |
 | `library`, `library.rescan` | Games of a tab, searched and sorted (`LibraryQuery`) |
 | `folders`, `folders.add`, `folders.remove`, `programs.add`, `programs.remove`, `programs.rename`, `programs.about` | Where games are; what a program says of itself |
-| `game`, `game.favorite`, `game.input`, `game.setting`, `game.option`, `game.folder`, `game.link` | One game: its files, its settings, its setup choices, and checks for HTTPS links from games in the library |
+| `game`, `game.favorite`, `game.input`, `game.setting`, `game.option`, `game.folder`, `game.link` | One game: its files, settings, setup choices and checks for its HTTPS links. `game` supplies `information.pictures` (the subtitle for Pictures and information) and `information.online` (the row whose `open` leads to the consent question or the match page). |
 | `game.art`* | The path of one of a game's pictures (`cover`, `icon`, `hero`, `logo`, and `mark`, its program's icon) |
 | `game.picture` | A picture the player chose, copied into the app's folder, or put away |
 | `guide` | The first steps: open or not, at which page, done; `steam`: Steam's row of the games page before it is read, while it is looked for (`looking`) and if the core does not answer (`unanswered`), drawn like the rows of `integrations` |
