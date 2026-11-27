@@ -196,7 +196,7 @@ extension CloudSetupAssistant {
         (app / "CloudShelfProbe.swift").write_text(host)
         subprocess.run([str(build_probe(package)), str(output),
                         str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                        str(ROOT / "Resources/AppIcon-Light.png"), *sys.argv[2:]],
+                        str(ROOT / "design/Icons/AppIcon-Light.png"), *sys.argv[2:]],
                        check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
 
 

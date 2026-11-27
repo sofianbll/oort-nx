@@ -7,17 +7,17 @@ Regenerate the icons on macOS with Xcode 26 or later (`actool`, `ictool`):
 out="$PWD/work/oort/icons"
 ictool="$(dirname "$(xcode-select -p)")/Applications/Icon Composer.app/Contents/Executables/ictool"
 python3 scripts/brand_icons.py "$out"
-rm -rf Resources/AppIcon.icon Resources/AppIconParticles.icon
-cp -R "$out/AppIcon.icon" "$out/AppIconParticles.icon" Resources/
+rm -rf design/Icons/AppIcon.icon design/Icons/AppIconParticles.icon
+cp -R "$out/AppIcon.icon" "$out/AppIconParticles.icon" design/Icons/
 for look in Default:Light Dark:Dark; do
-  "$ictool" Resources/AppIconParticles.icon --export-image --output-file "$out/p.png" \
+  "$ictool" design/Icons/AppIconParticles.icon --export-image --output-file "$out/p.png" \
     --platform macOS --rendition "${look%%:*}" --width 824 --height 824 --scale 1
-  sips --padToHeightWidth 1024 1024 "$out/p.png" --out "Resources/AppIcon-Particles-${look##*:}.png"
+  sips --padToHeightWidth 1024 1024 "$out/p.png" --out "design/Icons/AppIcon-Particles-${look##*:}.png"
 done
-xcrun actool Resources/AppIcon.icon --compile "$out" --platform macosx --minimum-deployment-target 13.0 \
+xcrun actool design/Icons/AppIcon.icon --compile "$out" --platform macosx --minimum-deployment-target 13.0 \
   --app-icon AppIcon --include-all-app-icons --output-partial-info-plist "$out/partial.plist"
 cp "$out/AppIcon.icns" apps/mac/AppIcon.icns
-"$ictool" Resources/AppIcon.icon --export-image --output-file Resources/AppIcon-Light.png \
+"$ictool" design/Icons/AppIcon.icon --export-image --output-file design/Icons/AppIcon-Light.png \
   --platform macOS --rendition Default --width 512 --height 512 --scale 2  # README
 ```
 

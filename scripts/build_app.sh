@@ -82,13 +82,13 @@ cp -R "$LOCALIZATION_BUNDLE" "$APP/Contents/Resources/"
 if [ -f "$ROOT/apps/mac/AppIcon.icns" ]; then
   cp "$ROOT/apps/mac/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 fi
-for icon in "$ROOT"/Resources/AppIcon-Particles-*.png; do
+for icon in "$ROOT"/design/Icons/AppIcon-Particles-*.png; do
   cp "$icon" "$APP/Contents/Resources/"
 done
 # macOS draws the Icon Composer icon natively instead of framing the ICNS fallback.
 ICON_BUILD="$STAGE/icon"
 mkdir -p "$ICON_BUILD"
-xcrun actool "$ROOT/Resources/AppIcon.icon" --compile "$ICON_BUILD" \
+xcrun actool "$ROOT/design/Icons/AppIcon.icon" --compile "$ICON_BUILD" \
   --platform macosx --minimum-deployment-target 26.0 --app-icon AppIcon --include-all-app-icons \
   --output-partial-info-plist "$STAGE/icon.plist"
 test -s "$ICON_BUILD/Assets.car"

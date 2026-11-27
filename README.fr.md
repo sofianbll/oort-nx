@@ -1,6 +1,6 @@
 # Oort NX
 
-<img src="Resources/AppIcon-Light.png" alt="Icône Trame d’Oort NX" width="96" height="96">
+<img src="design/Icons/AppIcon-Light.png" alt="Icône Trame d’Oort NX" width="96" height="96">
 
 **Tes jeux, à leur place sur Mac.** Retrouve dans une seule bibliothèque tes raccourcis Mac, tes jeux Steam installés pour Mac et les jeux compilés avec nxnative. Choisis un jeu et lance-le à la manette, au clavier ou à la souris. Tes fichiers de jeux restent à toi.
 

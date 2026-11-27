@@ -1482,8 +1482,8 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 
 | File | Responsabilità aggiuntiva |
 |---|---|
-| [Resources/IconArtwork.png](../../Resources/IconArtwork.png) | Master quadrato originale dell’icona (cristallo nella sfera di vetro), fornito dall’utente e creato con AI. |
-| [Resources/IconArtwork.md](../../Resources/IconArtwork.md) | Riproduzione delle icone native e Dock, e provenienza del cristallo originale. |
+| [design/Icons/IconArtwork.png](../../design/Icons/IconArtwork.png) | Master quadrato originale dell’icona (cristallo nella sfera di vetro), fornito dall’utente e creato con AI. |
+| [design/Icons/IconArtwork.md](../../design/Icons/IconArtwork.md) | Riproduzione delle icone native e Dock, e provenienza del cristallo originale. |
 | [crystal-arcane.png](../../core/OortLibrary/Resources/crystal-arcane.png) | Immagine ferma del trofeo Arcane, anche come ripiego del video. |
 | [crystal-arcane.mov](../../core/OortLibrary/Resources/crystal-arcane.mov) | Animazione con alpha del trofeo Arcane. |
 | [achievements-01006BB00C6F0000.json](../../core/OortLibrary/Resources/achievements-01006BB00C6F0000.json) | Pack degli obiettivi locali di Link’s Awakening in sette lingue. |
@@ -1493,16 +1493,16 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 
 | File | Responsabilità |
 |---|---|
-| [Resources/AppIcon.icon/icon.json](../../Resources/AppIcon.icon/icon.json) | Icona Icon Composer a trama: sfondo, livelli e colori. |
-| [Resources/AppIcon.icon/Assets/glyph.svg](../../Resources/AppIcon.icon/Assets/glyph.svg) | Livello vettoriale della trama. |
-| [Resources/AppIcon.icon/Assets/sun.svg](../../Resources/AppIcon.icon/Assets/sun.svg) | Livello vettoriale del Sole. |
-| [Resources/AppIconParticles.icon/icon.json](../../Resources/AppIconParticles.icon/icon.json) | Sorgente Icon Composer per le immagini del Dock a particelle. |
-| [Resources/AppIconParticles.icon/Assets/glyph.svg](../../Resources/AppIconParticles.icon/Assets/glyph.svg) | Livello vettoriale delle particelle. |
-| [Resources/AppIconParticles.icon/Assets/sun.svg](../../Resources/AppIconParticles.icon/Assets/sun.svg) | Livello vettoriale del Sole nella variante a particelle. |
+| [design/Icons/AppIcon.icon/icon.json](../../design/Icons/AppIcon.icon/icon.json) | Icona Icon Composer a trama: sfondo, livelli e colori. |
+| [design/Icons/AppIcon.icon/Assets/glyph.svg](../../design/Icons/AppIcon.icon/Assets/glyph.svg) | Livello vettoriale della trama. |
+| [design/Icons/AppIcon.icon/Assets/sun.svg](../../design/Icons/AppIcon.icon/Assets/sun.svg) | Livello vettoriale del Sole. |
+| [design/Icons/AppIconParticles.icon/icon.json](../../design/Icons/AppIconParticles.icon/icon.json) | Sorgente Icon Composer per le immagini del Dock a particelle. |
+| [design/Icons/AppIconParticles.icon/Assets/glyph.svg](../../design/Icons/AppIconParticles.icon/Assets/glyph.svg) | Livello vettoriale delle particelle. |
+| [design/Icons/AppIconParticles.icon/Assets/sun.svg](../../design/Icons/AppIconParticles.icon/Assets/sun.svg) | Livello vettoriale del Sole nella variante a particelle. |
 | [apps/mac/AppIcon.icns](../../apps/mac/AppIcon.icns) | Ripiego `.icns` della trama. |
-| [Resources/AppIcon-Light.png](../../Resources/AppIcon-Light.png) | Anteprima chiara della trama nel README. |
-| [Resources/AppIcon-Particles-Dark.png](../../Resources/AppIcon-Particles-Dark.png) | Icona Dock a particelle scura. |
-| [Resources/AppIcon-Particles-Light.png](../../Resources/AppIcon-Particles-Light.png) | Icona Dock a particelle chiara. |
+| [design/Icons/AppIcon-Light.png](../../design/Icons/AppIcon-Light.png) | Anteprima chiara della trama nel README. |
+| [design/Icons/AppIcon-Particles-Dark.png](../../design/Icons/AppIcon-Particles-Dark.png) | Icona Dock a particelle scura. |
+| [design/Icons/AppIcon-Particles-Light.png](../../design/Icons/AppIcon-Particles-Light.png) | Icona Dock a particelle chiara. |
 | [design/Selene/palettes.json](../../design/Selene/palettes.json) | Catalogo delle 26 palette: Oort predefinito, blu classico Arcane e superfici opzionali Crystal e Flow. |
 | [design/Selene/Fonts/MaterialIcons-Regular.ttf](../../design/Selene/Fonts/MaterialIcons-Regular.ttf) | Font dei glifi Material Icons disegnati dalla UI. |
 | [design/Selene/Fonts/MaterialIcons-LICENSE.txt](../../design/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |

@@ -151,7 +151,7 @@ extension CloudLibraryPanel {
         (app / "CloudScreenProbe.swift").write_text(preamble + SCENARIO + text_render(renderer))
         install(app)
         font = ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"
-        icon = ROOT / "Resources/AppIcon-Light.png"
+        icon = ROOT / "design/Icons/AppIcon-Light.png"
         home = package / "fixture-home"
         home.mkdir()
         subprocess.run([str(build_probe(package)), str(output), str(font), str(icon)], check=True,

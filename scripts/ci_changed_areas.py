@@ -16,14 +16,14 @@ import sys
 
 # Prefixes end with "/"; "folder/*" is only the files directly in folder; other entries are exact file names.
 AREAS = {
-    "swift": ("core/", "engines/", "apps/", "design/Brands/", "design/Selene/", "design/SoundPacks/", "design/ThirdPartyLicenses/", "Resources/", "scripts/", "Package.swift", "engines/nxnative/runtime.lock", "VERSION"),
+    "swift": ("core/", "engines/", "apps/", "design/Brands/", "design/Selene/", "design/SoundPacks/", "design/ThirdPartyLicenses/", "design/Icons/", "scripts/", "Package.swift", "engines/nxnative/runtime.lock", "VERSION"),
     "desktop": ("desktop/", "core/OortCore/", "core/OortLibrary/", "scripts/check_portable_core.py", "Package.swift",
                 # desktop/scripts/generate.py reads these.
                 "design/*", "design/Selene/palettes.json", "scripts/generate_oort_tokens.py"),
     "mobile": ("mobile/", "core/OortCore/", "Package.swift"),
     "android": ("android/", "Tests/AndroidChecks/", "scripts/generate_oort_android_tokens.py",
                 # The tokens and the app mark Android is drawn from.
-                "design/*", "Resources/AppIcon.icon/"),
+                "design/*", "design/Icons/AppIcon.icon/"),
 }
 # An area needs its folder in the checkout; without it the area stays off.
 FOLDER = {"desktop": "desktop", "mobile": "mobile", "android": "android"}

@@ -89,7 +89,7 @@ def main():
             profile_home.mkdir()
             subprocess.run([str(executable), str(dest),
                             str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                            str(ROOT / "Resources/AppIcon-Light.png")], check=True,
+                            str(ROOT / "design/Icons/AppIcon-Light.png")], check=True,
                            env=dict(isolated_home_env(profile_home), OORT_QUEUE_PAUSED=str(paused)))
     for name in ("activite-large-fr.png", "activite-etroite-fr.png"):
         assert (output / "avant" / name).read_bytes() == (output / "apres" / name).read_bytes(), name

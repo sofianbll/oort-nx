@@ -37,15 +37,6 @@ model {
     }
 
 
-    resources = folder "Resources/" {
-      summary "Icons, brands, Selene media, sounds, third-party licences"
-      metadata {
-        path "Resources"
-        markdown "yes"
-      }
-      resIcon = folder "AppIcon.icon/" { metadata { path "Resources/AppIcon.icon" } }
-      resIconParticles = folder "AppIconParticles.icon/" { metadata { path "Resources/AppIconParticles.icon" } }
-    }
 
     design = folder "design/" {
       summary "Shared design sources: tokens, vocabulary, credits, brands, Selene media, sounds, icons, licences"
@@ -54,6 +45,12 @@ model {
       designSelene = folder "Selene/" { metadata { path "design/Selene" } }
       designSounds = folder "SoundPacks/" { metadata { path "design/SoundPacks" } }
       designLicences = folder "ThirdPartyLicenses/" { metadata { path "design/ThirdPartyLicenses" } }
+      designIcons = folder "Icons/" {
+        metadata {
+          path "design/Icons"
+          markdown "yes"
+        }
+      }
     }
 
     docs = folder "docs/" {

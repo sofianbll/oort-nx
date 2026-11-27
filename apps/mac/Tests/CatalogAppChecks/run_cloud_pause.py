@@ -299,7 +299,7 @@ extension CloudLibraryPanel {
         fixture_home.mkdir()
         subprocess.run([str(build_probe(package)), str(output),
                         str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                        str(ROOT / "Resources/AppIcon-Light.png")], check=True,
+                        str(ROOT / "design/Icons/AppIcon-Light.png")], check=True,
                        env=isolated_home_env(fixture_home))
 
 

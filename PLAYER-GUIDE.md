@@ -314,7 +314,7 @@ Arcane is MIT licensed. It uses upstream [nxnative](https://github.com/seedds/nx
 
 The interface draws from the MIT [Selene](https://github.com/mattxslv/Selene) theme. Bundled fonts, sounds, palettes and runtime components retain their own licences; see [NOTICE](NOTICE), [media notices](design/Selene/NOTICE.txt) and [palette notices](design/Selene/NOTICE-palettes.txt).
 
-The app icon uses original artwork. See the [generation notes](Resources/IconArtwork.md).
+The app icon uses original artwork. See the [generation notes](design/Icons/IconArtwork.md).
 
 ## Legal and third-party notices
 

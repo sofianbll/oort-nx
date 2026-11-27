@@ -43,7 +43,7 @@ class ChangedAreasTests(unittest.TestCase):
             "design/oort.tokens.json": {"desktop", "android"},
             "design/Selene/palettes.json": {"swift", "desktop"},
             "scripts/generate_oort_tokens.py": {"swift", "desktop"},
-            "Resources/AppIcon.icon/Assets/glyph.svg": {"swift", "android"},
+            "design/Icons/AppIcon.icon/Assets/glyph.svg": {"swift", "android"},
         }
         with checkout(*ALL_FOLDERS) as root:
             for path, expected in cases.items():
