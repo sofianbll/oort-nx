@@ -42,7 +42,7 @@ The documentation is how the next session understands the structure. Keep it exa
 ## Non-negotiables
 
 - Use nxnative in place. Never patch `~/nxnative`; upstream re-pins change `AppViewModel.defaultPinnedEngineCommit`. Fork releases can package a tested pin using the [release guide](docs/working-on-it/development.md#publication-perso-sofian).
-- No Nintendo game assets, keys, ROMs, or game content in the repository. The two reviewed Nintendo Switch platform symbols in `Resources/Brands/Platforms/Marks` are the only Nintendo artwork exception; the publication check pins their hashes.
+- No Nintendo game assets, keys, ROMs, or game content in the repository. The two reviewed Nintendo Switch platform symbols in `design/Brands/Platforms/Marks` are the only Nintendo artwork exception; the publication check pins their hashes.
 - Sources are symlinked, never copied. New builds install to the selected **Game apps** folder (default `~/Applications`); rebuilds replace the existing app atomically in its current location. Changing the folder never moves installed apps.
 - Keys stay mode `0600`; never log key values.
 - The Metal gate blocks new builds unless the toolchain is certified or the explicit untested override is enabled. An override records `toolchainVerified=false`.
@@ -77,7 +77,7 @@ Every re-pin is a product decision, not just a hash change. Before changing the 
 3. Classify each change: shader/pipeline, host/runtime, input/display/audio, game profiles, build/extraction, CLI/env, docs/tests.
 4. For each user-visible capability decide **UI**, **backend only**, or **not adopted**, and say why.
 5. Wire any new engine flag that maps to an existing Arcane control. Example: nxnative 4f24ce6 added `--allow-other-metal`; it must be passed when the app's untested-toolchain override is on.
-6. If the engine's README `pip install` line names a new package, add its wheel (and its dependencies) to `runtime.lock`, rebuild with `scripts/bundle_runtime.sh`, and update `NOTICE`; a GPL package also ships its source in `Runtime/sources/`. `EngineRuntimeRequirementsTests` fails until it is there.
+6. If the engine's README `pip install` line names a new package, add its wheel (and its dependencies) to `engines/nxnative/runtime.lock`, rebuild with `scripts/bundle_runtime.sh`, and update `NOTICE`; a GPL package also ships its source in `Runtime/sources/`. `EngineRuntimeRequirementsTests` fails until it is there.
 7. If the engine's `dm/gfx/tools/dmsh_chain.lock` certifies a new Metal compiler, add it to `ToolchainRequirements.current.metalAssets` with Apple's asset build from `xcodebuild -showComponent MetalToolchain -json` (`buildVersion`), so the Setup check can download exactly that compiler. Raise `minimumXcode` when the new compiler needs it.
 8. Re-pin only after tests, the compatibility gate, a certified build, and a smoke launch. Update `README.md` and the design spec.
 9. Write a dated note in `docs/history/engine-upgrades/` using the checklist there.

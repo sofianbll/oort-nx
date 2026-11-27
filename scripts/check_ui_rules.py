@@ -39,12 +39,16 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import names  # noqa: E402  architecture/names.json
+from repo_model import renamed  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "scripts/ui-rules.json"
 MAX_ENTRIES, MAX_DEPTH = 5, 2
-CATALOG = "Sources/NXLibraryCore/Resources/Localizable.xcstrings"
-VIEWS = "Sources/NXLibrary/Views/"
-APP = "Sources/NXLibrary/"
+CATALOG = "core/OortLibrary/Resources/Localizable.xcstrings"
+VIEWS = "apps/mac/OortMac/Views/"
+APP = "apps/mac/OortMac/"
 LIBRARY = VIEWS + "OortUI/"
 # Debug galleries and probes: never shown to a player.
 NOT_SHIPPED = re.compile(r"(?:Gallery|Probe|Fixture\w*|Preview\w*)\.swift$")
@@ -183,16 +187,21 @@ class Tree:
         return Source((self.root / relative).read_text(encoding="utf-8"))
 
     @lru_cache(maxsize=None)
-    def files(self, prefix="Sources"):
+    def files(self, prefix):
         base = self.root / prefix
         return [path.relative_to(self.root).as_posix() for path in sorted(base.rglob("*.swift"))
                 if not NOT_SHIPPED.search(path.name) and ".build" not in path.parts] if base.is_dir() else []
 
     @lru_cache(maxsize=None)
+    def swift(self):
+        """Every shipped Swift file of the package's modules (architecture/names.json)."""
+        return [relative for module in names.MODULES.values() for relative in self.files(module["path"])]
+
+    @lru_cache(maxsize=None)
     def enums(self):
         """Every enum by name, with its cases. The same name twice is kept apart by file."""
         found = defaultdict(dict)
-        for relative in self.files("Sources") + self.files("mobile"):
+        for relative in self.swift() + self.files("mobile"):
             source = self.source(relative)
             for match in re.finditer(r"\benum\s+(\w+)[^{]*\{", source.code):
                 start = match.end() - 1
@@ -208,7 +217,7 @@ class Tree:
     def declaring(self, type_name, pattern):
         """The file where a type (or its extension) declares a member."""
         head = re.compile(rf"\b(?:enum|struct|class|extension)\s+{type_name}\b")
-        for relative in self.files("Sources"):
+        for relative in self.swift():
             source = self.source(relative)
             if head.search(source.code) and re.search(pattern, source.code): return relative
         return None
@@ -294,7 +303,7 @@ def measure_surface(tree, item):
         used_once = len(used) - sum(len(used & set(group)) - 1 for group in item.get("alternatives", []) if used & set(group))
         return relative, [("", used_once + len(item.get("added", [])))]
     if kind == "commands":
-        for relative in tree.files("Sources/NXLibrary"):
+        for relative in tree.files("apps/mac/OortMac"):
             source = tree.source(relative)
             for start, _, value, _ in source.strings:
                 if value == what and re.search(r"CommandMenu\(\s*$", source.code[:start]):
@@ -369,7 +378,7 @@ def check_menus(tree, rules, found, notes):
                 found.add("menu-unregistered", relative, f"{opener['type']}.{row}", f"{opener['type']}.{row} opens a list that no surface declares")
 
     declared = {how.split(":", 1)[1].rpartition(".")[2] for how in shared if how.startswith("enum:")} | set(rules["values"])
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         if relative.startswith(LIBRARY): continue
         for match in re.finditer(r"\b([A-Z]\w+)\.allCases\b", source.code):
@@ -402,7 +411,7 @@ def path_of(name, surfaces):
 
 
 def check_dialogs(tree, found):
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):
             call = source.code[match.end() - 1:source.close(match.end() - 1)]
@@ -423,7 +432,7 @@ def check_texts(tree, rules, found):
     if not path.is_file(): return
     strings = json.loads(path.read_text(encoding="utf-8"))["strings"]
     english = rules["english"]
-    for relative in tree.files("Sources"):
+    for relative in tree.swift():
         source = tree.source(relative)
         for start, _, raw, interpolated in source.strings:
             before, value = source.code[max(0, start - 160):start], unescape(raw)
@@ -474,7 +483,7 @@ def chain_end(source, index):
 
 def check_access(tree, rules, found):
     views, functions = defaultdict(str), defaultdict(str)
-    files = [f for f in tree.files("Sources/NXLibrary") if not f.startswith(LIBRARY)]
+    files = [f for f in tree.files("apps/mac/OortMac") if not f.startswith(LIBRARY)]
     for relative in files:
         source = tree.source(relative)
         for match in re.finditer(r"\b(?:struct|extension|class)\s+(\w+)[^{]*\{", source.code):
@@ -558,7 +567,7 @@ def is_back(source, start, end):
 
 
 def check_order(tree, rules, found):
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         for match in re.finditer(r"(?<![.\w])(?:HStack|ViewThatFits)\b\s*(?=[({])", source.code):
             opening = match.end()
@@ -601,7 +610,7 @@ def check_order(tree, rules, found):
             found.add("button-order", relative, "confirm left of cancel",
                       "Binary confirmations navigate Cancel on the left and Confirm on the right", source.line(match.start()))
     # The hint bar sets the sides the keys follow: B on the left, A last on the right.
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         for match in re.finditer(r"\bSeleneHintsBar\s*\(", source.code):
             end = source.close(match.end() - 1)
@@ -629,7 +638,7 @@ def check_order(tree, rules, found):
 
 
 def check_focus(tree, rules, found):
-    files = tree.files("Sources/NXLibrary")
+    files = tree.files("apps/mac/OortMac")
     everything = "\n".join(tree.source(relative).code for relative in files)
     for relative in files:
         source = tree.source(relative)
@@ -671,7 +680,7 @@ def check_focus(tree, rules, found):
 def check_keyboard(tree, rules, found):
     component = tree.root / (LIBRARY + "SeleneSettingsRow.swift")
     helps_by_click = component.is_file() and re.search(r"\bSeleneInfoTip\(\s*info\s*\)", tree.source(LIBRARY + "SeleneSettingsRow.swift").code)
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         if relative.startswith(LIBRARY): continue
         source = tree.source(relative)
         if SECTION.search(relative):
@@ -741,7 +750,7 @@ def check_keyboard(tree, rules, found):
 
 def check_mouse(tree, rules, found):
     declared, seen = rules.get("mouse_paths", {}), set()
-    files = tree.files("Sources/NXLibrary")
+    files = tree.files("apps/mac/OortMac")
     # A bar that presses its hints' buttons, by view: View.swift and View+Part.swift are one.
     view = lambda relative: Path(relative).stem.split("+")[0]
     pressing = {view(relative) for relative in files if re.search(r"\b(?:SeleneHintsBar|SeleneHomeChrome)\s*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\bpress\s*:",
@@ -827,6 +836,10 @@ def main():
         shown = subprocess.run(["git", "show", f"{args.base}:scripts/ui-rules.json"], cwd=ROOT, capture_output=True, text=True)
         if shown.returncode == 0:
             before = json.loads(shown.stdout)
+            # A file the base knew under another path keeps its debt (repo_model.renamed).
+            moved = renamed(ROOT, args.base)
+            before["allowed"] = {rule: {moved.get(path, path): found for path, found in paths.items()}
+                                 for rule, paths in before["allowed"].items()}
             script = subprocess.run(["git", "show", f"{args.base}:scripts/check_ui_rules.py"], cwd=ROOT, capture_output=True, text=True)
             known = judged(script.stdout) if script.returncode == 0 else None
             for (rule, path, signature), count in sorted(grown(rules["allowed"], before["allowed"], known).items()):

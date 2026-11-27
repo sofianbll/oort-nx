@@ -1,6 +1,6 @@
 # Oort NX
 
-<img src="Resources/AppIcon-Light.png" alt="Oort NX halftone icon" width="96" height="96">
+<img src="design/Icons/AppIcon-Light.png" alt="Oort NX halftone icon" width="96" height="96">
 
 **Your games, together on Mac.** Browse Mac app shortcuts, installed Steam games for Mac and games built with nxnative in one library. Pick a game and play with a controller, keyboard or mouse. Your game files are yours to manage.
 

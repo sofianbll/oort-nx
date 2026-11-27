@@ -30,7 +30,7 @@ from xml.etree import ElementTree
 ROOT = Path(__file__).resolve().parents[1]
 VOCABULARY = ROOT / "design/vocabulary.json"
 DEBT = ROOT / "design/vocabulary-debt.json"
-MAC = "Sources/NXLibraryCore/Resources/Localizable.xcstrings"
+MAC = "core/OortLibrary/Resources/Localizable.xcstrings"
 DESKTOP = "desktop/ui/gen/strings.js"
 ANDROID = "android/app/src/main/res"
 IOS = re.compile(r"mobile/Sources/([^/]+)/Resources/Localizable\.xcstrings")

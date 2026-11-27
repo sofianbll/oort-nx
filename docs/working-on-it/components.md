@@ -1,6 +1,6 @@
 # OortUI · inventario dei componenti
 
-`Sources/NXLibrary/Views/OortUI` contiene le implementazioni Selene condivise.
+`apps/mac/OortMac/Views/OortUI` contiene le implementazioni Selene condivise.
 I tipi con prefisso `Selene` restano disponibili per la migrazione.
 
 | Componente | Scopo e uso | Preset / stati | Usare · evitare |

@@ -7,7 +7,7 @@ autre commit. Un scan au même emplacement ou une restauration cloud peut
 également conserver cet ancien enregistrement. Un hash du catalogue ne prouve
 donc pas la version d’une app installée.
 
-La sonde `Tests/CatalogAppChecks/run_cloud_screens.py` écrit des plists et un
+La sonde `apps/mac/Tests/CatalogAppChecks/run_cloud_screens.py` écrit des plists et un
 historique Git synthétiques, avec un enregistrement de catalogue volontairement
 en désaccord. Elle contrôle les fichiers locaux, cloud et absents, puis rend
 la ligne Moteur et les couvertures dans les trois positions. Les images

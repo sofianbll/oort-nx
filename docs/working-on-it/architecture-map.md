@@ -36,9 +36,9 @@ The [LikeC4 MCP server](https://likec4.dev/tooling/ai-tools/#mcp-server) queries
 ## Rules checked by script
 
 1. **OortCore imports Foundation only.** A new Apple framework in this module fails the check.
-2. **Layer order.** A module imports only the modules below it. For example, `NXLibraryCore` may not import `NXLibrary`.
-3. **No interface framework in the core.** `OortCore` and `NXLibraryCore` may not import AppKit, SwiftUI, Metal, MetalKit or GameController.
-   - Two files are on the baseline, and the baseline can only shrink: `Sources/NXLibraryCore/Selene/Motion.swift` (SwiftUI) and `Sources/NXLibraryCore/Artwork/ArtworkStore.swift` (AppKit).
+2. **Layer order.** A module imports only the modules below it. For example, `OortLibrary` may not import `OortMac`.
+3. **No interface framework in the core.** `OortCore` and `OortLibrary` may not import AppKit, SwiftUI, Metal, MetalKit or GameController.
+   - Two files are on the baseline, and the baseline can only shrink: `core/OortLibrary/Selene/Motion.swift` (SwiftUI) and `core/OortLibrary/Artwork/ArtworkStore.swift` (AppKit).
    - When one of them stops importing the framework, the check reports the stale entry, and the entry is removed in the same change.
 
 The check compares `swiftModule` declarations with the regular and executable targets returned by `swift package dump-package`. It reads actual source imports, not the build graph.
@@ -48,10 +48,10 @@ The check compares `swiftModule` declarations with the regular and executable ta
 | The code… | Goes in | Example |
 |---|---|---|
 | Is pure logic with no Apple framework, and is shared by every system | `OortCore` | version numbers, focus index, hold detector |
-| Describes the catalog, library, settings, artwork or achievements | `NXLibraryCore` | a catalog record, a library filter, a settings key |
-| Talks to nxnative, the engine, Steam files, rclone, Keychain, or Mac paths for a game | `ArcanePorting` | a build step, a save transaction, a cloud archive |
-| Draws a view, handles a window, a focus or the pad, or plays a sound | `NXLibrary` | a screen, a Selene component, a controller binding |
-| Is needed by the Windows and Linux core | `OortCore`, or `NXLibraryCore` files listed in `Package.swift` | the portable subset |
+| Describes the catalog, library, settings, artwork or achievements | `OortLibrary` | a catalog record, a library filter, a settings key |
+| Talks to nxnative, the engine, Steam files, rclone, Keychain, or Mac paths for a game | `NxnativeAdapter` | a build step, a save transaction, a cloud archive |
+| Draws a view, handles a window, a focus or the pad, or plays a sound | `OortMac` | a screen, a Selene component, a controller binding |
+| Is needed by the Windows and Linux core | `OortCore`, or `OortLibrary` files listed in `Package.swift` | the portable subset |
 
 When unsure, put the code in the lowest layer that does not need a higher one. Moving code down is cheap. Moving it up, or importing up, is what the check blocks.
 
@@ -65,9 +65,9 @@ The portable rules are the reason for `OortCore`. Before a shared rule is added 
 
 ## Checks that keep the map true
 
-`architecture/structure.c4` declares every root file and first- and second-level folder, and which folders may hold documentation; `scripts/check` refuses anything undeclared (`structure`, `docs`) and holds Swift imports to `architecture/model.c4` (`boundaries`). `scripts/check --list` names the tests of each rule. On `alpha/windows`, `scripts/check_portable_core.py` also keeps the portable core free of Apple imports, until that app joins `main`.
+`architecture/structure.c4` declares every root file and first- and second-level folder, and which folders may hold documentation; `scripts/check` refuses anything undeclared (`structure`, `docs`). [`architecture/names.json`](../../architecture/names.json) declares the package, each Swift module with its kind, layer and folder, and the app's entry point: `scripts/generate` writes `Package.swift`'s names, `scripts/build_app.sh`'s and `architecture/names.c4`, Python reads `scripts/names.py`, and `scripts/check` refuses a name written by hand elsewhere (`names`) and holds Swift imports to the layers, with only an app's entry point importing an engine ([ADR 0002](../adr/0002-engine-adapters-at-the-entry-point.md), `boundaries`). `scripts/check --list` names the tests of each rule.
 
-Update `architecture/model.c4` in the same change as a changed system, module or domain boundary. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against it and does not need Node. Check navigability and labels in the live preview when a view changes.
+To rename a module or move its folder, change `architecture/names.json` and run `scripts/generate`; Swift `import` lines are the only copies to rewrite by hand. Update `architecture/model.c4` in the same change as a changed system or domain boundary. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against `names.json` and does not need Node. Check navigability and labels in the live preview when a view changes.
 
 For the two detail views, use one question as the title, at most seven boxes, short labels in the player's vocabulary, and no crossed arrows. Filter the view, not the model; link to another view if more detail is needed.
 

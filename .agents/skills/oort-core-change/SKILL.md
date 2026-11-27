@@ -13,7 +13,7 @@ description: Apply the core criteria of Oort NX to logic: contracts, tests first
 
 1. **Contract (C1, C20).** Write inputs, outputs, errors and the owner. Then list every reader of what changes: search the key, the case, the file name, the notification, in all modules, tests, probes and ports. Change a format with all its readers, or not at all.
 2. **Fail first (C2, C3).** A test that shows the need, and one per way it can go wrong: cancelled, interrupted, offline, late, full disk, unreadable, concurrent. Keep the red output.
-3. **Place (C4, C5).** The lowest module that can hold it. No interface import below `NXLibrary`; nothing new in `AppViewModel`.
+3. **Place (C4, C5).** The lowest module that can hold it. No interface import below `OortMac`; nothing new in `AppViewModel`.
 4. **Data (C6–C9).** Open a file of the previous version. Write aside, check, swap. Trash, never delete. `AppData` only.
 5. **Errors and return (C10, C11, C23).** Typed, seen, with a next step. Cut the work at each step and start again.
 6. **Network and access (C12–C14, C18).** Count the requests before the player's yes: zero. Bound sizes, hosts, paths, links. Nothing secret in a log.

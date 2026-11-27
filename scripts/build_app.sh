@@ -9,6 +9,14 @@
 # NX_DEV_COMMIT optionally records the exact, clean source revision in a Dev bundle.
 # NX_DEV_TRIAL2=1 selects an isolated trial profile and preferences, never the normal Dev profile.
 set -euo pipefail
+# Product, module and resource bundle names come from architecture/names.json (scripts/generate writes them).
+# BEGIN GENERATED NAMES (architecture/names.json, scripts/generate_names.py)
+APP_PRODUCT="OortMac"
+RESOURCE_BUNDLE="OortNX_OortLibrary.bundle"
+CORE_MODULE="OortCore"
+LIBRARY_MODULE="OortLibrary"
+NXNATIVE_MODULE="NxnativeAdapter"
+# END GENERATED NAMES
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 if [ "${NX_RELEASE:-0}" = "1" ]; then
@@ -57,9 +65,9 @@ if [ -z "${DEVELOPER_DIR:-}" ]; then
 fi
 
 cd "$ROOT"
-swift build -c "$CONFIG" --product NXLibrary
+swift build -c "$CONFIG" --product "$APP_PRODUCT"
 
-BIN="$ROOT/.build/$CONFIG/NXLibrary"
+BIN="$ROOT/.build/$CONFIG/$APP_PRODUCT"
 DESTINATION="$APP"
 STAGE="$(mktemp -d "${TMPDIR:-/tmp/}nxlibrary-build.XXXXXX")"
 trap 'rm -rf "$STAGE"' EXIT
@@ -67,31 +75,31 @@ APP="$STAGE/Oort NX.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 cp "$BIN" "$APP/Contents/MacOS/Oort NX"
-LOCALIZATION_BUNDLE="$ROOT/.build/$CONFIG/NXLibrary_NXLibraryCore.bundle"
+LOCALIZATION_BUNDLE="$ROOT/.build/$CONFIG/$RESOURCE_BUNDLE"
 [ -d "$LOCALIZATION_BUNDLE" ] || { echo "error: compiled localization bundle missing" >&2; exit 1; }
 cp -R "$LOCALIZATION_BUNDLE" "$APP/Contents/Resources/"
 
-if [ -f "$ROOT/Resources/AppIcon.icns" ]; then
-  cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+if [ -f "$ROOT/apps/mac/AppIcon.icns" ]; then
+  cp "$ROOT/apps/mac/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 fi
-for icon in "$ROOT"/Resources/AppIcon-Particles-*.png; do
+for icon in "$ROOT"/design/Icons/AppIcon-Particles-*.png; do
   cp "$icon" "$APP/Contents/Resources/"
 done
 # macOS draws the Icon Composer icon natively instead of framing the ICNS fallback.
 ICON_BUILD="$STAGE/icon"
 mkdir -p "$ICON_BUILD"
-xcrun actool "$ROOT/Resources/AppIcon.icon" --compile "$ICON_BUILD" \
+xcrun actool "$ROOT/design/Icons/AppIcon.icon" --compile "$ICON_BUILD" \
   --platform macosx --minimum-deployment-target 26.0 --app-icon AppIcon --include-all-app-icons \
   --output-partial-info-plist "$STAGE/icon.plist"
 test -s "$ICON_BUILD/Assets.car"
 cp "$ICON_BUILD/Assets.car" "$APP/Contents/Resources/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$APP/Contents/Resources/LICENSE"
 [ -f "$ROOT/NOTICE" ] && cp "$ROOT/NOTICE" "$APP/Contents/Resources/NOTICE"
-cp -R "$ROOT/Resources/ThirdPartyLicenses" "$APP/Contents/Resources/"
+cp -R "$ROOT/design/ThirdPartyLicenses" "$APP/Contents/Resources/"
 cp "$ROOT/scripts/validate_update.py" "$APP/Contents/Resources/validate_update.py"
-[ -d "$ROOT/Resources/Selene" ] && cp -R "$ROOT/Resources/Selene" "$APP/Contents/Resources/Selene"
-cp -R "$ROOT/Resources/SoundPacks" "$APP/Contents/Resources/SoundPacks"
-[ -d "$ROOT/Resources/Brands" ] && cp -R "$ROOT/Resources/Brands" "$APP/Contents/Resources/Brands"
+[ -d "$ROOT/design/Selene" ] && cp -R "$ROOT/design/Selene" "$APP/Contents/Resources/Selene"
+cp -R "$ROOT/design/SoundPacks" "$APP/Contents/Resources/SoundPacks"
+[ -d "$ROOT/design/Brands" ] && cp -R "$ROOT/design/Brands" "$APP/Contents/Resources/Brands"
 # Python and build tools from scripts/bundle_runtime.sh. Without it, a developer
 # build falls back to ~/nxnative/.venv and the PATH tools.
 if [ -d "$ROOT/work/Runtime" ]; then
@@ -156,7 +164,7 @@ ARCANE_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" ARCANE_GOOGLE_CLIENT_SECRET="$GOOGLE
   python3 "$ROOT/scripts/inject_google_client.py" "$APP/Contents/Info.plist"
 unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/check_app_profile.swift" \
-  "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/OortCore.o" \
+  "$ROOT/.build/$CONFIG/$LIBRARY_MODULE.o" "$ROOT/.build/$CONFIG/$CORE_MODULE.o" \
   -o "$PROFILE_PROBE/Contents/MacOS/Oort NX"
 "$PROFILE_PROBE/Contents/MacOS/Oort NX"
 
@@ -167,7 +175,7 @@ else
   python3 "$ROOT/scripts/check_publication.py" --app "$APP" --without-runtime
 fi
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/install_built_app.swift" \
-  "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/ArcanePorting.o" \
-  "$ROOT/.build/$CONFIG/OortCore.o" -o "$STAGE/install-app"
+  "$ROOT/.build/$CONFIG/$LIBRARY_MODULE.o" "$ROOT/.build/$CONFIG/$NXNATIVE_MODULE.o" \
+  "$ROOT/.build/$CONFIG/$CORE_MODULE.o" -o "$STAGE/install-app"
 "$STAGE/install-app" "$APP" "$DESTINATION"
 echo "Built $DESTINATION"

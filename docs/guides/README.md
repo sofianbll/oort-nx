@@ -47,7 +47,7 @@ Invented games only: no real cover, name, account, key or personal path. WebP, a
 
 | Pictures | From |
 |---|---|
-| `mac/` | The probes of `Tests/CatalogAppChecks` at `bf0c3410`, in a throwaway home. In the copies that drew them, the probe's test gradient was replaced by the app's own night colours, and the tour and the save question were drawn a second time in English. `dmg` is a Finder picture of an earlier trial of the same window. |
+| `mac/` | The probes of `apps/mac/Tests/CatalogAppChecks` at `bf0c3410`, in a throwaway home. In the copies that drew them, the probe's test gradient was replaced by the app's own night colours, and the tour and the save question were drawn a second time in English. `dmg` is a Finder picture of an earlier trial of the same window. |
 | `windows/`, `linux/` | The proofs of `desktop/tests` at `f18e2119`. Linux steps without a picture of their own use the Windows one, and say so. |
 | `android/` | `android/tools/emulator_check.py` at `1aaff5c0`, Android 16. |
 | `ios/` | `mobile/UITests` at `e3cd6df1`, simulator. |

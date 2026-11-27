@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 
 let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-let out = repo.appendingPathComponent("Resources")
+let out = repo.appendingPathComponent("design/Icons")
 let iconset = out.appendingPathComponent("AppIcon.iconset")
 try? FileManager.default.removeItem(at: iconset)
 try FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true)
@@ -89,7 +89,7 @@ for variant in ["light", "dark", "mono"] {
 // Package all standard Finder sizes into the bundle icon as well.
 let iconutil = Process()
 iconutil.executableURL = URL(fileURLWithPath: "/usr/bin/iconutil")
-iconutil.arguments = ["-c", "icns", iconset.path, "-o", out.appendingPathComponent("AppIcon.icns").path]
+iconutil.arguments = ["-c", "icns", iconset.path, "-o", repo.appendingPathComponent("apps/mac/AppIcon.icns").path]
 try iconutil.run()
 iconutil.waitUntilExit()
 guard iconutil.terminationStatus == 0 else {

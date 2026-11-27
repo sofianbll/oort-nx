@@ -144,7 +144,7 @@ jobs:
           unzip -q "$archive"
           echo "OORT_PROBE_RCLONE=$dir/${archive%.zip}/rclone" >> "$GITHUB_ENV"
       - name: Install CPU OCR for AppKit captures
-        working-directory: Tests/CatalogAppChecks/ocr
+        working-directory: apps/mac/Tests/CatalogAppChecks/ocr
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           echo "OORT_PROBE_OCR=$PWD/read.cjs" >> "$GITHUB_ENV"
@@ -442,10 +442,11 @@ jobs:
         run: |
           home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
           HOME="$home" CFFIXED_USER_HOME="$home" swift test --package-path mobile --scratch-path "$RUNNER_TEMP/mobile"
-      - name: OortCore tests
+      - name: Core module tests
         run: |
           home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
-          HOME="$home" CFFIXED_USER_HOME="$home" swift test --scratch-path "$RUNNER_TEMP/core" --filter OortCoreTests
+          tests="$(python3 -c 'import sys; sys.path.insert(0, "scripts"); import names; print(names.TESTS["core"]["name"])')"
+          HOME="$home" CFFIXED_USER_HOME="$home" swift test --scratch-path "$RUNNER_TEMP/core" --filter "$tests"
       - name: Device and simulator builds
         run: |
           PATH="$(mobile/scripts/get_xcodegen.sh "$RUNNER_TEMP/xcodegen"):$PATH"

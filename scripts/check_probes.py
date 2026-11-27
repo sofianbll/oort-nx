@@ -2,7 +2,7 @@
 """Check that a probe which reads rendered text also proves that text visible (rule R13).
 
 The text of a rendered PDF lists every string that was drawn, also when it is clipped, outside the frame,
-covered or without contrast. A probe source under Tests/CatalogAppChecks that calls readProbeText must also
+covered or without contrast. A probe source under apps/mac/Tests/CatalogAppChecks that calls readProbeText must also
 use the result of assertVisible (ProbeRenderedText.swift), which measures the pixels: `+=` or `let … =`, with
 texts to prove. Comments do not count.
 """
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PROBES = "Tests/CatalogAppChecks"
+PROBES = "apps/mac/Tests/CatalogAppChecks"
 HELPER = "ProbeRenderedText.swift"
 READS = re.compile(r"\breadProbeText\s*\(")
 PROVES = re.compile(r"(?:\+=|\blet\s+\w+\s*=)\s*assertVisible\s*\((?![^)]*,\s*\[\s*\]\s*\))")

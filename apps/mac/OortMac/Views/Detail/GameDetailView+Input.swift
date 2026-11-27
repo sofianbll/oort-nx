@@ -1,0 +1,390 @@
+import SwiftUI
+import AppKit
+import OortLibrary
+import NxnativeAdapter
+
+/// Details' controller, keyboard, scroll-wheel and pointer input. The guards
+/// match Spotlight's and Collection's: no key or wheel event goes to the page
+/// while an alert, a sheet, the menu or the screenshot viewer owns the keyboard.
+extension GameDetailView {
+    // MARK: - Controller
+
+    func handle(_ action: GamepadAction) {
+        if viewer != nil { return handleViewer(action) }
+        if modsHost.isPanelOpen { return modsHost.handlePanel(action) }
+        var moved = false
+        if readMoreFocused {
+            switch action {
+            case .navigateUp, .navigateLeft, .navigateRight: return
+            case .navigateDown:
+                readMoreFocused = false
+                SoundEffectService.shared.play(.focus)
+                return
+            case .confirm:
+                expanded.toggle()
+                SoundEffectService.shared.play(.click)
+                return
+            default: readMoreFocused = false
+            }
+        } else if action == .navigateUp, focus.zone == DetailsFocus.topZone, currentModel.readsMore {
+            readMoreFocused = true
+            SoundEffectService.shared.play(.focus)
+            return
+        }
+        switch action {
+        case .navigateLeft: moved = moveFocus { $0.left(in: $1) }
+        case .navigateRight: moved = moveFocus { $0.right(in: $1) }
+        case .navigateUp: moved = moveFocus { $0.up(in: $1) }
+        case .navigateDown: moved = moveFocus { $0.down(in: $1) }
+        case .jumpToStart, .jumpToEnd:
+            // The top or the foot of the page, one band after another.
+            let up = action == .jumpToStart
+            for _ in 0..<64 {
+                guard moveFocus({ up ? $0.up(in: $1) : $0.down(in: $1) }) else { break }
+                moved = true
+            }
+        case .confirm: activateFocused()
+        case .cancel: router.back()
+        case .contextAction: openOptions()
+        case .browseSearch, .search: router.isSearchPresented = true
+        case .menu: router.isMenuPresented = true
+        case .menuHold: router.openSettings(.startUp)
+        default: break
+        }
+        if moved { SoundEffectService.shared.play(.focus) }
+    }
+
+    /// Applies a focus move; returns whether the focus moved.
+    @discardableResult
+    func moveFocus(_ move: (inout DetailsFocus, DetailsFocus.Bands) -> Bool) -> Bool {
+        var next = focus
+        let moved = move(&next, currentModel.bands)
+        if next != focus { focus = next }
+        return moved
+    }
+
+    /// Sets the focus from a pointer press or hover, clamped to what the band holds.
+    func focusPointer(zone: Int, index: Int, bands: DetailsFocus.Bands) {
+        var next = focus
+        next.focus(zone: zone, index: index, in: bands)
+        if next != focus {
+            focus = next
+            SoundEffectService.shared.play(.focus)
+        }
+    }
+
+    /// Hover moves focus only inside the band already in focus; a peeking band
+    /// changes zone on press, not on hover.
+    func hoverPill(_ index: Int) {
+        guard focus.zone == DetailsFocus.topZone, focus.pill != index else { return }
+        var next = focus
+        next.focus(zone: DetailsFocus.topZone, index: index, in: currentModel.bands)
+        if next != focus { focus = next }
+    }
+
+    /// Press on a top-block pill: focus it and run it (Play, Build or Resume; Game options or Close Game).
+    func pressPill(_ index: Int) {
+        var next = focus
+        next.focus(zone: DetailsFocus.topZone, index: index, in: currentModel.bands)
+        if next != focus { focus = next }
+        runPill(index)
+    }
+
+    func runPill(_ index: Int) {
+        let pills = pillSet
+        if pills.cancelsQueuedBuild(at: index) {
+            SoundEffectService.shared.play(.click)
+            viewModel.porting.cancelQueuedBuild(game.id)
+            return
+        }
+        if showsCloudPill, index == pills.detailsCloudIndex {
+            SoundEffectService.shared.play(.click)
+            DetailsLink.openCloud(for: game, viewModel: viewModel)
+            return
+        }
+        if index == 0, pills != .porting, downloadItem != nil {
+            SoundEffectService.shared.play(.click)
+            viewModel.downloadCloudGame(game)
+            return
+        }
+        switch pills {
+        case .porting:
+            guard index == 0 else { return }
+            SoundEffectService.shared.play(.click)
+            router.openAddGame()
+            return
+        case .failed:
+            SoundEffectService.shared.play(.click)
+            switch index {
+            case 0:
+                viewModel.porting.startBuild(for: game)
+            case 1:
+                viewModel.revealLog(for: game)
+            default:
+                viewModel.askRemoveGame(game)
+            }
+            return
+        case .unavailable:
+            if index == 0, !runningGames.isRunning(game) {
+                SoundEffectService.shared.play(.error)
+                return
+            }
+        case .normal, .queued, .normalAfterFailure:
+            break
+        }
+        switch index {
+        case 0: primaryAction()
+        case 1: secondaryAction()
+        default: toggleFavorite()
+        }
+    }
+
+    func toggleFavorite() {
+        SoundEffectService.shared.play(.click)
+        viewModel.toggleFavorite(game)
+    }
+
+    /// Hover moves the action focus only while Details is in focus.
+    func hoverRow(_ index: Int) {
+        guard focus.zone == DetailsFocus.actionsZone, focus.action != index else { return }
+        var next = focus
+        next.focus(zone: DetailsFocus.actionsZone, index: index, in: currentModel.bands)
+        if next != focus { focus = next }
+    }
+
+    /// Press on a row: when Details is in focus it runs the row (the
+    /// row's own path explains a refusal, e.g. the Metal gate); otherwise the
+    /// press first brings that band into focus.
+    func pressRow(_ index: Int) {
+        guard focus.zone == DetailsFocus.actionsZone else {
+            focusPointer(zone: DetailsFocus.actionsZone, index: index, bands: currentModel.bands)
+            return
+        }
+        hoverRow(index)
+        let rows = currentModel.links
+        guard index < rows.count else { return }
+        rows[index].action()
+    }
+
+    func activateFocused() {
+        let model = currentModel
+        switch focus.zone {
+        case DetailsFocus.topZone:
+            runPill(focus.pill)
+        case DetailsFocus.screenshotsZone:
+            openViewer(at: focus.shot)
+        case DetailsFocus.modsZone:
+            activateModsTile(focus.mod)
+        case DetailsFocus.actionsZone:
+            guard focus.action < model.links.count else { return }
+            model.links[focus.action].action()
+        case DetailsFocus.moreZone:
+            guard focus.more < model.more.count else { return }
+            selectOnSpotlight(model.more[focus.more])
+        default:
+            break
+        }
+    }
+
+    /// Resume while the game runs; otherwise Play when the game is built, or Build (which refuses with a sound when it cannot run).
+    func primaryAction() {
+        let running = runningGames.isRunning(game)
+        if !running, viewModel.portingPills(game).unavailableReason != nil {
+            SoundEffectService.shared.play(.error)
+        } else if running || currentModel.presentation.canPlay {
+            SoundEffectService.shared.play(.click)
+            viewModel.launchGame(game, resumeOnly: running)
+        } else {
+            rebuild()
+        }
+    }
+
+    func rebuild() {
+        guard currentModel.presentation.canRebuild || viewModel.canCheckCloudSources(for: game) else {
+            SoundEffectService.shared.play(.error)
+            return
+        }
+        SoundEffectService.shared.play(.click)
+        viewModel.porting.startBuild(for: game) {
+            router.openAddGame()
+        }
+    }
+
+    /// The second top pill: Close Game while the game runs (after the confirmation), else Game options.
+    func secondaryAction() {
+        if runningGames.isRunning(game) {
+            SoundEffectService.shared.play(.click)
+            viewModel.askCloseGame(game)
+        } else {
+            openOptions()
+        }
+    }
+
+    func openOptions() {
+        SoundEffectService.shared.play(.click)
+        viewModel.openGameOptions(game, from: .details)
+    }
+
+    /// Game options, opened on its Mods panel.
+    func openMods() {
+        SoundEffectService.shared.play(.click)
+        viewModel.openGameOptions(game, from: .details, opensMods: true)
+    }
+
+    /// Re-reads the mods folder (and the overlay).
+    func reloadMods() { modsHost.reload(game, viewModel: viewModel) }
+
+    /// Game options (its Cheats panel), a rebuild or a hand edit in Finder can change it.
+    /// Asks git off the main thread the first time (`CheatsModel.prepare`), then reads the kept answer.
+    func reloadCheats() {
+        let shown = game
+        cheatsReload?.cancel()
+        cheatsReload = Task { @MainActor in
+            await viewModel.cheats.prepare(for: shown)
+            guard !Task.isCancelled else { return }
+            cheatsOn = viewModel.cheats.cheatsOn(for: shown)
+        }
+    }
+
+    /// GameBanana's mods for this game.
+    func startGameBanana() { modsHost.startOnline(game, viewModel: viewModel) }
+
+    /// A Mods band tile (`ModsBandHost.activate`).
+    func activateModsTile(_ index: Int) { modsHost.activate(index, viewModel: viewModel, openMods: openMods) }
+
+    /// A More like this game: Spotlight opens with it selected (All games when its filter hides it).
+    func selectOnSpotlight(_ target: PortedGame) {
+        SoundEffectService.shared.play(.click)
+        router.requestSpotlightSelect(target.id)
+        router.showLibrary()
+    }
+
+    // MARK: - Screenshot viewer
+
+    func openViewer(at index: Int) {
+        let urls = currentModel.screenshots
+        guard !urls.isEmpty else { return }
+        viewer = ViewerContext(titleID: viewModel.personalizationKey(for: game), urls: urls,
+                               state: ScreenshotViewerState(count: urls.count, start: index))
+        SoundEffectService.shared.play(.click)
+    }
+
+    /// Closing returns the focus to the screenshot last viewed.
+    func closeViewer() {
+        guard let context = viewer else { return }
+        viewer = nil
+        var next = focus
+        next.focus(zone: DetailsFocus.screenshotsZone, index: context.state.index, in: currentModel.bands)
+        focus = next
+        SoundEffectService.shared.play(.focus)
+    }
+
+    func handleViewer(_ action: GamepadAction) {
+        guard var context = viewer else { return }
+        switch ScreenshotViewer.handle(action, state: &context.state) {
+        case .moved:
+            viewer = context
+            SoundEffectService.shared.play(.focus)
+        case .close:
+            closeViewer()
+        case .ignored:
+            break
+        }
+    }
+
+    // MARK: - Keyboard and wheel
+
+    func installKeyMonitor() {
+        guard keyMonitor == nil else { return }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .scrollWheel]) { event in
+            guard !router.isMenuPresented,
+                  !NativeMenuCommands.shared.isTracking,
+                  case .detail(let id) = router.route, id == game.id,
+                  viewModel.cloudLibraryGameID == nil,
+                  viewModel.alertMessage == nil, viewModel.settingsNotice == nil,
+                  !viewModel.isGameOptionsOpen,
+                  viewModel.gameToClose == nil,
+                  viewModel.gameToRemove == nil,
+                  !viewModel.shellDialogOwnsInput,
+                  !viewModel.isWelcomeOpen,
+                  !viewModel.showSetupCheck,
+                  let window = event.window,
+                  !window.isSheet,
+                  window.attachedSheet == nil,
+                  NSApp.modalWindow == nil,
+                  !(window.firstResponder is NSText) else { return event }
+            if event.type == .scrollWheel {
+                return handleWheel(event)
+            }
+            let modifiers = event.modifierFlags.intersection([.command, .control, .option])
+            guard modifiers.isEmpty else { return event }
+            if modsHost.isPanelOpen {
+                guard let action = ModsBandHost.panelAction(keyCode: event.keyCode) else { return event }
+                handle(action)
+                return nil
+            }
+            if viewer != nil {
+                // The viewer owns the keyboard: arrows page, Esc closes, the rest is swallowed.
+                switch event.keyCode {
+                case 123: handle(.navigateLeft)
+                case 124: handle(.navigateRight)
+                case 53: handle(.cancel)
+                case 12: handle(.tabPrevious)
+                case 14: handle(.tabNext)
+                case 36, 49, 125, 126, 7, 16, 48: break
+                default: return event
+                }
+                return nil
+            }
+            let action: GamepadAction
+            switch event.keyCode {
+            case 123: action = .navigateLeft
+            case 124: action = .navigateRight
+            case 125: action = .navigateDown
+            case 126: action = .navigateUp
+            case 36, 76, 49: action = .confirm
+            case 53: action = .cancel           // Esc: back to where Details was opened from
+            case 16: action = .contextAction    // Y
+            default: return event
+            }
+            handle(action)
+            return nil
+        }
+    }
+
+    /// The wheel follows Up/Down, including the Mods grid's rows. An expanded description takes the wheel at the top.
+    private func handleWheel(_ event: NSEvent) -> NSEvent? {
+        if viewer != nil {
+            // Sideways pages the screenshots; the page beneath stays.
+            if let delta = RailScroll.delta(x: event.scrollingDeltaX, y: event.scrollingDeltaY, verticalToo: false) {
+                let steps = rail.steps(delta, precise: event.hasPreciseScrollingDeltas, began: event.phase == .began,
+                                       pitch: canvas.u(RailScroll.page), at: event.timestamp)
+                for _ in 0..<abs(steps) { handleViewer(steps < 0 ? .navigateLeft : .navigateRight) }
+            }
+            return nil
+        }
+        if modsHost.isPanelOpen {
+            // The mod panel's description scrolls under the wheel; nothing reaches the page beneath.
+            let dy = event.scrollingDeltaY
+            if abs(dy) >= abs(event.scrollingDeltaX) {
+                modsHost.scrollDetail(by: event.hasPreciseScrollingDeltas ? dy : dy * canvas.u(48),
+                                      precise: event.hasPreciseScrollingDeltas)
+            }
+            return nil
+        }
+        guard !expanded || focus.zone != DetailsFocus.topZone else { return event }
+        let dy = event.scrollingDeltaY
+        guard abs(dy) > abs(event.scrollingDeltaX), event.momentumPhase.isEmpty else { return nil }
+        let threshold: CGFloat = event.hasPreciseScrollingDeltas ? 6 : 1
+        var gate = wheel
+        let action = gate.feed(dy, at: event.timestamp, threshold: threshold)
+        wheel = gate
+        if let action { handle(action) }
+        return nil
+    }
+
+    func removeKeyMonitor() {
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        keyMonitor = nil
+    }
+}

@@ -1,0 +1,847 @@
+#!/usr/bin/env python3
+"""Exercise the review regressions without opening the app or touching player data.
+
+Compiles the actual store/loader and focus/menu methods. Replaces only their
+surrounding UI state and external services; Core readers use generated files.
+Run after swift test, like run_notices.py.
+"""
+from pathlib import Path
+import os
+import struct
+import subprocess
+import tempfile
+import re
+
+ROOT = Path(__file__).resolve().parents[4]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names as package_names  # noqa: E402  architecture/names.json ("names" is a list below)
+BIN = ROOT / '.build/debug'
+
+
+def type_source(path):
+    """A type's source split over `Name.swift` and its `Name+Part.swift` extensions (conventions.md)."""
+    main = ROOT / path
+    return ''.join(p.read_text() for p in [main] + sorted(main.parent.glob(main.stem + '+*.swift')))
+
+
+def find(source, signature):
+    """A member's start; a member made internal by a split is found without its old `private `."""
+    if signature in source:
+        return source.index(signature)
+    return source.index(signature.replace('private ', '', 1))
+
+
+def declaration(path, signature):
+    source = type_source(path)
+    start = find(source, signature)
+    opening = source.index('{', start)
+    depth, end = 1, opening + 1
+    while depth:
+        depth += (source[end] == '{') - (source[end] == '}')
+        end += 1
+    return source[start:end]
+
+
+def binary_kv(entries):
+    data = bytearray()
+    for key, value in entries:
+        data.append(0 if isinstance(value, list) else 2 if isinstance(value, int) else 1)
+        data.extend(key.encode() + b'\0')
+        if isinstance(value, list):
+            data.extend(binary_kv(value))
+        elif isinstance(value, int):
+            data.extend(struct.pack('<i', value))
+        else:
+            data.extend(value.encode() + b'\0')
+    data.append(8)
+    return data
+
+
+host = r'''
+import Foundation
+import Combine
+import OortLibrary
+import NxnativeAdapter
+
+@MainActor var failures = 0
+enum OortPulse { static let press = PassthroughSubject<Void, Never>() }
+@MainActor func require(_ ok: @autoclosure () -> Bool, _ message: String) {
+    if !ok() { failures += 1; print("FAIL: " + message) }
+}
+
+// Only external enrichment is replaced: no network or player cache writes.
+actor SteamMetadataService {
+    static let shared = SteamMetadataService()
+    func achievementPercents(appID: UInt32) -> [String: Double]? { [:] }
+}
+@MainActor final class ArtworkStore {
+    enum Kind { case hero, logo }
+    func cachedURL(titleID: String, kind: Kind) -> URL? { nil }
+    func fetch(titleID: String, remoteURL: URL?, kind: Kind) async -> URL? { nil }
+}
+struct ArtworkPicks {
+    static let shared = Self()
+    func url(titleID: String, slot: ArtworkSlot) -> URL? { nil }
+}
+@MainActor enum OnlineArtwork {
+    static var platforms: [CriticRatingQuery.Platform] = []
+    static func find(names: [String], slot: ArtworkSlot? = nil,
+                     platform: CriticRatingQuery.Platform = .switch) async -> [ArtworkCandidate] {
+        platforms.append(platform)
+        return []
+    }
+}
+
+struct SpotlightPageModel { var links = [1]; var more: [Int] = [] }
+@MainActor final class ModsHost {
+    var localMods: Int?
+    var tiles: [ModsBandTile] = []
+    var game: PortedGame?
+    var reloads: [UUID] = []
+    func reload(_ game: PortedGame, viewModel: ViewModel) {
+        self.game = game
+        reloads.append(game.id)
+    }
+    func stop() {}
+    func clearGame() { game = nil }
+}
+@MainActor final class ViewModel {
+    let macShortcuts = Shortcuts()
+    var noticeFocus = NoticeFocus()
+    struct Shortcuts { let canEdit = false }
+    var spotlight = SpotlightState(focus: .actions)
+    var showSetupCheck = false
+    var profileOwnsInput = false
+    var isGameOptionsOpen = false
+    var alertMessage: String?
+    var gameToClose: Int?
+    var gameToRemove: Int?
+    var cloudLibraryGameID: UUID?
+    var cloudQuitRequested = false
+    struct Launch { var offersExit = false }
+    var launchOverlay: Launch?
+    var isBuilding = false
+    var catalogBuildRecoveries: [Int] = []
+    var currentFocusedCatalogGame: CatalogGame?
+    var currentFocusedGame: PortedGame? { currentFocusedCatalogGame?.nxnativeGame }
+    var launches: [UUID] = []
+    var resumeRunning: ((PortedGame) -> Void)?
+    // Play brings a running game forward through its monitor and never starts it again.
+    func launchGame(_ game: PortedGame, resumeOnly: Bool = false) {
+        if resumeOnly { resumeRunning?(game); return }
+        launches.append(game.id)
+    }
+    func portingPills(_ game: PortedGame) -> PortingPills { .normal }
+    func canCheckCloudSources(for game: PortedGame) -> Bool { false }
+}
+@MainActor final class SoundEffectService {
+    enum Cue { case focus, click, error, back, alert }
+    static let shared = SoundEffectService()
+    var count = 0
+    func play(_ cue: Cue) { count += 1 }
+}
+@MainActor final class ScrollHost {
+    let viewModel = ViewModel()
+    var currentPage: SpotlightPageModel? = SpotlightPageModel()
+    var screenshotCount = 0
+    var selectedAchievements: Int? = 1
+    var selectedGame: PortedGame?
+    let modsHost = ModsHost()
+    var scroll: Double = -200
+    var holdScroll = false
+    var visibleMod: Int?
+    func offset(for area: SpotlightFocusArea, modsIndex: Int = 0) -> Double {
+        if area == .mods { return -400 - Double(modsIndex / ModsBandLayout.columns) * 50 }
+        return [.pills: 0, .strip: -100, .achievements: -200, .actions: -300, .more: -500][area]!
+    }
+    func visibleModIndex(at offset: Double, keeping index: Int, count: Int) -> Int? { visibleMod }
+    func mutate(_ change: (inout SpotlightState) -> Void) { change(&viewModel.spotlight) }
+    func settle() { settleFocusOnScroll() }
+    // ACTUAL_SCROLL
+    // ACTUAL_MODS_RELOAD
+}
+
+@MainActor final class RowGlideHost {
+    let viewModel = ViewModel()
+    let items: [SpotlightItem] = [.card(.collection), .card(.surprise)]
+    func mutate(_ change: (inout SpotlightState) -> Void) { change(&viewModel.spotlight) }
+    // ACTUAL_ROW_GLIDE
+}
+
+enum LaunchCoverTrace { static func event(_ message: String) {} }
+@MainActor final class CoverHandoffHost {
+    struct LaunchScreen { let gameID: UUID }
+    struct State { let generation: Int; var phase: SteamPlayState.Phase }
+    final class SteamClient {
+        var isHidden = false
+        var hides = 0
+        func hide() { hides += 1; isHidden = true }
+    }
+    static let steamApplication: SteamClient? = SteamClient()
+    private static func showSteam() { steamApplication?.isHidden = false }
+    var states: [UUID: State] = [:]
+    var launchScreen: LaunchScreen?
+    var backgrounds: [UUID: Bool] = [:]
+    var late: Set<UUID> = []
+    private var patience: [UUID: TimeInterval] = [:]
+    private var pendingHandOff: PendingHandOff?
+    private var handOffDeadline: Task<Void, Never>?
+    private static let coverWait: UInt64 = 30_000_000
+    // ACTUAL_PENDING_HANDOFF
+    // ACTUAL_PREPARE_HANDOFF
+    // ACTUAL_COVER_PREPARED
+    // ACTUAL_SUBMIT_HANDOFF
+    // ACTUAL_FOLLOW_BACKGROUND
+    private func phase(ofID id: UUID) -> SteamPlayState.Phase { states[id]?.phase ?? .idle }
+    private func followLaunchScreen(now: Date) {}
+    func observe(at now: Date) { followBackground(now: now) }
+    func prepare(_ id: UUID, send: @escaping () -> Void) {
+        states[id] = .init(generation: 1, phase: .starting(since: Date()))
+        prepareHandOff(for: id, generation: 1, send: send)
+    }
+
+    func waitForCoverDeadline() async {
+        await handOffDeadline?.value
+    }
+}
+
+final class Router {
+    var route = AppRoute.library
+    var isScreenshotViewerOpen = false
+    var isSearchPresented = false
+    var isPalettePresented = false
+    var isThemePickerOpen = false
+    var isMenuPresented = false
+    var sortMenu: Int?
+    var settingsDecision: AppRouter.SettingsDecision?
+    var activityCenterFocus: ActivityCenterFocus?
+    func openSettings(_ section: SettingsSection) { route = .settings(section) }
+    func closeMenu() { isMenuPresented = false; isThemePickerOpen = false; activityCenterFocus = nil }
+}
+// ACTUAL_PROFILE_FLOW
+final class WindowState { var attachedSheet: Int?; var isSheet = false }
+final class ApplicationState {
+    var modalWindow: Int?
+    var keyWindow: WindowState?
+    var mainWindow: WindowState?
+    func yieldActivation(toApplicationWithBundleIdentifier id: String) {}
+}
+let NSApp = ApplicationState()
+struct NSRunningApplication: Equatable {
+    let processIdentifier: Int32
+    static var hiddenPID: Int32?
+    var isHidden: Bool { processIdentifier == Self.hiddenPID }
+    init?(processIdentifier: Int32) { self.processIdentifier = processIdentifier }
+}
+@MainActor final class RunningGameMonitor {
+    struct Host { let pid: Int32; let isAlive = true }
+    struct Watch {
+        let host: Host?
+        let session: HomeMenu.Session?
+        let app = NSRunningApplication(processIdentifier: 410)!
+    }
+    var homeMenus: [UUID: Watch] = [:]
+    static var effects: [String] = []
+    func isRunning(_ game: PortedGame) -> Bool { homeMenus[game.id] != nil }
+    static func runningApplication(for game: PortedGame) -> NSRunningApplication? { .init(processIdentifier: 410) }
+    static func postHomeMenu(_ name: String) { effects.append(name) }
+    static func activate(_ app: NSRunningApplication) { effects.append("activate \(app.processIdentifier)") }
+    // ACTUAL_RESUME
+}
+enum GameResourceState {
+    static func unavailableReason(for game: PortedGame) -> String? { nil }
+}
+@MainActor final class ResumeHost {
+    let game: PortedGame
+    let runningGames = RunningGameMonitor()
+    let viewModel = ViewModel()
+    struct Model { let presentation = (canPlay: true, canRebuild: false) }
+    let currentModel = Model()
+    init(game: PortedGame) {
+        self.game = game
+        viewModel.resumeRunning = { [runningGames] in
+            runningGames.resume($0, application: RunningGameMonitor.runningApplication(for: $0))
+        }
+    }
+    func rebuild() {}
+    // ACTUAL_PRIMARY_ACTION
+}
+struct ModsPanelHost {
+    var online: Bool
+    let mods: [LocalMod]
+    var warningVisible: Bool { !inactiveOnlineCodeMods.isEmpty }
+    var badgedMods: Set<String> { inactiveOnlineCodeMods }
+    // ACTUAL_INACTIVE_ONLINE_MODS
+}
+final class NativeMenus { var isTracking = false }
+@MainActor final class GameControllerService {
+    static let shared = GameControllerService()
+    var onAction: ((GamepadAction) -> Void)?
+}
+/// The Arcane layout, outside browsing: the bindings this probe was written against.
+extension GamepadAction {
+    static func onPress(_ button: ControllerButton) -> Self? {
+        GamepadLayout.arcane.binding(button, browsing: false).flatMap { $0.release ? nil : $0.tap }
+    }
+    static func holdAction(_ button: ControllerButton, _ result: HoldResult) -> Self? {
+        guard let binding = GamepadLayout.arcane.binding(button, browsing: false), binding.release else { return nil }
+        return result == .tap ? binding.tap : binding.hold
+    }
+}
+final class OortKeyboardPresentation {
+    @MainActor static let shared = OortKeyboardPresentation()
+    func handle(_ action: GamepadAction) -> Bool { false }
+}
+struct ClosedFilePicker { func handle(_ action: GamepadAction) -> Bool { false } }
+@MainActor final class InputRecorder { var actions: [GamepadAction] = [] }
+// ACTUAL_ACTION_NAMES
+
+@MainActor final class PortingModel {
+    var buildWizardStep = 3
+    var isBuilding = false
+    var selectedGame: String?
+    var selectedGameFolder: URL?
+    var selectedSources: [URL] = []
+    var buildSuccessPath: String?
+    var portingGameID: UUID?
+    func addGameDidLeave() {}
+    // ACTUAL_GO_TO_WIZARD_STEP
+}
+@MainActor final class PortingWizardHost {
+    let viewModel = PortingModel()
+    var porting: PortingModel { viewModel }
+    let router = AppRouter()
+    var confirmDiscard = false
+    var confirmFocus = SeleneConfirmButton.cancel
+    var editing: String?
+    var reduceMotion = true
+    func cancel() { handleBack() } // The shared handler reached by B and Esc.
+    var hint: String { backLabel }
+    // ACTUAL_WIZARD_NAVIGATION
+}
+enum SeleneConfirmButton { case cancel }
+enum SeleneTheme { static let standard = 0 }
+func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
+
+@MainActor struct SteamPlayCoordinator {
+    static let shared = Self()
+    func canPlay(_ game: CatalogGame) -> Bool { true }
+}
+// ACTUAL_AVAILABILITY_TYPE
+@MainActor final class MenuHost {
+    let router = Router()
+    let viewModel = ViewModel()
+    let nativeMenus = NativeMenus()
+    var isCloseGameOpen = false
+    var leavesNoticesRoom: Bool { !isCloseGameOpen && !viewModel.isGameOptionsOpen }
+    var canUndoLastChange = false
+    func undoLastChange() {}
+    var showsWelcome = false
+    var profileFlow: ProfileFlow?
+    var launcherIsFrontmost = true
+    var showsSettingsNotice = false
+    var showsInstallFailure = false
+    var showsUpdateOffer = false
+    let filePicker = ClosedFilePicker()
+    var dialogActions: [GamepadAction] = []
+    var isHomeRoute: Bool { router.route == .library || router.route == .collection }
+    func availability() -> NativeMenuAvailability { nativeMenuAvailability }
+    func connectController() {
+        let viewModel = viewModel
+        let router = router
+        // ACTUAL_CONTROLLER
+    }
+    func settingsNoticeInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func installFailureInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func closeGameInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func removeGameInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func updateOfferInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func cloudQuitInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func noticeInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func chooseNotice() {}
+    func postProfileAction(_ action: GamepadAction) { dialogActions.append(action) }
+    func menuInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func paletteInput(_ action: GamepadAction) { dialogActions.append(action) }
+    var paletteAvailable: Bool { true }
+    func openProfile(_ page: ProfileFlow.Page, fromMenu: Bool) {
+        profileFlow = ProfileFlow(page: page, returnsToMenu: fromMenu)
+        viewModel.profileOwnsInput = true
+    }
+    // ACTUAL_PROFILE_ACTIONS
+    // ACTUAL_DIALOG
+    // ACTUAL_MENU
+}
+
+@main struct Check {
+    @MainActor static func main() async {
+        let root = URL(fileURLWithPath: CommandLine.arguments[1])
+        let store = SteamAchievementsStore()
+        store.load(appID: 42, language: "english")
+        store.setSources([.init(integration: .steam, isEnabled: true, rootURL: root)])
+        for _ in 0..<200 where store.summaries[42] == nil {
+            try? await Task.sleep(nanoseconds: 5_000_000)
+        }
+        require(store.summaries[42]?.total == 1,
+                "Selection requested before Steam sources must load when the source arrives")
+        store.stop()
+
+        for title in ["0100000000000001", "0400000000000001"] {
+            let game = PortedGame(name: "Generated fixture", url: root.appendingPathComponent(title + ".app"),
+                                  platform: .macApp, sizeBytes: 1, modificationDate: Date(), titleId: title)
+            _ = await GameArtLoader.shared.logo(for: game, metadata: nil, artwork: ArtworkStore(), personalizations: .empty)
+        }
+        require(OnlineArtwork.platforms == [.switch, .switch2], "Automatic logo search must use each game's console")
+
+        let scroll = ScrollHost()
+        scroll.settle()
+        require(scroll.viewModel.spotlight.focus == .achievements, "Wheel settling must reach the visible achievements card")
+        let cues = SoundEffectService.shared.count
+        scroll.settle()
+        require(SoundEffectService.shared.count == cues, "Settling on the focused card must not play another focus cue")
+        scroll.selectedAchievements = nil
+        scroll.settle()
+        require(scroll.viewModel.spotlight.focus == .actions, "A missing achievements card must not take focus")
+        scroll.modsHost.tiles = Array(repeating: .manage, count: 28)
+        scroll.scroll = -600
+        scroll.visibleMod = 24
+        scroll.settle()
+        require(scroll.viewModel.spotlight.focus == .mods && scroll.viewModel.spotlight.modsIndex == 24,
+                "Wheel settling enters Mods on a visible row, not the first row")
+        scroll.holdScroll = false
+        scroll.visibleMod = 18
+        scroll.scroll = -570
+        scroll.settle()
+        require(scroll.viewModel.spotlight.modsIndex == 18 && scroll.holdScroll,
+                "Within Mods, focus follows the visible row without a second glide")
+
+        let menu = MenuHost()
+        menu.viewModel.currentFocusedCatalogGame = .init(nxnative: PortedGame(name: "Fixture", url: root.appendingPathComponent("Game.app"),
+            platform: .macApp, sizeBytes: 1, modificationDate: Date()))
+        require(menu.availability().details, "Details must remain available for the selected game")
+        let firstModsGame = menu.viewModel.currentFocusedGame!
+        let nextModsGame = PortedGame(name: "Next fixture", url: root.appendingPathComponent("Next.app"),
+                                      platform: .macApp, sizeBytes: 1, modificationDate: Date())
+        scroll.selectedGame = firstModsGame
+        scroll.reloadMods()
+        scroll.viewModel.spotlight.focus = .row
+        scroll.selectedGame = nextModsGame
+        scroll.reloadMods()
+        require(scroll.modsHost.reloads == [firstModsGame.id] && scroll.modsHost.game == nil,
+                "Switching games on the Spotlight row must clear the old Mods band without reading the next one")
+        scroll.viewModel.spotlight.focus = .pills
+        scroll.reloadMods()
+        require(scroll.modsHost.reloads == [firstModsGame.id, nextModsGame.id],
+                "The selected game's Mods band must load once the game page is open")
+
+        let row = RowGlideHost()
+        row.viewModel.spotlight = SpotlightState(selectedKey: row.items[0].key)
+        require(row.handleRowGlide(.navigateRight), "The row must handle Right using only the row items")
+        require(row.viewModel.spotlight.selectedKey == row.items[1].key, "Right selects the next tile")
+        let rowCues = SoundEffectService.shared.count
+        require(row.handleRowGlide(.navigateRight) && SoundEffectService.shared.count == rowCues,
+                "Right at the row's edge is handled without playing a move cue")
+        row.viewModel.spotlight.focus = .pills
+        require(!row.handleRowGlide(.navigateLeft), "Page focus continues to use page navigation")
+
+        let handoff = CoverHandoffHost()
+        let pending = UUID()
+        var handoffs = 0
+        handoff.prepare(pending) { handoffs += 1 }
+        require(handoff.launchScreen?.gameID == pending && handoffs == 0,
+                "Steam must wait for the cover while its state is being published")
+        handoff.launchCoverPrepared(for: UUID())
+        require(handoffs == 0, "Another cover cannot release this launch")
+        handoff.launchCoverPrepared(for: pending)
+        handoff.launchCoverPrepared(for: pending)
+        require(handoffs == 1, "The current cover releases Steam exactly once")
+        handoff.prepare(pending) { handoffs += 1 }
+        handoff.states[pending]?.phase = .idle
+        handoff.launchCoverPrepared(for: pending)
+        require(handoffs == 1, "Closing the launch state must prevent a stale cover from sending Play")
+        handoff.prepare(pending) { handoffs += 1 }
+        // The deadline task starts when the main actor schedules it.
+        await handoff.waitForCoverDeadline()
+        require(handoffs == 2, "Without a visible cover the deadline still lets Play proceed")
+
+        let steam = CoverHandoffHost.steamApplication!
+        let start = Date(timeIntervalSince1970: 1_000)
+        handoff.states[pending]?.phase = .starting(since: start)
+        handoff.backgrounds[pending] = true
+        for attempt in 1...10 {
+            steam.isHidden = false // Steam reappears while processing Play.
+            handoff.observe(at: start.addingTimeInterval(Double(attempt) / 5))
+        }
+        require(steam.hides == 0 && !steam.isHidden,
+                "Startup must let the cover handle Steam coming forward without hiding Steam")
+        steam.isHidden = true
+        handoff.observe(at: start.addingTimeInterval(16))
+        require(handoff.late.contains(pending) && !steam.isHidden,
+                "A stalled launch must still show Steam after the wait")
+        let overlays: [(MenuHost, Bool) -> Void] = [
+            { $0.router.isSearchPresented = $1 }, { $0.router.isPalettePresented = $1 }, { $0.router.isScreenshotViewerOpen = $1 },
+            { $0.viewModel.isGameOptionsOpen = $1 }, { $0.router.isMenuPresented = $1 },
+            { $0.viewModel.showSetupCheck = $1 },
+            { $0.isCloseGameOpen = $1 }, { $0.viewModel.launchOverlay = $1 ? .init() : nil }
+        ]
+        for (index, overlay) in overlays.enumerated() {
+            overlay(menu, true)
+            require(!menu.availability().details, "Details must be disabled under overlay \(index)")
+            overlay(menu, false)
+        }
+        menu.viewModel.currentFocusedCatalogGame = .init(steam: .init(appID: 42, name: "Fixture"))
+        require(menu.availability().details, "Steam Details must remain available in Spotlight")
+        menu.router.route = .collection
+        require(!menu.availability().details, "Steam must not acquire a separate Details screen in Collection")
+
+        let input = MenuHost()
+        input.connectController()
+        do {
+            // The launch screen: only B leaves it, only once it has said so, and nothing reaches what is under it.
+            final class Count { var exits = 0, others = 0 }
+            let count = Count()
+            let exits = NotificationCenter.default.addObserver(forName: .nxLaunchScreenExit, object: nil, queue: nil) { _ in count.exits += 1 }
+            let others = NotificationCenter.default.addObserver(forName: .nxSpotlightGamepadAction, object: nil, queue: nil) { _ in count.others += 1 }
+            input.router.route = .library
+            input.viewModel.launchOverlay = .init()
+            GameControllerService.shared.onAction?(.cancel)
+            require(count.exits == 0, "The first seconds belong to the game")
+            input.viewModel.launchOverlay?.offersExit = true
+            for action in [GamepadAction.confirm, .navigateLeft, .menu, .secondaryAction] { GameControllerService.shared.onAction?(action) }
+            require(count.exits == 0 && !input.router.isMenuPresented, "Only B leaves the launch screen")
+            GameControllerService.shared.onAction?(.cancel)
+            require(count.exits == 1 && count.others == 0, "B must leave the launch screen and nothing else")
+            input.viewModel.launchOverlay = nil
+            NotificationCenter.default.removeObserver(exits)
+            NotificationCenter.default.removeObserver(others)
+        }
+        let presses: [ControllerButton: GamepadAction] = [
+            .up: .navigateUp, .down: .navigateDown, .left: .navigateLeft, .right: .navigateRight,
+            .a: .confirm, .b: .cancel, .x: .secondaryAction, .y: .contextAction,
+            .l: .tabPrevious, .r: .tabNext, .zl: .jumpToStart, .zr: .jumpToEnd,
+            .r3: .rightStickPress, .l3: .search,
+        ]
+        for button in ControllerButton.allCases {
+            require(GamepadAction.onPress(button) == presses[button], "Unexpected binding for \(button)")
+        }
+        let held: [ControllerButton: (GamepadAction, GamepadAction?)] = [
+            .menu: (.menu, .menuHold), .view: (.view, .search), .home: (.profiles, nil)
+        ]
+        // L3 is the one shortcut to a command that has its own gesture (Search).
+        var actions = ControllerButton.allCases.filter { $0 != .l3 }.compactMap(GamepadAction.onPress)
+        for button in ControllerButton.allCases {
+            require(GamepadAction.holdAction(button, .tap) == held[button]?.0
+                    && GamepadAction.holdAction(button, .hold) == held[button]?.1, "Unexpected hold binding for \(button)")
+            if let (tap, long) = held[button] {
+                actions.append(tap)
+                if let long { actions.append(long) }
+            }
+        }
+        var viewHold = HoldDetector()
+        viewHold.press(at: 1)
+        let tap = viewHold.release(at: 1.2).flatMap { GamepadAction.holdAction(.view, $0) }
+        viewHold.press(at: 2)
+        let hold = viewHold.tick(at: 2.5).flatMap { GamepadAction.holdAction(.view, $0) }
+        require(tap == .view && hold == .search && viewHold.release(at: 2.6) == nil,
+                "View hold must open Search without switching views on release")
+        require(Set(actions).count == actions.count, "No two button gestures may emit the same command")
+        let screens: [(AppRoute, Notification.Name)] = [
+            (.library, .nxSpotlightGamepadAction), (.collection, .nxCollectionGamepadAction),
+            (.detail(UUID()), .nxDetailGamepadAction), (.settings(.startUp), .nxSettingsGamepadAction),
+            (.addGame, .nxAddGameGamepadAction), (.console, .nxConsoleGamepadAction),
+            (.integrations, .nxIntegrationsAction),
+        ]
+        for (route, name) in screens {
+            let routeInput = InputRecorder()
+            let observer = NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil) { note in
+                if let action = note.object as? GamepadAction { MainActor.assumeIsolated { routeInput.actions.append(action) } }
+            }
+            input.router.route = route
+            let local = actions.filter { ($0 != .profiles || route == .library)
+                && ((route != .console && route != .integrations) || ($0 != .menu && $0 != .menuHold)) }
+            for action in local { GameControllerService.shared.onAction?(action) }
+            require(routeInput.actions == local, "\(route) must receive each command exactly once")
+            if route == .console || route == .integrations {
+                GameControllerService.shared.onAction?(.menu)
+                require(input.router.isMenuPresented, "Menu opens the control center from \(route)")
+                input.router.isMenuPresented = false
+                GameControllerService.shared.onAction?(.menuHold)
+                require(input.router.route == .settings(.startUp), "Menu hold opens Settings from \(route)")
+            }
+            NotificationCenter.default.removeObserver(observer)
+        }
+        input.router.route = .collection
+        let originalFocus = input.viewModel.spotlight
+        input.launcherIsFrontmost = false
+        GameControllerService.shared.onAction?(.profiles)
+        require(input.profileFlow == nil, "Home must ignore the launcher with a game in front")
+        input.launcherIsFrontmost = true
+        GameControllerService.shared.onAction?(.profiles)
+        require(input.profileFlow?.page == .picker && input.viewModel.profileOwnsInput,
+                "Home opens the profile picker")
+        input.launcherIsFrontmost = false
+        GameControllerService.shared.onAction?(.profiles)
+        require(input.profileFlow != nil, "Home must not close the picker from the game either")
+        input.launcherIsFrontmost = true
+        GameControllerService.shared.onAction?(.profiles)
+        require(input.profileFlow == nil && !input.viewModel.profileOwnsInput
+                && input.router.route == .collection && input.viewModel.spotlight == originalFocus,
+                "Home restores the original route and focus")
+        input.router.isMenuPresented = true
+        GameControllerService.shared.onAction?(.profiles)
+        GameControllerService.shared.onAction?(.profiles)
+        require(input.router.isMenuPresented, "Home restores the open control center")
+        input.router.isMenuPresented = false
+        input.router.route = .library
+        let received = InputRecorder()
+        let watch = NotificationCenter.default.addObserver(forName: .nxSpotlightGamepadAction,
+                                                           object: nil, queue: nil) { note in
+            MainActor.assumeIsolated {
+                if let action = note.object as? GamepadAction { received.actions.append(action) }
+            }
+        }
+        defer { NotificationCenter.default.removeObserver(watch); GameControllerService.shared.onAction = nil }
+        GameControllerService.shared.onAction?(.confirm)
+        require(received.actions == [.confirm], "An uncovered library must receive controller actions")
+        received.actions = []
+        input.router.isMenuPresented = true
+        input.router.activityCenterFocus = ActivityCenterFocus()
+        GameControllerService.shared.onAction?(.navigateDown)
+        GameControllerService.shared.onAction?(GamepadAction.onPress(.l)!)
+        GameControllerService.shared.onAction?(GamepadAction.onPress(.r)!)
+        require(received.actions.isEmpty && input.dialogActions == [.navigateDown, .tabPrevious, .tabNext]
+                    && !input.availability().general,
+                "The activity center must retain menu routing and suspend page commands")
+        input.router.activityCenterFocus = nil
+        input.router.isMenuPresented = false
+        input.dialogActions = []
+        input.router.isSearchPresented = true
+        for action: GamepadAction in [.menu, .menuHold, .view] { GameControllerService.shared.onAction?(action) }
+        require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty,
+                "Search owns input, including Menu and View")
+        input.router.isSearchPresented = false
+        input.router.isPalettePresented = true
+        for action: GamepadAction in [.navigateDown, .confirm, .contextAction, .menu, .menuHold, .view, .controlCenter] {
+            GameControllerService.shared.onAction?(action)
+        }
+        require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty
+                    && input.dialogActions == [.navigateDown, .confirm, .contextAction, .menu, .menuHold, .view, .controlCenter],
+                "The palette owns every press")
+        input.dialogActions = []
+        input.router.isPalettePresented = false
+        input.viewModel.isGameOptionsOpen = true
+        for action: GamepadAction in [.menu, .menuHold] { GameControllerService.shared.onAction?(action) }
+        require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty,
+                "Game Options blocks the global Menu shortcuts")
+        input.viewModel.isGameOptionsOpen = false
+        let blockers: [(String, (Bool) -> Void)] = [
+            ("pending alert", { input.viewModel.alertMessage = $0 ? "Fixture alert" : nil }),
+            ("modal dialog", { NSApp.modalWindow = $0 ? 1 : nil }),
+            ("key sheet", { NSApp.keyWindow = $0 ? WindowState() : nil; NSApp.keyWindow?.isSheet = $0 }),
+            ("sheet on key window", { NSApp.keyWindow = $0 ? WindowState() : nil; NSApp.keyWindow?.attachedSheet = $0 ? 1 : nil }),
+            ("sheet on main window, no key window", { NSApp.mainWindow = $0 ? WindowState() : nil; NSApp.mainWindow?.attachedSheet = $0 ? 1 : nil }),
+            ("native menu", { input.nativeMenus.isTracking = $0 })
+        ]
+        for (name, block) in blockers {
+            block(true)
+            for action: GamepadAction in [.navigateRight, .confirm, .cancel, .menu, .menuHold] {
+                GameControllerService.shared.onAction?(action)
+            }
+            require(received.actions.isEmpty && input.router.route == .library && !input.router.isMenuPresented,
+                    "Controller must not navigate or launch underneath \(name)")
+            if name != "native menu" {
+                require(!input.availability().general, "Native menu commands must yield to \(name)")
+            }
+            // An internal update confirmation is also below the native window.
+            input.showsUpdateOffer = true
+            input.isCloseGameOpen = true
+            GameControllerService.shared.onAction?(.confirm)
+            require(input.dialogActions.isEmpty, "The update dialog must not receive input underneath \(name)")
+            input.showsUpdateOffer = false
+            input.isCloseGameOpen = false
+            block(false)
+            input.router.route = .library
+            input.router.isMenuPresented = false
+            received.actions = []
+            GameControllerService.shared.onAction?(.navigateLeft)
+            require(received.actions == [.navigateLeft], "Closing \(name) must restore fresh input without replaying blocked actions")
+            received.actions = []
+            input.dialogActions = []
+        }
+        input.showsUpdateOffer = true
+        input.isCloseGameOpen = true
+        input.viewModel.noticeFocus.enter(keys: 1)
+        GameControllerService.shared.onAction?(.confirm)
+        require(input.dialogActions == [.confirm] && received.actions.isEmpty && !input.viewModel.noticeFocus.isActive,
+                 "An internal update dialog takes input back from a previously focused notice")
+        input.showsUpdateOffer = false
+        input.viewModel.cloudLibraryGameID = firstModsGame.id
+        let cloud = InputRecorder()
+        let cloudWatch = NotificationCenter.default.addObserver(forName: .nxCloudLibraryGamepadAction,
+                                                                object: nil, queue: nil) { note in
+            if let action = note.object as? GamepadAction { MainActor.assumeIsolated { cloud.actions.append(action) } }
+        }
+        input.viewModel.cloudQuitRequested = true
+        input.dialogActions = []
+        for (name, block) in blockers {
+            block(true)
+            GameControllerService.shared.onAction?(.confirm)
+            require(input.dialogActions.isEmpty, "Quit confirmation must yield to \(name)")
+            block(false)
+        }
+        for action: GamepadAction in [.navigateRight, .confirm, .cancel] {
+            GameControllerService.shared.onAction?(action)
+        }
+        require(input.dialogActions == [.navigateRight, .confirm, .cancel] && cloud.actions.isEmpty && received.actions.isEmpty,
+                "Quit confirmation must take controller input before the cloud panel")
+        input.viewModel.cloudQuitRequested = false
+        for action: GamepadAction in [.navigateDown, .confirm, .menuHold] {
+            GameControllerService.shared.onAction?(action)
+        }
+        require(cloud.actions == [.navigateDown, .confirm, .menuHold] && received.actions.isEmpty && input.router.route == .library,
+                "Cloud library must own the controller without changing the underlying page")
+        NotificationCenter.default.removeObserver(cloudWatch)
+        input.viewModel.cloudLibraryGameID = nil
+        input.viewModel.profileOwnsInput = true
+        input.profileFlow = ProfileFlow(page: .picker)
+        input.dialogActions = []
+        GameControllerService.shared.onAction?(.confirm)
+        require(input.dialogActions == [.confirm] && received.actions.isEmpty && !input.availability().general,
+                "Profile modal owns controller input and suspends native actions")
+        input.viewModel.profileOwnsInput = false
+        input.profileFlow = nil
+
+        let wizard = PortingWizardHost()
+        wizard.router.showDetail(firstModsGame.id)
+        wizard.router.openAddGame()
+        require(wizard.hint == "Close", "A finished build opened directly has no Review to go back to")
+        wizard.cancel()
+        require(wizard.router.route == .detail(firstModsGame.id),
+                "B/Esc must leave the result of a build started without a Review draft")
+
+        wizard.router.openAddGame()
+        wizard.viewModel.selectedGame = "Fixture"
+        require(wizard.hint == "Back", "A build with a Review draft should offer Back")
+        wizard.cancel()
+        require(wizard.router.route == .addGame && wizard.viewModel.buildWizardStep == 2,
+                "B/Esc must still return to the Review draft when one exists")
+
+        wizard.viewModel.buildWizardStep = 3
+        wizard.viewModel.isBuilding = true
+        require(wizard.hint == "Hide", "An active build should offer Hide")
+        wizard.cancel()
+        require(wizard.router.route == .detail(firstModsGame.id) && wizard.viewModel.isBuilding,
+                "B/Esc must still hide an active build without cancelling it")
+
+        let detail = ResumeHost(game: firstModsGame)
+        let engine = RunningGameMonitor.Host(pid: 411)
+        var session = HomeMenu.Session(pid: engine.pid)
+        session.receive(.paused, from: engine.pid)
+        detail.runningGames.homeMenus[detail.game.id] = .init(host: engine, session: session)
+        detail.primaryAction()
+        require(RunningGameMonitor.effects == ["org.nxnative.resume.411", "activate 411"],
+                "The existing Resume button must notify and activate the paused host")
+
+        RunningGameMonitor.effects = []
+        session.receive(.resumed, from: engine.pid)
+        detail.runningGames.homeMenus[detail.game.id] = .init(host: engine, session: session)
+        detail.primaryAction()
+        require(RunningGameMonitor.effects == ["activate 410"] && detail.viewModel.launches.isEmpty,
+                "Resume on a running, unpaused game must only activate its existing app")
+
+        RunningGameMonitor.effects = []
+        NSRunningApplication.hiddenPID = engine.pid
+        detail.primaryAction()
+        require(RunningGameMonitor.effects == ["org.nxnative.resume.411", "activate 411"],
+                "Resume must recover a hidden host if Arcane missed the pause notification")
+
+        let mods = [
+            LocalMod(folderName: "On", folder: root, romfs: nil, exefs: root, isOn: true),
+            LocalMod(folderName: "Mixed", folder: root, romfs: root, exefs: root, isOn: true),
+            LocalMod(folderName: "Off", folder: root, romfs: nil, exefs: root, isOn: false),
+            LocalMod(folderName: "RomFS", folder: root, romfs: root, isOn: true)
+        ]
+        var modsPanel = ModsPanelHost(online: true, mods: mods)
+        require(modsPanel.warningVisible && modsPanel.badgedMods == ["On", "Mixed"],
+                "Nextendo online must warn and badge only enabled code mods")
+        let noActiveCode = ModsPanelHost(online: true, mods: Array(mods.suffix(2)))
+        require(!noActiveCode.warningVisible && noActiveCode.badgedMods.isEmpty,
+                "Nextendo online without any enabled code mods must not warn")
+        modsPanel.online = false
+        require(!modsPanel.warningVisible && modsPanel.badgedMods.isEmpty,
+                "Offline mode must not warn or badge code mods")
+        if failures > 0 { exit(1) }
+        print("Actual app review checks passed: achievement startup, logo platform, wheel focus, Mods reads and Nextendo warnings, Steam launch, native dialogs, input routing and Resume.")
+    }
+}
+'''
+
+host = host.replace('// ACTUAL_SCROLL', declaration(
+    'apps/mac/OortMac/Views/Spotlight/SpotlightView+Input.swift', '    private func settleFocusOnScroll()'))
+host = host.replace('// ACTUAL_MODS_RELOAD', declaration(
+    'apps/mac/OortMac/Views/Spotlight/SpotlightView.swift', '    func reloadMods()'))
+host = host.replace('// ACTUAL_ROW_GLIDE', declaration(
+    'apps/mac/OortMac/Views/Spotlight/SpotlightView+Input.swift', '    func handleRowGlide('))
+coordinator = 'apps/mac/OortMac/Services/SteamPlayCoordinator.swift'
+for marker, signature in (
+    ('// ACTUAL_PENDING_HANDOFF', '    private struct PendingHandOff'),
+    ('// ACTUAL_PREPARE_HANDOFF', '    private func prepareHandOff('),
+    ('// ACTUAL_COVER_PREPARED', '    func launchCoverPrepared('),
+    ('// ACTUAL_SUBMIT_HANDOFF', '    private func submitHandOff('),
+    ('// ACTUAL_FOLLOW_BACKGROUND', '    private func followBackground('),
+):
+    host = host.replace(marker, declaration(coordinator, signature))
+host = host.replace('// ACTUAL_AVAILABILITY_TYPE', declaration(
+    'apps/mac/OortMac/Services/NativeMenuCommands.swift', 'struct NativeMenuAvailability'))
+host = host.replace('// ACTUAL_MENU', declaration(
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    var nativeMenuAvailability:'))
+host = host.replace('// ACTUAL_DIALOG', declaration(
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    var nativeDialogOwnsInput:'))
+profiles = 'apps/mac/OortMac/Views/Shell/AppShellView+Profiles.swift'
+host = host.replace('// ACTUAL_PROFILE_FLOW', '\n'.join(
+    declaration(profiles, signature) for signature in ('struct ProfileFlow', 'extension Notification.Name')))
+host = host.replace('// ACTUAL_PROFILE_ACTIONS', '\n'.join(
+    declaration(profiles, signature) for signature in ('    func toggleProfilePicker()', '    func closeProfile()')))
+host = host.replace('// ACTUAL_GO_TO_WIZARD_STEP', '\n'.join(
+    declaration('apps/mac/OortMac/ViewModels/PortingModel+AddGame.swift', signature)
+    for signature in ('    func goToWizardStep(', '    static func wizardStepReachable(',
+                      '    static func stepBack(', '    static func closingAsks(')))
+host = host.replace('// ACTUAL_WIZARD_NAVIGATION', '\n'.join(
+    declaration('apps/mac/OortMac/Views/AddGame/AddGameView.swift', signature)
+    for signature in ('    private var previousWizardStep:', '    private var backLabel:', '    private func handleBack(',
+                      '    private func requestClose(', '    private func dismissDiscard(',
+                      '    private func close(then ', '    private func leave(')))
+host = host.replace('// ACTUAL_RESUME', declaration(
+    'apps/mac/OortMac/Services/RunningGameMonitor.swift', '    func resume(_ game:'))
+host = host.replace('// ACTUAL_PRIMARY_ACTION', declaration(
+    'apps/mac/OortMac/Views/Detail/GameDetailView+Input.swift', '    func primaryAction()'))
+host = host.replace('// ACTUAL_INACTIVE_ONLINE_MODS', declaration(
+    'apps/mac/OortMac/Views/GameOptions/ModsPanel.swift', '    private var inactiveOnlineCodeMods:'))
+controller = declaration('apps/mac/OortMac/Views/Shell/AppShellView+Startup.swift',
+                         '        GameControllerService.shared.onAction =')
+host = host.replace('// ACTUAL_CONTROLLER', re.sub(r'(?<![.\w])filePicker\.', 'self.filePicker.', controller).replace('[weak viewModel, weak router]', '[self, weak viewModel, weak router]'))
+names = sorted(set(re.findall(r'name: \.(nx\w+)', controller)))
+host = host.replace('// ACTUAL_ACTION_NAMES', 'extension Notification.Name {\n' + '\n'.join(
+    f'    static let {name} = Notification.Name("{name}")' for name in names) + '\n}')
+
+with tempfile.TemporaryDirectory(prefix='catalog-review-check-') as folder:
+    scratch = Path(folder)
+    (scratch / 'config').mkdir()
+    (scratch / 'config/loginusers.vdf').write_text('"users" { "76561197960265735" { "MostRecent" "1" } }')
+    stats = scratch / 'appcache/stats'
+    stats.mkdir(parents=True)
+    schema = [('42', [('stats', [('1', [('bits', [('0', [
+        ('name', 'FIRST'), ('display', [('name', [('english', 'First')])])])])])])])]
+    (stats / 'UserGameStatsSchema_42.bin').write_bytes(binary_kv(schema))
+    (stats / 'UserGameStats_7_42.bin').write_bytes(binary_kv([('cache', [('1', [('AchievementTimes', [('0', 10)])])])]))
+    swift = scratch / 'check.swift'
+    swift.write_text(host)
+    executable = scratch / 'check'
+    subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
+                    str(ROOT / 'apps/mac/OortMac/Services/SteamAchievementsStore.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Spotlight/GameArtLoader.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
+                    *map(str, package_names.objects(BIN)),
+                    '-o', str(executable)], cwd=ROOT, check=True)
+    subprocess.run([str(executable), str(scratch)], check=True,
+                   env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

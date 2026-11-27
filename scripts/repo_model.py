@@ -39,3 +39,14 @@ def read_layout(root):
 def tracked(root):
     names = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).decode().split("\0")
     return [name for name in names if name]
+
+
+def renamed(root, ref):
+    """Tracked paths renamed since REF, old -> new, as Git detects them. Debt lists keyed by path are read through
+    it when compared with a base, so that a moved file keeps its entry."""
+    out = subprocess.check_output(["git", "diff", "-M", "--name-status", "--diff-filter=R", "-z", ref, "--"],
+                                  cwd=root).decode().split("\0")
+    moved, fields = {}, [field for field in out if field]
+    for i in range(0, len(fields) - 2, 3):
+        moved[fields[i + 1]] = fields[i + 2]
+    return moved
