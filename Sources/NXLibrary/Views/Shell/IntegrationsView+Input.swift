@@ -46,9 +46,21 @@ extension IntegrationsView {
             let next = min(max(index + (action == .navigateUp ? -1 : 1), 0), ids.count - 1)
             router.integrationFocus = ids[next]
         case .confirm: router.showIntegrationDetail(id)
+        case .secondaryAction: if flip(id) { SoundEffectService.shared.play(.key) }
         case .cancel: router.backFromIntegration()
         default: break
         }
+    }
+
+    /// The row's switch, from the list: focus stays on the row, and the owner says the new state.
+    @discardableResult
+    func flip(_ id: IntegrationID) -> Bool {
+        router.integrationFocus = id
+        guard overview.row(id)?.switchOn != nil, toggle(id) else {
+            SoundEffectService.shared.play(.error)
+            return false
+        }
+        return true
     }
 
     func detailFocus(_ row: IntegrationRow) -> IntegrationDetailAction? {
@@ -68,6 +80,7 @@ extension IntegrationsView {
         case 126: .navigateUp
         case 125: .navigateDown
         case 36, 49, 76: .confirm
+        case 7: .secondaryAction
         case 53: .cancel
         default: nil
         }

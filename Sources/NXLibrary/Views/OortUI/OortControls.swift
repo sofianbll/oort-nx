@@ -17,7 +17,7 @@ struct OortFormatBadges: View {
 /// Selectable and passive rows share the existing Selene option-row surface.
 struct OortRow: View {
     enum Preset {
-        case navigation(label: String, showsLabel: Bool = false, action: () -> Void)
+        case navigation(label: String, action: () -> Void)
         case info
     }
 
@@ -27,14 +27,16 @@ struct OortRow: View {
     var status: String?
     var focused = false
     var tone: OortStatus.Tone = .neutral
+    /// A switch before the chevron, for an entry turned on and off from the list; the row's action stays its own.
+    var isOn: Binding<Bool>? = nil
     let preset: Preset
 
     var body: some View {
         switch preset {
-        case .navigation(let label, let showsLabel, let action):
+        case .navigation(let label, let action):
             Button(action: action) {
                 row {
-                    if showsLabel { OortReadout(text: label).fixedSize() }
+                    if let isOn { SeleneSwitch(isOn: isOn).accessibilityHidden(true) }
                     Image(systemName: "chevron.right").seleneFont(.text, .semibold)
                         .foregroundStyle(SeleneTheme.glyph).accessibilityHidden(true)
                 }

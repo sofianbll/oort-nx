@@ -32,9 +32,19 @@ struct IntegrationSurface: View {
             if isBar {
                 IntegrationBar(rows: data.rows, focused: router.integrationBarFocused, open: router.openIntegrations)
             } else {
-                IntegrationsView(overview: data, router: router)
+                IntegrationsView(overview: data, router: router, toggle: toggle)
             }
         }
+    }
+
+    /// Steam's switch, from the list: the same choice Settings › Sources saves (its generation guards a stale draft),
+    /// applied by the shell as a saved choice is. Refused while a settings draft waits, so none is overwritten.
+    private func toggle(_ id: IntegrationID) -> Bool {
+        guard id == .steam, !router.hasPendingSettings() else { return false }
+        let current = sources.configuration
+        settings.settings.launcherChoices.steamSource = SteamSourceChoice(enabled: !current.isEnabled,
+            root: sources.discoveryRoot, replaces: current.generation)
+        return true
     }
 
     private func overview(_ account: IntegrationOverview.Account) -> IntegrationOverview {
@@ -147,6 +157,8 @@ struct IntegrationsView: View {
     let overview: IntegrationOverview
     @ObservedObject var router: AppRouter
     var showsHints = true
+    /// Asks the owner for the other state of an entry's switch; false when the owner refuses (a settings draft waits).
+    var toggle: (IntegrationID) -> Bool = { _ in false }
 
     private func text(_ key: String) -> String { L10n.text(key, context: locale) }
     private func text(_ words: IntegrationWords) -> String { L10n.format(words.key, words.args, context: locale) }
@@ -160,10 +172,11 @@ struct IntegrationsView: View {
                 let sections = overview.sections
                 OortPage(title: text("Integrations"), scrollFocus: router.integrationFocus,
                           initialFocus: sections.first?.entries.first?.id, restoreScroll: router.isReturningFromBack,
-                          back: backHint, confirm: confirmHint(IntegrationCatalog.open.key)) {
+                          back: backHint, confirm: confirmHint(IntegrationCatalog.open.key), extra: switchHint) {
                     ForEach(sections) { section in
                         OortSection(title: text(section.id.title.key)) {
                             ForEach(section.entries) { summary($0) }
+                            if let upcoming = section.upcoming { OortReadout(text: text(upcoming), preset: .quiet) }
                         }
                     }
                 }
@@ -190,12 +203,25 @@ struct IntegrationsView: View {
         showsHints ? HintItem(.a, text(title)) { handle(.confirm) } : nil
     }
 
+    /// X on a row with a switch: the other state, said for the focused row.
+    private var switchHint: HintItem? {
+        guard showsHints, router.integrationDetail == nil, let id = catalogueFocus,
+              let on = overview.row(id)?.switchOn else { return nil }
+        return HintItem(.x, text(IntegrationCatalog.toggle(on: on).key)) { handle(.secondaryAction) }
+    }
+
     private func summary(_ row: IntegrationRow) -> some View {
         OortRow(title: text(row.name), platform: platform(row.id), about: text(row.id.capabilities.key),
                 status: text(row.status), focused: catalogueFocus == row.id, tone: tone(row),
-                preset: .navigation(label: text(IntegrationCatalog.open.key), showsLabel: true) { router.showIntegrationDetail(row.id) })
+                isOn: row.switchOn.map { on in Binding(get: { on }, set: { _ in flip(row.id) }) },
+                preset: .navigation(label: text(IntegrationCatalog.open.key)) { router.showIntegrationDetail(row.id) })
             .id(row.id)
             .accessibilityFocused($accessibilityFocus, equals: row.id)
+            .accessibilityActions {
+                if let on = row.switchOn {
+                    Button(text(IntegrationCatalog.toggle(on: on).key)) { flip(row.id) }
+                }
+            }
     }
 
     private func detail(_ row: IntegrationRow) -> some View {
@@ -207,6 +233,8 @@ struct IntegrationsView: View {
                 OortSection(title: text(step.id.title.key)) {
                     ForEach(Array(step.content.enumerated()), id: \.offset) { _, item in
                         switch item {
+                        case .say(let words):
+                            OortReadout(text: text(words))
                         case .words(let words):
                             OortCard {
                                 ForEach(Array(words.enumerated()), id: \.offset) { _, word in

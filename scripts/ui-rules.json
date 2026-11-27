@@ -1112,6 +1112,9 @@
   }
  ],
  "mouse_paths": {
+  "Sources/NXLibrary/Views/Shell/IntegrationsView.swift": {
+   "x text(IntegrationCatalog.toggle(on: on).k": "the switch on the row is clicked"
+  },
   "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
    "lb Previous": "the tabs are clickable",
    "rb Next": "the tabs are clickable"

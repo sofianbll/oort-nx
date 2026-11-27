@@ -96,15 +96,28 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(router.integrationFocus, .macApps)
     }
 
-    func testDetailOnlyShowsPhasesWithContentAndSwitchBrowseDoesNotOpenSettings() throws {
+    func testDetailAlwaysShowsTheThreeStepsAndSwitchBrowseDoesNotOpenSettings() throws {
+        func said(_ step: IntegrationCatalog.Step<IntegrationRow.Detail>) -> String? {
+            if case .say(let words)? = step.content.first { words.key } else { nil }
+        }
         var snapshot = IntegrationOverview()
-        XCTAssertEqual(snapshot.row(.drive)?.steps.map(\.id), [.link, .verify])
+        let unlinked = try XCTUnwrap(snapshot.row(.drive))
+        XCTAssertEqual(unlinked.steps.map(\.id), [.link, .verify, .next])
+        XCTAssertEqual(unlinked.steps.map(said), ["Connect your Google Drive to begin.", nil, "Link it first to continue."])
+        XCTAssertEqual(unlinked.actions, [.settings])
         snapshot.drive = .checked
         let date = Date(timeIntervalSince1970: 1)
         snapshot.driveCheckDate = date
         let drive = try XCTUnwrap(snapshot.row(.drive))
-        XCTAssertEqual(drive.steps.map(\.id), [.verify, .next])
-        XCTAssertTrue(drive.steps[0].content.contains { if case .date(date) = $0 { true } else { false } })
+        XCTAssertEqual(drive.steps.map(\.id), [.link, .verify, .next])
+        XCTAssertEqual(said(drive.steps[0]), "Linked to your Google Drive.")
+        XCTAssertTrue(drive.steps[1].content.contains { if case .date(date) = $0 { true } else { false } })
+        snapshot.steam = .ready
+        snapshot.steamGameCount = 2
+        let steam = try XCTUnwrap(snapshot.row(.steam))
+        XCTAssertEqual(steam.switchOn, true)
+        XCTAssertEqual(steam.steps.map { $0.content.count }, [2, 2, 1], "Link: linked to Steam, its settings; Continue: its games")
+        XCTAssertEqual(snapshot.row(.macApps)?.switchOn, nil, "no switch where the owner offers none")
         snapshot.hasSwitchGames = true
         snapshot.engine = .blocked
         XCTAssertEqual(snapshot.row(.switchGames)?.actions, [.settings, .switchGames])
@@ -116,6 +129,28 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertNil(router.settingsRowID)
         XCTAssertEqual(router.takeIntegrationLibraryPlatform(), .nxnative)
         XCTAssertNil(router.takeIntegrationLibraryPlatform())
+    }
+
+    /// The engine's checks say what the player needs, not a commit or a compiler number; those stay in its settings.
+    func testEngineChecksArePlainWords() throws {
+        func checks(_ snapshot: IntegrationOverview) throws -> [String] {
+            try XCTUnwrap(snapshot.row(.switchGames)).steps[1].content.flatMap { item -> [String] in
+                if case .words(let words) = item { words.map(\.key) } else { [] }
+            }
+        }
+        var snapshot = IntegrationOverview()
+        snapshot.engine = .detected
+        snapshot.engineCommit = "f1c7100fabcdef"
+        snapshot.expectedEngineCommit = "f1c7100f"
+        snapshot.keyStatus = .available(applicationGenerations: 1)
+        snapshot.xcodeVersion = "Xcode 27"
+        snapshot.metalVersion = "33000.1"
+        XCTAssertEqual(try checks(snapshot), ["Engine up to date", "Switch keys selected", "Apple tools ready"])
+        snapshot.engineCommit = "0123456789"
+        snapshot.metalVersion = nil
+        XCTAssertEqual(try checks(snapshot), ["Engine not the tested version", "Switch keys selected", "Apple tools incomplete"])
+        let words = try checks(snapshot).joined(separator: " ")
+        for hidden in ["0123456", "f1c7100", "33000", "Xcode 27"] { XCTAssertFalse(words.contains(hidden)) }
     }
 
     func testTheBarOnlyTakesConfirmAfterExplicitFocusEvenWhenAServiceFails() {

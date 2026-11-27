@@ -18,18 +18,22 @@ public struct IntegrationRow: Identifiable {
     fileprivate var browse: IntegrationDetailAction? = nil
     fileprivate var legacyStatus: String? = nil
 
+    /// On or off, for an entry whose owner offers a switch (IntegrationCatalog.ID.hasSwitch); nil otherwise.
+    public var switchOn: Bool? = nil
+
     public var barStatus: String { legacyStatus ?? status }
     public var barName: String { id == .switchGames ? "Switch (nxnative)" : name }
 
     public enum Detail {
-        case words([IntegrationWords]), status, date(Date), access, action(IntegrationDetailAction)
+        case say(IntegrationWords), words([IntegrationWords]), status, date(Date), access, action(IntegrationDetailAction)
     }
 
+    /// Link holds the settings while the entry needs linking, or when Continue has its own action; else Continue does.
     public var steps: [IntegrationCatalog.Step<Detail>] {
         let check: [Detail] = [.status] + (checkDate.map { [.date($0)] } ?? []) + (checks.isEmpty ? [] : [.words(checks)]) + [.access]
-        return IntegrationCatalog.steps(link: link ? [.action(.settings)] : [],
-            verify: check + (browse != nil && !link ? [.action(.settings)] : []),
-            next: browse.map { [.action($0)] } ?? (link ? [] : [.action(.settings)]))
+        let settingsInLink = link || browse != nil
+        return IntegrationCatalog.steps(id, linked: !link, link: settingsInLink ? [.action(.settings)] : [], verify: check,
+            next: browse.map { [.action($0)] } ?? (settingsInLink ? [] : [.action(.settings)]), say: Detail.say)
     }
 
     public var actions: [IntegrationDetailAction] {
@@ -74,12 +78,11 @@ public struct IntegrationOverview {
     public var sections: [IntegrationCatalog.Group<IntegrationRow>] { IntegrationCatalog.sections(offering: row) }
 
     private var engineChecks: [IntegrationWords] {
+        // Said plainly; the versions themselves stay in the engine settings (Open engine settings).
         var checks: [IntegrationWords] = []
-        if let expectedEngineCommit {
-            checks.append(.init("Expected engine commit: %@", args: [String(expectedEngineCommit.prefix(8))]))
-        }
-        if let engineCommit {
-            checks.append(.init("Observed engine commit: %@", args: [String(engineCommit.prefix(8))]))
+        if let engineCommit, let expectedEngineCommit {
+            checks.append(engineCommit.hasPrefix(expectedEngineCommit.prefix(8)) || expectedEngineCommit.hasPrefix(engineCommit.prefix(8))
+                ? .init("Engine up to date") : .init("Engine not the tested version"))
         }
         switch keyStatus {
         case .available?: checks.append(.init("Switch keys selected"))
@@ -87,8 +90,11 @@ public struct IntegrationOverview {
         case .invalid(let issue)?: checks.append(.verbatim(issue.message))
         case nil: break
         }
-        if let xcodeVersion { checks.append(.verbatim(xcodeVersion)) }
-        if let metalVersion { checks.append(.init("Metal compiler: %@", args: [metalVersion])) }
+        switch (xcodeVersion, metalVersion) {
+        case (nil, nil): break
+        case (_?, _?): checks.append(.init("Apple tools ready"))
+        default: checks.append(.init("Apple tools incomplete"))
+        }
         return checks
     }
 
@@ -114,9 +120,9 @@ public struct IntegrationOverview {
             }
             return .init(id: id, purpose: "Build compatible Switch games for Mac and open games already built.",
                          status: state.0, emphasis: state.1, action: "Open engine settings",
-                         reads: "Selected game files, local keys and installed game apps.",
-                         writes: "Game apps, build caches, logs and a private copy of imported keys. nxnative writes local saves.",
-                         sends: "GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys.",
+                         reads: "The game files you choose, your Switch keys and the games already built.",
+                         writes: "The games it builds, its working files and a private copy of your keys. The games write their own saves.",
+                         sends: "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple.",
                          settingID: engine == .blocked ? "engineStatus" : "engineFolder", link: engine == .notDetected,
                          checks: engineChecks + (engineGate.map { [.verbatim($0)] } ?? []), browse: hasSwitchGames ? .switchGames : nil)
         case .steam:
@@ -125,18 +131,19 @@ public struct IntegrationOverview {
             let status = SteamSourceEntries.catalogueSummary(steam, found: steamGameCount).key
             return .init(id: id, purpose: "Find installed Mac games and open them in Steam.",
                          status: status, emphasis: state.emphasis, action: "Open Steam source settings",
-                         reads: "Steam manifests, local play history and achievements.",
-                         writes: "Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files.",
-                         sends: "Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN.",
+                         reads: "The games Steam installed, your play time and your achievements.",
+                         writes: "Your Oort NX library and the pictures it keeps; never Steam’s files.",
+                         sends: "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements.",
                          settingID: SteamSourceEntries.sourceID, link: steam == .disabled,
-                         browse: steam == .ready && steamGameCount > 0 ? .steamGames : nil, legacyStatus: state.summary.key)
+                         browse: steam == .ready && steamGameCount > 0 ? .steamGames : nil, legacyStatus: state.summary.key,
+                         switchOn: steam != .disabled)
         case .macApps:
             return .init(id: id, purpose: "Add local Mac apps as library shortcuts.",
                          status: hasMacShortcuts ? "Mac shortcuts added" : "No Mac shortcuts added",
                          emphasis: .neutral, action: "Open Mac app settings",
-                         reads: "The chosen Mac app’s name, location and icon.",
-                         writes: "The shortcut in this library, not the app.",
-                         sends: "No app information is sent online.",
+                         reads: "The name, place and icon of the app you choose.",
+                         writes: "A shortcut in your library; the app itself does not change.",
+                         sends: "Nothing",
                          settingID: "macShortcutAdd", link: !hasMacShortcuts)
         case .drive:
             let state: (String, IntegrationEmphasis) = switch drive {
@@ -156,11 +163,11 @@ public struct IntegrationOverview {
             case .paused: "cloudLibraryAdvanced"
             default: "cloudLibraryEnabled"
             }
-            return .init(id: id, purpose: "Keep copies of ported apps, build caches or selected game files, not saves.",
+            return .init(id: id, purpose: "Keep copies of your built games and of the game files you choose. Not your saves.",
                          status: state.0, emphasis: state.1, action: "Open cloud library settings",
-                         reads: "Selected local files and Drive folders; the reference library is read-only.",
-                         writes: "Local copies and rclone connection settings; uploads write to the personal library, not the reference.",
-                         sends: "rclone exchanges OAuth credentials and tokens with Google and uploads files to Drive. New connections made here request full Drive access.",
+                         reads: "The files you choose and your Drive folders. The shared library is only read.",
+                         writes: "Copies on this computer and in your own Drive library, never in the shared one.",
+                         sends: "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive.",
                          settingID: setting, link: drive == .notConfigured, checkDate: drive == .checked || drive == .failed ? driveCheckDate : nil)
         case .nextendo:
             let state: (String, IntegrationEmphasis) = switch nextendo {
@@ -174,9 +181,9 @@ public struct IntegrationOverview {
             return .init(id: id, purpose: "Play compatible nxnative games online and see your Nextendo friends.",
                          status: state.0, emphasis: state.1,
                          action: nextendo == .noLocalProfile ? "Open profile settings" : "Open Nextendo settings",
-                         reads: "Local sign-in token; Nextendo account, friends, avatars and online activity.",
-                         writes: "A local refresh token; requested friend changes on Nextendo.",
-                         sends: "Nextendo receives OAuth codes and tokens, friend actions and player or game IDs. Online play uses Nextendo; presence and current game depend on your settings.",
+                         reads: "Your Nextendo account, your friends, their pictures and who is online.",
+                         writes: "Your sign-in on this computer, and the friend changes you ask for.",
+                         sends: "To Nextendo: your sign-in, your friend requests and the game you play online. What your friends see depends on your settings.",
                          settingID: nextendo == .noLocalProfile ? "showProfilePicker" : "nextendo", link: nextendo == .noLocalProfile || nextendo == .expired)
         case .images:
             let state: String
@@ -186,11 +193,11 @@ public struct IntegrationOverview {
             case (false, true): state = "Only IGDB configured"
             case (false, false): state = "No provider credentials"
             }
-            return .init(id: id, purpose: "Configure SteamGridDB and IGDB. Automatic icons and scores also use public sources.",
+            return .init(id: id, purpose: "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites.",
                          status: state, emphasis: .neutral, action: "Open provider settings",
-                         reads: "Game titles or IDs and provider results.",
-                         writes: "Private API credentials, artwork preferences, saved images and cached scores on this Mac.",
-                         sends: "Searches and key to SteamGridDB; searches, client ID and access token to IGDB; client ID and secret to Twitch. Game names or Steam IDs to Wikidata, title IDs to Nlib and game names to Switch Icon Showdown.",
+                         reads: "Your game names or numbers and what the sites find.",
+                         writes: "Your keys, kept private, your picture choices, and the pictures and scores it keeps.",
+                         sends: "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch).",
                          settingID: steamGridDB && !igdb ? "igdb" : "steamGridDB", link: !steamGridDB && !igdb)
         case .saves:
             let state = switch saves {
@@ -200,9 +207,9 @@ public struct IntegrationOverview {
             }
             return .init(id: id, purpose: "Keep supported game saves in iCloud Drive or in a folder you choose.",
                          status: state, emphasis: .neutral, action: "Open cloud save settings",
-                         reads: "The primary user and device saves and their copies in the chosen folder.",
-                         writes: "Oort creates the folder and sets each game’s preference. nxnative writes the copies; a game-specific setting can override the global choice.",
-                         sends: "Oort does not upload saves directly. iCloud Drive syncs to Apple; other folders depend on their sync client.",
+                         reads: "The game saves on this computer and their copies in the folder you chose.",
+                         writes: "The folder and each game’s choice; the games write the copies. A game can keep its own choice.",
+                         sends: "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app.",
                          settingID: "cloudSaves", link: saves == .off)
         case .programs, .online:
             return nil

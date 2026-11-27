@@ -59,7 +59,7 @@ class IntegrationContract(unittest.TestCase):
         shared = (VIEWS / "OortUI/OortPage.swift").read_text()
         self.assertRegex(shared, r"guard let id, old != id \|\| id != initialFocus \|\| restoreScroll")
 
-    def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
+    def test_access_copy_names_actual_destinations_plainly_in_english_and_french(self):
         source = (ROOT / "Sources/ArcanePorting/Settings/IntegrationOverview.swift").read_text()
         catalog = json.loads((ROOT / "Sources/NXLibraryCore/Resources/Localizable.xcstrings").read_text())["strings"]
         sections = re.split(r"^        case \.(\w+):$", source.split("public func row(", 1)[1], flags=re.MULTILINE)
@@ -72,15 +72,19 @@ class IntegrationContract(unittest.TestCase):
                     rendered = {right: catalog[key]["localizations"][language]["stringUnit"]["value"]
                                 for right, key in rights.items()}
                     self.assertTrue(all(value.strip() for value in rendered.values()))
-                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam", "App ID", "CDN"], "macApps": [],
-                                 "drive": ["rclone", "OAuth", "Google"], "nextendo": ["Nextendo", "OAuth"],
+                    # The player's words: no format, protocol or tool name stands for what it means.
+                    for value in rendered.values():
+                        for jargon in ["App ID", "CDN", "API", "OAuth", "rclone", "manifest", "token", "jeton", "cache", "commit"]:
+                            self.assertNotIn(jargon.lower(), value.lower())
+                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam"], "macApps": [],
+                                 "drive": ["Google"], "nextendo": ["Nextendo"],
                                  "images": ["SteamGridDB", "IGDB", "Twitch", "Wikidata", "Nlib", "Switch Icon Showdown"],
                                  "saves": ["iCloud Drive", "Apple"]}[row]:
                         self.assertIn(term, rendered["sends"])
                     if row == "switchGames":
                         self.assertIn("private copy" if language == "en" else "copie privée", rendered["writes"])
                     if row == "saves":
-                        self.assertIn("preference" if language == "en" else "préférence", rendered["writes"])
+                        self.assertIn("choice" if language == "en" else "choix", rendered["writes"])
 
 
 if __name__ == "__main__":
