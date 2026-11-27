@@ -237,6 +237,39 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertEqual(help.items.last, ["%lld still downloading, left out", 1], "Settings says it too, from the same count")
     }
 
+    /// Information online in the activity center, as the page counted it before (the library's games still looked for,
+    /// only while it is on), before Steam; `working` lights the control center's dot. Nothing is asked: it opens a page.
+    func testTheActivityCenterSaysWhatIsStillLookedForOnline() throws {
+        let c = try companion()
+        _ = try ask(c, "steam.where", ["path": .string(Paths.native(steam(games: ["Drift", "Ember"], downloading: ["Slow Tide"])))])
+        _ = try ask(c, "steam.set", ["on": true])
+        var activity = try ask(c, "integrations", ["at": "activity"])
+        XCTAssertEqual(entries(activity).map { $0["id"] }, ["steam"], "off: nothing is looked for")
+        XCTAssertEqual(activity["working"], false)
+        _ = try ask(c, "online.set", ["on": true])
+        activity = try ask(c, "integrations", ["at": "activity"])
+        XCTAssertEqual(try ask(c, "library")["games"].items.filter { $0["look"] == true }.count, 2, "what the page counted")
+        XCTAssertEqual(entries(activity).map { $0["id"] }, ["online", "steam"])
+        XCTAssertEqual(entry(activity, "online"), ["id": "online", "title": ["Information online"], "sub": ["Looking…"],
+                                                    "value": ["%lld games", 2], "icon": "search", "open": "integrations"])
+        XCTAssertEqual(activity["working"], true)
+        XCTAssertEqual(code(c, "integrations.act", ["id": "online", "token": .null, "at": "activity"]), "not-a-request")
+        // Steam off, the activity center says only what is looked for online.
+        _ = try ask(c, "steam.set", ["on": false])
+        XCTAssertEqual(entries(try ask(c, "integrations", ["at": "activity"])).map { $0["id"] }, [])
+    }
+
+    /// The question asked before information online is on: once, in the core's words, with the switch's own text; the
+    /// page has it from the start (hello) and in the first steps (guide).
+    func testInformationOnlineIsAskedInTheCoresWords() throws {
+        let c = try companion()
+        let question = try ask(c, "guide")["online"]
+        XCTAssertEqual(question, ["title": ["Look for game information online?"], "no": ["No"], "yes": ["Yes, look online"],
+                                  "text": ["Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer."]])
+        XCTAssertEqual(question?["text"], entry(try ask(c, "integrations"), "online")?["sub"], "what the switch says")
+        XCTAssertEqual(try ask(c, "hello", ["languages": ["fr-FR"]])["guide"]?["online"], question)
+    }
+
     /// Every page a row may open, in every place, is one the page knows (desktop/ui/app.js PAGES).
     func testEveryPageARowOpensIsOneThePageHas() throws {
         let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -252,6 +285,7 @@ final class IntegrationsTests: XCTestCase {
         found(1)
         var pages = try ["settings", "guide", "add"].map { try ask(c, "integrations", ["at": .string($0)]) }
         _ = try ask(c, "steam.set", ["on": true])
+        _ = try ask(c, "online.set", ["on": true])
         pages += [try ask(c, "integrations", ["at": "activity"]), try ask(try companion(), "integrations"), try ask(try companion(), "integrations", ["at": "guide"])]
         let before = try ask(c, "guide")["steam"]
         pages.append(["entries": .array([before?["looking"] ?? .null, before?["unanswered"] ?? .null])])
@@ -263,6 +297,8 @@ final class IntegrationsTests: XCTestCase {
                 for words in [e["confirm"]?["title"], e["confirm"]?["text"], e["confirm"]?["label"]] { if let key = words.items.first?.stringValue { keys.insert(key) } }
             }
         }
+        let question = try ask(c, "guide")["online"]
+        for field in ["title", "text", "no", "yes"] { if let key = question?[field].items.first?.stringValue { keys.insert(key) } }
         keys.remove("%@")
         XCTAssertGreaterThanOrEqual(keys.count, 14)
         let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()

@@ -1,11 +1,11 @@
 /* The rows about integrations, through the real page and the real core: each row as the core decides it (integrations),
    drawn here, and sent back as the row that was shown (integrations.act) — in Settings › Integrations, the first steps,
-   Add game and the activity center. No game starts, nothing is heard.
+   Add game and the activity center; and the question asked before information online is on. No game starts, nothing is heard.
    Wants an invented Steam with two games installed and one still downloading (steam=), and two games already found
    online (data=), in English. GUIDE=true keeps the first steps open. */
 window.GUIDE = true;
 const asked = [], heard = [];
-let bogus = false, hold = null, cut = false;
+let bogus = false, hold = null, cut = false, fake = false;
 (() => {
   const core = window.__TAURI__.core, real = core.invoke;
   // The transport is the real one; this only listens, once puts a page the core never sends in its reply, gives the
@@ -15,6 +15,14 @@ let bogus = false, hold = null, cut = false;
     if (name === 'core' && args.method === 'integrations' && args.params?.at === 'guide') { if (cut) throw 'core-lost'; await hold; }
     const r = await real(name, args);
     if (name === 'core' && args.method === 'guide' && r?.steam?.looking) r.steam.looking.value = ['Waiting'];
+    // The question asked before information online is on, with a title the page would not choose (guide, hello's guide).
+    const question = name === 'core' && (args.method === 'guide' ? r?.online : args.method === 'hello' ? r?.guide?.online : null);
+    if (question) question.title = ['Information online'];
+    // The activity center as the core could say it: games looked for online, Oort at work.
+    if (fake && name === 'core' && args.method === 'integrations' && args.params?.at === 'activity') {
+      r.entries = [{ id: 'online', title: ['Information online'], sub: ['Looking…'], value: ['%lld games', 7], icon: 'search', open: 'integrations' }, ...r.entries.filter(e => e.id !== 'online')];
+      r.working = true;
+    }
     if (bogus && name === 'core' && args.method === 'integrations' && !args.params?.at) r.sections.at(-1).entries[0].open = 'not-a-real-destination';
     return r;
   };
@@ -26,6 +34,7 @@ probe(async P => {
   const row = in_('.shell .list'), step = in_('.steps'), sheetRow = in_('.sheet');
   const ids = () => [...document.querySelectorAll('.shell .list .row')].map(r => r.dataset.id);
   const text = (el, part) => el?.querySelector(part)?.textContent.replace(/[-]/g, '').trim() ?? null;  // without the icons' glyphs
+  const ONLINE = 'Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.';
   const reads = 'Steam' + en['Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.'];
 
   // The first steps, games page: before Steam is read, the row is the core's too (guide), while it is looked for and
@@ -56,6 +65,7 @@ probe(async P => {
   step('steam').focus(); await P.press('a');
   P.same(step('steam').getAttribute('aria-checked'), 'true', 'and on again');
   document.querySelector('.steps [data-id=continue]').click(); await P.until(() => P.text('.steps .count') === '4 / 5', 8000, 'online page');
+  P.same([P.text('.steps h1'), P.text('.steps .lead'), P.text('.steps [data-id=continue]'), P.text('.steps [data-id=yes]')], [en['Information online'], en[ONLINE], en['No'], en['Yes, look online']], 'the online page asks the core’s question');
   await P.until(async () => (await ask('steam')).on, 5000, 'kept when they go on');
   P.same([asked.includes('integrations.keep'), (await ask('library')).total], [true, 2], 'Steam’s games come in');
   document.querySelector('.steps [data-id=continue]').click(); await P.until(() => P.text('.steps .count') === '5 / 5', 8000, 'done');
@@ -72,11 +82,17 @@ probe(async P => {
   await P.key('n', { ctrlKey: true }); await P.until(() => document.querySelector('.sheet'), 5000, 'Add game again');
   P.ok(!sheetRow('steam'), 'on: no longer offered'); while (oort.layers.length > 1) await P.press('b');
 
-  // The activity center: what Steam still downloads, a row that opens Settings › Integrations.
+  // The activity center: what Steam still downloads, a row that opens Settings › Integrations. The control center's dot
+  // and what is looked for online are the core's too.
+  fake = true;
   await P.key('k', { ctrlKey: true }); await P.until(() => document.querySelector('.menu [data-id=activity]'), 5000, 'the menu');
+  P.ok(document.querySelector('.menu [data-id=activity] .dot'), 'the control center’s dot is the core’s');
   document.querySelector('.menu [data-id=activity]').click(); await P.until(() => oort.layers.at(-1).activity, 5000, 'Activity center');
   P.ok(asked.includes('integrations@activity'), 'the activity center’s Steam row is the core’s');
   P.same([text(sheetRow('steam'), '.what'), text(sheetRow('steam'), '.value')], ['Steam1 still downloading, left out', '1'], 'what still downloads');
+  P.same([text(sheetRow('online'), '.what'), text(sheetRow('online'), '.value'), [...document.querySelectorAll('.sheet .row')].map(r => r.dataset.id).filter(id => ['online', 'steam'].includes(id))],
+    [en['Information online'] + en['Looking…'], '7 games', ['online', 'steam']], 'what is looked for online, as the core says it, before Steam');
+  fake = false;
   sheetRow('steam').click(); await P.until(() => document.querySelector('.shell'), 5000, 'Settings from the activity');
   P.same(document.querySelector('.side [aria-current=page]')?.dataset.id, 'c-integrations', 'at Integrations');
   while (oort.layers.length > 1) await P.press('b');
@@ -143,6 +159,18 @@ probe(async P => {
   await close(); await open();
   row('prog').focus(); await P.press('a');
   await P.until(() => document.querySelector('.sheet [data-id=program]'), 3000, 'Programs opens Add a program');
+  await close();
+
+  // Asked from a game's page while information online is off: the same question, the core's; No changes nothing.
+  P.same((await ask('online')).on, false, 'off');
+  await P.press('lt'); oort.act('right'); await P.wait(500); await P.press('x');
+  await P.until(() => document.querySelector('.detail [data-id=look]'), 5000, 'the game’s options'); document.querySelector('.detail [data-id=look]').click();
+  await P.until(() => document.querySelector('.shell [data-id=online]'), 5000, 'its information'); document.querySelector('.shell [data-id=online]').click();
+  await P.until(() => document.querySelector('[role=alertdialog]'), 3000, 'asked first');
+  P.same([P.text('[role=alertdialog] h1'), P.text('[role=alertdialog] p'), [...document.querySelectorAll('[role=alertdialog] .keys button')].map(b => b.textContent.trim())],
+    [en['Information online'], en[ONLINE], [en['No'], en['Yes, look online']]], 'the game’s page asks the core’s question');
+  document.querySelector('[role=alertdialog] .keys button').click(); await P.wait(300);
+  P.same([(await ask('online')).on, !!document.querySelector('[role=alertdialog]')], [false, false], 'No changes nothing');
   await close();
 
   // The same rules on the core's own transport: a row changed since it was shown, or done twice, is refused.

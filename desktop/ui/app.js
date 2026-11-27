@@ -465,8 +465,9 @@ const openOptions = async (id, start) => {
 };
 
 /* ---------- Information online: asked first, and corrected by hand ---------- */
-const onlineText = () => t('Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.');
-const askOnline = after => dialog(t('Look for game information online?'), onlineText(), [[t('No'), () => {}], [t('Yes, look online'), async () => { await ask('online.set', { on: true }); S.play('success'); await reload(); await after?.(); }]]);
+/* The question asked before information online is on, as the core says it (guide): what it does and sends, No and Yes. */
+let onlineQuestion = null;
+const askOnline = after => dialog(wording(onlineQuestion.title), wording(onlineQuestion.text), [[wording(onlineQuestion.no), () => {}], [wording(onlineQuestion.yes), async () => { await ask('online.set', { on: true }); S.play('success'); await reload(); await after?.(); }]]);
 const openMatch = (id, name, done) => {
   let text = name, list = null, said = t('Looking…'), turn = 0;
   const look = async () => {
@@ -551,7 +552,8 @@ const openMenu = async () => {
   if (top().menu) return pop();
   const under = top(), people = await ask('profiles').catch(() => ({ list: [] })), me = people.list.find(p => p.id === people.active);
   if (top() !== under || !isPage(under)) return;
-  const items = menuOf({ people: people.list.length, abilities }), waiting = await waitingOnline();
+  // working: something Oort does is under way in the activity center, as the core says it.
+  const items = menuOf({ people: people.list.length, abilities }), working = (await ask('integrations', { at: 'activity' }).catch(() => ({}))).working;
   const run = {
     controllers: () => openSettings('controllers'), switch: () => openProfiles(), edit: () => openSettings('account'), theme: () => openSettings('appearance'), add: () => openAdd(), sources: () => openSettings('home'),
     refresh: async () => { await reload(true); refaces(); homeLayer.redraw(); S.play('success'); card(h('strong', {}, t('Library refreshed')), t('%lld games in your library', L.total)); },
@@ -561,7 +563,7 @@ const openMenu = async () => {
   let open = null;
   const choose = id => { S.play('confirm'); layer.close(); run[id](); };
   const orb = (x, i) => h('button', { cls: 'orb', 'data-id': x.id, 'aria-label': t(x.title), 'aria-haspopup': x.entries ? 'menu' : null, 'aria-expanded': x.entries ? false : null, onclick: () => x.entries ? (open === i ? shut() : show(i)) : choose(x.id) },
-    h('span', { cls: 'name' }, x.id === 'profile' && me ? [me.name, h('small', {}, t('Profile'))] : t(x.title)), h('span', { cls: 'circle' }, icon(x.icon), x.id === 'activity' && (preparing || waiting > 0) && h('i', { cls: 'dot ok' })));
+    h('span', { cls: 'name' }, x.id === 'profile' && me ? [me.name, h('small', {}, t('Profile'))] : t(x.title)), h('span', { cls: 'circle' }, icon(x.icon), x.id === 'activity' && (preparing || working) && h('i', { cls: 'dot ok' })));
   const bar = h('div', { cls: 'orbs' }, items.map(orb)), pills = h('div', { cls: 'pills', role: 'menu' });
   const orbs = () => [...bar.children];
   const label = x => x.id === 'fullscreen' && full ? t('Leave full screen') : t(x.title);
@@ -588,16 +590,15 @@ const openMenu = async () => {
   layer.el.append(pills, bar);
   S.play('open'); push(layer);
 };
-const waitingOnline = async () => L.online ? (await ask('library', {}).catch(() => ({ games: [] }))).games.filter(g => g.look).length : 0;
 /* What Oort does now, and the last games played. */
 const openActivity = async () => {
   let now = [], last = [];
   const read = async () => {
-    const [steam, waiting, folders, recent] = [(await ask('integrations', { at: 'activity' }).catch(() => ({ entries: [] }))).entries, await waitingOnline(), await ask('folders'), await ask('library', { tab: 'Recently played', sort: 'recent' })];
+    // The core's rows: information still looked for online, what Steam still downloads.
+    const [integrations, folders, recent] = [(await ask('integrations', { at: 'activity' }).catch(() => ({ entries: [] }))).entries, await ask('folders'), await ask('library', { tab: 'Recently played', sort: 'recent' })];
     now = [
       preparing && row(game(preparing.id)?.name || t('Getting ready…'), `${Math.round(preparing.value * 100)} %`, () => openDetail(preparing?.id ?? now.id), { id: 'preparing', ic: 'build', sub: preparing.text || t('Getting ready…') }),
-      waiting > 0 && row(t('Information online'), t('%lld games', waiting), () => openSettings('integrations'), { id: 'online', ic: 'search', sub: t('Looking…') }),
-      ...steam.map(e => entryRow(e, null, { chevron: false })),
+      ...integrations.map(e => entryRow(e, null, { chevron: false })),
       ...folders.folders.filter(f => !f.found).map(f => row(f.path, [t('Not found'), dot('bad')], () => openSettings('home'), { id: 'f' + f.key, ic: 'folder' })),
     ].filter(Boolean);
     last = recent.games.slice(0, 5);
@@ -830,8 +831,9 @@ const prepared = async p => {
 
 /* ---------- The first steps: short, never in the way, and there again in Settings ---------- */
 const openGuide = async (at = 'welcome') => {
-  // before: Steam's row of the games page as the core says it before it is read, while it is looked for and without an answer.
-  const { pages, steam: before } = await ask('guide');
+  // before: Steam's row of the games page as the core says it before it is read, while it is looked for and without an answer;
+  // question: the online page's, the core's.
+  const { pages, steam: before, online: question } = await ask('guide');
   // steam: Steam's row of the games page, as the core decides it; take: what its switch shows, kept until the player goes on.
   let page = at, steam = null, take = null;
   const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => null))?.entries[0] ?? before.unanswered; take = steam.checked ?? null; };
@@ -859,7 +861,7 @@ const openGuide = async (at = 'welcome') => {
       row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
       row(t('A folder of games'), icon('chevron'), () => pickFolder(() => layer.refresh()), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
     ], status: L.total ? t('%lld games in your library', L.total) : null }),
-    online: () => ({ title: t('Look for game information online?'), say: onlineText(), rows: [], keys: [key(t('No'), () => online(false), { id: 'continue' }), key(t('Yes, look online'), () => online(true), { id: 'yes' })], status: t('You can change this in Settings, Integrations.') }),
+    online: () => ({ title: wording(question.title), say: wording(question.text), rows: [], keys: [key(wording(question.no), () => online(false), { id: 'continue' }), key(wording(question.yes), () => online(true), { id: 'yes' })], status: t('You can change this in Settings, Integrations.') }),
     done: () => ({ title: t('All set'), say: t('%lld games in your library', L.total), rows: [], status: t('The + tile adds games. Settings has these steps again, under General.'), next: t('Open library') }),
   };
   const draw = () => {
@@ -889,7 +891,7 @@ const openGuide = async (at = 'welcome') => {
 export const oort = { act, ask, hand, live, dropped, apply, layers, sounds: S, cloud: C, get view() { return V; }, get library() { return L; }, guide: openGuide, pad: s => padding.feed(s), fullscreen: setFullscreen };
 const start = async () => {
   const hello = await ask('hello', { languages: [...navigator.languages] });
-  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
+  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; onlineQuestion = hello.guide.online; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
   apply(hello.view); tab = TABS.includes(hello.view.startingTab) ? hello.view.startingTab : TABS[0];
   if (hello.view.restore && hello.lastGame) selected = hello.lastGame;
   await reload();

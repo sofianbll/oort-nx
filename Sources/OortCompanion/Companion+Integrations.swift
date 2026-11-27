@@ -25,12 +25,15 @@ extension Companion {
         return place
     }
 
-    /// The rows of a place, in the order the page shows them: in Settings, Steam and information online, then programs.
+    /// What information online does and sends: under its switch, and in the question asked before it is on.
+    static let onlineAbout = IntegrationWords("Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.")
+
+    /// The rows of a place, in the order the page shows them: in Settings, Steam and information online, then programs;
+    /// in the activity center, information still looked for online, then what Steam still downloads.
     func integrationSections(at place: IntegrationPlace) -> [[IntegrationEntry]] {
-        guard place == .settings else { return [steamEntry(at: place)].compactMap { $0 }.map { [$0] } }
+        guard place == .settings else { return [place == .activity ? onlineWaiting() : nil, steamEntry(at: place)].compactMap { $0 }.map { [$0] } }
         let on = choices.online == true, known = records.values.filter(\.found).count
-        let online = IntegrationEntry(id: "online", title: .init("Game information online"),
-                                      about: .init("Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer."),
+        let online = IntegrationEntry(id: "online", title: .init("Game information online"), about: Self.onlineAbout,
                                       value: on ? .init("%lld games known", count: known) : .init("Off"), icon: "search",
                                       control: .toggle(checked: on), request: .online(on: !on))
         // Offered once something was found, and asked first: it cannot be taken back.
@@ -45,8 +48,29 @@ extension Companion {
         return [[steamEntry(at: .settings)!, online] + (known > 0 ? [clear] : []), [programs]]
     }
 
-    /// Steam on this computer, as each place says it.
-    func steamEntry(at place: IntegrationPlace) -> IntegrationEntry? { steamEntry(at: place, counts: steamSeen()?.counts) }
+    /// Games whose information is still looked for online, while it is on: what the activity center shows and the
+    /// control center's dot says. Nothing is asked: it opens Settings › Integrations.
+    func onlineWaiting() -> IntegrationEntry? {
+        // The games the library lists (not the hidden ones), as the page counted them before.
+        let listed = LibraryQuery(filter: .all, searchText: "", sort: settings.librarySort).applyRecords(games, history: history)
+        let waiting = listed.filter(wantsLook).count
+        guard waiting > 0 else { return nil }
+        return IntegrationEntry(id: "online", title: .init("Information online"), about: .init("Looking…"), value: .init("%lld games", count: waiting),
+                                icon: "search", control: .open(.integrations), request: nil)
+    }
+
+    /// The question asked before information online is on, in the first steps and from a game's details: what it does
+    /// and sends, No and Yes. Yes turns it on (online.set); in the first steps, No turns it off.
+    func onlineQuestion() -> CatalogJSON {
+        ["title": words(.init("Look for game information online?")), "text": words(Self.onlineAbout), "no": words(.init("No")),
+         "yes": words(.init("Yes, look online"))]
+    }
+
+    /// Steam on this computer, as each place says it. The activity center reads nothing while Steam is off.
+    func steamEntry(at place: IntegrationPlace) -> IntegrationEntry? {
+        if place == .activity, choices.steam != true { return nil }
+        return steamEntry(at: place, counts: steamSeen()?.counts)
+    }
 
     /// Steam's row of the first steps before it is read: while it is looked for, and if the core does not answer, as
     /// where Steam is not found. Sent with the steps (guide), which the page has before it asks for the row.
@@ -99,7 +123,12 @@ extension Companion {
     func integrationsPage(at place: IntegrationPlace) -> CatalogJSON {
         // In the first steps A is the steps' own: their switch waits for them to go on (integrations.keep).
         let sections = integrationSections(at: place).map { $0.map { json($0, token: place == .guide ? nil : token($0)) } }
-        return place == .settings ? ["sections": .array(sections.map { ["entries": .array($0)] })] : ["entries": .array(sections.flatMap { $0 })]
+        switch place {
+        case .settings: return ["sections": .array(sections.map { ["entries": .array($0)] })]
+        // `working`: something Oort does is under way, the control center's dot (what Steam downloads is Steam's).
+        case .activity: return ["entries": .array(sections.flatMap { $0 }), "working": .bool(onlineWaiting() != nil)]
+        case .guide, .add: return ["entries": .array(sections.flatMap { $0 })]
+        }
     }
 
     /// Done by the owner, only if the row is still the one shown and was not done since.
