@@ -149,6 +149,8 @@ import SwiftUI
         expect(model.archive != nil, "the approved library opens")
         vm.restoreCloudQueue()
         for _ in 0..<200 where !cloud.hasRestoredQueue { try await Task.sleep(for: .milliseconds(10)) }
+        // The approval's own Drive check is not part of any refresh measured below.
+        await cloud.scopeTask?.value
 
         online.value = false
         forget()

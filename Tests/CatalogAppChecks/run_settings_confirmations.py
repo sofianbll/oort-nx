@@ -73,7 +73,6 @@ def prepare(package):
             r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)', lambda m: m[1])
     library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     replace(library_model, r'RcloneStorageBackend\.findExecutable\(\)', 'SettingsConfirmationProbe.availableDriveTool')
-    replace(library_model, r'private var scopeTask:', 'private(set) var scopeTask:')
     replace(library_model,
             r'let backend = RcloneStorageBackend\(remote: remote, root: root, executable: tool\)',
             'let backend = SettingsConfirmationProbe.scopeBackend(remote: remote, root: root, tool: tool)')

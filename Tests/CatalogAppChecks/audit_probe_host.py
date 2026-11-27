@@ -26,7 +26,9 @@ def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_
             raise SystemExit("Run the debug Swift suite first.")
     with tempfile.TemporaryDirectory(prefix="audit-probe-") as scratch:
         scratch = Path(scratch).resolve()
-        source, binary = scratch / "host.swift", scratch / "probe"
+        # Standard preferences are named after the executable and kept by cfprefsd in the real home, whatever
+        # CFFIXED_USER_HOME says: a name per probe keeps two at once apart, and the domain is removed after.
+        source, binary = scratch / "host.swift", scratch / scratch.name
         (scratch / "Library/Preferences").mkdir(parents=True)
         shutil.copytree(products / "NXLibrary_NXLibraryCore.bundle", scratch / "NXLibrary_NXLibraryCore.bundle")
         if capture is not None:
@@ -94,5 +96,7 @@ func suppressProbeNotifications() {
                 command = ["sandbox-exec", "-D", f"REAL_HOME={real_home}", "-p", sandbox, str(binary)]
             subprocess.run(command, cwd=ROOT, env=dict(env, **(environment or {})), check=True)
         finally:
+            subprocess.run(["/usr/bin/defaults", "delete", binary.name], capture_output=True)
+            (real_home / "Library/Preferences" / f"{binary.name}.plist").unlink(missing_ok=True)
             if capture is not None and (scratch / "captures").is_dir():
                 shutil.copytree(scratch / "captures", capture, dirs_exist_ok=True)
