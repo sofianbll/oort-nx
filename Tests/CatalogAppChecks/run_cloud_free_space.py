@@ -93,7 +93,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="cloud-free-") as temporary:
         package = Path(temporary)
         names.stage(package)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         change(app / "ViewModels/AppViewModel.swift", r"let root = SystemDetector.shared.resolveRootDirectory\(\)",

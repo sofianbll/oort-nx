@@ -13,7 +13,7 @@ final class LaunchExitTests: XCTestCase {
     func testTheShellHandsBackToTheLaunchScreen() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         func source(_ path: String) throws -> String {
-            try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/" + path), encoding: .utf8)
+            try String(contentsOf: root.appendingPathComponent("apps/mac/OortMac/" + path), encoding: .utf8)
         }
         XCTAssertTrue(try source("ViewModels/AppViewModel.swift").contains("|| launchOverlay != nil }"))
         let routing = try source("Views/Shell/AppShellView+Startup.swift")

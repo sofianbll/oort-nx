@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-loader = (ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift').read_text()
+loader = (ROOT / 'apps/mac/OortMac/Views/Spotlight/GameArtLoader.swift').read_text()
 logo = loader[loader.index('    /// Games already looked up online'):loader.index('    private init()')] + \
     loader[loader.index('    func logo(for game: PortedGame'):loader.index('    static func decodedCost')]
 host = '''

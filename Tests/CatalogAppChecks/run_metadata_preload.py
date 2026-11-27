@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-model = (ROOT / 'Sources/NXLibrary/ViewModels/StoreMetadataModel.swift').read_text()
+model = (ROOT / 'apps/mac/OortMac/ViewModels/StoreMetadataModel.swift').read_text()
 line = next(line for line in model.splitlines() if 'func preloadCachedStoreMetadata()' in line)
 preload = model[model.index(line):
                 model.index("    /// The store's metadata as fetched, before")]

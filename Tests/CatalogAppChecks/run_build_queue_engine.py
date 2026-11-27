@@ -3,7 +3,7 @@
 from pathlib import Path
 import re
 
-models = Path(__file__).resolve().parents[2] / "Sources/NXLibrary/ViewModels"
+models = Path(__file__).resolve().parents[2] / "apps/mac/OortMac/ViewModels"
 fetch = (models / "SetupCheckModel.swift").read_text().split("private func fetchEngine(", 1)[1]
 fetch = fetch.split("private func backToTestedEngine(", 1)[0]
 assert re.search(r"isSwitchingEngine = false\s+self\.viewModel\.setup\.detectEnvironment\(\)", fetch)

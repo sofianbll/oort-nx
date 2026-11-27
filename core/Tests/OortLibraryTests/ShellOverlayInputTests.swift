@@ -6,7 +6,7 @@ import XCTest
 final class ShellOverlayInputTests: XCTestCase {
     private var views: URL {
         URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Sources/NXLibrary/Views")
+            .appendingPathComponent("apps/mac/OortMac/Views")
     }
 
     func testEveryMonitorThatYieldsToAShellDialogYieldsToTheWelcome() throws {
@@ -29,7 +29,7 @@ final class ShellOverlayInputTests: XCTestCase {
 final class PaletteInputTests: XCTestCase {
     private func source(_ path: String) throws -> String {
         try String(contentsOf: URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Sources/NXLibrary/\(path)"), encoding: .utf8)
+            .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("apps/mac/OortMac/\(path)"), encoding: .utf8)
     }
 
     func testScreensYieldToThePalette() throws {
@@ -63,7 +63,7 @@ final class PaletteInputTests: XCTestCase {
 final class ShellOverlayHintsTests: XCTestCase {
     private var views: URL {
         URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Sources/NXLibrary/Views")
+            .appendingPathComponent("apps/mac/OortMac/Views")
     }
 
     private func source(_ path: String) throws -> String { try String(contentsOf: views.appendingPathComponent(path), encoding: .utf8) }

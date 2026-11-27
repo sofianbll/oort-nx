@@ -38,9 +38,9 @@ def task_body(source):
 with tempfile.TemporaryDirectory(prefix='arcane-artwork-return-') as temporary:
     scratch = Path(temporary)
     for filename, path, old, new in (
-        ('Native.swift', 'Sources/NXLibrary/Views/Components/SpotlightTileArtwork.swift',
+        ('Native.swift', 'apps/mac/OortMac/Views/Components/SpotlightTileArtwork.swift',
          'ArtworkPicks.shared', 'Fixture.nativePicks'),
-        ('Steam.swift', 'Sources/NXLibrary/Views/Catalog/SteamArtwork.swift',
+        ('Steam.swift', 'apps/mac/OortMac/Views/Catalog/SteamArtwork.swift',
          'SteamPersonalizations.shared.artwork', 'Fixture.steamPicks'),
     ):
         source = (SOURCE / path).read_text().replace(old, new).replace('private ', '')
@@ -204,8 +204,8 @@ extension EnvironmentValues {
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(host),
                     str(scratch / 'Native.swift'), str(scratch / 'Steam.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Views/Theme/CatalogPersonalizationsEnvironment.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Spotlight/GameArtLoader.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Theme/CatalogPersonalizationsEnvironment.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], check=True)
     view_result = subprocess.run([str(executable), str(scratch)],
@@ -363,7 +363,7 @@ enum CoverReadGate {
 }
 ''')
     mods_executable = scratch / 'mods-check'
-    model_source = (SOURCE / 'Sources/NXLibrary/ViewModels/ModStoreHost.swift').read_text()
+    model_source = (SOURCE / 'apps/mac/OortMac/ViewModels/ModStoreHost.swift').read_text()
     assert model_source.count('return ModStoreLayout.coverArt(games: games)') == 1
     # Control only the filesystem-read completion, leaving the production
     # publication/generation checks and all model callbacks intact.
@@ -379,7 +379,7 @@ enum CoverReadGate {
     controlled_host.write_text(model_source)
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(mods),
                     str(controlled_host),
-                    str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(mods_executable)], check=True)
     mods_result = subprocess.run([str(mods_executable), str(scratch)],

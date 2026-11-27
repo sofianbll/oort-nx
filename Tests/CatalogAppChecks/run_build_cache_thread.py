@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 
 root = Path(__file__).resolve().parents[2]
-source = (root / "Sources/NXLibrary/ViewModels/PortingModel+BuildEvents.swift").read_text()
+source = (root / "apps/mac/OortMac/ViewModels/PortingModel+BuildEvents.swift").read_text()
 start = source.index("            do {", source.index("if let adoptingCache, result.success"))
 end = source.index("                if relocatedCache", start)
 adoption = source[start + len("            do {\n"):end]

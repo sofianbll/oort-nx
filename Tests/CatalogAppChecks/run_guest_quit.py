@@ -6,14 +6,14 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-delegate = (ROOT / 'Sources/NXLibrary/AppDelegate.swift').read_text()
+delegate = (ROOT / 'apps/mac/OortMac/AppDelegate.swift').read_text()
 queue = (ROOT / 'engines/nxnative/NxnativeAdapter/Library/CloudTransferQueue.swift').read_text()
 decision = queue[queue.index('public enum CloudQuitDecision'):queue.index('/// Profile-local snapshot')]
 methods = delegate[delegate.index('    func applicationShouldTerminate('):
                    delegate.index('    func applicationShouldHandleReopen(')]
 properties = '\n'.join(line for line in delegate.splitlines() if '@MainActor static var' in line
                        or '@MainActor static weak var' in line or '@MainActor private static var' in line)
-overlays = (ROOT / 'Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift').read_text()
+overlays = (ROOT / 'apps/mac/OortMac/Views/Shell/AppShellView+Overlays.swift').read_text()
 cloud_quit = overlays[overlays.index('    func finishCloudQuit('):overlays.index('    // MARK: - Retry')]
 dialog = overlays[overlays.index('    func cloudQuitOverlay('):overlays.index('    func finishCloudQuit(')]
 copy = (

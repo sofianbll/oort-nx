@@ -15,11 +15,6 @@ model {
       markdown "yes"
     }
 
-    sources = folder "Sources/" {
-      summary "Swift modules (Package.swift)"
-      metadata { path "Sources" }
-      srcMac = folder "NXLibrary/" { metadata { path "Sources/NXLibrary" } }
-    }
 
     core = folder "core/" {
       summary "The core: states, rules and screen descriptions, in Swift"
@@ -33,6 +28,12 @@ model {
       summary "One adapter per engine, behind the engine interface of the core"
       metadata { path "engines" }
       engineNxnative = folder "nxnative/" { metadata { path "engines/nxnative" } }
+    }
+
+    apps = folder "apps/" {
+      summary "The apps: the shell of each system"
+      metadata { path "apps" }
+      appMac = folder "mac/" { metadata { path "apps/mac" } }
     }
 
     tests = folder "Tests/" {

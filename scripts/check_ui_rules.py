@@ -46,8 +46,8 @@ ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "scripts/ui-rules.json"
 MAX_ENTRIES, MAX_DEPTH = 5, 2
 CATALOG = "core/OortLibrary/Resources/Localizable.xcstrings"
-VIEWS = "Sources/NXLibrary/Views/"
-APP = "Sources/NXLibrary/"
+VIEWS = "apps/mac/OortMac/Views/"
+APP = "apps/mac/OortMac/"
 LIBRARY = VIEWS + "OortUI/"
 # Debug galleries and probes: never shown to a player.
 NOT_SHIPPED = re.compile(r"(?:Gallery|Probe|Fixture\w*|Preview\w*)\.swift$")
@@ -302,7 +302,7 @@ def measure_surface(tree, item):
         used_once = len(used) - sum(len(used & set(group)) - 1 for group in item.get("alternatives", []) if used & set(group))
         return relative, [("", used_once + len(item.get("added", [])))]
     if kind == "commands":
-        for relative in tree.files("Sources/NXLibrary"):
+        for relative in tree.files("apps/mac/OortMac"):
             source = tree.source(relative)
             for start, _, value, _ in source.strings:
                 if value == what and re.search(r"CommandMenu\(\s*$", source.code[:start]):
@@ -377,7 +377,7 @@ def check_menus(tree, rules, found, notes):
                 found.add("menu-unregistered", relative, f"{opener['type']}.{row}", f"{opener['type']}.{row} opens a list that no surface declares")
 
     declared = {how.split(":", 1)[1].rpartition(".")[2] for how in shared if how.startswith("enum:")} | set(rules["values"])
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         if relative.startswith(LIBRARY): continue
         for match in re.finditer(r"\b([A-Z]\w+)\.allCases\b", source.code):
@@ -410,7 +410,7 @@ def path_of(name, surfaces):
 
 
 def check_dialogs(tree, found):
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):
             call = source.code[match.end() - 1:source.close(match.end() - 1)]
@@ -482,7 +482,7 @@ def chain_end(source, index):
 
 def check_access(tree, rules, found):
     views, functions = defaultdict(str), defaultdict(str)
-    files = [f for f in tree.files("Sources/NXLibrary") if not f.startswith(LIBRARY)]
+    files = [f for f in tree.files("apps/mac/OortMac") if not f.startswith(LIBRARY)]
     for relative in files:
         source = tree.source(relative)
         for match in re.finditer(r"\b(?:struct|extension|class)\s+(\w+)[^{]*\{", source.code):
@@ -566,7 +566,7 @@ def is_back(source, start, end):
 
 
 def check_order(tree, rules, found):
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         for match in re.finditer(r"(?<![.\w])(?:HStack|ViewThatFits)\b\s*(?=[({])", source.code):
             opening = match.end()
@@ -609,7 +609,7 @@ def check_order(tree, rules, found):
             found.add("button-order", relative, "confirm left of cancel",
                       "Binary confirmations navigate Cancel on the left and Confirm on the right", source.line(match.start()))
     # The hint bar sets the sides the keys follow: B on the left, A last on the right.
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         source = tree.source(relative)
         for match in re.finditer(r"\bSeleneHintsBar\s*\(", source.code):
             end = source.close(match.end() - 1)
@@ -637,7 +637,7 @@ def check_order(tree, rules, found):
 
 
 def check_focus(tree, rules, found):
-    files = tree.files("Sources/NXLibrary")
+    files = tree.files("apps/mac/OortMac")
     everything = "\n".join(tree.source(relative).code for relative in files)
     for relative in files:
         source = tree.source(relative)
@@ -679,7 +679,7 @@ def check_focus(tree, rules, found):
 def check_keyboard(tree, rules, found):
     component = tree.root / (LIBRARY + "SeleneSettingsRow.swift")
     helps_by_click = component.is_file() and re.search(r"\bSeleneInfoTip\(\s*info\s*\)", tree.source(LIBRARY + "SeleneSettingsRow.swift").code)
-    for relative in tree.files("Sources/NXLibrary"):
+    for relative in tree.files("apps/mac/OortMac"):
         if relative.startswith(LIBRARY): continue
         source = tree.source(relative)
         if SECTION.search(relative):
@@ -749,7 +749,7 @@ def check_keyboard(tree, rules, found):
 
 def check_mouse(tree, rules, found):
     declared, seen = rules.get("mouse_paths", {}), set()
-    files = tree.files("Sources/NXLibrary")
+    files = tree.files("apps/mac/OortMac")
     # A bar that presses its hints' buttons, by view: View.swift and View+Part.swift are one.
     view = lambda relative: Path(relative).stem.split("+")[0]
     pressing = {view(relative) for relative in files if re.search(r"\b(?:SeleneHintsBar|SeleneHomeChrome)\s*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\bpress\s*:",

@@ -13,7 +13,7 @@ sys.path.insert(0, str(root / "scripts"))
 import names  # noqa: E402  architecture/names.json
 build = root / ".build"
 products = build / "debug"
-services = root / "Sources/NXLibrary/Services"
+services = root / "apps/mac/OortMac/Services"
 files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "ControllerLive", "GameControllerService",
          "GCControllerSource", "HIDControllerSource"]
 intermediates = build / f"out/Intermediates.noindex/{names.PACKAGE}.build/Debug"
@@ -36,7 +36,7 @@ if not core:
 with tempfile.TemporaryDirectory(prefix="hid-", dir="/private/tmp") as scratch:
     executable = Path(scratch) / "controller-identity"
     subprocess.run(["swiftc", "-j", "4", "-target", f"{platform.machine()}-apple-macosx26.0",
-                    "-I", modules, root / "Sources/NXLibrary/Models/GamepadType.swift",
+                    "-I", modules, root / "apps/mac/OortMac/Models/GamepadType.swift",
                     *(services / (name + ".swift") for name in files), *core,
                     Path(__file__).with_name("ControllerIdentityProbe.swift"), "-o", executable], cwd=root, check=True)
     subprocess.run([executable, *sys.argv[1:]], check=True,

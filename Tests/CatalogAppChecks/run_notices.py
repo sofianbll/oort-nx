@@ -28,11 +28,11 @@ def method(source, signature):
 
 with tempfile.TemporaryDirectory(prefix='catalog-notice-check-') as scratch:
     scratch = Path(scratch)
-    view = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/Views/Shell').glob('AppShellView*.swift')))
+    view = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/Views/Shell').glob('AppShellView*.swift')))
     bridge = '\n'.join(method(view, signature) for signature in (
         '    private func finishSettingsNotice(answer:', '    private func presentLegacyNotice()'))
     host = (ROOT / 'Tests/CatalogAppChecks/NoticeHost.swift').read_text()
-    model = (ROOT / 'Sources/NXLibrary/ViewModels/AppViewModel.swift').read_text()
+    model = (ROOT / 'apps/mac/OortMac/ViewModels/AppViewModel.swift').read_text()
     host += '\n' + method(model, 'struct SettingsNotice: Identifiable')
     host += '\nstruct LegacyNoticeHost {\n let viewModel: AppViewModel\n'
     host += ' func deliver() { presentLegacyNotice() }\n func dismiss() { finishSettingsNotice() }\n'
@@ -42,8 +42,8 @@ with tempfile.TemporaryDirectory(prefix='catalog-notice-check-') as scratch:
     main.write_text(host)
     executable = scratch / 'notices'
     command = ['xcrun', 'swiftc', '-I', str(BIN), str(main),
-               str(ROOT / 'Sources/NXLibrary/Models/LogEntry.swift'),
-               str(ROOT / 'Sources/NXLibrary/ViewModels/AppViewModel+Catalog.swift'),
+               str(ROOT / 'apps/mac/OortMac/Models/LogEntry.swift'),
+               str(ROOT / 'apps/mac/OortMac/ViewModels/AppViewModel+Catalog.swift'),
                *map(str, names.objects(BIN)), '-o', str(executable)]
     subprocess.run(command, cwd=ROOT, check=True)
     env = dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN))

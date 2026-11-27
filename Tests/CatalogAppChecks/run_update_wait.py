@@ -77,7 +77,7 @@ with tempfile.TemporaryDirectory(prefix="oort-update-wait-") as path:
     main.write_text(HOST)
     updater = scratch / "AppUpdater.swift"
     # Expose only the already-verified boundary in this test copy.
-    source = (ROOT / "Sources/NXLibrary/Services/AppUpdater.swift").read_text()
+    source = (ROOT / "apps/mac/OortMac/Services/AppUpdater.swift").read_text()
     updater.write_text(source.replace("private func install(staged:", "func install(staged:")
                        .replace('AppData.supportRoot.appendingPathComponent("Temp/Update")',
                                 'URL(fileURLWithPath: CommandLine.arguments[1]).appendingPathComponent("Update")'))

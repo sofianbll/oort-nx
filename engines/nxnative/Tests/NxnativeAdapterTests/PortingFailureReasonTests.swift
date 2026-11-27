@@ -313,7 +313,7 @@ final class PortingFailureEngineTests: XCTestCase {
         }
         let source = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift")
+            .appendingPathComponent("apps/mac/OortMac/ViewModels/AppViewModel.swift")
         let text = try String(contentsOf: source, encoding: .utf8)
         guard let match = text.range(of: #"defaultPinnedEngineCommit = "[0-9a-f]{40}""#, options: .regularExpression) else {
             return XCTFail("no defaultPinnedEngineCommit in AppViewModel.swift")

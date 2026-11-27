@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-ROOT = Path(__file__).resolve().parents[2] / 'Sources/NXLibrary/Views/Spotlight'
+ROOT = Path(__file__).resolve().parents[2] / 'apps/mac/OortMac/Views/Spotlight'
 art = (ROOT / 'GameArtLoader.swift').read_text()
 played = (ROOT / 'GameArtLoader+Played.swift').read_text()
 configuration = art[art.index('    private init()'):art.index('    func cachedHero')]

@@ -15,7 +15,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
-source = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/ViewModels').glob('AppViewModel*.swift')))
+source = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/ViewModels').glob('AppViewModel*.swift')))
 
 
 def declaration(signature, text=None):
@@ -32,10 +32,10 @@ def declaration(signature, text=None):
 initial = declaration('    init(settingsStore:')
 restore = initial[initial.index('        let didCompleteSetup = '):initial.index('        // 1. Resolve safe root')]
 startup_requests = '\n'.join(line for line in initial.splitlines() if 'NotificationService.shared' in line)
-porting_source = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/ViewModels').glob('PortingModel*.swift')))
+porting_source = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/ViewModels').glob('PortingModel*.swift')))
 build = declaration('    func beginBuild(for game:', porting_source)
 accepted = build[build.index('        app.isBuilding = true'):build.index('        self.buildState = .running')]
-shell = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/Views/Shell').glob('AppShellView*.swift')))
+shell = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/Views/Shell').glob('AppShellView*.swift')))
 start = shell.index('.onChange(of: viewModel.setupCompleted)')
 opening = shell.index('{ _, done in', start)
 depth, end = 1, opening + 1
@@ -43,7 +43,7 @@ while depth:
     depth += (shell[end] == '{') - (shell[end] == '}')
     end += 1
 finish = shell[opening + len('{ _, done in'):end - 1]
-found = (ROOT / 'Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift').read_text()
+found = (ROOT / 'apps/mac/OortMac/Views/Setup/FoundGamesSetupView.swift').read_text()
 start = found.index('.onChange(of: findings)')
 opening = found.index('{ _, found in', start)
 depth, end = 1, opening + 1
@@ -284,7 +284,7 @@ require(NotificationService.shared.requests == 1, "Accepted porting requests not
 if failures > 0 { exit(1) }
 print("Onboarding persistence and notification timing: PASS")
 '''
-host = host.replace('// ACTIVATE_FOUND', declaration('    func activate(', (ROOT / 'Sources/NXLibrary/Views/Setup/FoundGamesSetupView+Input.swift').read_text()))
+host = host.replace('// ACTIVATE_FOUND', declaration('    func activate(', (ROOT / 'apps/mac/OortMac/Views/Setup/FoundGamesSetupView+Input.swift').read_text()))
 host = host.replace('// KEYS', declaration('    enum StorageKeys'))
 host = host.replace('// SETUP', declaration('    @Published private(set) var firstRunSetup ='))
 host = host.replace('// MOVE', '@discardableResult ' + declaration('func moveOnboarding('))

@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 
 root = Path(__file__).resolve().parents[2]
-source = (root / 'Sources/NXLibrary/Views/Collection/CollectionView.swift').read_text()
+source = (root / 'apps/mac/OortMac/Views/Collection/CollectionView.swift').read_text()
 select = re.search(r'    (?:private )?func selected.*?(?=    // MARK: - Body)', source, re.S)[0]
 snapshot = source[source.index('        let games = self.games'):source.index('        let lifecycle = ')]
 hints = re.search(r'let hints = (contextHints\([^\n]*\))', source)[1]

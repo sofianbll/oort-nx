@@ -26,9 +26,9 @@ final class VocabularyTests: XCTestCase {
         }
         XCTAssertEqual(try strings("fr")["Remove"], "Retirer")
         // What goes to the Trash is deleted on its button too.
-        for path in ["Sources/NXLibrary/Views/GameOptions/GameOptionsView+Confirmation.swift", "engines/nxnative/NxnativeAdapter/Cheats/CheatCopy.swift",
-                     "Sources/NXLibrary/Views/Settings/SettingsSoundSection.swift", "Sources/NXLibrary/Views/Theme/ThemePickerView+OwnWallpapers.swift",
-                     "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift", "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift"] {
+        for path in ["apps/mac/OortMac/Views/GameOptions/GameOptionsView+Confirmation.swift", "engines/nxnative/NxnativeAdapter/Cheats/CheatCopy.swift",
+                     "apps/mac/OortMac/Views/Settings/SettingsSoundSection.swift", "apps/mac/OortMac/Views/Theme/ThemePickerView+OwnWallpapers.swift",
+                     "apps/mac/OortMac/Views/GameOptions/ModsPanel.swift", "apps/mac/OortMac/Views/Settings/SettingsAPISection.swift"] {
             let text = try String(contentsOf: root.appendingPathComponent(path), encoding: .utf8)
             XCTAssertFalse(text.contains("\"Remove\""), path)
         }

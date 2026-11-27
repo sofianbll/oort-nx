@@ -777,12 +777,12 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
 '''
 
 host = host.replace('// ACTUAL_SCROLL', declaration(
-    'Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift', '    private func settleFocusOnScroll()'))
+    'apps/mac/OortMac/Views/Spotlight/SpotlightView+Input.swift', '    private func settleFocusOnScroll()'))
 host = host.replace('// ACTUAL_MODS_RELOAD', declaration(
-    'Sources/NXLibrary/Views/Spotlight/SpotlightView.swift', '    func reloadMods()'))
+    'apps/mac/OortMac/Views/Spotlight/SpotlightView.swift', '    func reloadMods()'))
 host = host.replace('// ACTUAL_ROW_GLIDE', declaration(
-    'Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift', '    func handleRowGlide('))
-coordinator = 'Sources/NXLibrary/Services/SteamPlayCoordinator.swift'
+    'apps/mac/OortMac/Views/Spotlight/SpotlightView+Input.swift', '    func handleRowGlide('))
+coordinator = 'apps/mac/OortMac/Services/SteamPlayCoordinator.swift'
 for marker, signature in (
     ('// ACTUAL_PENDING_HANDOFF', '    private struct PendingHandOff'),
     ('// ACTUAL_PREPARE_HANDOFF', '    private func prepareHandOff('),
@@ -792,32 +792,32 @@ for marker, signature in (
 ):
     host = host.replace(marker, declaration(coordinator, signature))
 host = host.replace('// ACTUAL_AVAILABILITY_TYPE', declaration(
-    'Sources/NXLibrary/Services/NativeMenuCommands.swift', 'struct NativeMenuAvailability'))
+    'apps/mac/OortMac/Services/NativeMenuCommands.swift', 'struct NativeMenuAvailability'))
 host = host.replace('// ACTUAL_MENU', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    var nativeMenuAvailability:'))
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    var nativeMenuAvailability:'))
 host = host.replace('// ACTUAL_DIALOG', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    var nativeDialogOwnsInput:'))
-profiles = 'Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift'
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    var nativeDialogOwnsInput:'))
+profiles = 'apps/mac/OortMac/Views/Shell/AppShellView+Profiles.swift'
 host = host.replace('// ACTUAL_PROFILE_FLOW', '\n'.join(
     declaration(profiles, signature) for signature in ('struct ProfileFlow', 'extension Notification.Name')))
 host = host.replace('// ACTUAL_PROFILE_ACTIONS', '\n'.join(
     declaration(profiles, signature) for signature in ('    func toggleProfilePicker()', '    func closeProfile()')))
 host = host.replace('// ACTUAL_GO_TO_WIZARD_STEP', '\n'.join(
-    declaration('Sources/NXLibrary/ViewModels/PortingModel+AddGame.swift', signature)
+    declaration('apps/mac/OortMac/ViewModels/PortingModel+AddGame.swift', signature)
     for signature in ('    func goToWizardStep(', '    static func wizardStepReachable(',
                       '    static func stepBack(', '    static func closingAsks(')))
 host = host.replace('// ACTUAL_WIZARD_NAVIGATION', '\n'.join(
-    declaration('Sources/NXLibrary/Views/AddGame/AddGameView.swift', signature)
+    declaration('apps/mac/OortMac/Views/AddGame/AddGameView.swift', signature)
     for signature in ('    private var previousWizardStep:', '    private var backLabel:', '    private func handleBack(',
                       '    private func requestClose(', '    private func dismissDiscard(',
                       '    private func close(then ', '    private func leave(')))
 host = host.replace('// ACTUAL_RESUME', declaration(
-    'Sources/NXLibrary/Services/RunningGameMonitor.swift', '    func resume(_ game:'))
+    'apps/mac/OortMac/Services/RunningGameMonitor.swift', '    func resume(_ game:'))
 host = host.replace('// ACTUAL_PRIMARY_ACTION', declaration(
-    'Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift', '    func primaryAction()'))
+    'apps/mac/OortMac/Views/Detail/GameDetailView+Input.swift', '    func primaryAction()'))
 host = host.replace('// ACTUAL_INACTIVE_ONLINE_MODS', declaration(
-    'Sources/NXLibrary/Views/GameOptions/ModsPanel.swift', '    private var inactiveOnlineCodeMods:'))
-controller = declaration('Sources/NXLibrary/Views/Shell/AppShellView+Startup.swift',
+    'apps/mac/OortMac/Views/GameOptions/ModsPanel.swift', '    private var inactiveOnlineCodeMods:'))
+controller = declaration('apps/mac/OortMac/Views/Shell/AppShellView+Startup.swift',
                          '        GameControllerService.shared.onAction =')
 host = host.replace('// ACTUAL_CONTROLLER', re.sub(r'(?<![.\w])filePicker\.', 'self.filePicker.', controller).replace('[weak viewModel, weak router]', '[self, weak viewModel, weak router]'))
 names = sorted(set(re.findall(r'name: \.(nx\w+)', controller)))
@@ -838,9 +838,9 @@ with tempfile.TemporaryDirectory(prefix='catalog-review-check-') as folder:
     swift.write_text(host)
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
-                    str(ROOT / 'Sources/NXLibrary/Services/SteamAchievementsStore.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Services/SteamAchievementsStore.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Spotlight/GameArtLoader.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch)], check=True,

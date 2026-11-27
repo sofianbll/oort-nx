@@ -5,7 +5,7 @@ import XCTest
 final class SafeDefaultsTests: XCTestCase {
     private func source(_ path: String) throws -> String {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        return try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/" + path), encoding: .utf8)
+        return try String(contentsOf: root.appendingPathComponent("apps/mac/OortMac/" + path), encoding: .utf8)
     }
 
     func testBackOnTheFirstPageOfTheAssistantStays() throws {

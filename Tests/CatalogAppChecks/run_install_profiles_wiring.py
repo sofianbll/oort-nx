@@ -2,7 +2,7 @@
 """Keep the profile denial on the build, retry and dialog paths."""
 from pathlib import Path
 
-sources = Path(__file__).resolve().parents[2] / "Sources/NXLibrary"
+sources = Path(__file__).resolve().parents[2] / "apps/mac/OortMac"
 models = sources / "ViewModels"
 build = (models / "PortingModel+Build.swift").read_text()
 retry = (models / "AppViewModel+PendingInstall.swift").read_text()

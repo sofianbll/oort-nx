@@ -10,7 +10,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
-VIEWS = ROOT / 'Sources/NXLibrary/Views'
+VIEWS = ROOT / 'apps/mac/OortMac/Views'
 
 
 def excerpt(path, start, end):

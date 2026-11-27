@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
-source = (ROOT / 'Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift').read_text()
+source = (ROOT / 'apps/mac/OortMac/Views/Launch/DevelopmentStartupView.swift').read_text()
 start = source.index('@MainActor\nfinal class DevelopmentStartup:')
 end = source.index('\nprivate enum DevelopmentStartupFailure:', start)
 coordinator = source[start:end]

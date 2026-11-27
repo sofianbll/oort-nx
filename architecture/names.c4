@@ -25,7 +25,7 @@ model {
     macModule = swiftModule "NXLibrary" {
       metadata {
         layer "3"
-        folder "Sources/NXLibrary"
+        folder "apps/mac/OortMac"
       }
     }
   }

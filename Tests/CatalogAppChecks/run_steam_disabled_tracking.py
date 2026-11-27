@@ -50,7 +50,7 @@ import NXLibraryCore
 '''
 
 if __name__ == "__main__":
-    coordinator = (ROOT / "Sources/NXLibrary/Services/SteamPlayCoordinator.swift").read_text()
+    coordinator = (ROOT / "apps/mac/OortMac/Services/SteamPlayCoordinator.swift").read_text()
     coordinator = "@testable import NXLibrary\n" + coordinator.replace("SteamPlayCoordinator", "FixtureSteamPlayCoordinator")
     start = coordinator.index("        var resolved: [Int32: NativeProcessObservation]")
     end = coordinator.index("        let now = Date()", start)

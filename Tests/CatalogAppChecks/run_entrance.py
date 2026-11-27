@@ -183,8 +183,8 @@ final class InputHost {
     }
 }
 '''
-entrance = 'Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift'
-renderer = 'Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift'
+entrance = 'apps/mac/OortMac/Views/Spotlight/SpotlightView+Entrance.swift'
+renderer = 'apps/mac/OortMac/Views/Theme/MoonlightRenderer.swift'
 for marker, path, signature in (
     ('// ACTUAL_OVERLAID', entrance, '    var isOverlaid:'),
     ('// ACTUAL_COVERED', entrance, '    var isCovered:'),
@@ -192,13 +192,13 @@ for marker, path, signature in (
     ('// ACTUAL_READY', renderer, '    private static func announceFirstFrame('),
 ):
     host = host.replace(marker, declaration(path, signature))
-spotlight = 'Sources/NXLibrary/Views/Spotlight/SpotlightView.swift'
+spotlight = 'apps/mac/OortMac/Views/Spotlight/SpotlightView.swift'
 receiver = declaration(spotlight,
                        '        .onReceive(NotificationCenter.default.publisher(for: .nxSpotlightGamepadAction))')
 host = host.replace('// ACTUAL_RECEIVER', receiver.split('{ note in', 1)[1].rsplit('}', 1)[0])
 hint = declaration(spotlight, 'onProfiles: {')
 host = host.replace('// ACTUAL_PROFILE_HINT', hint.split('{', 1)[1].rsplit('}', 1)[0])
-handler = declaration('Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift',
+handler = declaration('apps/mac/OortMac/Views/Spotlight/SpotlightView+Input.swift',
                       '    func handle(_ action: GamepadAction)')
 prelude = handler[handler.index('{') + 1:handler.index('        if viewer != nil')]
 host = host.replace('// ACTUAL_INPUT_PRELUDE', prelude)
@@ -208,7 +208,7 @@ with tempfile.TemporaryDirectory(prefix='entrance-check-') as folder:
     swift.write_text(host)
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
-                    str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)), check=True)

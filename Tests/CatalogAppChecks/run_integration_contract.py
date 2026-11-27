@@ -8,7 +8,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-VIEWS = ROOT / "Sources/NXLibrary/Views"
+VIEWS = ROOT / "apps/mac/OortMac/Views"
 
 
 class IntegrationContract(unittest.TestCase):

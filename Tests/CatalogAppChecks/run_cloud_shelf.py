@@ -127,7 +127,7 @@ def main():
         home = package / "home"
         home.mkdir()
         names.stage(package, "e432ed20" if "--before" in sys.argv else None)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         isolate_startup(app)

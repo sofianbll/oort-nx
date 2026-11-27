@@ -131,7 +131,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="cloud-assistant-") as temp:
         package = Path(temp).resolve()
         names.stage(package)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         sound = app / "Services/SoundEffectService.swift"

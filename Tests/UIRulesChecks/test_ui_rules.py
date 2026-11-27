@@ -18,7 +18,7 @@ import check_ui_rules as ui  # noqa: E402
 
 REAL = json.loads((ROOT / "scripts/ui-rules.json").read_text(encoding="utf-8"))
 EMPTY = {"surfaces": [], "openers": [], "values": {}, "english": [], "keyboard_paths": {}, "unmeasured": {}, "allowed": {}}
-VIEW = "Sources/NXLibrary/Views/Screen/Sample.swift"
+VIEW = "apps/mac/OortMac/Views/Screen/Sample.swift"
 
 
 class Case(unittest.TestCase):
@@ -176,7 +176,7 @@ class Styles(Case):
     def test_a_shape_drawn_in_a_screen_is_refused_and_not_in_the_library(self):
         shape = "RoundedRectangle(cornerRadius: r, style: .continuous).strokeBorder(c)"
         self.write(shape)
-        self.write(shape, "Sources/NXLibrary/Views/OortUI/OortPiece.swift")
+        self.write(shape, "apps/mac/OortMac/Views/OortUI/OortPiece.swift")
         self.assertEqual([item[1] for item in self.found("shape")], [VIEW])
 
 
@@ -339,7 +339,7 @@ class FocusDanger(Case):
 
 
 class KeyboardPath(Case):
-    SECTION = "Sources/NXLibrary/Views/Settings/SettingsSampleSection.swift"
+    SECTION = "apps/mac/OortMac/Views/Settings/SettingsSampleSection.swift"
 
     def section(self, rows):
         self.write('struct S: View { var body: some View { Button("Change", action: change)\n '
@@ -380,7 +380,7 @@ class KeyboardPath(Case):
         self.assertEqual(self.found("keyboard-path"), [])
 
     def test_a_declared_action_whose_key_is_gone_is_refused(self):
-        keys = "Sources/NXLibrary/Views/Screen/Sample+Input.swift"
+        keys = "apps/mac/OortMac/Views/Screen/Sample+Input.swift"
         rules = {"action_paths": [{"id": "more", "click": [VIEW, "Read more"], "key": [keys, r"expanded\.toggle"], "why": "x"}]}
         self.write('struct S { let a = "Read more" }')
         self.write("extension S { func handle() { move() } }", keys)
@@ -434,7 +434,7 @@ class RealButtons(Case):
         return [item[2] for item in found.items]
 
     def test_swapping_cancel_after_search_in_the_mod_search(self):
-        panel = "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift"
+        panel = "apps/mac/OortMac/Views/Detail/GameBananaFindPanel.swift"
         self.copy(panel)
         self.assertEqual(self.signatures(ui.check_order), [])
         self.copy(panel, 'SelenePillButton(title: "Cancel", focused: false, action: close)\n',
@@ -442,12 +442,12 @@ class RealButtons(Case):
         self.assertEqual(self.signatures(ui.check_order), ["row Cancel"])
 
     def test_a_trash_confirmation_that_starts_on_the_answer(self):
-        panel = "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift"
+        panel = "apps/mac/OortMac/Views/GameOptions/ModsPanel.swift"
         self.copy(panel, "var confirmFocus: SeleneConfirmButton = .cancel", "var confirmFocus: SeleneConfirmButton = .confirm")
         self.assertEqual(self.signatures(ui.check_focus), ["confirm confirmFocus"])
 
     def test_a_key_row_removed_from_the_engine_settings(self):
-        section = "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift"
+        section = "apps/mac/OortMac/Views/Settings/SettingsEngineSection.swift"
         self.copy(section)
         before = self.signatures(ui.check_keyboard)
         self.copy(section, 'isEnabled: !configurationLocked, activate: recheck)', 'isEnabled: !configurationLocked, activate: {})')

@@ -16,7 +16,7 @@ import names  # noqa: E402  architecture/names.json
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "scripts/selene-token-debt.json"
 TOKENS = {"core/OortLibrary/Selene/SeleneTokens.swift"}
-VIEWS = "Sources/NXLibrary/Views/"
+VIEWS = "apps/mac/OortMac/Views/"
 LIBRARY = VIEWS + "OortUI/"
 VERSION = 3
 # Assembled only from OortUI pieces around one screen's data; like any screen, they hold no style of their own.

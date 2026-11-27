@@ -82,7 +82,7 @@ final class FileBrowserTests: XCTestCase {
     /// Every native window drops the controller: the app opens its own picker and its own questions everywhere.
     func testNoScreenOpensAMacFileWindowOrAlert() throws {
         let app = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Sources/NXLibrary")
+            .appendingPathComponent("apps/mac/OortMac")
         let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil)!.compactMap { $0 as? URL }
             .filter { $0.pathExtension == "swift" && $0.lastPathComponent != "OortFilePicker.swift" }
         var native: [String] = []

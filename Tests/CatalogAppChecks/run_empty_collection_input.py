@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-ROOT = Path(__file__).resolve().parents[2] / 'Sources/NXLibrary/Views/Collection'
+ROOT = Path(__file__).resolve().parents[2] / 'apps/mac/OortMac/Views/Collection'
 inputs = (ROOT / 'CollectionView+Input.swift').read_text()
 handle = inputs[inputs.index('    func handle('):inputs.index('    func activateCatalog(')]
 host = '''

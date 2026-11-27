@@ -23,7 +23,7 @@ Keep a first pull request small: one behaviour, one reason. For a change that to
 
 | System | Where the code is | Status |
 |---|---|---|
-| macOS | `main`: `Sources/NXLibrary` (app), `core/OortLibrary`, `engines/nxnative/NxnativeAdapter`, `core/OortCore` | Main product |
+| macOS | `main`: `apps/mac/OortMac` (app), `core/OortLibrary`, `engines/nxnative/NxnativeAdapter`, `core/OortCore` | Main product |
 | Windows and Linux | `alpha/windows` branch (`desktop/`) | Alpha. Ask in an issue before a pull request |
 | Android | `alpha/android` branch (`android/`) | Alpha. Ask in an issue before a pull request |
 | iPhone and iPad | `alpha/ios` branch (`mobile/`) | Alpha. Ask in an issue before a pull request |

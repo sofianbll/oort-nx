@@ -1613,7 +1613,7 @@ def main():
         package = Path(temp)
         names.stage(package)
         replace(package / "Package.swift", r'\.executable\(name: mac\.name,', '.executable(name: "ProfileScreenProbe",')
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
         replace(cloud, r"(                    let own = try await archive.latest\(titleID: target.titleID\))",
                 lambda m: """                    if let fixture = ProfileScreenProbe.restoringFixture {

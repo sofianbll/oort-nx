@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-ROOT = Path(__file__).resolve().parents[2] / 'Sources/NXLibrary/Views/Spotlight'
+ROOT = Path(__file__).resolve().parents[2] / 'apps/mac/OortMac/Views/Spotlight'
 view = (ROOT / 'SpotlightView.swift').read_text()
 inputs = (ROOT / 'SpotlightView+Input.swift').read_text()
 shell = (ROOT.parent / 'Shell/AppShellView.swift').read_text()

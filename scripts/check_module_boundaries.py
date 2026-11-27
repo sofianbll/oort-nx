@@ -42,7 +42,7 @@ LEGACY_PLAY = re.compile(r"\b(?:GamePlay|PlayConnector|NXNativePlayConnector|pla
 NATIVE_PLAY = re.compile(r"\bNSWorkspace\.shared\.openApplication\s*\(")
 NATIVE_PLAY_ADAPTERS = {
     "engines/nxnative/NxnativeAdapter/Launch/LaunchService.swift",
-    "Sources/NXLibrary/Services/MacShortcutAdapter.swift",
+    "apps/mac/OortMac/Services/MacShortcutAdapter.swift",
 }
 
 
@@ -107,7 +107,7 @@ def check(root):
             violations.append(f"{relative}:{text.count(chr(10), 0, match.start()) + 1}: use engine.play, not {match[0]}")
         if relative not in NATIVE_PLAY_ADAPTERS and NATIVE_PLAY.search(text):
             violations.append(f"{relative}: native Play opens belong to the adapter")
-        if relative.startswith("Sources/NXLibrary/Views/") and re.search(r"\brunningGames\.resume\s*\(", text):
+        if relative.startswith("apps/mac/OortMac/Views/") and re.search(r"\brunningGames\.resume\s*\(", text):
             violations.append(f"{relative}: resume through engine.play")
         if relative != "core/OortLibrary/Catalog/PlayEngine.swift" and re.search(r"\.admit\([^\n]*gesture:", text):
             violations.append(f"{relative}: only PlayEngine admits a gesture")

@@ -7,7 +7,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
 BIN=ROOT/'.build/debug'
-files=[ROOT/'Sources/NXLibrary/Views/Components/GameLogoArea.swift', ROOT/'Sources/NXLibrary/Views/Components/GamePrimaryActions.swift']
+files=[ROOT/'apps/mac/OortMac/Views/Components/GameLogoArea.swift', ROOT/'apps/mac/OortMac/Views/Components/GamePrimaryActions.swift']
 actual='\n'.join(p.read_text() for p in files)
 host='''import SwiftUI
 import NXLibraryCore

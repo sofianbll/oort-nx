@@ -61,7 +61,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="queue-pause-") as temp:
         package = Path(temp)
         names.stage(package)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         isolate_startup(app)

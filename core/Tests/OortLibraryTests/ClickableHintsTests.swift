@@ -4,7 +4,7 @@ import XCTest
 final class ClickableHintsTests: XCTestCase {
     static func source(_ path: String) throws -> String {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        return try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/Views/" + path), encoding: .utf8)
+        return try String(contentsOf: root.appendingPathComponent("apps/mac/OortMac/Views/" + path), encoding: .utf8)
     }
 
     func testTheHomeScreensPressTheirHints() throws {

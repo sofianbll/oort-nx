@@ -5,9 +5,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-source = (ROOT / "Sources/NXLibrary/ViewModels/PortingModel+Build.swift").read_text()
-move_source = (ROOT / "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibraryMove.swift").read_text()
-activity = (ROOT / "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift").read_text()
+source = (ROOT / "apps/mac/OortMac/ViewModels/PortingModel+Build.swift").read_text()
+move_source = (ROOT / "apps/mac/OortMac/ViewModels/AppViewModel+CloudLibraryMove.swift").read_text()
+activity = (ROOT / "apps/mac/OortMac/Views/Shell/ActivityCenterView.swift").read_text()
 assert "case .build: return viewModel.isBuilding && !porting.isInstallingBuild" in activity
 assert "case .move: return cloudLibrary.libraryMove?.canCancel == true" in activity
 assert "cloud.libraryMove?.isVerifying = done == total" in move_source

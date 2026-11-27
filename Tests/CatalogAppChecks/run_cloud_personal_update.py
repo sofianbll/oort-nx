@@ -257,7 +257,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="personal-update-") as temporary:
         package = Path(temporary)
         names.stage(package)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         vm = app / "ViewModels/AppViewModel.swift"
         change(vm, r"SteamGridDBKey\(\)\.load\(\) != nil", "false")

@@ -1410,7 +1410,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="cloud-screen-", dir=output.parent) as temp:
         package = Path(temp)
         names.stage(package, "528f4fb" if before else baseline or None)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         if not before and not baseline:
             queue_file = package / "engines/nxnative/NxnativeAdapter/Library/ActivityQueueFile.swift"
             write = 'try JSONEncoder().encode(WriteSnapshot(entries: entries)).write(to: self.file, options: .atomic)'

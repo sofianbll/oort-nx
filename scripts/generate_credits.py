@@ -24,9 +24,9 @@ ART = "Resources/Brands/Credits"
 CARDS = ROOT / "design/credits.css"
 TOKENS = ROOT / "design/oort-tokens.css"
 # The views that draw the cards; what each may not write itself is in style().
-CARD_VIEWS = ("Sources/NXLibrary/Views/OortUI/OortCreditCard.swift", "mobile/Sources/OortMobile/CreditCards.swift",
+CARD_VIEWS = ("apps/mac/OortMac/Views/OortUI/OortCreditCard.swift", "mobile/Sources/OortMobile/CreditCards.swift",
               "android/app/src/main/kotlin/io/github/sofianbll/oortnx/ui/CreditCards.kt")
-CARD_SCREENS = ("Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift",)
+CARD_SCREENS = ("apps/mac/OortMac/Views/Settings/SettingsAboutSection.swift",)
 LANGUAGES = ("en", "fr", "de", "es", "it", "pt-BR", "zh-Hans")
 SYSTEMS = {"mac": "Mac", "windows": "Windows", "linux": "Linux", "ios": "iPhone and iPad", "android": "Android", "site": "site"}
 USES = {"adapted": "code adapted", "shipped": "in the app", "engine": "in the engine, which is downloaded separately",

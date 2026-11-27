@@ -285,7 +285,7 @@ def main():
         output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "work/screens-inbox"
         output.mkdir(parents=True, exist_ok=True)
         names.stage(package)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", "@main\nstruct", "struct")
         model = app / "ViewModels/AppViewModel.swift"
         change(model, "SteamGridDBKey().load() != nil", "false")

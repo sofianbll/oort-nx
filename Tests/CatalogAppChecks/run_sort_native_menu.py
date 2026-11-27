@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-VIEWS = Path(__file__).resolve().parents[2] / 'Sources/NXLibrary/Views'
+VIEWS = Path(__file__).resolve().parents[2] / 'apps/mac/OortMac/Views'
 shell = (VIEWS / 'Shell/AppShellView.swift').read_text()
 layers = (VIEWS / 'Shell/AppShellView+Layers.swift').read_text()
 collection = (VIEWS / 'Collection/CollectionView.swift').read_text()

@@ -42,10 +42,10 @@ def declaration(path, signature):
 
 # Controller/keyboard order must match the actual rows, not a second manual list.
 import re
-look_source = (ROOT / 'Sources/NXLibrary/Views/Settings/SettingsLookSection.swift').read_text()
+look_source = (ROOT / 'apps/mac/OortMac/Views/Settings/SettingsLookSection.swift').read_text()
 look_body = look_source[look_source.index('    var body:'):look_source.index('    private func publishActions')]
 visible_rows = re.findall(r'Selene(?:Cycle|Toggle)Row\("([^"]+)"', look_body)
-actions = declaration('Sources/NXLibrary/Views/Settings/SettingsLookSection.swift', '    private func publishActions(')
+actions = declaration('apps/mac/OortMac/Views/Settings/SettingsLookSection.swift', '    private func publishActions(')
 action_rows = [a or b for a, b in re.findall(
     r'\.value\("[^"]+", "([^"]+)"|\.init\(id: "[^"]+", title: "([^"]+)"', actions)]
 assert visible_rows == action_rows, ('Look navigation order differs from visible rows', visible_rows, action_rows)
@@ -293,31 +293,31 @@ final class BackdropViewModel {
 }
 '''
 
-path = 'Sources/NXLibrary/Views/Theme/ThemePickerView.swift'
+path = 'apps/mac/OortMac/Views/Theme/ThemePickerView.swift'
 methods = '\n'.join(declaration(path, signature) for signature in (
     '    private func move(', '    private func tap(', '    private func accept('))
 host = host.replace('// ACTUAL_METHODS', methods)
 host = host.replace('// ACTUAL_BACKDROP_STYLE', declaration(
-    'Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift', 'struct SeleneBackdropStyle:'))
+    'apps/mac/OortMac/Views/Theme/SeleneBackdrop.swift', 'struct SeleneBackdropStyle:'))
 host = host.replace('// ACTUAL_BACKDROP_REQUEST', declaration(
-    'Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift', 'struct SeleneBackdropRequest:'))
+    'apps/mac/OortMac/Views/Theme/SeleneBackdrop.swift', 'struct SeleneBackdropRequest:'))
 host = host.replace('// ACTUAL_SHARED_UPDATE', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    private func updateSharedBackdrop('))
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    private func updateSharedBackdrop('))
 host = host.replace('// ACTUAL_BACKDROP_KEY', declaration(
-    'Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift', 'struct SeleneBackdropRequestKey:'))
+    'apps/mac/OortMac/Views/Theme/SeleneBackdrop.swift', 'struct SeleneBackdropRequestKey:'))
 host = host.replace('// ACTUAL_COVER_POLICY', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    private var fullScreenCover:'))
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    private var fullScreenCover:'))
 host = host.replace('// ACTUAL_COVER_PRIORITY', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    private var currentBackdropCover:'))
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    private var currentBackdropCover:'))
 host = host.replace('// ACTUAL_BLUR_POLICY', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    private var contentBlur:'))
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    private var contentBlur:'))
 host = host.replace('// ACTUAL_APPLY', declaration(
-    'Sources/NXLibrary/Views/Theme/ThemeStore.swift', '    func apply('))
+    'apps/mac/OortMac/Views/Theme/ThemeStore.swift', '    func apply('))
 host = host.replace('// ACTUAL_SHELL_STYLE', declaration(
-    'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    private var backdropStyle:'))
+    'apps/mac/OortMac/Views/Shell/AppShellView.swift', '    private var backdropStyle:'))
 
 host = host.replace('// ACTUAL_STEPPING', declaration(
-    'Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift', 'extension CaseIterable where Self: Equatable'))
+    'apps/mac/OortMac/Views/OortUI/SeleneSettingsRow.swift', 'extension CaseIterable where Self: Equatable'))
 
 with tempfile.TemporaryDirectory(prefix='arcane-theme-check-') as folder:
     scratch = Path(folder)
@@ -325,8 +325,8 @@ with tempfile.TemporaryDirectory(prefix='arcane-theme-check-') as folder:
     swift.write_text(host)
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
-                    str(ROOT / 'Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Views/Theme/MoonlightShaders.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Theme/MoonlightRenderer.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Theme/MoonlightShaders.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch)], cwd=ROOT, check=True,

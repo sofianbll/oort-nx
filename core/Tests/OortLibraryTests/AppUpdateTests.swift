@@ -327,7 +327,7 @@ final class AppUpdateTests: XCTestCase {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let requirements = try String(contentsOf: root.appendingPathComponent("engines/nxnative/NxnativeAdapter/Setup/ToolchainRequirements.swift"), encoding: .utf8)
         XCTAssertNotNil(requirements.range(of: #"minimumXcode: "[0-9.]+""#, options: .regularExpression))
-        let viewModel = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"), encoding: .utf8)
+        let viewModel = try String(contentsOf: root.appendingPathComponent("apps/mac/OortMac/ViewModels/AppViewModel.swift"), encoding: .utf8)
         XCTAssertNotNil(viewModel.range(of: #"let defaultPinnedEngineCommit = "[0-9a-f]{40}""#, options: .regularExpression))
         let script = try String(contentsOf: root.appendingPathComponent("scripts/release.sh"), encoding: .utf8)
         XCTAssertTrue(script.contains("nxlibrary-requires"))

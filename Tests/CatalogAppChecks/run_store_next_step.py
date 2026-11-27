@@ -97,7 +97,7 @@ def main():
         home = package / "home"
         (home / "Library/Preferences").mkdir(parents=True)
         names.stage(package)
-        app = package / "Sources/NXLibrary"
+        app = package / "apps/mac/OortMac"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         vm = app / "ViewModels/AppViewModel.swift"
         change(vm, r"SteamGridDBKey\(\)\.load\(\) != nil", "false")

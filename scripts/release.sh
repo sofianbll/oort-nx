@@ -144,7 +144,7 @@ if [ "$PUBLISH" = "1" ]; then
 fi
 
 MIN_XCODE="$(sed -n 's/.*minimumXcode: "\([0-9.]*\)".*/\1/p' "$ROOT/engines/nxnative/NxnativeAdapter/Setup/ToolchainRequirements.swift" | head -1)"
-ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-f]\{40\}\)".*/\1/p' "$ROOT/Sources/NXLibrary/ViewModels/AppViewModel.swift" | head -1)}"
+ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-f]\{40\}\)".*/\1/p' "$ROOT/apps/mac/OortMac/ViewModels/AppViewModel.swift" | head -1)}"
 [ -n "$MIN_XCODE" ] && [ -n "$ENGINE" ] || fail "could not read minimumXcode or defaultPinnedEngineCommit from the sources"
 
 # An implicit pin uses the app's upstream engine; a partially supplied override is never valid.

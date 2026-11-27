@@ -16,7 +16,7 @@ import names  # noqa: E402  architecture/names.json
 
 
 def prepare(package):
-    app = package / "Sources/NXLibrary"
+    app = package / "apps/mac/OortMac"
     core = package / "core/OortLibrary"
     porting = package / "engines/nxnative/NxnativeAdapter"
 

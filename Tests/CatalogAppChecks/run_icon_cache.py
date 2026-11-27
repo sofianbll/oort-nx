@@ -69,7 +69,7 @@ with tempfile.TemporaryDirectory(prefix='icon-cache-check-') as folder:
     swift.write_text(host)
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
-                    str(ROOT / 'Sources/NXLibrary/Views/Components/GameIconProvider.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Components/GameIconProvider.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)), check=True)

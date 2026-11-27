@@ -8,7 +8,7 @@ import names  # noqa: E402  architecture/names.json (on sys.path from audit_prob
 
 
 def member(name, signature):
-    source = (ROOT / "Sources/NXLibrary/Views/Shell" / name).read_text()
+    source = (ROOT / "apps/mac/OortMac/Views/Shell" / name).read_text()
     start = source.index(signature)
     end = source.index("\n    }", start)
     return source[start:end + len("\n    }")]

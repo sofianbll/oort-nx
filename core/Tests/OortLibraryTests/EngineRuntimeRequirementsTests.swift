@@ -22,7 +22,7 @@ final class EngineRuntimeRequirementsTests: XCTestCase {
         }
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let viewModel = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"),
+        let viewModel = try String(contentsOf: root.appendingPathComponent("apps/mac/OortMac/ViewModels/AppViewModel.swift"),
                                    encoding: .utf8)
         guard let match = viewModel.range(of: #"defaultPinnedEngineCommit = "[0-9a-f]{40}""#, options: .regularExpression) else {
             return XCTFail("no defaultPinnedEngineCommit in AppViewModel.swift")

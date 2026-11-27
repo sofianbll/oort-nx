@@ -18,8 +18,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--engine-snapshot', type=Path)
 parser.add_argument('--python', default='python3')
 args = parser.parse_args()
-source = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/ViewModels').glob('AppViewModel*.swift')))
-porting_source = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/ViewModels').glob('PortingModel*.swift')))
+source = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/ViewModels').glob('AppViewModel*.swift')))
+porting_source = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/ViewModels').glob('PortingModel*.swift')))
 
 
 def declaration(signature, source=source):
@@ -85,12 +85,12 @@ print("NUP probe → real UI converters → persisted sources → rebuild progra
     methods = '\n'.join((declaration('    static func selectableGame(from game:', porting_source),
                           declaration('    static func detectedSource(from file:', source=porting_source)))
     main = scratch / 'main.swift'
-    format_bytes = declaration('func seleneBytes(', (ROOT / 'Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift').read_text())
+    format_bytes = declaration('func seleneBytes(', (ROOT / 'apps/mac/OortMac/Views/Settings/SettingsSectionContent.swift').read_text())
     main.write_text(host.replace('// CONVERTERS', methods) + '\n' + format_bytes)
     library = ROOT / '.build/debug'
     executable = scratch / 'nup-check'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
-                    str(ROOT / 'Sources/NXLibrary/Models/SelectableGame.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Models/SelectableGame.swift'),
                     *map(str, names.objects(library)),
                     '-o', str(executable)], check=True)
     subprocess.run([str(executable), str(scratch)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

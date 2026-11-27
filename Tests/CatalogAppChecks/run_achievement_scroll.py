@@ -15,7 +15,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
-source = (ROOT / 'Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift').read_text()
+source = (ROOT / 'apps/mac/OortMac/Views/Spotlight/AchievementsScreen.swift').read_text()
 start = source.index('private struct AchievementsList: View')
 end = source.index('\n/// The trophies,', start)
 
@@ -174,10 +174,10 @@ with tempfile.TemporaryDirectory(prefix='achievement-scroll-check-') as folder:
     swift.write_text(host)
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
-                    str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
-                    str(ROOT / 'Sources/NXLibrary/ViewModels/AchievementsScreenModel.swift'),
-                    str(ROOT / 'Sources/NXLibrary/ViewModels/ListScroll.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Views/Components/GlideGroup.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
+                    str(ROOT / 'apps/mac/OortMac/ViewModels/AchievementsScreenModel.swift'),
+                    str(ROOT / 'apps/mac/OortMac/ViewModels/ListScroll.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Components/GlideGroup.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], check=True,

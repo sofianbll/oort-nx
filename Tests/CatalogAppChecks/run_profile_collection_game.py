@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-ROOT = Path(__file__).resolve().parents[2] / 'Sources/NXLibrary/ViewModels'
+ROOT = Path(__file__).resolve().parents[2] / 'apps/mac/OortMac/ViewModels'
 controller = (ROOT / 'AppViewModel+Controller.swift').read_text().split('extension AppViewModel', 1)[1]
 sources = (ROOT / 'AppViewModel+Sources.swift').read_text()
 selection = sources[sources.index('    var currentFocusedCatalogGame'):].rsplit('}', 1)[0]
