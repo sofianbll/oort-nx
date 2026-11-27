@@ -39,7 +39,7 @@ RULES = [
      "Tests/RepoChecks/test_structure.py"),
     ("boundaries", "R2", "Swift modules import only lower layers (architecture/model.c4)",
      lambda base: [script("check_module_boundaries.py")],
-     "Tests/ModuleChecks"),
+     "scripts/tests/ModuleChecks"),
     ("generated", "R4", "Every generated file matches its source (scripts/generate --check)",
      lambda base: [script("generate", "--check")],
      "Tests/PublicationChecks/test_oort_tokens.py, test_credits.py; Tests/RepoChecks/test_check.py"),
