@@ -4,6 +4,7 @@ import Foundation
 /// One optional rcd per backend. The lock guards process ownership, not concurrent RC requests.
 final class RcloneRemoteControl: @unchecked Sendable {
     private static let directoryPrefix = "arcane-rc-"
+    private static let gateName = "arcane-rc.lock"
     private static let temporary: URL = {
         if let path = ProcessInfo.processInfo.environment["TMPDIR"], path.hasPrefix("/") {
             return URL(fileURLWithPath: path, isDirectory: true)
@@ -33,7 +34,6 @@ final class RcloneRemoteControl: @unchecked Sendable {
         let directory: URL
         let lease: Int32
         let owner: FileHandle
-        let readyBy: Double
         let log: SearchLog
 
         var socket: URL { directory.appendingPathComponent("s") }
@@ -144,13 +144,17 @@ final class RcloneRemoteControl: @unchecked Sendable {
             return session
         }) else { return nil }
 
-        // rcd creates the socket as it starts listening. Wait briefly without serializing readers.
+        // rcd creates the socket as it starts listening; it has failed only once it exits. Under load rclone 1.75.2
+        // took 3.5 to 9.5 s to bind (0.06 s idle), so the start shares the request's budget instead of a timer of its own.
         let socket = current.socket
+        let end = ProcessInfo.processInfo.systemUptime + (sensitive ? 300 : 60)
         while !FileManager.default.fileExists(atPath: socket.path),
-              ProcessInfo.processInfo.systemUptime < current.readyBy, lock.withLock({ session?.process === current.process && current.process.status == nil }) {
+              ProcessInfo.processInfo.systemUptime < end, lock.withLock({ session?.process === current.process && current.process.status == nil }) {
             do { try await Task.sleep(nanoseconds: 20_000_000) }
             catch { if sensitive { discard(current) }; throw error }
         }
+        // curl reads 0 as no limit; its runner still ends the call within the request's budget.
+        let remaining = max(end - ProcessInfo.processInfo.systemUptime, 1)
         let ready = FileManager.default.fileExists(atPath: socket.path)
         if ready {
             lock.withLock {
@@ -161,8 +165,8 @@ final class RcloneRemoteControl: @unchecked Sendable {
         do {
             result = ready ? try await SystemCommandRunner().runCancellable(Self.curl,
                 Self.request(socket: socket, operation: operation, body: sensitive ? "@-" : body,
-                             timeout: sensitive ? "300" : "60"),
-                environment: [:], input: sensitive ? Data(body.utf8) : nil, seconds: sensitive ? 305 : 62) : nil
+                             timeout: String(format: "%.3f", remaining)),
+                environment: [:], input: sensitive ? Data(body.utf8) : nil, seconds: remaining + (sensitive ? 5 : 2)) : nil
         } catch is CancellationError {
             if sensitive || operation == "operations/copyfile" { discard(current) }
             throw CancellationError()
@@ -194,14 +198,8 @@ final class RcloneRemoteControl: @unchecked Sendable {
 
     private static func launch(executable: URL, environment: [String: String], flags: [String])
         -> (Session, RcloneDownload.Launchable)? {
-        guard let launch = try? RcloneDownload.launchable(executable) else { return nil }
-        var template = temporary.appendingPathComponent(directoryPrefix + "XXXXXX").path.utf8CString
-        guard let directory = template.withUnsafeMutableBufferPointer({ buffer -> URL? in
-            guard let path = mkdtemp(buffer.baseAddress!) else { return nil }
-            return URL(fileURLWithPath: String(cString: path), isDirectory: true)
-        }) else { return nil }
-        let lease = claim(directory)
-        guard lease >= 0 else { _ = rmdir(directory.path); return nil }
+        guard let launch = try? RcloneDownload.launchable(executable),
+              let (directory, lease) = sessionDirectory(in: temporary) else { return nil }
 
         let socket = directory.appendingPathComponent("s")
         let log = SearchLog()
@@ -217,7 +215,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
                environment: environment.filter { !["LISTEN_PID", "LISTEN_FDS", "LISTEN_FDNAMES"].contains($0.key) },
                input: lifetime.fileHandleForReading, error: log.pipe.fileHandleForWriting) {
             return (Session(process: process, executable: executable, flags: flags, directory: directory, lease: lease,
-                            owner: owner, readyBy: ProcessInfo.processInfo.systemUptime + 2, log: log), launch)
+                            owner: owner, log: log), launch)
         }
         close(lease)
         try? FileManager.default.removeItem(at: directory)
@@ -228,6 +226,34 @@ final class RcloneRemoteControl: @unchecked Sendable {
         ["-q", "--silent", "--noproxy", "*", "--unix-socket", socket.path, "--connect-timeout", "1",
          "--max-time", timeout, "--header", "Content-Type: application/json", "--data-binary", body,
          "--write-out", "\n%{http_code}", "http://localhost/\(operation)"]
+    }
+
+    /// A new private folder for one rcd, already leased.
+    static func sessionDirectory(in temporary: URL) -> (URL, Int32)? {
+        // Created and leased in one step for every sweep: unleased and empty, the folder would look orphaned.
+        gated(in: temporary) {
+            var template = temporary.appendingPathComponent(directoryPrefix + "XXXXXX").path.utf8CString
+            guard let directory = template.withUnsafeMutableBufferPointer({ buffer -> URL? in
+                guard let path = mkdtemp(buffer.baseAddress!) else { return nil }
+                return URL(fileURLWithPath: String(cString: path), isDirectory: true)
+            }) else { return nil }
+            let lease = claim(directory)
+            guard lease >= 0 else { _ = rmdir(directory.path); return nil }
+            return (directory, lease)
+        }
+    }
+
+    /// Runs `body` under the folder's lock shared by every Oort process, which `flock` drops if one dies.
+    private static func gated<T>(in temporary: URL, _ body: () -> T?) -> T? {
+        let gate = open(temporary.appendingPathComponent(gateName).path, O_RDONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0o600)
+        guard gate >= 0 else { return nil }
+        defer { close(gate) }
+        // Only this user's own Oort processes may hold it, each for one create or remove.
+        var info = stat()
+        guard fstat(gate, &info) == 0, info.st_mode & S_IFMT == S_IFREG, info.st_uid == geteuid(),
+              info.st_mode & 0o077 == 0 else { return nil }
+        while flock(gate, LOCK_EX) != 0 { guard errno == EINTR else { return nil } }
+        return body()
     }
 
     private static func claim(_ directory: URL) -> Int32 {
@@ -245,11 +271,14 @@ final class RcloneRemoteControl: @unchecked Sendable {
         for directory in (try? fm.contentsOfDirectory(at: temporary, includingPropertiesForKeys: nil)) ?? [] {
             let name = directory.lastPathComponent
             guard name.hasPrefix(directoryPrefix), name.utf8.count == directoryPrefix.utf8.count + 6 else { continue }
-            let lease = claim(directory)
-            guard lease >= 0 else { continue } // A live Arcane instance holds its own lease.
+            // A live Arcane instance holds its own lease. If rcd has not bound yet, rmdir prevents it from binding later.
+            guard let lease = gated(in: temporary, { () -> Int32? in
+                let lease = claim(directory)
+                guard lease >= 0 else { return nil }
+                if rmdir(directory.path) == 0 { close(lease); return nil }
+                return lease
+            }) else { continue }
             defer { close(lease) }
-            // If rcd has not bound yet, rmdir atomically prevents it from binding later.
-            if rmdir(directory.path) == 0 { continue }
             let socket = directory.appendingPathComponent("s")
             var info = stat()
             guard lstat(socket.path, &info) == 0, info.st_mode & S_IFMT == S_IFSOCK else { continue }
