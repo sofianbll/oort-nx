@@ -27,6 +27,9 @@ public extension SteamSourceEntries {
         }
     }
 
+    /// What turning the source off keeps: under the switch, and again when a changed choice is saved.
+    static let keptWhenOff = IntegrationWords("Your Steam files stay where they are. Disabling this source keeps its games and personal choices.")
+
     /// Settings › Sources, in their order: the source (its choice waits in the draft until Save), its refresh, its folder.
     struct MacRows: Equatable, Sendable {
         public let source, refresh, folder: IntegrationEntry
@@ -37,7 +40,7 @@ public extension SteamSourceEntries {
         var source = sourceSwitch(id: "steamSource", inForce: applied, waiting: staged)
         source.icon = "Steam"
         source.about = .init("Find installed native Mac games in your Steam libraries.")
-        source.info = .init("Your Steam files stay where they are. Disabling this source keeps its games and personal choices.")
+        source.info = keptWhenOff
         // A refresh needs the source in force; a failed one can always be tried again.
         let canRefresh = applied || status == .failed
         let refresh = IntegrationEntry(id: "steamRefresh", title: .init("Refresh Steam"), about: state(status, found: found).detail,

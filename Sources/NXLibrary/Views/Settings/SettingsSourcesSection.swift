@@ -87,7 +87,7 @@ struct SettingsSourcesSection: View {
         case .value(let value, let button):
             SeleneValueRow(entry.title.key, subtitle: entry.about?.key, value: value, actionTitle: button.key) { ask(entry) }
         case .row, .open:
-            EmptyView()
+            EmptyView()  // Steam's Mac rows are a switch, a button and a value (IntegrationEntryTests).
         }
     }
     private func words(_ words: IntegrationWords) -> String {

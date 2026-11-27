@@ -23,7 +23,8 @@ public enum IntegrationRequest: Equatable, Sendable {
     case online(on: Bool), clearOnline
 }
 
-/// A page an entry opens in the same app. Each app has one way to each; its tests check it has them all.
+/// A page an entry opens in the same app. An app that draws such entries has one way to each (Windows and Linux:
+/// `PAGES` in desktop/ui/app.js, checked by IntegrationsTests).
 public enum IntegrationRoute: String, CaseIterable, Equatable, Sendable {
     case programs, integrations
 }
@@ -87,8 +88,9 @@ public struct IntegrationEntry: Equatable, Sendable {
 }
 
 /// Steam on this computer. Its switch is the same wherever it is drawn: it shows the choice waiting (in a draft, in
-/// the first steps) or else the one in force, and A asks for the other. Its words, and whether a choice applies at once
-/// or waits, are its owner's: CatalogSourcesModel on the Mac, OortCompanion on Windows and Linux.
+/// the first steps) or else the one in force, and A asks for the other. Its words and states are decided beside their
+/// owners' facts: NXLibraryCore/Steam/SteamSourceEntries.swift on the Mac, Companion+Integrations.swift on Windows and
+/// Linux. Whether a choice applies at once or waits is the place's.
 public enum SteamSourceEntries {
     public static func sourceSwitch(id: String, inForce: Bool, waiting: Bool? = nil) -> IntegrationEntry {
         let checked = waiting ?? inForce
