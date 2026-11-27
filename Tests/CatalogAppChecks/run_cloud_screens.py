@@ -760,13 +760,14 @@ extension CloudScreenProbe {
         let referenceRead = RcloneStorageBackend(remote: "fixture", root: "", executable: rclone,
                                                 run: run).reference(folderID: "1-fixture")!
         let plist = app.appendingPathComponent("Contents/Info.plist")
-        func sign(_ version: String) throws {
+        func sign(_ version: String, bundle: URL? = nil) throws {
             let info: [String: String] = ["CFBundleIdentifier": bundleID, "CFBundleExecutable": "Fixture",
                 "CFBundlePackageType": "APPL", "CFBundleShortVersionString": version, "DMTitleID": title]
-            try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0).write(to: plist)
+            try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
+                .write(to: bundle?.appendingPathComponent("Contents/Info.plist") ?? plist)
             let command = Process()
             command.executableURL = URL(fileURLWithPath: "/usr/bin/codesign")
-            command.arguments = ["--force", "--sign", "-", app.path]
+            command.arguments = ["--force", "--sign", "-", (bundle ?? app).path]
             try command.run()
             command.waitUntilExit()
             precondition(command.terminationStatus == 0)
@@ -897,13 +898,14 @@ extension CloudScreenProbe {
         try await until { vm.cloudLibrary.states[game.id]?.refreshing != true }
 
         // Reference may replace an installed, older bundle, but never while it's running.
-        let older = folder.appendingPathComponent("previous")
-        try fm.copyItem(at: app, to: older)
+        // Build 2.0 from a copy beside it: the installed bundle must not itself be a fresh clone, whose
+        // ctime hosted APFS may still update after the approval, which the swap rightly reads as a change.
+        let build = folder.appendingPathComponent("reference-build/Running.app")
+        try fm.createDirectory(at: build.deletingLastPathComponent(), withIntermediateDirectories: false)
+        try fm.copyItem(at: app, to: build)
         try await Task.sleep(for: .seconds(1))
-        try sign("2.0")
-        _ = try await CloudGameArchive(backend: referenceWrite).upload(.init(titleID: title, locations: [.app: app]), kinds: [.app])
-        try fm.removeItem(at: app)
-        try fm.moveItem(at: older, to: app)
+        try sign("2.0", bundle: build)
+        _ = try await CloudGameArchive(backend: referenceWrite).upload(.init(titleID: title, locations: [.app: build]), kinds: [.app])
         let clock = ContinuousClock(), start = clock.now
         func tree(_ root: URL? = nil) -> [String] {
             let root = root ?? app
@@ -921,7 +923,7 @@ extension CloudScreenProbe {
                     + " xattr \(attributes)"
             }
         }
-        var trees: [(String, [String])] = [("moved", tree())]
+        var trees: [(String, [String])] = [("built", tree())]
         var volume = statfs()
         _ = statfs(app.path, &volume)
         let kind = withUnsafeBytes(of: volume.f_fstypename) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
@@ -973,7 +975,7 @@ extension CloudScreenProbe {
         let ended = vm.cloudLibrary.states[game.id]
         // The installed tree when the swap was refused, else the replaced tree kept as the backup.
         trees.append(("ended \(clock.now - start)", tree(applied == "2.0" ? ended?.previousApp : nil)))
-        var report = ["phases \(phases)", "moved:"] + trees[0].1.map { "  " + $0 }
+        var report = ["phases \(phases)", "built:"] + trees[0].1.map { "  " + $0 }
         for (previous, next) in zip(trees, trees.dropFirst()) {
             report.append("\(previous.0) -> \(next.0):")
             report += next.1.filter { !previous.1.contains($0) }.map { "  " + $0 }

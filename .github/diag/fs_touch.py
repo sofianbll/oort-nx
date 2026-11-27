@@ -87,6 +87,12 @@ def run(variant, root):
         subprocess.run(["cp", "-cR", str(app), str(build)], check=True)
         time.sleep(1)
         sign(build, "2.0")
+    elif variant.startswith("rclone"):  # The product's restore: rclone copies the files from the local remote.
+        installed = folder / "installed" / "Running.app"
+        flags = ["--local-no-clone"] if variant == "rclone-no-clone" else []
+        subprocess.run([os.environ["OORT_PROBE_RCLONE"], "copy", f":local:{app}", str(installed), "--config", "/dev/null",
+                        *flags], check=True)
+        app = installed
     print(f"-- {variant}: steps done in {time.monotonic() - start:.2f}s")
     watch(variant, app, start)
 
