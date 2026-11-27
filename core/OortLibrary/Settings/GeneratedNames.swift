@@ -2,5 +2,5 @@
 
 /// The compiled resources of this module; SwiftPM names them after the package and the target.
 enum GeneratedNames {
-    static let resourceBundle = "NXLibrary_OortLibrary.bundle"
+    static let resourceBundle = "OortNX_OortLibrary.bundle"
 }

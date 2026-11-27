@@ -22,7 +22,7 @@ model {
         folder "engines/nxnative/NxnativeAdapter"
       }
     }
-    macModule = swiftModule "NXLibrary" {
+    macModule = swiftModule "OortMac" {
       metadata {
         layer "3"
         folder "apps/mac/OortMac"

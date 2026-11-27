@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-@testable import NXLibrary
+@testable import OortMac
 import OortLibrary
 
 @main struct Beta4InputScreens {

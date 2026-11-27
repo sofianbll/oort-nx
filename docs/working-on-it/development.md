@@ -100,7 +100,7 @@ offscreen in French and German on Oort, Catppuccin Latte and Vantablack.
 Compare the matching PNGs against a recorded run at the same size; use a
 tolerant comparison across OS versions and inspect flagged differences.
 
-From the checkout root, run `.build/debug/NXLibrary --render-file-picker /absolute/output`
+From the checkout root, run `.build/debug/OortMac --render-file-picker /absolute/output`
 to list synthetic folders and capture the real picker in French at two widths
 over a bright fixture wallpaper. The probe never displays a window.
 
@@ -277,7 +277,7 @@ For component interactions, read the [architecture guide](../how-it-works/archit
 
 ### Localization resources
 
-SwiftPM processes the shared string catalog into `NXLibrary_NXLibraryCore.bundle`. `build_app.sh` requires and copies that bundle into `Contents/Resources`, declares the seven supported app languages and validates the compiled strings/plurals before signing. `scripts/check_localizations.py --app <path.app>` verifies the same resources independently. Missing resources or placeholder mismatches fail packaging. Locale selection is independent from each game's DM_LANG setting.
+SwiftPM processes the shared string catalog into `OortNX_OortLibrary.bundle` (`<package>_<library>`, from `architecture/names.json`). `build_app.sh` requires and copies that bundle into `Contents/Resources`, declares the seven supported app languages and validates the compiled strings/plurals before signing. `scripts/check_localizations.py --app <path.app>` verifies the same resources independently. Missing resources or placeholder mismatches fail packaging. Locale selection is independent from each game's DM_LANG setting.
 
 ### Isolated launcher-development data
 

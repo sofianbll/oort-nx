@@ -1,6 +1,6 @@
 import AppKit
 import ObjectiveC
-@testable import NXLibrary
+@testable import OortMac
 import OortLibrary
 import NxnativeAdapter
 

@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import OortLibrary
 import NxnativeAdapter
-@testable import NXLibrary
+@testable import OortMac
 
 /// Settings › About and its credits, with the controller, in both languages. No window, no network, no link opened.
 @main

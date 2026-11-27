@@ -21,7 +21,7 @@ import NxnativeAdapter
 import Combine
 import Darwin
 import OortLibrary
-@testable import NXLibrary
+@testable import OortMac
 import SwiftUI
 
 @main struct LibraryRefreshProbe {

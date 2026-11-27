@@ -6,7 +6,7 @@ from audit_probe_host import ROOT, run_host
 
 HOST = r'''
 import Foundation
-@testable import NXLibrary
+@testable import OortMac
 import OortLibrary
 
 @main struct Check {
@@ -51,7 +51,7 @@ import OortLibrary
 
 if __name__ == "__main__":
     coordinator = (ROOT / "apps/mac/OortMac/Services/SteamPlayCoordinator.swift").read_text()
-    coordinator = "@testable import NXLibrary\n" + coordinator.replace("SteamPlayCoordinator", "FixtureSteamPlayCoordinator")
+    coordinator = "@testable import OortMac\n" + coordinator.replace("SteamPlayCoordinator", "FixtureSteamPlayCoordinator")
     start = coordinator.index("        var resolved: [Int32: NativeProcessObservation]")
     end = coordinator.index("        let now = Date()", start)
     coordinator = coordinator[:start] + "        let processes = fixtureProcesses\n" + coordinator[end:]

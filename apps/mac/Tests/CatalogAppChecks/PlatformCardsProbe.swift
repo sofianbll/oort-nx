@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import OortLibrary
 import NxnativeAdapter
-@testable import NXLibrary
+@testable import OortMac
 
 @main
 @MainActor struct PlatformCardsProbe {

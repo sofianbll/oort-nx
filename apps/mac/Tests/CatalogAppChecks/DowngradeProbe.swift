@@ -1,7 +1,7 @@
 import AppKit
 import NxnativeAdapter
 import Foundation
-@testable import NXLibrary
+@testable import OortMac
 import OortLibrary
 import SwiftUI
 

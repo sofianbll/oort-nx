@@ -1,6 +1,6 @@
 {
   "about": "The Swift package's technical names and folders, declared once. scripts/generate writes every copy (Package.swift, scripts/build_app.sh, architecture/names.c4, one Swift constant); Python reads scripts/names.py. A role never changes; a name or a folder may. model is the element of architecture/model.c4 that holds the module; layer orders the imports.",
-  "package": "NXLibrary",
+  "package": "OortNX",
   "modules": {
     "core": {"name": "OortCore", "kind": "core", "layer": 0, "path": "core/OortCore", "model": "oort",
              "tests": {"name": "OortCoreTests", "path": "core/Tests/OortCoreTests"}},
@@ -8,7 +8,7 @@
                 "tests": {"name": "OortLibraryTests", "path": "core/Tests/OortLibraryTests"}},
     "nxnative": {"name": "NxnativeAdapter", "kind": "engine", "layer": 2, "path": "engines/nxnative/NxnativeAdapter", "model": "oort.mac",
                  "tests": {"name": "NxnativeAdapterTests", "path": "engines/nxnative/Tests/NxnativeAdapterTests"}},
-    "mac": {"name": "NXLibrary", "kind": "app", "layer": 3, "path": "apps/mac/OortMac", "model": "oort.mac"}
+    "mac": {"name": "OortMac", "kind": "app", "layer": 3, "path": "apps/mac/OortMac", "model": "oort.mac"}
   },
   "former": [
     {"until": "c9c2909d76f3609bb6b1dd84a67aa28cf5615a1a",

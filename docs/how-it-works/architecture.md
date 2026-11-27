@@ -45,7 +45,7 @@ Il [modello LikeC4](../../architecture/model.c4) descrive i sistemi, i confini d
 
 | Target | Compito |
 |---|---|
-| `NXLibrary` | Eseguibile SwiftUI, integrazione AppKit, controller, notifiche, coordinamento e rendering. |
+| `OortMac` | Eseguibile SwiftUI, integrazione AppKit, controller, notifiche, coordinamento e rendering. |
 | `OortCore` | Logica portabile: input, focus, tastiera PIN, particelle, righe e versioni. Solo Swift e Foundation, senza risorse né dipendenze. |
 | `OortLibrary` | Modelli, persistenza, gestione file, contratti del motore, processi e logica delle funzionalità. Riesporta `OortCore` per i chiamanti esistenti. |
 | `NxnativeAdapter` | Il modulo Switch: Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi, mod RomFS e GameBanana, la parte nxnative di catalogo e libreria. Dipende da `OortLibrary`. |
@@ -59,7 +59,7 @@ Il Core ha una cartella per area: `App`, `Catalog`, `Library`, `Selene`, `Detail
 
 Ciò che il modulo usa della base e l'app no è `package` (per esempio `CatalogStore(directory:publication:kinds:legacy:)`, `LibraryPresentation.duration`); un'estensione del modulo che crea un valore della base chiama un init `package` con tutti i valori, perché da un altro modulo non può assegnare proprietà `let` (`GameDetailPresentation(title:…savePath:)`). Dove la base ha bisogno del modulo (righe e reset di Settings, impostazioni del modulo, conteggi del primo avvio, controlli della copia di sviluppo, tipi e import del catalogo) riceve valori o chiusure da un'entrata generica; l'entrata con lo stesso nome di sempre sta in un'estensione dentro `NxnativeAdapter/` e passa quelli del modulo.
 
-`NXLibrary` dipende da `OortLibrary`. Il Core usa anche framework macOS, fra cui Combine, AppKit, ImageIO, CommonCrypto e IOKit. Il package non dichiara dipendenze SwiftPM esterne.
+`OortMac` dipende da `OortLibrary`. Il Core usa anche framework macOS, fra cui Combine, AppKit, ImageIO, CommonCrypto e IOKit. Il package non dichiara dipendenze SwiftPM esterne.
 
 ```mermaid
 flowchart TD

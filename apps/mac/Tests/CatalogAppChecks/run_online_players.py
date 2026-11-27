@@ -17,7 +17,7 @@ import AppKit
 import NxnativeAdapter
 import CoreText
 import SwiftUI
-@testable import NXLibrary
+@testable import OortMac
 import OortLibrary
 
 @main struct OnlinePlayersProbe {

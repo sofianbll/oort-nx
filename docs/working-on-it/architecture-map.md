@@ -36,7 +36,7 @@ The [LikeC4 MCP server](https://likec4.dev/tooling/ai-tools/#mcp-server) queries
 ## Rules checked by script
 
 1. **OortCore imports Foundation only.** A new Apple framework in this module fails the check.
-2. **Layer order.** A module imports only the modules below it. For example, `OortLibrary` may not import `NXLibrary`.
+2. **Layer order.** A module imports only the modules below it. For example, `OortLibrary` may not import `OortMac`.
 3. **No interface framework in the core.** `OortCore` and `OortLibrary` may not import AppKit, SwiftUI, Metal, MetalKit or GameController.
    - Two files are on the baseline, and the baseline can only shrink: `core/OortLibrary/Selene/Motion.swift` (SwiftUI) and `core/OortLibrary/Artwork/ArtworkStore.swift` (AppKit).
    - When one of them stops importing the framework, the check reports the stale entry, and the entry is removed in the same change.
@@ -50,7 +50,7 @@ The check compares `swiftModule` declarations with the regular and executable ta
 | Is pure logic with no Apple framework, and is shared by every system | `OortCore` | version numbers, focus index, hold detector |
 | Describes the catalog, library, settings, artwork or achievements | `OortLibrary` | a catalog record, a library filter, a settings key |
 | Talks to nxnative, the engine, Steam files, rclone, Keychain, or Mac paths for a game | `NxnativeAdapter` | a build step, a save transaction, a cloud archive |
-| Draws a view, handles a window, a focus or the pad, or plays a sound | `NXLibrary` | a screen, a Selene component, a controller binding |
+| Draws a view, handles a window, a focus or the pad, or plays a sound | `OortMac` | a screen, a Selene component, a controller binding |
 | Is needed by the Windows and Linux core | `OortCore`, or `OortLibrary` files listed in `Package.swift` | the portable subset |
 
 When unsure, put the code in the lowest layer that does not need a higher one. Moving code down is cheap. Moving it up, or importing up, is what the check blocks.

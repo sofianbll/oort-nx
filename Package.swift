@@ -3,11 +3,11 @@ import PackageDescription
 
 // The names and folders below come from architecture/names.json; change them there and run scripts/generate.
 // BEGIN GENERATED NAMES (architecture/names.json, scripts/generate_names.py)
-let packageName = "NXLibrary"
+let packageName = "OortNX"
 let core = (name: "OortCore", path: "core/OortCore")
 let library = (name: "OortLibrary", path: "core/OortLibrary")
 let nxnative = (name: "NxnativeAdapter", path: "engines/nxnative/NxnativeAdapter")
-let mac = (name: "NXLibrary", path: "apps/mac/OortMac")
+let mac = (name: "OortMac", path: "apps/mac/OortMac")
 let coreTests = (name: "OortCoreTests", path: "core/Tests/OortCoreTests")
 let libraryTests = (name: "OortLibraryTests", path: "core/Tests/OortLibraryTests")
 let nxnativeTests = (name: "NxnativeAdapterTests", path: "engines/nxnative/Tests/NxnativeAdapterTests")

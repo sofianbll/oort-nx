@@ -13,7 +13,7 @@ import AppKit
 import NxnativeAdapter
 import CoreText
 import SwiftUI
-@testable import NXLibrary
+@testable import OortMac
 import OortLibrary
 
 final class PlayersFixtureSource: ControllerSource {

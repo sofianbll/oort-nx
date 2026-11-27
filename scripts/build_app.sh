@@ -11,8 +11,8 @@
 set -euo pipefail
 # Product, module and resource bundle names come from architecture/names.json (scripts/generate writes them).
 # BEGIN GENERATED NAMES (architecture/names.json, scripts/generate_names.py)
-APP_PRODUCT="NXLibrary"
-RESOURCE_BUNDLE="NXLibrary_OortLibrary.bundle"
+APP_PRODUCT="OortMac"
+RESOURCE_BUNDLE="OortNX_OortLibrary.bundle"
 CORE_MODULE="OortCore"
 LIBRARY_MODULE="OortLibrary"
 NXNATIVE_MODULE="NxnativeAdapter"

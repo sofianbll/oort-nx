@@ -31,7 +31,7 @@ run_host(r'''
 import AppKit
 import Combine
 import OortLibrary
-@testable import NXLibrary
+@testable import OortMac
 
 @MainActor enum InputMonitor {
     static var handler: ((NSEvent) -> NSEvent?)!
