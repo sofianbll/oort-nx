@@ -168,6 +168,7 @@ struct ProfilePage: View {
                                right: [HintItem(.lb, "Previous") { handle(.tabPrevious, data: data) },
                                        HintItem(.rb, "Next") { handle(.tabNext, data: data) }]
                                + (isGuest ? [] : [HintItem(.y, "Edit profile", action: onEdit)])
+                               + [HintItem(.menu, "Menu", hold: "Hold: Profile page") { router.isMenuPresented = true }]
                                + [HintItem(.a, "Open", action: { activate(focus ?? defaultFocus, data: data) })])
             }
         }
@@ -206,18 +207,20 @@ struct ProfilePage: View {
                 Spacer(minLength: 0)
             }
             .padding(.bottom, canvas.u(SeleneTokens.Space.line))
-            let statsWidth = layoutScale * SeleneTokens.Space.transferMeasure
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: gap, alignment: .leading),
-                                     count: width >= statsWidth ? 4 : 2),
-                      alignment: .leading, spacing: gap) {
-                stat("Playtime", LibraryPresentation.duration(data.activity.values.reduce(0) { $0 + $1.duration }))
-                stat("This week", LibraryPresentation.duration(data.week.thisWeek))
-                stat("Games", data.games.count.formatted(.number.locale(locale.formatLocale)))
-                if let date = profile.createdAt {
-                    stat("Member since", date.formatted(.dateTime.month(.abbreviated).year().locale(locale.formatLocale)))
+            .oortArtShadow(canvas.u(SeleneTokens.Space.compact), strength: 1, color: SeleneTheme.scrim)
+            // One line of four while it fits, two rows of two otherwise: a value never breaks.
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.group)) { stats(data) }
+                VStack(alignment: .leading, spacing: gap) {
+                    let all = statValues(data)
+                    ForEach(Array(stride(from: 0, to: all.count, by: 2)), id: \.self) { row in
+                        HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.group)) {
+                            ForEach(all[row..<min(row + 2, all.count)], id: \.0) { stat($0.0, $0.1) }
+                        }
+                    }
                 }
             }
-            .frame(maxWidth: statsWidth, alignment: .leading)
+            .oortArtShadow(canvas.u(SeleneTokens.Space.compact), strength: 1, color: SeleneTheme.scrim)
             ViewThatFits(in: .horizontal) {
                 HStack(alignment: .bottom, spacing: gap) {
                     HStack(spacing: canvas.u(SeleneTokens.Space.medium)) { pills(data) }
@@ -239,10 +242,21 @@ struct ProfilePage: View {
         .padding(.bottom, canvas.u(SeleneTokens.Space.section))
     }
 
+    private func statValues(_ data: PageData) -> [(String, String)] {
+        [("Playtime", LibraryPresentation.duration(data.activity.values.reduce(0) { $0 + $1.duration })),
+         ("This week", LibraryPresentation.duration(data.week.thisWeek)),
+         ("Games", data.games.count.formatted(.number.locale(locale.formatLocale)))]
+        + (profile.createdAt.map { [("Member since", $0.formatted(.dateTime.month(.abbreviated).year().locale(locale.formatLocale)))] } ?? [])
+    }
+
+    @ViewBuilder private func stats(_ data: PageData) -> some View {
+        ForEach(statValues(data), id: \.0) { stat($0.0, $0.1) }
+    }
+
     @ViewBuilder private func mostPlayedLabel(_ game: CatalogGame?, data: PageData) -> some View {
         if let game, let played = data.activity[game.id] {
             VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                metadata(L10n.text("Most played"))
+                metadata(L10n.text("Most played game"))
                 Text(game.name).seleneFont(.heading, .semibold)
                 Text(LibraryPresentation.duration(played.duration)).seleneFont(.row)
             }
@@ -252,20 +266,21 @@ struct ProfilePage: View {
     }
 
     @ViewBuilder private func pills(_ data: PageData) -> some View {
-        if !isGuest { pill("Edit profile", icon: "pencil", id: .edit, data: data) }
-        pill("Switch profile", icon: "arrow.left.arrow.right", id: .change, data: data)
-        if nextendo != nil { pill("Nextendo settings", icon: "gearshape", id: .account, data: data) }
-        if !isGuest { pill("Profile lock", icon: "lock", id: .lock, data: data) }
+        if !isGuest { pill("Edit profile", icon: .edit, id: .edit, data: data) }
+        pill("Switch profile", icon: .swap, id: .change, data: data)
+        if nextendo != nil { pill("Nextendo settings", icon: .settings, id: .account, data: data) }
+        if !isGuest { pill("Profile lock", icon: .lock, id: .lock, data: data) }
     }
 
-    private func pill(_ title: String, icon: String, id: Focus, data: PageData) -> some View {
-        button(id, data: data, radius: canvas.u(SeleneTokens.Space.actionPillHeight / 2)) {
-            Label(L10n.text(title), systemImage: icon)
-                .seleneFont(.row, .medium)
-                .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
-                .frame(minHeight: canvas.u(SeleneTokens.Space.actionPillHeight))
-                .oortPanel(radius: canvas.u(SeleneTokens.Space.actionPillHeight / 2), raised: true)
+    /// The same key as "See all": one focus look on the whole page.
+    private func pill(_ title: String, icon: MaterialIcon, id: Focus, data: PageData) -> some View {
+        SelenePillButton(title: title, icon: icon, iconSize: SeleneTokens.Space.control, minWidth: 0,
+                         height: SeleneTokens.Space.actionPillHeight, horizontalPadding: SeleneTokens.Space.feature,
+                         focused: focus == id, scalesOnFocus: false) {
+            focus = id
+            activate(id, data: data)
         }
+        .modifier(FocusTarget(id: id))
     }
 
     private func stat(_ title: String, _ value: String) -> some View {
@@ -307,20 +322,22 @@ struct ProfilePage: View {
             ? max(3, gameColumns) : gameColumns
         let tileWidth = max(0, (width - gap * CGFloat(count - 1)) / CGFloat(count))
         let items = data.games(for: card)
+        let empty = isEmpty(card, items: items, data: data)
         return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 Text(L10n.text(card.title)).seleneFont(.heading, .semibold)
                     .accessibilityAddTraits(.isHeader)
                 Spacer(minLength: 0)
                 let target = Focus.card(card)
-                SelenePillButton(title: "See all", icon: .chevron, iconSize: SeleneTokens.Space.control,
+                // "See all" leads somewhere only when the card has something to show.
+                if !empty { SelenePillButton(title: "See all", icon: .chevron, iconSize: SeleneTokens.Space.control,
                                  minWidth: 0, height: SeleneTokens.Space.group, horizontalPadding: SeleneTokens.Space.medium,
                                  focused: focus == target, scalesOnFocus: false) {
                     focus = target
                     activate(target, data: data)
                 }
                 .accessibilityHint(L10n.text(card.title))
-                .modifier(FocusTarget(id: target))
+                .modifier(FocusTarget(id: target)) }
             }
             switch card {
             case .friends:
@@ -328,10 +345,10 @@ struct ProfilePage: View {
             case .achievements:
                 achievements(data, columns: count, tileWidth: tileWidth)
             case .week:
-                week(data)
+                if empty { self.empty("No playtime this week.") } else { week(data) }
             default:
-                if items.isEmpty {
-                    empty("No games in this view.")
+                if empty {
+                    self.empty(card == .neverPlayed ? "No games in this view." : "Play a game and it shows up here.")
                 } else {
                     HStack(alignment: .top, spacing: gap) {
                         ForEach(items.prefix(count)) { game in
@@ -340,6 +357,15 @@ struct ProfilePage: View {
                     }
                 }
             }
+        }
+    }
+
+    private func isEmpty(_ card: ProfilePageCard, items: [CatalogGame], data: PageData) -> Bool {
+        switch card {
+        case .friends: false
+        case .achievements: data.achievements.allSatisfy { $0.summary.total == 0 }
+        case .week: data.week.thisWeek <= 0
+        default: items.isEmpty
         }
     }
 
@@ -392,6 +418,9 @@ struct ProfilePage: View {
                 let day = labels.count == data.week.perDay.count ? labels[(index + 1) % labels.count] : ""
                 let duration = data.week.perDay[index]
                 VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+                    // Written, so a controller or a glance reads it without hovering.
+                    Text(duration > 0 ? LibraryPresentation.duration(duration) : " ")
+                        .seleneFont(.text, .semibold).monospacedDigit().lineLimit(1)
                     RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.cover))
                         .fill(duration > 0 ? SeleneTheme.focus : SeleneTheme.ink25)
                         .frame(width: canvas.u(SeleneTokens.Space.group),
@@ -467,7 +496,9 @@ struct ProfilePage: View {
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                         Text(row.name).seleneFont(.row, .semibold)
+                            .fixedSize(horizontal: false, vertical: true)
                         Text(row.description).seleneFont(.text).foregroundStyle(SeleneTheme.ink75)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 if let date = row.unlockedAt {
@@ -530,9 +561,10 @@ struct ProfilePage: View {
             .frame(width: diameter, height: diameter)
             .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
-                Text(friend.name).seleneFont(.row, .semibold)
-                SeleneStatusDot(text: friendText(friend), color: color)
+                Text(friend.name).seleneFont(.row, .semibold).lineLimit(1)
+                SeleneStatusDot(text: friendText(friend), color: color).lineLimit(1)
             }
+            .layoutPriority(1)
             Spacer(minLength: 0)
             if friend.presence == .playing, let id = friend.gameID,
                let game = games.first(where: { $0.nxnativeGame?.titleId?.caseInsensitiveCompare(id) == .orderedSame }) {
@@ -681,6 +713,12 @@ struct ProfilePage: View {
         case .menu: router.isMenuPresented = true
         case .menuHold: router.openSettings(.profileCards)
         case .contextAction where !isGuest: focus = .edit; onEdit()
+        case .jumpToStart, .jumpToEnd:
+            let ordered = frames.sorted { ($0.value.minY, $0.value.minX) < ($1.value.minY, $1.value.minX) }.map(\.key)
+            if let next = action == .jumpToStart ? ordered.first : ordered.last, next != current {
+                focus = next
+                SoundEffectService.shared.play(.focus)
+            }
         case .tabNext, .tabPrevious:
             let ordered = frames.sorted { ($0.value.minY, $0.value.minX) < ($1.value.minY, $1.value.minX) }.map(\.key)
             guard let index = ordered.firstIndex(of: current) else { return }
@@ -694,14 +732,19 @@ struct ProfilePage: View {
             let vertical = action == .navigateUp || action == .navigateDown
             let forward = action == .navigateDown || action == .navigateRight
             let direction: CGFloat = forward ? 1 : -1
-            let candidates = frames.compactMap { id, rect -> (Focus, CGFloat, CGFloat)? in
-                let primary = vertical ? rect.midY - origin.midY : rect.midX - origin.midX
-                let secondary = vertical ? rect.midX - origin.midX : rect.midY - origin.midY
-                guard primary * direction > canvas.u(SeleneTokens.Space.compact) else { return nil }
-                if !vertical && !rect.intersects(CGRect(x: rect.minX, y: origin.minY, width: rect.width, height: origin.height)) { return nil }
-                return (id, abs(primary), abs(secondary))
+            func candidates(inRow: Bool) -> [(Focus, CGFloat, CGFloat)] {
+                frames.compactMap { id, rect -> (Focus, CGFloat, CGFloat)? in
+                    let primary = vertical ? rect.midY - origin.midY : rect.midX - origin.midX
+                    let secondary = vertical ? rect.midX - origin.midX : rect.midY - origin.midY
+                    guard primary * direction > canvas.u(SeleneTokens.Space.compact) else { return nil }
+                    if inRow && !rect.intersects(CGRect(x: rect.minX, y: origin.minY, width: rect.width, height: origin.height)) { return nil }
+                    return (id, abs(primary), abs(secondary))
+                }
             }
-            if let next = candidates.min(by: { ($0.1, $0.2) < ($1.1, $1.2) })?.0 {
+            // Sideways stays in the row first; a column beside it (Friends) is still reached.
+            let found = vertical ? candidates(inRow: false) : candidates(inRow: true).isEmpty
+                ? candidates(inRow: false).map { ($0.0, $0.2, $0.1) } : candidates(inRow: true)
+            if let next = found.min(by: { ($0.1, $0.2) < ($1.1, $1.2) })?.0 {
                 focus = next
                 SoundEffectService.shared.play(.focus)
             }

@@ -48,7 +48,7 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Centro di controllo | LB/RB scorrono le icone o passano al pannello adiacente, fermandosi alle estremità. Settings richiede conferma. A seleziona; B chiude un pannello o il centro. Con Oort Home chiude il centro. |
 | Settings | LB/RB cambiano sezione; non prendono le lettere da un campo di testo. |
 | Settings, riga modificata | X (o ⌫) riporta quella sola riga al valore iniziale, con Undo; su una riga già iniziale o dalla barra laterale X chiede se ripristinare il gruppo. |
-| Pagina profilo e Obiettivi | LB/RB spostano il focus nel profilo e nella raccolta della scheda. In Obiettivi cambiano filtro, o scorrono gli elementi nel dettaglio aperto. |
+| Pagina profilo e Obiettivi | LB/RB spostano il focus nel profilo e nella raccolta della scheda. ZL/ZR vanno al primo o all'ultimo elemento; destra da una tessera raggiunge la colonna Amici; Menu tenuto apre Profile page. In Obiettivi cambiano filtro, o scorrono gli elementi nel dettaglio aperto. |
 | Selettore profili | A sceglie, Menu aggiunge, Y modifica; B (o Home con Arcane) chiude la sovrapposizione e torna al focus precedente. |
 | Editor profilo | B torna al passo precedente o esce dal primo. Dal nome Menu corto salva un profilo esistente o prosegue per un profilo nuovo. |
 | Tastierino PIN | Croce, stick o frecce spostano il focus in due dimensioni. A/Invio preme il tasto in focus; cifre e clic funzionano direttamente. X/⌫ cancella, B/Esc annulla. ✓, Menu (≡, + o Options) e ⌘Invio confermano solo dopo quattro cifre. |
