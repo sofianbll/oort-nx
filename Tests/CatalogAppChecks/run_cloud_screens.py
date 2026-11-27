@@ -921,6 +921,16 @@ extension CloudScreenProbe {
             }
         }
         var trees: [(String, [String])] = [("moved", tree())]
+        var volume = statfs()
+        _ = statfs(app.path, &volume)
+        let kind = withUnsafeBytes(of: volume.f_fstypename) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
+        let mount = withUnsafeBytes(of: volume.f_mntonname) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
+        var modelSize = 0
+        _ = sysctlbyname("hw.model", nil, &modelSize, nil, 0)
+        var model = [CChar](repeating: 0, count: modelSize + 1)
+        _ = sysctlbyname("hw.model", &model, &modelSize, nil, 0)
+        print("DIAGNOSTIC transfer fixture on \(kind) at \(mount), flags \(String(volume.f_flags, radix: 16)), "
+              + "model \(String(cString: model)), cores \(ProcessInfo.processInfo.activeProcessorCount)")
         var phases: [String] = []
         let phaseWatch = vm.cloudLibrary.$states.sink { states in
             let phase = states[game.id]?.progress.map { "\($0.phase)" } ?? "none"
