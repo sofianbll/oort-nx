@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/check_publication.py"
+SCRIPT = Path(__file__).resolve().parents[3] / "scripts/check_publication.py"
 
 
 class PublicationChecks(unittest.TestCase):

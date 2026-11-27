@@ -178,8 +178,8 @@ for check in "$ROOT"/apps/mac/Tests/CatalogAppChecks/run_*.py; do
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" python3 "$check" \
     || fail "application regressions failed: ${check##*/}"
 done
-(cd "$ROOT" && python3 -m unittest discover -s Tests/PublicationChecks >/dev/null 2>&1) \
-  || fail "the publication checks' tests failed (python3 -m unittest discover -s Tests/PublicationChecks)"
+(cd "$ROOT" && python3 -m unittest discover -s scripts/tests/PublicationChecks >/dev/null 2>&1) \
+  || fail "the publication checks' tests failed (python3 -m unittest discover -s scripts/tests/PublicationChecks)"
 [ -d "$ROOT/work/Runtime" ] || fail "no work/Runtime: run scripts/bundle_runtime.sh first (a release carries its Python and tools)"
 python3 "$ROOT/scripts/check_publication.py" --runtime "$ROOT/work/Runtime"
 

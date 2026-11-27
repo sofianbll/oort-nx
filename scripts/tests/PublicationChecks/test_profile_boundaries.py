@@ -4,7 +4,7 @@ import unittest
 
 import sys
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
 

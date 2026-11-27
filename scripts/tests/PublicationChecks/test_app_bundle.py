@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 
-BUILD_APP = Path(__file__).resolve().parents[2] / "scripts/build_app.sh"
+BUILD_APP = Path(__file__).resolve().parents[3] / "scripts/build_app.sh"
 
 
 class AppBundleInfo(unittest.TestCase):

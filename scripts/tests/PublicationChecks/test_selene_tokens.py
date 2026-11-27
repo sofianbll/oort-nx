@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/check_selene_tokens.py"
+SCRIPT = Path(__file__).resolve().parents[3] / "scripts/check_selene_tokens.py"
 SPEC = importlib.util.spec_from_file_location("check_selene_tokens", SCRIPT)
 check = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(check)

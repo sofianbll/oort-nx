@@ -5,7 +5,7 @@ import shutil
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 SPEC = importlib.util.spec_from_file_location("generate_oort_tokens", ROOT / "scripts/generate_oort_tokens.py")
 GEN = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(GEN)

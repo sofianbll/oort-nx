@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 spec = importlib.util.spec_from_file_location("check_guides", ROOT / "scripts/check_guides.py")
 guides = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guides)

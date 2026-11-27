@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 
-RELEASE = Path(__file__).resolve().parents[2] / "scripts/release.sh"
+RELEASE = Path(__file__).resolve().parents[3] / "scripts/release.sh"
 PUBLIC = "fixture/NxLibrary"
 OTHER = "fixture/oort-nx"
 ENGINE = "https://github.com/fixture/nxnative"
@@ -40,7 +40,7 @@ class ReleaseTarget(unittest.TestCase):
         self.write(".gitignore", "/work/\n/dist/\n")
         self.write("engines/nxnative/NxnativeAdapter/Setup/ToolchainRequirements.swift", 'minimumXcode: "27.2"\n')
         self.write("apps/mac/Tests/CatalogAppChecks/run_fixture.py", "")
-        self.write("Tests/PublicationChecks/__init__.py", "")
+        self.write("scripts/tests/PublicationChecks/__init__.py", "")
         self.write("scripts/check_publication.py", "")
         self.write("scripts/check_localizations.py", "")
         self.write("scripts/build_dmg.sh", '''printf '%s\\n' "$@" > "$FIXTURES/dmg-args"

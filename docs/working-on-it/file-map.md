@@ -1080,9 +1080,9 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [core/Tests/OortLibraryTests/SettingsRowActionTests.swift](../../core/Tests/OortLibraryTests/SettingsRowActionTests.swift) | Regressioni per giochi omonimi e azioni secondarie della medesima riga. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/ScreenshotFallbackTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/ScreenshotFallbackTests.swift) | Screenshot LaunchBox cercati una volta e conservati, precedenza di quelli propri e dimensione piena della scelta. |
 | [core/Tests/OortLibraryTests/SteamGridDBArtTests.swift](../../core/Tests/OortLibraryTests/SteamGridDBArtTests.swift) | Chiave privata, richieste con la chiave solo a SteamGridDB, crediti, anteprime e ricerca da Browse online. |
-| [Tests/PublicationChecks/test_publication.py](../../Tests/PublicationChecks/test_publication.py) | Esegue il controllo in repository temporanee: file vietati, chiavi sintetiche redatte, runtime non conforme e testi o sorgenti mancanti o alterati. |
-| [Tests/PublicationChecks/test_release_target.py](../../Tests/PublicationChecks/test_release_target.py) | Verifica senza rete i controlli, la destinazione unica di tag e release e il ripiego DMG mantenendo il nome dell'asset, attraverso repository locali e comandi sostitutivi. |
-| [Tests/PublicationChecks/test_update_archive.py](../../Tests/PublicationChecks/test_update_archive.py) | Verifica il controllo ZIP reale con bundle sintetici, symlink, percorsi non sicuri, collisioni Unicode, header incoerenti e dimensioni eccessive. |
+| [scripts/tests/PublicationChecks/test_publication.py](../../scripts/tests/PublicationChecks/test_publication.py) | Esegue il controllo in repository temporanee: file vietati, chiavi sintetiche redatte, runtime non conforme e testi o sorgenti mancanti o alterati. |
+| [scripts/tests/PublicationChecks/test_release_target.py](../../scripts/tests/PublicationChecks/test_release_target.py) | Verifica senza rete i controlli, la destinazione unica di tag e release e il ripiego DMG mantenendo il nome dell'asset, attraverso repository locali e comandi sostitutivi. |
+| [scripts/tests/PublicationChecks/test_update_archive.py](../../scripts/tests/PublicationChecks/test_update_archive.py) | Verifica il controllo ZIP reale con bundle sintetici, symlink, percorsi non sicuri, collisioni Unicode, header incoerenti e dimensioni eccessive. |
 
 | File | Responsabilità |
 |---|---|
@@ -1299,12 +1299,12 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [core/Tests/OortLibraryTests/SpotlightRowGeometryTests.swift](../../core/Tests/OortLibraryTests/SpotlightRowGeometryTests.swift) | Posto a schermo = camera più posto nella riga, tessere che restano ferme durante lo scorrimento, distanze costanti e quattro tessere di riserva ai bordi. |
 | [core/Tests/OortLibraryTests/TileMotionTests.swift](../../core/Tests/OortLibraryTests/TileMotionTests.swift) | Curve di bagliore, ring e riflesso; continuità a 60 Hz tra raffiche, pausa, verifica, riavvio e movimento ridotto. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/AppLocaleTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/AppLocaleTests.swift) | Preferenze, formati, traduzioni e nome Oort NX senza cambiare trofeo, argomenti o User-Agent. |
-| [Tests/PublicationChecks/test_check_guides.py](../../Tests/PublicationChecks/test_check_guides.py) | Le guide pubblicate passano; ogni regola rifiuta il suo errore. |
-| [Tests/PublicationChecks/test_localizations.py](../../Tests/PublicationChecks/test_localizations.py) | Rifiuto di cataloghi incompleti e bundle senza risorse. |
-| [Tests/PublicationChecks/test_vocabulary.py](../../Tests/PublicationChecks/test_vocabulary.py) | Prova le regole del vocabolario, il registro che può solo ridursi e le fonti lette per sistema. |
+| [scripts/tests/PublicationChecks/test_check_guides.py](../../scripts/tests/PublicationChecks/test_check_guides.py) | Le guide pubblicate passano; ogni regola rifiuta il suo errore. |
+| [scripts/tests/PublicationChecks/test_localizations.py](../../scripts/tests/PublicationChecks/test_localizations.py) | Rifiuto di cataloghi incompleti e bundle senza risorse. |
+| [scripts/tests/PublicationChecks/test_vocabulary.py](../../scripts/tests/PublicationChecks/test_vocabulary.py) | Prova le regole del vocabolario, il registro che può solo ridursi e le fonti lette per sistema. |
 | [DevelopmentProfileTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/DevelopmentProfileTests.swift) | Identità separate, copie e filtro dell’essai 2, sorgente intatta, symlink, sovrascrittura, sessioni e totali. |
 | [DevelopmentProfileEffectTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/DevelopmentProfileEffectTests.swift) | Isolamento Dev, staging e richieste esplicite. Verifica anche che la riconciliazione delle mod conservi record e overlay dopo un errore di lettura. |
-| [test_profile_boundaries.py](../../Tests/PublicationChecks/test_profile_boundaries.py) | Guardia contro percorsi/defaults del launcher non centralizzati. |
+| [test_profile_boundaries.py](../../scripts/tests/PublicationChecks/test_profile_boundaries.py) | Guardia contro percorsi/defaults del launcher non centralizzati. |
 | [SteamKeyValuesTests.swift](../../core/Tests/OortLibraryTests/SteamKeyValuesTests.swift) | Formato, escape, Unicode, duplicati, input troncati e limiti del parser. |
 | [SteamPlaytimeReaderTests.swift](../../core/Tests/OortLibraryTests/SteamPlaytimeReaderTests.swift) | Campi letti, ultima partita, scelta dell’account, duplicati e tipi errati di blocchi/scalari, file grandi, malformati o non sicuri. |
 | [SteamPlaytimeBaselinesTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/SteamPlaytimeBaselinesTests.swift) | Base mantenuta o ripartita, minuto conservato, cambio account, salvataggio e mappatura sul catalogo. |
@@ -1431,7 +1431,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [SteamArtworkRequestTests.swift](../../core/Tests/OortLibraryTests/SteamArtworkRequestTests.swift) | Quadrato dall’icona originale e mai dalla copertina, scelta personale prima, link che escono dal bundle ignorati, icona automatica solo senza app. |
 | [SteamAutomaticIconTests.swift](../../core/Tests/OortLibraryTests/SteamAutomaticIconTests.swift) | Quadrato LaunchBox della voce PC preso intero, scaricato una volta e conservato; nessun quadrato non si richiede di nuovo nella sessione. |
 | [SteamBackdropChoiceTests.swift](../../core/Tests/OortLibraryTests/SteamBackdropChoiceTests.swift) | Solo arte in formato schermo, ordine store → screenshot → banner, fan art LaunchBox fra store e screenshot, ripiego sulla prima immagine che si carica. |
-| [test_app_bundle.py](../../Tests/PublicationChecks/test_app_bundle.py) | Verifica Game Mode, iniezione della coppia OAuth nel plist solo se completa e rifiuto delle variabili in pubblicazione. |
+| [test_app_bundle.py](../../scripts/tests/PublicationChecks/test_app_bundle.py) | Verifica Game Mode, iniezione della coppia OAuth nel plist solo se completa e rifiuto delle variabili in pubblicazione. |
 
 ## Script di sviluppo e packaging
 
@@ -1466,15 +1466,15 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [design/credits.css](../../design/credits.css) | Schede dei crediti per sito e Windows/Linux, solo con variabili generate. |
 | [design/oort-tokens.css](../../design/oort-tokens.css) | Copia CSS generata di `design/oort.tokens.json`. |
 | [scripts/generate_oort_tokens.py](../../scripts/generate_oort_tokens.py) | Controlla il contrasto e genera Swift e la sola voce Oort del catalogo. |
-| [Tests/PublicationChecks/test_oort_tokens.py](../../Tests/PublicationChecks/test_oort_tokens.py) | Prova generazione stabile, output obsoleti e contrasto insufficiente. |
+| [scripts/tests/PublicationChecks/test_oort_tokens.py](../../scripts/tests/PublicationChecks/test_oort_tokens.py) | Prova generazione stabile, output obsoleti e contrasto insufficiente. |
 | [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |
 | [scripts/generate_credits.py](../../scripts/generate_credits.py) | Copia i crediti in app, NOTICE e sito; le voci `noticeOnly` restano solo nel NOTICE. Fallisce se manca un credito o una copia differisce. |
 | [scripts/selene-token-debt.json](../../scripts/selene-token-debt.json) | Occorrenze letterali preesistenti per file e firma, escluse le misure già migrate ai token; le voci obsolete fanno fallire il controllo. |
-| [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
+| [scripts/tests/PublicationChecks/test_selene_tokens.py](../../scripts/tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
 | [scripts/check_ui_rules.py](../../scripts/check_ui_rules.py) | Misura menu, profondità, testi senza traduzione, misure e forme locali, nomi di accessibilità, ordine dei pulsanti, focus iniziale pericoloso e percorsi da tastiera e mouse; blocca il nuovo. |
 | [scripts/ui-rules.json](../../scripts/ui-rules.json) | Superfici contate, valori, righe di pulsanti note, percorsi dichiarati di mouse e tastiera, parti non misurate e debito che può solo diminuire. |
 | [Tests/UIRulesChecks/test_ui_rules.py](../../Tests/UIRulesChecks/test_ui_rules.py) | Prove negative di ogni regola e coerenza fra controllo, criteri e skill. |
-| [Tests/PublicationChecks/test_credits.py](../../Tests/PublicationChecks/test_credits.py) | Prova che una dipendenza senza credito, un NOTICE o un sito diversi falliscono. |
+| [scripts/tests/PublicationChecks/test_credits.py](../../scripts/tests/PublicationChecks/test_credits.py) | Prova che una dipendenza senza credito, un NOTICE o un sito diversi falliscono. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |
 

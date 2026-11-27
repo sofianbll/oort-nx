@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/check_localizations.py'
+SCRIPT = Path(__file__).resolve().parents[3] / 'scripts/check_localizations.py'
 
 
 class LocalizationChecks(unittest.TestCase):

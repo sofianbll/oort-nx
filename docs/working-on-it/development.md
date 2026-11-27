@@ -267,7 +267,7 @@ These are distribution decisions. Do not bypass the dirty-tree check, change the
 | `apps/mac/OortMac/` | App entry, coordination, SwiftUI screens, theme and macOS integration. |
 | `core/Tests/OortLibraryTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `NXLibraryCore`. |
 | `engines/nxnative/Tests/NxnativeAdapterTests/` | Automated regressions of every file that uses the `ArcanePorting` module. |
-| `Tests/PublicationChecks/` | Publication-guard regressions. |
+| `scripts/tests/PublicationChecks/` | Publication-guard regressions. |
 | `Resources/` | App icon, fonts, interface media and their notices. |
 | `scripts/` | Runtime preparation, app packaging, installation helpers, release packaging and publication checks. |
 | `docs/` | Current guides, audits, dated designs and engine-adoption evidence. |

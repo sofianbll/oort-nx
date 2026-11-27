@@ -9,7 +9,7 @@ import zipfile
 import zlib
 
 
-SCRIPT = pathlib.Path(__file__).resolve().parents[2] / "scripts" / "validate_update.py"
+SCRIPT = pathlib.Path(__file__).resolve().parents[3] / "scripts" / "validate_update.py"
 
 
 class UpdateArchiveTests(unittest.TestCase):
