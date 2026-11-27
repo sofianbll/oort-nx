@@ -15,6 +15,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import names as package_names  # noqa: E402  architecture/names.json
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "design/credits.json"
 ART = "Resources/Brands/Credits"
@@ -202,7 +205,9 @@ def dependencies():
                 add("palette:" + family, "Resources/Selene/palettes.json")
     if (ROOT / "LICENSE").is_file():
         add("file:LICENSE", "LICENSE")
-    code = [n for n in names if re.match(r"(Sources|mobile/Sources|mobile/App|android/app/src/main|desktop/src-tauri/src|desktop/ui)/", n)
+    modules = tuple(module["path"] + "/" for module in package_names.MODULES.values())
+    code = [n for n in names if (n.startswith(modules)
+                                 or re.match(r"(mobile/Sources|mobile/App|android/app/src/main|desktop/src-tauri/src|desktop/ui)/", n))
             and n.endswith((".swift", ".kt", ".rs", ".js", ".m", ".h")) and "/gen/" not in n]
     for name in code:
         text = read(ROOT / name)

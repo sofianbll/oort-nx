@@ -2,13 +2,19 @@ from pathlib import Path
 import re
 import unittest
 
+import sys
+
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 
 class ProfileBoundaries(unittest.TestCase):
     def test_launcher_storage_and_default_preferences_are_centralized(self):
         unexpected = []
-        for file in (ROOT / 'Sources').rglob('*.swift'):
+        files = [file for module in names.MODULES.values() for file in (ROOT / module['path']).rglob('*.swift')]
+        self.assertTrue(files)
+        for file in files:
             if file.name == 'AppDataProfile.swift':
                 continue
             source = file.read_text()

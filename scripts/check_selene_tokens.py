@@ -10,6 +10,9 @@ import subprocess
 import sys
 import tarfile
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import names  # noqa: E402  architecture/names.json
+
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "scripts/selene-token-debt.json"
 TOKENS = {"Sources/NXLibraryCore/Selene/SeleneTokens.swift"}
@@ -97,7 +100,7 @@ def scan(root=ROOT):
     return {
         relative: list(literals(path.read_text(), styles=relative.startswith(VIEWS) and not relative.startswith(LIBRARY)
                                 and relative != FONTS))
-        for path in sorted((root / "Sources").rglob("*.swift"))
+        for path in sorted(file for module in names.MODULES.values() for file in (root / module["path"]).rglob("*.swift"))
         if (relative := path.relative_to(root).as_posix()) not in TOKENS
     }
 

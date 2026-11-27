@@ -31,10 +31,20 @@ final class ArcaneNameTests: XCTestCase {
         XCTAssertEqual(AppIdentity.documentationPage.absoluteString, "https://github.com/sofianbll/oort-nx#readme")
     }
 
+    /// Every module folder of the package, as architecture/names.json declares them.
+    private func moduleFolders() throws -> [URL] {
+        let data = try Data(contentsOf: repository.appendingPathComponent("architecture/names.json"))
+        let names = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let modules = try XCTUnwrap(names["modules"] as? [String: [String: Any]])
+        return try modules.values.map { try XCTUnwrap($0["path"] as? String) }.map(repository.appendingPathComponent)
+    }
+
     func testNoSourceSendsTheOldUserAgent() throws {
-        let sources = repository.appendingPathComponent("Sources")
-        let files = FileManager.default.enumerator(at: sources, includingPropertiesForKeys: nil)?
-            .compactMap { $0 as? URL }.filter { $0.pathExtension == "swift" } ?? []
+        let files = try moduleFolders().flatMap { folder in
+            FileManager.default.enumerator(at: folder, includingPropertiesForKeys: nil)?
+                .compactMap { $0 as? URL }.filter { $0.pathExtension == "swift" } ?? []
+        }
+        XCTAssertFalse(files.isEmpty)
         let offenders = try files.filter { try String(contentsOf: $0, encoding: .utf8).contains("\"NXLibrary/") }
             .map(\.lastPathComponent)
         XCTAssertEqual(offenders, [])

@@ -39,6 +39,9 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import names  # noqa: E402  architecture/names.json
+
 ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "scripts/ui-rules.json"
 MAX_ENTRIES, MAX_DEPTH = 5, 2
@@ -183,16 +186,21 @@ class Tree:
         return Source((self.root / relative).read_text(encoding="utf-8"))
 
     @lru_cache(maxsize=None)
-    def files(self, prefix="Sources"):
+    def files(self, prefix):
         base = self.root / prefix
         return [path.relative_to(self.root).as_posix() for path in sorted(base.rglob("*.swift"))
                 if not NOT_SHIPPED.search(path.name) and ".build" not in path.parts] if base.is_dir() else []
 
     @lru_cache(maxsize=None)
+    def swift(self):
+        """Every shipped Swift file of the package's modules (architecture/names.json)."""
+        return [relative for module in names.MODULES.values() for relative in self.files(module["path"])]
+
+    @lru_cache(maxsize=None)
     def enums(self):
         """Every enum by name, with its cases. The same name twice is kept apart by file."""
         found = defaultdict(dict)
-        for relative in self.files("Sources") + self.files("mobile"):
+        for relative in self.swift() + self.files("mobile"):
             source = self.source(relative)
             for match in re.finditer(r"\benum\s+(\w+)[^{]*\{", source.code):
                 start = match.end() - 1
@@ -208,7 +216,7 @@ class Tree:
     def declaring(self, type_name, pattern):
         """The file where a type (or its extension) declares a member."""
         head = re.compile(rf"\b(?:enum|struct|class|extension)\s+{type_name}\b")
-        for relative in self.files("Sources"):
+        for relative in self.swift():
             source = self.source(relative)
             if head.search(source.code) and re.search(pattern, source.code): return relative
         return None
@@ -423,7 +431,7 @@ def check_texts(tree, rules, found):
     if not path.is_file(): return
     strings = json.loads(path.read_text(encoding="utf-8"))["strings"]
     english = rules["english"]
-    for relative in tree.files("Sources"):
+    for relative in tree.swift():
         source = tree.source(relative)
         for start, _, raw, interpolated in source.strings:
             before, value = source.code[max(0, start - 160):start], unescape(raw)
