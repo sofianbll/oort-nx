@@ -22,9 +22,9 @@ description: Start here for any change to Oort NX, before writing code. Decides 
    | A rule a player sees the effect of: an order, a filter, a default, an error message, a name | both |
 
 3. Read G1–G10 in [change-criteria](../../../docs/working-on-it/change-criteria.md), then the rows of the skill. A row is met, not concerned with its reason, or a gap with its reason. Never blank.
-4. Run the base before the change: `python3 scripts/check_ui_rules.py`, `check_selene_tokens.py`, `check_localizations.py`, `check_publication.py`, and the tests of the area. Keep the output.
+4. Run the base before the change: `scripts/check` and the tests of the area. Keep the output.
 5. Make the change with the skill open. Two repairs per problem at most, then stop and report.
-6. Run the same commands after. Debt lists only shrink: `check_ui_rules.py --base <base>` and `check_selene_tokens.py --base <base>`.
+6. Run the same commands after, with `scripts/check --base <base>`: debt lists only shrink.
 7. Fill the checklist below in the pull request.
 
 ## Proof

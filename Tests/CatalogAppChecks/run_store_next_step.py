@@ -8,6 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from probe_visible import install, text_render
 from run_cloud_screens import HOST, ROOT, build_probe, change
 
 SCENARIOS = r'''
@@ -131,14 +132,11 @@ extension CloudArtifactStatus {
 }
 ''')
         render = re.search(r"    @MainActor static func render<V: View>.*", HOST, flags=re.S).group()
-        render = render.replace("try png.write(to: output.appendingPathComponent(name + \".png\"))",
-                                'let imageURL = output.appendingPathComponent(name + ".png")\n'
-                                '        try png.write(to: imageURL)\n'
-                                '        if name.hasSuffix("-1120") { try saveProbeText(renderer, beside: imageURL) }')
+        render = text_render(render, only='name.hasSuffix("-1120")')
         text_checks = (Path(__file__).parent / "StoreNextStepText.swift").read_text()
         (app / "StoreNextStepProbe.swift").write_text(
             HOST.split("        // SCENARIO")[0] + SCENARIOS + render + text_checks)
-        shutil.copyfile(Path(__file__).with_name("ProbeRenderedText.swift"), app / "ProbeRenderedText.swift")
+        install(app)
         subprocess.run([str(build_probe(package)),
                         str(output), str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png")], check=True,

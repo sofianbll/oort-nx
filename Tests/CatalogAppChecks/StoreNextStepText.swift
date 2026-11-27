@@ -24,8 +24,9 @@ func checkNextStepText(_ output: URL) throws {
             .replacingOccurrences(of: "’", with: "'")
         let missing = expected.filter { !screen.contains($0) }
         let found = unexpected.filter { screen.contains($0) }
-        guard missing.isEmpty && found.isEmpty else {
-            FileHandle.standardError.write(Data("\(state): missing \(missing); unexpected \(found)\n\(screen)\n".utf8))
+        let hidden = assertVisible(output, name: state + "-1120", expected)
+        guard missing.isEmpty && found.isEmpty && hidden.isEmpty else {
+            FileHandle.standardError.write(Data("\(state): missing \(missing); unexpected \(found); not visible \(hidden)\n\(screen)\n".utf8))
             exit(1)
         }
     }

@@ -65,7 +65,7 @@ jobs:
           batches="$(python3 scripts/ci_catalog_checks.py matrix)"
           echo "batches=$batches" >> "$GITHUB_OUTPUT"
 
-  # Always runs: publication, translations, tokens, module boundaries, interface rules, vocabulary, guides and the Python checks.
+  # Always runs every rule of scripts/check (`scripts/check --list`); on a pull request, debt lists may only shrink.
   checks:
     name: Mac / checks
     runs-on: xcode-27
@@ -77,29 +77,12 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 2
-      - name: Publication inputs
+      - name: Rules
+        env:
+          EVENT: ${{ github.event_name }}
         run: |
           xcodebuild -version
-          python3 scripts/check_publication.py
-          python3 scripts/check_localizations.py
-          python3 scripts/generate_oort_tokens.py --check
-          python3 scripts/check_selene_tokens.py
-          python3 scripts/check_module_boundaries.py
-          python3 scripts/check_ui_rules.py
-          python3 scripts/check_vocabulary.py
-          python3 scripts/check_guides.py
-      - name: Python checks
-        run: |
-          python3 -m unittest discover -s Tests/PublicationChecks
-          python3 -m unittest discover -s Tests/ModuleChecks
-          python3 -m unittest discover -s Tests/SkillChecks
-          python3 -m unittest discover -s Tests/CIChecks
-          python3 -m unittest discover -s Tests/UIRulesChecks
-      - name: Debt lists can only shrink
-        if: github.event_name == 'pull_request'
-        run: |
-          python3 scripts/check_selene_tokens.py --base HEAD^1
-          python3 scripts/check_ui_rules.py --base HEAD^1
+          if [ "$EVENT" = pull_request ]; then python3 scripts/check --base HEAD^1; else python3 scripts/check; fi
 
   swift-debug:
     name: Mac / Swift unit tests
@@ -114,9 +97,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Swift tests
-        run: |
-          home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
-          HOME="$home" CFFIXED_USER_HOME="$home" swift test --jobs 6
+        run: python3 scripts/check swift
 
   swift-shared:
     name: Mac / shared app probes
@@ -131,9 +112,9 @@ jobs:
         with:
           persist-credentials: false
       - name: Build the shared Debug app
-        run: swift build --jobs 6 --product NXLibrary
+        run: python3 scripts/check app-build
       - name: Application regressions without UI
-        run: python3 scripts/ci_catalog_checks.py debug
+        run: python3 scripts/check app-probes debug
 
   swift-app:
     name: Mac / standalone app probes (${{ matrix.batch }})
@@ -168,7 +149,7 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           echo "OORT_PROBE_OCR=$PWD/read.cjs" >> "$GITHUB_ENV"
       - name: Application regressions without UI
-        run: python3 scripts/ci_catalog_checks.py "${{ matrix.batch }}"
+        run: python3 scripts/check app-probes "${{ matrix.batch }}"
 
   swift-release:
     name: Mac / Release compilation
@@ -183,7 +164,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Release compilation
-        run: swift build -c release --product NXLibrary
+        run: python3 scripts/check release-build
 
   swift:
     # Keep the same required check name and require every batch to pass.

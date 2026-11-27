@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 27 novembre 2026. Il repository versiona **1652 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 27 novembre 2026. Il repository versiona **1666 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1037,17 +1037,30 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
+| [scripts/check](../../scripts/check) | Unico ingresso dei controlli, usato dalla CI e dalla documentazione: ogni regola (R1–R13 pronte), `--base` per i debiti che possono solo ridursi, `--list` con i test rossi di ogni regola, e i passi pesanti (`swift`, `app-build`, `app-probes`, `release-build`). |
+| [scripts/generate](../../scripts/generate) | Unico ingresso dei file generati (token, crediti); `--check` rifiuta un'uscita non aggiornata o modificata a mano. |
+| [scripts/repo_model.py](../../scripts/repo_model.py) | Legge da `architecture/structure.c4` le cartelle dichiarate, i file della radice e le cartelle di documentazione. |
+| [scripts/check_structure.py](../../scripts/check_structure.py) | R1: rifiuta un file della radice o una cartella di primo o secondo livello non dichiarati, e una dichiarazione senza file. |
+| [scripts/check_docs.py](../../scripts/check_docs.py) | R8: `.md` solo nelle cartelle di documentazione, link relativi risolti, nessun marcatore privato nuovo. |
+| [scripts/private-markers.json](../../scripts/private-markers.json) | Marcatori privati vietati nei `.md` e file che li contengono già; l'elenco può solo ridursi. |
+| [scripts/check_probes.py](../../scripts/check_probes.py) | R13: una sonda che legge il testo reso deve provarne la visibilità con `assertVisible`. |
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
 | [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge i livelli dal modello LikeC4, li confronta con SwiftPM e verifica gli import. |
 | [architecture/likec4.config.json](../../architecture/likec4.config.json) | Configurazione del progetto LikeC4. |
 | [architecture/spec.c4](../../architecture/spec.c4) | Tipi di elementi del modello. |
 | [architecture/model.c4](../../architecture/model.c4) | Sistemi, livelli Swift e responsabilità dei domini. |
+| [architecture/structure.c4](../../architecture/structure.c4) | Cartelle e file della radice del repository, e dove può stare la documentazione; letto da `scripts/check`. |
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
 | [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [Tests/CIChecks/test_catalog_checks.py](../../Tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
+| [Tests/RepoChecks/support.py](../../Tests/RepoChecks/support.py) | Repository Git usa e getta per i controlli del repository. |
+| [Tests/RepoChecks/test_structure.py](../../Tests/RepoChecks/test_structure.py) | Esempi rossi di R1: cartella, sottocartella e file non dichiarati, dichiarazione senza file. |
+| [Tests/RepoChecks/test_docs.py](../../Tests/RepoChecks/test_docs.py) | Esempi rossi di R8: documentazione fuori posto, link morto, marcatore privato, eccezione nuova o superata. |
+| [Tests/RepoChecks/test_probes.py](../../Tests/RepoChecks/test_probes.py) | Esempio rosso di R13: una sonda che legge il testo del PDF senza `assertVisible`. |
+| [Tests/RepoChecks/test_check.py](../../Tests/RepoChecks/test_check.py) | Elenco delle regole, nome sconosciuto, un errore che fa fallire la corsa e uscita generata non aggiornata. |
 | [docs/working-on-it/architecture-map.md](architecture-map.md) | Collegamento al modello, controlli e dove mettere il codice. |
 | [docs/working-on-it/branch-rules.md](branch-rules.md) | Regole proposte per rami, tag e controlli richiesti; nessuna applicata su GitHub. |
 | [.agents/skills/oort-contribute/SKILL.md](../../.agents/skills/oort-contribute/SKILL.md) | Prepara un contributo: sistema, controlli, dati privati, bozza di pull request. |
@@ -1359,8 +1372,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_reference.py](../../Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
 | [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. Identifica il PNG se Vision non riesce a leggerlo. |
 | [run_store_next_step.py](../../Tests/CatalogAppChecks/run_store_next_step.py) | Rende le prossime azioni e gli stati passivi di Details in francese su dati sintetici. |
-| [StoreNextStepText.swift](../../Tests/CatalogAppChecks/StoreNextStepText.swift) | Legge il testo del PDF della sonda Details e verifica testi, origine e assenza di misure ripetute. |
-| [ProbeRenderedText.swift](../../Tests/CatalogAppChecks/ProbeRenderedText.swift) | Legge il testo disegnato dal renderer SwiftUI in un PDF accanto al PNG, senza Vision. |
+| [StoreNextStepText.swift](../../Tests/CatalogAppChecks/StoreNextStepText.swift) | Legge il testo del PDF della sonda Details, verifica testi, origine e assenze, e prova con `assertVisible` che i testi attesi si vedono. |
+| [ProbeRenderedText.swift](../../Tests/CatalogAppChecks/ProbeRenderedText.swift) | Salva il PDF accanto al PNG e tiene in memoria il rendering con i testi oscurati; `assertVisible` prova dai pixel che un testo è nel riquadro, in primo piano e contrastato, con un autotest di quattro esempi rossi. |
+| [probe_visible.py](../../Tests/CatalogAppChecks/probe_visible.py) | Collega `assertVisible` alla funzione di rendering di una sonda, con la soglia di contrasto del testo dei token. |
 | [ocr/read.cjs](../../Tests/CatalogAppChecks/ocr/read.cjs) | Legge i PNG delle finestre AppKit nascoste con OCR su CPU e modelli locali. |
 | [ocr/package.json](../../Tests/CatalogAppChecks/ocr/package.json), [ocr/package-lock.json](../../Tests/CatalogAppChecks/ocr/package-lock.json) | Dipendenze e integrità dei soli strumenti OCR di test. |
 | [run_cloud_personal_update.py](../../Tests/CatalogAppChecks/run_cloud_personal_update.py) | Esercita l’offerta personale, la conferma e le copie sostituite o conservate tramite un cloud e bundle sintetici. |

@@ -17,7 +17,7 @@ These rules apply to work on Sofian's fork. They override the upstream rules bel
 - **Compose** OortUI components with content, state and named presets.
 - **Style** only inside OortUI; screens never define component styles.
 - **Request** a named preset when an existing preset does not fit.
-- **Check** with `python3 scripts/check_selene_tokens.py --base HEAD`; prune obsolete allowances.
+- **Check** with `scripts/check --base HEAD interface`; prune obsolete allowances.
 - **Protect existing data.** Follow the fork rules for Trash, replacement and cloud access. Get explicit approval before deleting or moving real data, changing live settings or cloud state, or installing/replacing Arcane. Use Arcane Dev or a separate signed test artifact; never overwrite a running build or use the installed release as an agent's test target.
 - **Engine and releases.** Develop nxnative changes in the engine fork, not in the installed or certified checkout. Build from a clean tree. Oort NX uses its own `MAJOR.MINOR.PATCH` and pins the tested engine fork URL and exact commit, never a branch tip. Follow [fork packaging](docs/working-on-it/development.md#publication-perso-sofian); prepare French notes and verify the local artifact before asking for release approval.
 - **Separate approvals.** Preparing or testing does not authorize a push, tag push, public release, PR or public comment. Get explicit approval for the external action, and separate approval for a live installation or each real game rebuild. Review generic upstream contributions on the upstream base after real validation; strip fork-only changes and private data.
@@ -95,7 +95,8 @@ Name a work branch `feat/<topic>`, `fix/<topic>`, `docs/<topic>` or `chore/<topi
 The user performs interactive app and game checks. Never use computer-use tools or other UI automation. Agents run automated tests and build/install the app, then report any manual checks that remain.
 
 ```bash
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
+scripts/check
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer scripts/check swift
 bash scripts/build_app.sh
 codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 ```

@@ -1,0 +1,116 @@
+// The repository's folders, declared once. scripts/check_structure.py reads every `path` and the root `files`
+// and refuses a first- or second-level folder, or a root file, that is not declared here. A folder marked
+// `markdown "yes"` may hold documentation; scripts/check_docs.py refuses a .md file anywhere else.
+// The target layout replaces this tree folder by folder (Sofian's validated plan); update both in one change.
+specification {
+  element repository { style { color slate; border dashed; opacity 8% } }
+  element folder { style { color slate; size sm } }
+}
+
+model {
+  repo = repository "oort-nx" {
+    summary "What main holds today"
+    metadata {
+      files "AGENTS.md CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md DESIGN.md GLOSSARY.md LICENSE NOTICE PLAYER-GUIDE.fr.md PLAYER-GUIDE.md PRODUCT.md Package.swift README.fr.md README.md SECURITY.md VERSION runtime.lock .gitattributes .gitignore"
+      markdown "yes"
+    }
+
+    sources = folder "Sources/" {
+      summary "Swift modules (Package.swift)"
+      metadata { path "Sources" }
+      srcOortCore = folder "OortCore/" { metadata { path "Sources/OortCore" } }
+      srcLibraryCore = folder "NXLibraryCore/" { metadata { path "Sources/NXLibraryCore" } }
+      srcPorting = folder "ArcanePorting/" { metadata { path "Sources/ArcanePorting" } }
+      srcMac = folder "NXLibrary/" { metadata { path "Sources/NXLibrary" } }
+    }
+
+    tests = folder "Tests/" {
+      summary "Swift tests, app probes, Python checks"
+      metadata { path "Tests" }
+      testOortCore = folder "OortCoreTests/" { metadata { path "Tests/OortCoreTests" } }
+      testLibraryCore = folder "NXLibraryCoreTests/" { metadata { path "Tests/NXLibraryCoreTests" } }
+      testPorting = folder "ArcanePortingTests/" { metadata { path "Tests/ArcanePortingTests" } }
+      testProbes = folder "CatalogAppChecks/" { metadata { path "Tests/CatalogAppChecks" } }
+      testCI = folder "CIChecks/" { metadata { path "Tests/CIChecks" } }
+      testModules = folder "ModuleChecks/" { metadata { path "Tests/ModuleChecks" } }
+      testPublication = folder "PublicationChecks/" { metadata { path "Tests/PublicationChecks" } }
+      testRepo = folder "RepoChecks/" { metadata { path "Tests/RepoChecks" } }
+      testSkills = folder "SkillChecks/" { metadata { path "Tests/SkillChecks" } }
+      testUIRules = folder "UIRulesChecks/" { metadata { path "Tests/UIRulesChecks" } }
+    }
+
+    resources = folder "Resources/" {
+      summary "Icons, brands, Selene media, sounds, third-party licences"
+      metadata {
+        path "Resources"
+        markdown "yes"
+      }
+      resIcon = folder "AppIcon.icon/" { metadata { path "Resources/AppIcon.icon" } }
+      resIconParticles = folder "AppIconParticles.icon/" { metadata { path "Resources/AppIconParticles.icon" } }
+      resBrands = folder "Brands/" { metadata { path "Resources/Brands" } }
+      resSelene = folder "Selene/" { metadata { path "Resources/Selene" } }
+      resSounds = folder "SoundPacks/" { metadata { path "Resources/SoundPacks" } }
+      resLicences = folder "ThirdPartyLicenses/" { metadata { path "Resources/ThirdPartyLicenses" } }
+    }
+
+    design = folder "design/" {
+      summary "Tokens, vocabulary, credits"
+      metadata { path "design" }
+    }
+
+    docs = folder "docs/" {
+      summary "Public documentation, guides, history"
+      metadata {
+        path "docs"
+        markdown "yes"
+      }
+      docAdr = folder "adr/" { metadata { path "docs/adr" } }
+      docGuides = folder "guides/" { metadata { path "docs/guides" } }
+      docHistory = folder "history/" { metadata { path "docs/history" } }
+      docHowItWorks = folder "how-it-works/" { metadata { path "docs/how-it-works" } }
+      docMedia = folder "media/" { metadata { path "docs/media" } }
+      docWorkingOnIt = folder "working-on-it/" { metadata { path "docs/working-on-it" } }
+    }
+
+    architecture = folder "architecture/" {
+      summary "This model"
+      metadata { path "architecture" }
+    }
+
+    scripts = folder "scripts/" {
+      summary "check, generate and the scripts they run"
+      metadata { path "scripts" }
+    }
+
+    github = folder ".github/" {
+      summary "CI, issue forms"
+      metadata {
+        path ".github"
+        markdown "yes"
+      }
+      ghTemplates = folder "ISSUE_TEMPLATE/" { metadata { path ".github/ISSUE_TEMPLATE" } }
+      ghWorkflows = folder "workflows/" { metadata { path ".github/workflows" } }
+    }
+
+    agents = folder ".agents/" {
+      summary "Repository skills"
+      metadata {
+        path ".agents"
+        markdown "yes"
+      }
+      agentSkills = folder "skills/" { metadata { path ".agents/skills" } }
+    }
+  }
+}
+
+views {
+  view structure of repo {
+    title "4 · Le dépôt aujourd’hui"
+    description '''
+      Every first-level folder of main. A folder or root file missing here fails scripts/check (R1).
+      [[view:index|Écosystème]]
+    '''
+    include repo, repo.*
+    autoLayout TopBottom 50 30
+  }
+}

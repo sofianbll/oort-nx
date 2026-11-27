@@ -81,6 +81,11 @@ def check_files(root):
         data = file.read_bytes()
         if b"\0" not in data[:8192] and any(pattern.search(data) for pattern in SECRET_PATTERNS):
             issues.append("Possible secret material: " + name)
+    # The licence ships in the app; its reviewed digest is the one in the bundle manifest.
+    licence = root / "LICENSE"
+    if isinstance(expected.get("LICENSE"), str) and (
+            not licence.is_file() or hashlib.sha256(licence.read_bytes()).hexdigest() != expected["LICENSE"]):
+        issues.append("LICENSE differs from its reviewed digest in scripts/bundle-licences.json.")
     return issues
 
 

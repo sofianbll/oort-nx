@@ -112,19 +112,16 @@ build without this flag would open the app, so build first.
 ## Verification
 
 ~~~sh
-python3 scripts/check_publication.py
-python3 scripts/check_localizations.py
-python3 scripts/generate_oort_tokens.py --check
-python3 scripts/generate_credits.py --check
-python3 -m unittest discover -s Tests/PublicationChecks
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
-for check in Tests/CatalogAppChecks/run_*.py; do DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer python3 "$check" || break; done
+scripts/check
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+scripts/check swift
+scripts/check app-build && scripts/check app-probes debug   # then batches 1 to 7 (scripts/ci_catalog_checks.py matrix)
 bash scripts/build_app.sh
 codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 ~~~
 
-Edit `design/oort.tokens.json`, then run `python3 scripts/generate_oort_tokens.py`
-and commit the three generated outputs (Swift, CSS, palettes). The generator checks contrast on opaque
+`scripts/check --list` names every rule and its tests. Edit `design/oort.tokens.json`, then run `scripts/generate`
+and commit the generated outputs (Swift, CSS, palettes). The generator checks contrast on opaque
 default Oort surfaces, not artwork or other palettes. The 26 px distance
 reference is rendered glyph height at 1080p, not a 26-point SwiftUI font.
 

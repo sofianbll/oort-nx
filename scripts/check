@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Run the repository's checks. CI calls this file and nothing else for checks; the docs cite it.
+
+  scripts/check                 every rule (what the "Mac / checks" job runs)
+  scripts/check --base REF      the same; debt lists may only shrink against REF (pull requests)
+  scripts/check NAME [ARG]      one rule, or one heavy step below
+  scripts/check --list          each rule with its commands and the tests that prove it can fail
+
+Heavy steps, run by name only: swift (every Swift test, in a temporary HOME), app-build (the Debug app),
+app-probes BATCH (the screen probes, see scripts/ci_catalog_checks.py), release-build.
+"""
+import os
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PY = sys.executable
+
+
+def script(name, *args):
+    return [PY, f"scripts/{name}", *args]
+
+
+def python_tests(_base):
+    folders = sorted({path.parent for path in ROOT.glob("Tests/*/test_*.py")})
+    return [[PY, "-m", "unittest", "discover", "-s", folder.relative_to(ROOT).as_posix()] for folder in folders]
+
+
+# name, rule, what it holds, commands (given --base or None), tests that make it fail on purpose
+RULES = [
+    ("structure", "R1", "Every root file and first- and second-level folder is declared in architecture/structure.c4",
+     lambda base: [script("check_structure.py")],
+     "Tests/RepoChecks/test_structure.py"),
+    ("boundaries", "R2", "Swift modules import only lower layers (architecture/model.c4)",
+     lambda base: [script("check_module_boundaries.py")],
+     "Tests/ModuleChecks"),
+    ("generated", "R4", "Every generated file matches its source (scripts/generate --check)",
+     lambda base: [script("generate", "--check")],
+     "Tests/PublicationChecks/test_oort_tokens.py, test_credits.py; Tests/RepoChecks/test_check.py"),
+    ("strings", "R5", "Translations are complete and every system keeps the shared vocabulary",
+     lambda base: [script("check_localizations.py"), script("check_vocabulary.py")],
+     "Tests/PublicationChecks/test_localizations.py, test_vocabulary.py"),
+    ("interface", "", "Measurable interface rules and Selene tokens; their debt lists only shrink",
+     lambda base: [script("check_ui_rules.py"), script("check_selene_tokens.py")]
+     + ([script("check_ui_rules.py", "--base", base), script("check_selene_tokens.py", "--base", base)] if base else []),
+     "Tests/UIRulesChecks, Tests/PublicationChecks/test_selene_tokens.py"),
+    ("docs", "R8", "Docs only in documentation folders, links resolve, no private marker; player guides",
+     lambda base: [script("check_docs.py", *(["--base", base] if base else [])), script("check_guides.py")],
+     "Tests/RepoChecks/test_docs.py, Tests/PublicationChecks/test_check_guides.py, Tests/SkillChecks"),
+    ("publication", "R10", "No private or game file, no secret; LICENSE keeps its reviewed digest",
+     lambda base: [script("check_publication.py")],
+     "Tests/PublicationChecks/test_publication.py"),
+    ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible",
+     lambda base: [script("check_probes.py")],
+     "Tests/RepoChecks/test_probes.py; the visibility self-test in Tests/CatalogAppChecks/ProbeRenderedText.swift"),
+    ("python", "", "The Python tests of every check (each Tests/*/test_*.py folder)",
+     python_tests,
+     "themselves"),
+]
+
+
+def heavy(name, arg):
+    if name == "swift":
+        home = tempfile.mkdtemp(prefix="oort-home-")
+        return [["swift", "test", "--jobs", "6"]], {"HOME": home, "CFFIXED_USER_HOME": home}
+    if name == "app-build":
+        return [["swift", "build", "--jobs", "6", "--product", "NXLibrary"]], {}
+    if name == "app-probes" and arg:
+        return [script("ci_catalog_checks.py", arg)], {}
+    if name == "release-build":
+        return [["swift", "build", "-c", "release", "--product", "NXLibrary"]], {}
+    return None
+
+
+def run(label, commands, env=None):
+    started = time.monotonic()
+    print(f"== {label}", flush=True)
+    failed = [command for command in commands
+              if subprocess.run(command, cwd=ROOT, env=dict(os.environ, **(env or {}))).returncode]
+    for command in failed:
+        print(f"FAILED: {' '.join(command)}", flush=True)
+    print(f"-- {label}: {'FAILED' if failed else 'ok'} ({time.monotonic() - started:.0f} s)", flush=True)
+    return not failed
+
+
+def main(argv):
+    if argv == ["--list"]:
+        for name, rule, what, commands, tests in RULES:
+            print(f"{rule or '--':>3}  {name}: {what}")
+            for command in commands("REF"):
+                print("       " + " ".join(part.replace(PY, "python3") for part in command))
+            print(f"       red examples: {tests}")
+        print("Heavy steps: swift, app-build, app-probes BATCH, release-build")
+        return 0
+    base = None
+    if argv[:1] == ["--base"]:
+        if len(argv) < 2:
+            print(__doc__.strip(), file=sys.stderr)
+            return 2
+        base, argv = argv[1], argv[2:]
+    rules = {name: (rule, commands) for name, rule, _, commands, _ in RULES}
+    if not argv:
+        results = [run(f"{rule} {name}".strip(), commands(base)) for name, (rule, commands) in rules.items()]
+        print(f"{sum(results)}/{len(results)} rules passed")
+        return 0 if all(results) else 1
+    name, arg = argv[0], (argv[1] if len(argv) > 1 else None)
+    if name in rules and len(argv) == 1:
+        rule, commands = rules[name]
+        return 0 if run(f"{rule} {name}".strip(), commands(base)) else 1
+    step = heavy(name, arg)
+    if step is None or len(argv) > 2:
+        print(__doc__.strip(), file=sys.stderr)
+        return 2
+    commands, env = step
+    return 0 if run(" ".join(argv), commands, env) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

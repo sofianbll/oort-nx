@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""Write every generated file from its source. The only way to regenerate; scripts/check runs it with --check.
+
+  scripts/generate            write the outputs
+  scripts/generate --check    fail when an output is stale or was edited by hand (rule R4)
+  scripts/generate --list     show each generator, its source and its outputs
+"""
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# (generator, source, outputs). A generator accepts --check.
+GENERATORS = [
+    ("scripts/generate_oort_tokens.py", "design/oort.tokens.json, Resources/Selene/palettes.json",
+     "Sources/NXLibraryCore/Selene/SeleneTokens.swift, design/oort-tokens.css, the default palette"),
+    ("scripts/generate_credits.py", "design/credits.json",
+     "the generated block of NOTICE, Sources/NXLibraryCore/Resources/credits.json, and the copies of each app it finds"),
+]
+
+
+def main(argv):
+    if argv not in ([], ["--check"], ["--list"]):
+        print(__doc__.strip(), file=sys.stderr)
+        return 2
+    if argv == ["--list"]:
+        for script, source, outputs in GENERATORS:
+            print(f"{script}\n  reads   {source}\n  writes  {outputs}")
+        return 0
+    failed = [script for script, _, _ in GENERATORS
+              if subprocess.run([sys.executable, str(ROOT / script), *argv], cwd=ROOT).returncode]
+    for script in failed:
+        print(f"FAILED {script} {' '.join(argv)}".rstrip())
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

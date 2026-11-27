@@ -1143,7 +1143,7 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 - `NX_TEST_ENGINE_REPO` permette al controllo dei messaggi del motore di usare un checkout separato; un valore esplicito non valido è un errore. Durante una revisione, `NX_TEST_ENGINE_COMMIT` seleziona l'hash completo del candidato prima di cambiare il pin; senza override il test controlla sempre il pin.
 
 ```bash
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer scripts/check swift
 bash scripts/build_app.sh
 codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 ```
