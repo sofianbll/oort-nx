@@ -213,22 +213,22 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 
 ## OortCore · logica portabile
 
-Cartella `Sources/OortCore/`, senza risorse né dipendenze.
+Cartella `core/OortCore/`, senza risorse né dipendenze.
 
 | File | Responsabilità |
 |---|---|
-| [ControllerInput.swift](../../Sources/OortCore/ControllerInput.swift) | Decodifica report Nintendo, calibra stick, calcola transizioni e decide il ripiego HID. |
-| [FocusIndex.swift](../../Sources/OortCore/FocusIndex.swift) | Mantiene un indice di focus entro i limiti della lista. |
-| [HoldDetector.swift](../../Sources/OortCore/HoldDetector.swift) | Distingue pressione breve, prolungata e annullata. |
-| [LineBuffer.swift](../../Sources/OortCore/LineBuffer.swift) | Ricompone righe parziali separate da `\n` o `\r`. |
-| [Credits.swift](../../Sources/OortCore/Credits.swift) | Legge `credits.json`: gruppi, ruoli e note legali per sistema e lingua. |
-| [MoonlightField.swift](../../Sources/OortCore/MoonlightField.swift) | Genera i dati delle particelle senza Metal; condivide `SplitMix` nel package per il cue Download. |
-| [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
-| [Palette.swift](../../Sources/OortCore/Palette.swift) | Cerca ovunque: confronto tollerante, gruppi, «Vedi tutto», focus e recenti. |
-| [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
-| [Engine.swift](../../Sources/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
-| [PlayReceipt.swift](../../Sources/OortCore/PlayReceipt.swift) | Identità del gesto, ricevuto e osservazioni portabili; nessuna identità di processo nel contratto. |
-| [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+| [ControllerInput.swift](../../core/OortCore/ControllerInput.swift) | Decodifica report Nintendo, calibra stick, calcola transizioni e decide il ripiego HID. |
+| [FocusIndex.swift](../../core/OortCore/FocusIndex.swift) | Mantiene un indice di focus entro i limiti della lista. |
+| [HoldDetector.swift](../../core/OortCore/HoldDetector.swift) | Distingue pressione breve, prolungata e annullata. |
+| [LineBuffer.swift](../../core/OortCore/LineBuffer.swift) | Ricompone righe parziali separate da `\n` o `\r`. |
+| [Credits.swift](../../core/OortCore/Credits.swift) | Legge `credits.json`: gruppi, ruoli e note legali per sistema e lingua. |
+| [MoonlightField.swift](../../core/OortCore/MoonlightField.swift) | Genera i dati delle particelle senza Metal; condivide `SplitMix` nel package per il cue Download. |
+| [MoveDirection.swift](../../core/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
+| [Palette.swift](../../core/OortCore/Palette.swift) | Cerca ovunque: confronto tollerante, gruppi, «Vedi tutto», focus e recenti. |
+| [ProfileKeypad.swift](../../core/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
+| [Engine.swift](../../core/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
+| [PlayReceipt.swift](../../core/OortCore/PlayReceipt.swift) | Identità del gesto, ricevuto e osservazioni portabili; nessuna identità di processo nel contratto. |
+| [VersionNumber.swift](../../core/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 

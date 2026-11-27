@@ -4,7 +4,7 @@ import PackageDescription
 // The names and folders below come from architecture/names.json; change them there and run scripts/generate.
 // BEGIN GENERATED NAMES (architecture/names.json, scripts/generate_names.py)
 let packageName = "NXLibrary"
-let core = (name: "OortCore", path: "Sources/OortCore")
+let core = (name: "OortCore", path: "core/OortCore")
 let library = (name: "NXLibraryCore", path: "Sources/NXLibraryCore")
 let nxnative = (name: "ArcanePorting", path: "Sources/ArcanePorting")
 let mac = (name: "NXLibrary", path: "Sources/NXLibrary")

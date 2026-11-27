@@ -30,7 +30,7 @@ class ChangedAreasTests(unittest.TestCase):
 
     def test_core_change_turns_on_swift_and_both_ports_but_not_android(self):
         with checkout(*ALL_FOLDERS) as root:
-            result = areas.decide(["Sources/OortCore/Catalog.swift"], root)
+            result = areas.decide(["core/OortCore/Catalog.swift"], root)
         self.assertEqual(result, {"swift": True, "desktop": True, "mobile": True, "android": False})
 
     def test_workflow_change_turns_every_area_on(self):
@@ -54,7 +54,7 @@ class ChangedAreasTests(unittest.TestCase):
     def test_missing_folder_keeps_its_area_off_even_when_paths_match(self):
         # On main, desktop/ does not exist yet: a core change must not start the Windows jobs.
         with checkout("mobile") as root:
-            result = areas.decide(["Sources/OortCore/Catalog.swift"], root)
+            result = areas.decide(["core/OortCore/Catalog.swift"], root)
         self.assertFalse(result["desktop"])
         self.assertTrue(result["mobile"])
 

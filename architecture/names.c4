@@ -5,7 +5,7 @@ model {
     coreModule = swiftModule "OortCore" {
       metadata {
         layer "0"
-        folder "Sources/OortCore"
+        folder "core/OortCore"
       }
     }
     libraryModule = swiftModule "NXLibraryCore" {
