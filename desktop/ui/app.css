@@ -57,14 +57,13 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .row>.value{display:flex;align-items:center;gap:var(--space-small);color:var(--quiet);font-size:var(--s-text);max-width:55%;min-width:0}.row>.value>span:not([class]){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row[aria-disabled=true]{opacity:.55}
 .integration-summary .value{flex-wrap:wrap;justify-content:flex-end}
-.integration-open{color:var(--ink);font-weight:600}
 .integration-primary{display:flex;justify-content:flex-end}
 .row .icon{color:var(--mark)}.row.chosen .tick{color:var(--ink)}
 .dot{flex:none;width:calc(9*var(--u));height:calc(9*var(--u));min-width:6px;min-height:6px;border-radius:50%;background:var(--status-untested)}.dot.ok{background:var(--status-status-ok)}.dot.bad{background:var(--status-danger)}.dot.mark{background:var(--mark)}
 .chip{padding:var(--space-hairline) var(--space-medium);border-radius:99px;color:var(--ink);font-weight:600;background:var(--p-raised);box-shadow:0 0 0 1px var(--line-2)}
 .sw{--lit:0;position:relative;flex:none;width:calc(56*var(--u));height:calc(30*var(--u));min-width:38px;min-height:21px;border-radius:99px;background:radial-gradient(circle,var(--glyph) calc(var(--lit)*var(--effect-dot-radius)),transparent calc(var(--lit)*var(--effect-dot-radius) + .6px)) 0 0/var(--effect-dot-pitch) var(--effect-dot-pitch),var(--p-low);box-shadow:inset 0 0 0 1px var(--line-2);transition:--lit var(--t-slow) var(--out)}
 .sw::after{content:"";position:absolute;top:10%;left:calc(3*var(--u));height:80%;aspect-ratio:1;border-radius:50%;background:var(--ink);transition:left var(--t-move) var(--press)}
-[aria-checked=true] .sw{--lit:1}[aria-checked=true] .sw::after{left:calc(100% - 80%*30/56 - 3*var(--u))}
+[aria-checked=true] .sw,.sw.on{--lit:1}[aria-checked=true] .sw::after,.sw.on::after{left:calc(100% - 80%*30/56 - 3*var(--u))}
 .track{position:relative;width:var(--space-slider-measure);min-width:120px;height:calc(10*var(--u));min-height:7px;border-radius:99px;background:var(--p-raised);box-shadow:inset 0 0 0 1px var(--line)}
 .track::before{content:"";position:absolute;inset:0 auto 0 0;width:calc(var(--at)*100%);border-radius:inherit;background:radial-gradient(circle,var(--ink) 1.6px,transparent 2.2px) 0 50%/7px 100%}
 .track::after{content:"";position:absolute;top:50%;left:calc(var(--at)*100%);width:calc(24*var(--u));min-width:16px;aspect-ratio:1;border-radius:50%;background:var(--ink);transform:translate(-50%,-50%);transition:left var(--t-quick) var(--out)}

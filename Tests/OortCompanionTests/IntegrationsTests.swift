@@ -157,7 +157,19 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertEqual(summaries(page).map { $0["action"] }, [["Open"], ["Open"], ["Open"]])
         XCTAssertTrue(summaries(page).allSatisfy { $0["token"] == nil && $0["checked"] == nil })
         XCTAssertEqual(summaries(page).map { $0["steps"].items.compactMap { $0["id"]?.stringValue } },
-                       [["link", "verify"], ["verify", "next"], ["link", "verify"]])
+                       Array(repeating: ["link", "verify", "next"], count: 3), "the template's three steps, always")
+        XCTAssertEqual(summaries(page).map { $0["steps"].items.first?["items"].items.first?["say"] },
+                       [["Turn on Steam to add the games it installed."], ["Add a program to begin."],
+                        ["Turn it on to look for covers and game information."]], "Link says how to link")
+        XCTAssertEqual(page["sections"].items.map { $0["upcoming"] },
+                       [["Coming later: %@", "Epic Games · GOG · Minecraft · CrossOver"], ["Coming later: %@", "Ryujinx-Nextendo"], .null],
+                       "what is announced, by role: no section is empty")
+        // A switch on the row asks what the Link step's switch asks, with its token; the row's own action stays Open.
+        XCTAssertEqual(summaries(page).map { $0["switch"]?["id"] }, ["steam", nil, "online"])
+        XCTAssertEqual(summaries(page).map { $0["toggle"] }, [["Turn on"], nil, ["Turn on"]])
+        for summary in summaries(page) where summary["switch"] != nil {
+            XCTAssertEqual(summary["switch"], summary["steps"].items.first?["items"].items.compactMap { $0["row"] }.first)
+        }
         let programs = try XCTUnwrap(entry(page, "prog"))
         XCTAssertEqual(programs["open"], "programs")
         XCTAssertNil(programs["token"])
@@ -368,9 +380,9 @@ final class IntegrationsTests: XCTestCase {
             ["title", "status", "capabilities", "action", "about"].compactMap { summary[$0].items.first?.stringValue } +
                 summary["steps"].items.flatMap { step in
                     [step["title"].items.first?.stringValue].compactMap { $0 } +
-                        step["items"].items.flatMap { item in ["label", "text"].compactMap { item[$0].items.first?.stringValue } }
-                }
-        })
+                        step["items"].items.flatMap { item in ["label", "text", "say"].compactMap { item[$0].items.first?.stringValue } }
+                } + ["toggle"].compactMap { summary[$0].items.first?.stringValue }
+        } + pages.flatMap { $0["sections"].items }.compactMap { $0["upcoming"].items.first?.stringValue })
         // What the page has: desktop/scripts/generate.py's output, from the Mac catalog and desktop/strings.json.
         let generated = try String(contentsOf: repository.appendingPathComponent("desktop/ui/gen/strings.js"), encoding: .utf8)
         for key in keys.sorted() {

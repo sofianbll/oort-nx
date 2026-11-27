@@ -660,12 +660,15 @@ const openSettings = async (start = 'general') => {
     account: () => [h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? type(t('Name'), p.name, async name => { people = await ask('profiles.rename', { profile: p.id, name }); again(layer, draw); }) : choose(p), { id: 'p' + p.id, ic: 'person', help: p.id === people.active ? t('Select to rename it.') : t('Select to play as this profile.') })), row(t('New profile'), icon('add'), () => type(t('Name'), '', async name => { people = await ask('profiles.add', { name }); again(layer, draw); }), { id: 'newp' }))],
     general: () => [h('div', { cls: 'rows' }, abilities.includes('fullscreen') && row(t('Fullscreen'), h('span', { cls: 'sw' }), () => { S.play('confirm', document.activeElement); setFullscreen(!full); }, { id: 'full', ic: 'monitor', role: 'switch', checked: full, help: t('Right now. F11 does the same.') }), row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', help: t('Reopen the guided setup without resetting your library.') }), abilities.includes('quit') && row(t('Quit Oort NX'), '', askQuit, { id: 'quit', ic: 'power' }))],
     controllers: () => [h('div', {}, controlsMap(padKind(pad?.name)), h('div', { cls: 'rows' }, row(t('Controls'), icon('chevron'), () => openControls(), { id: 'controls', ic: 'gamepad', help: t('What each button, key and gesture does.') })))],
+    // One action per row, A: the detail. A switch on the row is X, or a click on it: what the detail's Link step asks.
     integrations: () => integrations.sections.map(group => h('section', { 'data-section': group.id, lang: V.language },
       h('h2', {}, cw(group.title)),
       group.entries.length ? h('div', { cls: 'rows' }, group.entries.map(e => row(cw(e.title),
-        [h('span', { cls: 'integration-status' }, cw(e.status)), h('span', { cls: 'integration-open' }, cw(e.action))],
-        () => openIntegration(e.id), { id: e.id, ic: e.icon, sub: cw(e.capabilities), cls: 'integration-summary' })))
-        : h('p', { cls: 'say' }, cw(group.empty)))),
+        [h('span', { cls: 'integration-status' }, cw(e.status)),
+          e.switch && h('span', { cls: 'sw' + (e.switch.checked ? ' on' : ''), 'aria-hidden': 'true', onclick: ev => { ev.stopPropagation(); flip(e); } }),
+          icon('chevron')].filter(Boolean),
+        () => openIntegration(e.id), { id: e.id, ic: e.icon, sub: cw(e.capabilities), cls: 'integration-summary' }))) : null,
+      group.upcoming && h('p', { cls: 'say', 'data-upcoming': '' }, cw(group.upcoming)))),
     about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), [version, icon('link')], () => link('https://github.com/sofianbll/oort-nx/releases'), { id: 'version', help: t('Opens the page of versions in your browser. Oort NX does not look by itself.') }), row(t('Logs'), icon('folder'), openLogs, { id: 'logs', help: t('What games said the last time they ran.') }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
   // What a row asked is done: the core's rows again, then the library (Steam's games come or go) and what About says.
@@ -680,6 +683,13 @@ const openSettings = async (start = 'general') => {
     }
   };
   const integration = () => integrationID && integrations.sections.flatMap(group => group.entries).find(e => e.id === integrationID);
+  // The catalogue row that has the focus, when it has a switch: X turns it on or off without opening the detail.
+  const switchRow = () => {
+    if (cat !== 'integrations' || integration()) return null;
+    const id = document.activeElement?.closest('.integration-summary')?.dataset.id;
+    return id ? integrations.sections.flatMap(group => group.entries).find(e => e.id === id && e.switch) : null;
+  };
+  const flip = e => askEntry(e.switch, $(`[data-id="${CSS.escape(e.id)}"]`, layer.el) || document.activeElement, acted, undefined, { words: cw });
   const steamLibrary = async () => {
     if (page.pending) return deny(document.activeElement, ct('Save or discard your changes before opening the library.'));
     const active = integrationID;
@@ -706,6 +716,7 @@ const openSettings = async (start = 'general') => {
     h('p', { cls: 'say', lang: V.language }, cw(e.about)),
     ...e.steps.map(step => h('section', { 'data-phase': step.id, lang: V.language }, h('h2', {}, cw(step.title)),
       h('div', { cls: 'rows' }, step.items.map(item => {
+        if (item.say) return h('p', { cls: 'say' }, cw(item.say));
         if (!item.row) return h('p', { cls: 'say' }, ct(item.label[0], cw(item.text)));
         if (!item.primary) return entryRow(item.row, acted, { words: cw, cancel: ct('Cancel') });
         const action = key(cw(item.row.title), event => askEntry(item.row, event.currentTarget, acted, undefined, { steamLibrary }), { id: item.row.id });
@@ -743,9 +754,10 @@ const openSettings = async (start = 'general') => {
     if (next) go(next);
     return true;
   };
-  layer.actions.x = () => { const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows, sections = [...new Set(rows.filter(r => r.changed).map(r => r.section))]; if (!sections.length) return S.play('deny'); (async () => { for (const section of sections) await take(ask('settings.reset', { section }), false); S.play('confirm'); again(layer, draw); })(); };
+  const resetGroup = () => { const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows, sections = [...new Set(rows.filter(r => r.changed).map(r => r.section))]; if (!sections.length) return S.play('deny'); (async () => { for (const section of sections) await take(ask('settings.reset', { section }), false); S.play('confirm'); again(layer, draw); })(); };
+  layer.actions.x = () => { const e = switchRow(); return e ? flip(e) : resetGroup(); };
   const baseHints = layer.hints;
-  layer.hints = () => { const [l, r] = baseHints(); if (integration()) return [l, [aHint()]]; const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows; return [l, [rows.some(r => r.changed) && ['x', t('Reset group'), layer.actions.x], ...r]]; };
+  layer.hints = () => { const [l, r] = baseHints(); if (integration()) return [l, [aHint()]]; const e = switchRow(); if (e) return [l, [['x', cw(e.toggle), () => flip(e)], ...r]]; const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows; return [l, [rows.some(r => r.changed) && ['x', t('Reset group'), layer.actions.x], ...r]]; };
   layer.redraw = () => again(layer, draw);
   layer.back = () => { (async () => { [folders, integrations, online] = [await ask('folders'), await ask('integrations'), await ask('online')]; await take(ask('settings')); })(); };
   layer.gone = async () => { await reload(); TABS.includes(tab) || (tab = TABS[0]); homeLayer.redraw(); };

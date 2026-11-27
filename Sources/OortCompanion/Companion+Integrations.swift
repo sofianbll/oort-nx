@@ -30,11 +30,13 @@ extension Companion {
 
     private struct SettingsIntegration {
         enum Detail {
-            case row(IntegrationEntry), primary(IntegrationEntry), access(IntegrationWords, IntegrationWords)
+            case say(IntegrationWords), row(IntegrationEntry), primary(IntegrationEntry), access(IntegrationWords, IntegrationWords)
         }
         let status: IntegrationWords
         let row: IntegrationEntry
         let steps: [IntegrationCatalog.Step<Detail>]
+        /// The entry's switch, shown on its catalogue row too (IntegrationCatalog.ID.hasSwitch): the Link step's row.
+        var toggle: IntegrationEntry? = nil
     }
 
     // Only shipped offers enter the common catalogue. Opening the detail sends no request.
@@ -51,13 +53,13 @@ extension Companion {
             let status = counts == nil ? IntegrationCatalog.notFound
                 : !on ? IntegrationCatalog.off
                 : counts?.games.isEmpty == true ? .init("No games found") : IntegrationCatalog.ready
-            let rights = access(reads: .init("Installed game lists and local Steam pictures."),
-                                writes: .init("Oort NX catalog, not Steam files."), sends: nothing)
+            let rights = access(reads: .init("The games Steam installed and the pictures it keeps here."),
+                                writes: .init("Your Oort NX library; never Steam’s files."), sends: nothing)
             let games = IntegrationEntry(id: "open-steam-games", title: IntegrationCatalog.steamGames,
                                          control: .open(.steamLibrary), request: nil)
-            return .init(status: status, row: steam, steps: IntegrationCatalog.steps(
-                link: on ? [] : [.row(steam)], verify: (on ? [.row(steam)] : []) + rights,
-                next: on && counts?.games.isEmpty == false ? [.primary(games)] : []))
+            return .init(status: status, row: steam, steps: IntegrationCatalog.steps(id, linked: on && counts != nil,
+                link: [.row(steam)], verify: rights,
+                next: on && counts?.games.isEmpty == false ? [.primary(games)] : [], say: SettingsIntegration.Detail.say), toggle: steam)
         case .online:
             let on = choices.online == true, known = records.values.filter(\.found).count
             let online = IntegrationEntry(id: id.rawValue, title: id.title, about: Self.onlineAbout,
@@ -68,11 +70,11 @@ extension Companion {
                                          confirmation: .init(title: .init("Delete what was found online?"),
                                                              message: .init("Covers and descriptions found online leave this computer. Your own pictures stay."),
                                                              confirm: .init("Delete")))
-            let rights = access(reads: .init("Game titles or Steam IDs."),
-                                writes: .init("Covers and information in the local cache."),
-                                sends: .init("Game titles or Steam IDs and your language to the Steam store, Wikipedia and Wikidata."))
-            return .init(status: on ? .init("On") : .init("Off"), row: online, steps: IntegrationCatalog.steps(
-                link: on ? [] : [.row(online)], verify: (on ? [.row(online)] : []) + rights + (known > 0 ? [.row(clear)] : [])))
+            let rights = access(reads: .init("Your game names, or their Steam number."),
+                                writes: .init("Covers and information, kept on this computer."),
+                                sends: .init("Your game names, or their Steam number, and your language, to the Steam store, Wikipedia and Wikidata."))
+            return .init(status: on ? .init("On") : .init("Off"), row: online, steps: IntegrationCatalog.steps(id, linked: on,
+                link: [.row(online)], verify: rights + (known > 0 ? [.row(clear)] : []), say: SettingsIntegration.Detail.say), toggle: online)
         case .programs:
             let programs = IntegrationEntry(id: id.rawValue, title: .init("Open programs"),
                                             about: .init("Any program with its arguments, an emulator with a game for example. Sends nothing."),
@@ -80,7 +82,8 @@ extension Companion {
             let rights = access(reads: .init("The chosen program’s name, location and icon."),
                                 writes: .init("The shortcut in this library, not the program."), sends: nothing)
             return .init(status: shelf.programs.isEmpty ? .init("No programs added") : IntegrationCatalog.ready, row: programs,
-                         steps: IntegrationCatalog.steps(verify: rights, next: [.primary(programs)]))
+                         steps: IntegrationCatalog.steps(id, linked: !shelf.programs.isEmpty, verify: rights, next: [.primary(programs)],
+                                                         say: SettingsIntegration.Detail.say))
         default: return nil
         }
     }
@@ -197,7 +200,7 @@ extension Companion {
             let sections = IntegrationCatalog.sections { id in settingsIntegration(id).map { settingsJSON(id, $0) } }
             return ["sections": .array(sections.map {
                 ["id": .string($0.id.rawValue), "title": words($0.id.title), "entries": .array($0.entries),
-                 "empty": $0.entries.isEmpty ? words(IntegrationCatalog.empty) : .null]
+                 "upcoming": $0.upcoming.map(words) ?? .null]
             })]
         // `working`: information is still looked for online, the control center's dot (what Steam downloads is Steam's).
         case .activity:
@@ -213,6 +216,7 @@ extension Companion {
         let steps = integration.steps.map { step -> CatalogJSON in
             let items = step.content.map { item -> CatalogJSON in
                 switch item {
+                case .say(let text): ["say": words(text)]
                 case .row(let entry): ["row": json(entry, token: token(entry))]
                 case .primary(let entry): ["row": json(entry, token: token(entry)), "primary": true]
                 case .access(let label, let value): ["label": words(label), "text": words(value)]
@@ -225,6 +229,11 @@ extension Companion {
             "steps": .array(steps)]
         result["icon"] = integration.row.icon.map(CatalogJSON.string)
         result["about"] = integration.row.about.map(words)
+        // X on the catalogue row asks what the Link step's switch asks, with the same token.
+        if let toggle = integration.toggle, id.hasSwitch {
+            result["switch"] = json(toggle, token: token(toggle))
+            result["toggle"] = words(IntegrationCatalog.toggle(on: toggle.checked == true))
+        }
         return .object(result)
     }
 
@@ -235,7 +244,7 @@ extension Companion {
             .flatMap(\.entries).flatMap(\.steps).flatMap(\.content).compactMap { item -> IntegrationEntry? in
                 switch item {
                 case .row(let entry), .primary(let entry): return entry
-                case .access: return nil
+                case .say, .access: return nil
                 }
             } : integrationEntries(at: place)
         guard let entry = entries.first(where: { $0.id == p["id"]?.stringValue }) else { throw Manifest.Failure(code: "entry-missing") }

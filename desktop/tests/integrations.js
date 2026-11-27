@@ -128,6 +128,18 @@ probe(async P => {
   await open();
   P.ok(asked.includes('integrations'), 'the rows are the core’s');
   P.same(ids(), ['steam', 'prog', 'online'], 'the catalogue rows, in their order');
+  // The catalogue's switches: X, or a click on the switch, turns it on or off from the list; A still opens the detail.
+  const sw = id => document.querySelector(`.shell .list [data-id="${id}"] .sw`);
+  P.same([!!sw('steam'), !!sw('prog'), !!sw('online')], [true, false, true], 'a switch on the rows that have one');
+  P.same(P.text('[data-section=engines] [data-upcoming]'), 'Coming later: Ryujinx-Nextendo', 'Engines is not empty: what is coming');
+  row('steam').focus(); await P.wait(100);
+  P.ok([...document.querySelectorAll('#hints .hint')].some(x => x.textContent.includes('Turn on')), 'X says what it does');
+  await P.press('x');
+  await P.until(() => sw('steam')?.classList.contains('on'), 5000, 'X turns Steam on from the list');
+  P.same([(await ask('steam')).on, P.id(), !!document.querySelector('.shell [data-id=integration-back]')], [true, 'steam', false], 'on, the focus stays, no detail opened');
+  sw('steam').click();
+  await P.until(() => !sw('steam')?.classList.contains('on'), 5000, 'a click on the switch turns it off');
+  P.same([(await ask('steam')).on, P.id()], [false, 'steam'], 'off again, the focus stays');
   const detail = async id => {
     row(id).focus(); await P.press('a');
     await P.until(() => document.querySelector('.shell [data-id=integration-back]'), 5000, `detail ${id}`);

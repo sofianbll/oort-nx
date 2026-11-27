@@ -31,6 +31,35 @@ public enum IntegrationCatalog {
             case .online: .init("Covers and game information")
             }
         }
+
+        /// An entry its owner turns on and off shows its switch on the catalogue row, as before the catalogue. A still
+        /// opens the detail; X, or a click on the switch, asks the owner for the other state without leaving the list.
+        /// The same switch is the Link step of the detail.
+        public var hasSwitch: Bool { self == .steam || self == .online }
+
+        /// The Link step says what the entry is linked to, or how to link it.
+        public func link(_ linked: Bool) -> IntegrationWords {
+            switch (self, linked) {
+            case (.switchGames, true): .init("Linked to the nxnative engine on this computer.")
+            case (.switchGames, false): .init("Choose the engine folder to begin.")
+            case (.steam, true): .init("Linked to Steam on this computer.")
+            case (.steam, false): .init("Turn on Steam to add the games it installed.")
+            case (.macApps, true): .init("Linked to the Mac apps you added.")
+            case (.macApps, false): .init("Add a Mac app to begin.")
+            case (.drive, true): .init("Linked to your Google Drive.")
+            case (.drive, false): .init("Connect your Google Drive to begin.")
+            case (.nextendo, true): .init("Linked to your Nextendo account.")
+            case (.nextendo, false): .init("Sign in to Nextendo to begin.")
+            case (.saves, true): .init("Linked to the save folder you chose.")
+            case (.saves, false): .init("Choose iCloud Drive or a folder to begin.")
+            case (.images, true): .init("Linked with your SteamGridDB or IGDB key.")
+            case (.images, false): .init("Add a SteamGridDB or IGDB key to begin.")
+            case (.programs, true): .init("Linked to the programs you added.")
+            case (.programs, false): .init("Add a program to begin.")
+            case (.online, true): .init("Linked to the Steam store, Wikipedia and Wikidata.")
+            case (.online, false): .init("Turn it on to look for covers and game information.")
+            }
+        }
     }
 
     public enum Section: String, CaseIterable, Identifiable, Sendable {
@@ -52,19 +81,33 @@ public enum IntegrationCatalog {
             case .services: [.nextendo, .saves, .images, .online]
             }
         }
+
+        /// Announced, not offered: one quiet line under the section, never a row.
+        public var upcoming: [String] {
+            switch self {
+            case .sources: ["Epic Games", "GOG", "Minecraft", "CrossOver"]
+            case .engines: ["Ryujinx-Nextendo"]
+            case .services: []
+            }
+        }
     }
 
     public struct Group<Entry>: Identifiable {
         public let id: Section
         public let entries: [Entry]
+        /// « Coming later: … », or nil when nothing is announced in this section.
+        public var upcoming: IntegrationWords? {
+            id.upcoming.isEmpty ? nil : .init("Coming later: %@", args: [id.upcoming.joined(separator: " · ")])
+        }
     }
 
+    /// A section shows its offers and what it announces; one with neither is left out, so none is ever empty.
     public static func sections<Entry>(offering entry: (ID) -> Entry?) -> [Group<Entry>] {
         Section.allCases.map { Group(id: $0, entries: $0.order.compactMap(entry)) }
+            .filter { !$0.entries.isEmpty || $0.upcoming != nil }
     }
 
     public static let open = IntegrationWords("Open")
-    public static let empty = IntegrationWords("Nothing available here")
     public static let off = IntegrationWords("Off")
     public static let ready = IntegrationWords("Ready here")
     public static let steamGames = IntegrationWords("Open Steam games")
@@ -72,6 +115,9 @@ public enum IntegrationCatalog {
     public static let reads = IntegrationWords("Reads: %@")
     public static let writes = IntegrationWords("Writes: %@")
     public static let sends = IntegrationWords("Sends: %@")
+
+    /// What X does on a row with a switch, said for its current state.
+    public static func toggle(on: Bool) -> IntegrationWords { on ? .init("Turn off") : .init("Turn on") }
 
     public enum Phase: String, Identifiable, Sendable {
         case link, verify, next
@@ -91,8 +137,13 @@ public enum IntegrationCatalog {
         public let content: [Content]
     }
 
-    public static func steps<Content>(link: [Content] = [], verify: [Content] = [], next: [Content] = []) -> [Step<Content>] {
-        [Step(id: .link, content: link), Step(id: .verify, content: verify), Step(id: .next, content: next)]
-            .filter { !$0.content.isEmpty }
+    /// The validated template: Link, Verify, Continue, always in this order and always shown. Link opens on what the
+    /// entry is linked to, or how to link it; Continue says why there is nothing to do when it has no action.
+    public static func steps<Content>(_ id: ID, linked: Bool, link: [Content] = [], verify: [Content],
+                                      next: [Content] = [], say: (IntegrationWords) -> Content) -> [Step<Content>] {
+        let rest: IntegrationWords = linked ? .init("Nothing else to do here: it works on its own.")
+            : .init("Link it first to continue.")
+        return [Step(id: .link, content: [say(id.link(linked))] + link), Step(id: .verify, content: verify),
+                Step(id: .next, content: next.isEmpty ? [say(rest)] : next)]
     }
 }
