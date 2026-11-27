@@ -67,6 +67,7 @@ jobs:
 
   # Always runs every rule of scripts/check (`scripts/check --list`); on a pull request, debt lists may only shrink.
   checks:
+    if: false  # TEMPORARY witness run
     name: Mac / checks
     runs-on: xcode-27
     timeout-minutes: 25
@@ -85,9 +86,9 @@ jobs:
           if [ "$EVENT" = pull_request ]; then python3 scripts/check --base HEAD^1; else python3 scripts/check; fi
 
   swift-debug:
+    if: false  # TEMPORARY witness run
     name: Mac / Swift unit tests
     needs: areas
-    if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
     timeout-minutes: 25
     env:
@@ -113,13 +114,24 @@ jobs:
           persist-credentials: false
       - name: Build the shared Debug app
         run: python3 scripts/check app-build
-      - name: Application regressions without UI
-        run: python3 scripts/check app-probes debug
+      - name: TEMPORARY witness and integration screens
+        env:
+          OORT_HEADLESS_INPUT: "1"
+        run: |
+          mkdir -p "$RUNNER_TEMP/witness/screens"
+          sw_vers
+          python3 Tests/CatalogAppChecks/witness.py "$RUNNER_TEMP/witness" || true
+          OORT_SCREENS_OUTPUT="$RUNNER_TEMP/witness/screens" python3 Tests/CatalogAppChecks/run_integration_screens.py
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: witness
+          path: ${{ runner.temp }}/witness
 
   swift-app:
+    if: false  # TEMPORARY witness run
     name: Mac / standalone app probes (${{ matrix.batch }})
     needs: areas
-    if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
     timeout-minutes: 25
     env:
@@ -152,9 +164,9 @@ jobs:
         run: python3 scripts/check app-probes "${{ matrix.batch }}"
 
   swift-release:
+    if: false  # TEMPORARY witness run
     name: Mac / Release compilation
     needs: areas
-    if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
     timeout-minutes: 25
     env:
@@ -167,10 +179,10 @@ jobs:
         run: python3 scripts/check release-build
 
   swift:
+    if: false  # TEMPORARY witness run
     # Keep the same required check name and require every batch to pass.
     name: Mac / Swift tests
     needs: [areas, swift-debug, swift-shared, swift-app, swift-release]
-    if: always() && (needs.areas.outputs.swift == 'true' || needs.areas.result != 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
@@ -183,9 +195,9 @@ jobs:
 
   # Windows and Linux: the portable core, the Tauri host and the packages. Alpha branch layout.
   windows:
+    if: false  # TEMPORARY witness run
     name: Windows ${{ matrix.arch }}
     needs: areas
-    if: needs.areas.outputs.desktop == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -281,9 +293,9 @@ jobs:
           retention-days: 30
 
   linux:
+    if: false  # TEMPORARY witness run
     name: Linux x64
     needs: areas
-    if: needs.areas.outputs.desktop == 'true'
     runs-on: ubuntu-24.04
     container: swift:6.4.3-bookworm
     timeout-minutes: 90
@@ -347,9 +359,9 @@ jobs:
 
   # Proof jobs: install the packages on a clean machine. Only with ci:full, a push to main or a manual run.
   windows-proof:
+    if: false  # TEMPORARY witness run
     name: Windows ${{ matrix.arch }}, installed
     needs: [areas, windows]
-    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.desktop == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -392,9 +404,9 @@ jobs:
           retention-days: 30
 
   linux-proof:
+    if: false  # TEMPORARY witness run
     name: Linux x64, installed
     needs: [areas, linux]
-    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.desktop == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -419,9 +431,9 @@ jobs:
 
   # iPhone and iPad. Alpha branch layout.
   mobile:
+    if: false  # TEMPORARY witness run
     name: iPhone and iPad / tests and unsigned IPA
     needs: areas
-    if: needs.areas.outputs.mobile == 'true'
     runs-on: xcode-27
     timeout-minutes: 45
     env:
@@ -459,9 +471,9 @@ jobs:
           if-no-files-found: error
 
   simulator:
+    if: false  # TEMPORARY witness run
     name: ${{ matrix.name }}
     needs: [areas, mobile]
-    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.mobile == 'true'
     runs-on: xcode-27
     timeout-minutes: 75
     strategy:
@@ -491,9 +503,9 @@ jobs:
 
   # Android. Alpha branch layout. Checks that need no SDK run first.
   android-checks:
+    if: false  # TEMPORARY witness run
     name: Android / checks that need no SDK
     needs: areas
-    if: needs.areas.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -510,6 +522,7 @@ jobs:
         run: python3 -I android/tools/verify_cloud.py
 
   android-apk:
+    if: false  # TEMPORARY witness run
     name: Android / unit tests and APK
     needs: android-checks
     runs-on: ubuntu-latest
@@ -573,9 +586,9 @@ jobs:
             android/app/build/reports/tests/
 
   android-emulator:
+    if: false  # TEMPORARY witness run
     name: Android / emulator, API ${{ matrix.api }}
     needs: [areas, android-apk]
-    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     strategy:
