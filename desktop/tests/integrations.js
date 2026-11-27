@@ -218,10 +218,15 @@ probe(async P => {
   await close();
 
   // The same rules on the core's own transport: a row changed since it was shown, or done twice, is refused.
-  const shown = await ask('integrations'), token = shown.sections[0].entries[0].token;
+  const steamToken = async () => {
+    const entries = (await ask('integrations')).sections.flatMap(section => section.entries);
+    const rows = entries.find(e => e.id === 'steam').steps.flatMap(step => step.items);
+    return rows.find(item => item.row?.id === 'steam').row.token;
+  };
+  const token = await steamToken();
   await ask('steam.set', { on: false });
   P.same(await ask('integrations.act', { id: 'steam', token }).catch(e => e), 'stale', 'changed since it was shown');
-  const now = (await ask('integrations')).sections[0].entries[0].token;
+  const now = await steamToken();
   await ask('integrations.act', { id: 'steam', token: now });
   P.same(await ask('integrations.act', { id: 'steam', token: now }).catch(e => e), 'stale', 'done twice');
   P.same((await ask('steam')).on, true, 'once');
