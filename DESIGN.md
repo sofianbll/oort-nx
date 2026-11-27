@@ -94,7 +94,7 @@ Three families. *Capsules* for tabs, badges and segments. *Fixed* radii for keys
 
 ## Components
 
-Each lives in `Sources/NXLibrary/Views/OortUI` and shows every state in the Debug gallery.
+Each lives in `apps/mac/OortMac/Views/OortUI` and shows every state in the Debug gallery.
 
 - **Key** (`SelenePillButton`, `OortButton`): rest, hover, focus, pressed, blocked, busy, queued, destructive, download. Focus turns it solid and raises the halftone. A press sinks it 2 units, by mouse, keyboard or controller.
 - **Row** (`SeleneRow` family): value, choice, switch, slider, action, link. One action per row. A pending change shows a mark and the old value.

@@ -23,12 +23,12 @@ Keep a first pull request small: one behaviour, one reason. For a change that to
 
 | System | Where the code is | Status |
 |---|---|---|
-| macOS | `main`: `Sources/NXLibrary` (app), `Sources/NXLibraryCore`, `Sources/ArcanePorting`, `Sources/OortCore` | Main product |
+| macOS | `main`: `apps/mac/OortMac` (app), `core/OortLibrary`, `engines/nxnative/NxnativeAdapter`, `core/OortCore` | Main product |
 | Windows and Linux | `alpha/windows` branch (`desktop/`) | Alpha. Ask in an issue before a pull request |
 | Android | `alpha/android` branch (`android/`) | Alpha. Ask in an issue before a pull request |
 | iPhone and iPad | `alpha/ios` branch (`mobile/`) | Alpha. Ask in an issue before a pull request |
 
-The core rules for every system live in `Sources/OortCore` (Foundation only) and `Sources/NXLibraryCore`. The allowed dependencies between modules are in the [architecture map](docs/working-on-it/architecture-map.md). Check them with `python3 scripts/check_module_boundaries.py`.
+The core rules for every system live in `core/OortCore` (Foundation only) and `core/OortLibrary`. The allowed dependencies between modules are in the [architecture map](docs/working-on-it/architecture-map.md). Check them with `python3 scripts/check_module_boundaries.py`.
 
 Read before you change code:
 
@@ -72,7 +72,7 @@ Use synthetic fixtures in tests. Never commit a game, a key, a save, an extracte
 - Credit [Arcane by Bium23](https://github.com/Bium23/NxLibrary) for work it contains, and [Selene by Matthew Silva](https://github.com/mattxslv/Selene) for the design system. Credit [Josef Nemec and Playnite](https://github.com/JosefNemec/Playnite) for any picker work taken from Playnite.
 - A licence on code is not permission to use branding or other assets.
 - Every project, service, font or symbol in use has its entry in [design/credits.json](design/credits.json), the only list: run `scripts/generate` after editing it.
-- A new dependency needs a compatible licence, an entry in `design/credits.json` and `NOTICE` and, for the engine runtime, an entry in `runtime.lock`.
+- A new dependency needs a compatible licence, an entry in `design/credits.json` and `NOTICE` and, for the engine runtime, an entry in `engines/nxnative/runtime.lock`.
 
 ### Importing from Arcane
 
@@ -85,7 +85,7 @@ Oort NX does not merge or follow Arcane automatically. Start from an Oort NX nee
 
 ## Interface translations
 
-The shared source is `Sources/NXLibraryCore/Resources/Localizable.xcstrings`. It covers en, it, fr, de, es, pt-BR and zh-Hans.
+The shared source is `core/OortLibrary/Resources/Localizable.xcstrings`. It covers en, it, fr, de, es, pt-BR and zh-Hans.
 
 - Keep keys stable and every typed placeholder.
 - Provide quantity variants where the text counts things.

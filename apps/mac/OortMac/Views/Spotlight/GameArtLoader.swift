@@ -1,0 +1,180 @@
+import AppKit
+import CryptoKit
+import ImageIO
+import OortLibrary
+import NxnativeAdapter
+
+/// Loads and caches a game's hero art and logo for Spotlight (and, until it is
+/// replaced, the legacy library). Every lookup goes through the shared
+/// `ArtworkStore` disk cache.
+@MainActor
+final class GameArtLoader {
+    static let shared = GameArtLoader()
+
+    private let heroes = NSCache<NSUUID, NSImage>()
+    private let heroCatalogURLs = NSCache<NSUUID, NSURL>()
+    private let logos = NSCache<NSUUID, NSImage>()
+    /// Steam games' launch-screen and session-card art, by game, role and pick revision (`GameArtLoader+Played`).
+    let steamArt = NSCache<NSString, NSImage>()
+    /// Games already looked up online this launch, found or not.
+    private var searchedOnline: Set<UUID> = []
+    /// Only present while this game's online logo search is in flight.
+    private var onlineLogoWaiters: [UUID: [CheckedContinuation<Void, Never>]] = [:]
+
+    private init() {
+        heroes.countLimit = 24
+        heroes.totalCostLimit = 128 * 1024 * 1024
+        heroCatalogURLs.countLimit = 24
+        logos.countLimit = 64
+        steamArt.countLimit = 16
+        steamArt.totalCostLimit = 64 * 1024 * 1024
+    }
+
+    func cachedHero(for game: PortedGame) -> NSImage? { heroes.object(forKey: game.id as NSUUID) }
+    func cachedLogo(for game: PortedGame) -> NSImage? { logos.object(forKey: game.id as NSUUID) }
+
+    /// Drops a game's decoded art, so the next load reads a new pick.
+    func forget(_ game: PortedGame) {
+        heroes.removeObject(forKey: game.id as NSUUID)
+        heroCatalogURLs.removeObject(forKey: game.id as NSUUID)
+        logos.removeObject(forKey: game.id as NSUUID)
+    }
+
+    /// The player's pick, local hero files, Nintendo Europe, then the legacy cache or Title DB banner.
+    func hero(for game: PortedGame, metadata: NintendoStoreMetadata?, artwork: ArtworkStore, personalizations: CatalogPersonalizations) async -> NSImage? {
+        let catalogURL = (metadata?.headerImageURL ?? metadata?.imageURL).flatMap { url in
+            url.host == "www.nintendo.com" && url.path.hasPrefix("/eu/media/images/") ? url : nil
+        }
+        if let cached = cachedHero(for: game),
+           catalogURL == nil || heroCatalogURLs.object(forKey: game.id as NSUUID).map({ $0 as URL }) == catalogURL { return cached }
+        let titleKey = personalizations.nxnativeKey(for: game)
+        var image: NSImage?
+
+        if let picked = ArtworkPicks.shared.url(titleID: titleKey, slot: .background) {
+            image = await Self.decodeHero(at: picked)
+        }
+
+        let names = ["hero.jpg", "hero.png", "background.jpg", "background.png", "wallpaper.jpg"]
+        var folders: [URL] = []
+        if let source = game.sources.first { folders.append(source.url.deletingLastPathComponent()) }
+        folders.append(game.url.appendingPathComponent("Contents/Resources"))
+        search: for folder in folders where image == nil {
+            for name in names {
+                let url = folder.appendingPathComponent(name)
+                if FileManager.default.fileExists(atPath: url.path),
+                   let decoded = await Self.decodeHero(at: url) {
+                    image = decoded
+                    break search
+                }
+            }
+        }
+
+        if image == nil, let catalogURL, !Task.isCancelled {
+            // Keep the previous image as an offline fallback rather than rewriting a usable legacy cache.
+            let digest = SHA256.hash(data: Data(catalogURL.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
+            let cacheKey = titleKey + "-eu-" + digest
+            if let url = await artwork.fetch(titleID: cacheKey, remoteURL: catalogURL, kind: .hero) {
+                image = await Self.decodeHero(at: url)
+                if image != nil { heroCatalogURLs.setObject(catalogURL as NSURL, forKey: game.id as NSUUID) }
+            }
+        }
+        if image == nil, let url = artwork.cachedURL(titleID: titleKey, kind: .hero) {
+            image = await Self.decodeHero(at: url)
+        }
+        if image == nil, !Task.isCancelled {
+            let remote = (catalogURL == nil ? metadata?.headerImageURL ?? metadata?.imageURL : nil)
+                ?? game.titleId.flatMap { URL(string: "https://api.nlib.cc/nx/\($0)/banner") }
+            if let url = await artwork.fetch(titleID: titleKey, remoteURL: remote, kind: .hero) {
+                image = await Self.decodeHero(at: url)
+            }
+        }
+        if let image { heroes.setObject(image, forKey: game.id as NSUUID, cost: Self.decodedCost(image)) }
+        return image
+    }
+
+    /// The player's pick, the disk cache, a local logo.png, the store logo then
+    /// the online sources' logos in their order (Steam, GOG, TheGamesDB,
+    /// Wikidata, Commons, the fan wikis).
+    func logo(for game: PortedGame, metadata: NintendoStoreMetadata?, artwork: ArtworkStore, personalizations: CatalogPersonalizations) async -> NSImage? {
+        if let cached = cachedLogo(for: game) { return cached }
+        let titleKey = personalizations.nxnativeKey(for: game)
+        var image: NSImage?
+
+        // Every read and decode runs off the main thread (`decodeLogo`); a
+        // missing local file simply decodes to nil.
+        if let picked = ArtworkPicks.shared.url(titleID: titleKey, slot: .logo) {
+            image = await Self.decodeLogo(at: picked)
+        }
+        if image == nil, let url = artwork.cachedURL(titleID: titleKey, kind: .logo) {
+            image = await Self.decodeLogo(at: url)
+        }
+        if image == nil {
+            var candidates: [URL] = []
+            if let source = game.sources.first {
+                candidates.append(source.url.deletingLastPathComponent().appendingPathComponent("logo.png"))
+            }
+            candidates.append(game.url.appendingPathComponent("Contents/Resources/logo.png"))
+            for url in candidates where image == nil && !Task.isCancelled {
+                image = await Self.decodeLogo(at: url)
+            }
+        }
+        if image == nil, !Task.isCancelled, let remote = metadata?.logoURL,
+           let url = await artwork.fetch(titleID: titleKey, remoteURL: remote, kind: .logo) {
+            image = await Self.decodeLogo(at: url)
+        }
+        while image == nil, !Task.isCancelled, !searchedOnline.contains(game.id) {
+            if onlineLogoWaiters[game.id] != nil {
+                await withCheckedContinuation { onlineLogoWaiters[game.id, default: []].append($0) }
+                image = cachedLogo(for: game)
+                continue
+            }
+            onlineLogoWaiters[game.id] = []
+            defer { onlineLogoWaiters.removeValue(forKey: game.id)?.forEach { $0.resume() } }
+            let names = [game.name, metadata?.name].compactMap { $0 }
+            let found = await OnlineArtwork.find(names: names, slot: .logo,
+                                                 platform: game.isSwitch2 ? .switch2 : .switch)
+            for remote in found.flatMap({ [$0.url, $0.fallback] }) where image == nil && !Task.isCancelled {
+                if let url = await artwork.fetch(titleID: titleKey, remoteURL: remote, kind: .logo) {
+                    image = await Self.decodeLogo(at: url)
+                }
+            }
+            if !Task.isCancelled { searchedOnline.insert(game.id) }
+            break
+        }
+        if let image { logos.setObject(image, forKey: game.id as NSUUID) }
+        return image
+    }
+
+    static func decodedCost(_ image: NSImage) -> Int {
+        let pixels = image.representations.first.map { $0.pixelsWide * $0.pixelsHigh } ?? 0
+        return max(pixels, 1) * 4
+    }
+
+    /// Decodes off the main thread, capped at 2560 px.
+    nonisolated static func decodeHero(at url: URL) async -> NSImage? {
+        await decode(at: url, maxPixelSize: 2560)
+    }
+
+    /// Logos fit 620 × 215; 1600 px keeps them sharp at 2× on a large window.
+    nonisolated static func decodeLogo(at url: URL) async -> NSImage? {
+        await decode(at: url, maxPixelSize: 1600)
+    }
+
+    nonisolated static func decode(at url: URL, maxPixelSize: Int) async -> NSImage? {
+        guard let image = await thumbnail(at: url, maxPixelSize: maxPixelSize) else { return nil }
+        return NSImage(cgImage: image, size: NSSize(width: CGFloat(image.width), height: CGFloat(image.height)))
+    }
+
+    /// The pixels decoded off the main thread, as a CGImage for callers that build their own NSImage.
+    nonisolated static func thumbnail(at url: URL, maxPixelSize: Int) async -> CGImage? {
+        await Task.detached(priority: .utility) { () -> CGImage? in
+            guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+            let options: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+            ]
+            return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
+        }.value
+    }
+}

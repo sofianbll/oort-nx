@@ -10,10 +10,14 @@ import subprocess
 import sys
 import tarfile
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import names  # noqa: E402  architecture/names.json
+from repo_model import renamed  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "scripts/selene-token-debt.json"
-TOKENS = {"Sources/NXLibraryCore/Selene/SeleneTokens.swift"}
-VIEWS = "Sources/NXLibrary/Views/"
+TOKENS = {"core/OortLibrary/Selene/SeleneTokens.swift"}
+VIEWS = "apps/mac/OortMac/Views/"
 LIBRARY = VIEWS + "OortUI/"
 VERSION = 3
 # Assembled only from OortUI pieces around one screen's data; like any screen, they hold no style of their own.
@@ -97,7 +101,7 @@ def scan(root=ROOT):
     return {
         relative: list(literals(path.read_text(), styles=relative.startswith(VIEWS) and not relative.startswith(LIBRARY)
                                 and relative != FONTS))
-        for path in sorted((root / "Sources").rglob("*.swift"))
+        for path in sorted(file for module in names.MODULES.values() for file in (root / module["path"]).rglob("*.swift"))
         if (relative := path.relative_to(root).as_posix()) not in TOKENS
     }
 
@@ -154,6 +158,10 @@ def main():
         tracked = subprocess.check_output(["git", "ls-tree", args.base, "--", relative], cwd=ROOT)
         if tracked:
             original = json.loads(subprocess.check_output(["git", "show", f"{args.base}:{relative}"], cwd=ROOT))
+            # A file the base knew under another path keeps its allowances (repo_model.renamed).
+            moved = renamed(ROOT, args.base)
+            if "files" in original:
+                original["files"] = {moved.get(path, path): found for path, found in original["files"].items()}
             for path, allowances in baseline_additions(allowed, base_allowances(args.base, original)).items():
                 for signature, count in sorted(allowances.items()):
                     print(f"{path}: baseline grows by {count} for {signature}", file=sys.stderr)

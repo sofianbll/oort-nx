@@ -1,0 +1,290 @@
+import SwiftUI
+import AppKit
+import OortLibrary
+import NxnativeAdapter
+
+/// The selected game under the row (Main.xaml SeleneInfoIntro): logo area 195
+/// high (logo up to 700 × 240, bottom-left, may rise 45 above; a touch larger
+/// than Selene's 620 × 215), the "now playing" chip, the Play / Options /
+/// Favorite pills and the stats line.
+/// Starts 30 below the row; the caller places it.
+struct SpotlightGameInfoView: View {
+    @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+
+    let game: PortedGame
+    let logo: NSImage?
+    let presentation: LibraryPresentation
+    let isRunning: Bool
+    /// Focused pill (0 Play, 1 Options, 2 Favorite), nil when the pills are not focused.
+    let focusedPill: Int?
+    let onPill: (Int) -> Void
+    let onHoverPill: (Int) -> Void
+    /// The pills follow the porting (`PortingPills`).
+    var pillSet: PortingPills = .normal
+    @ObservedObject var cloud: CloudLibraryModel
+    var showsCloudPill = false
+    var cloudCoverVisible = false
+    private var downloadItem: CloudLibraryItem? { isRunning ? nil : cloud.downloadItem(for: game) }
+    var downloadEnabled = false
+    var canCheckCloudSources = false
+    /// "About 8 min left" under the Porting pill.
+    var etaText: String? = nil
+    /// "Last porting failed · Open log".
+    var onOpenLog: () -> Void = {}
+
+    /// Change motion, after the row has glided: the logo holds 0.3 s, then fades
+    /// in over 0.45 s while sliding x −30 → 0 (0.55 s cubic out); the pills and
+    /// stats follow 0.12 s later.
+    @State private var shown = true
+    @State private var restShown = true
+    @State private var slid = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            logoArea
+                .offset(x: slid ? 0 : canvas.u(Self.logoSlideDistance))
+                .opacity(shown ? 1 : 0)
+            Group {
+                if isRunning {
+                    nowPlaying
+                        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
+                        .padding(.top, canvas.u(SeleneTokens.Space.large))
+                }
+                if case .failed(let failure) = pillSet {
+                    Text(failure == .cancelled ? L10n.text("Porting cancelled") : L10n.text("Porting failed"))
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(PortingPillCopy.softRed)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                        .padding(.top, canvas.u(SeleneTokens.Space.panel))
+                }
+                if let reason = pillSet.unavailableReason, downloadItem == nil {
+                    Text(reason.title)
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.ink)
+                        .oortShadow(.text)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                        .padding(.top, canvas.u(SeleneTokens.Space.panel))
+                }
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    pills
+                    if showsCloudPill && (pillSet == .porting || pillSet.isFailed) {
+                        let index = pillSet.detailsCloudIndex
+                        pill(index, CloudLibraryPill(indicator: .init(state: cloud.states[game.id] ?? .init()),
+                                                     focused: focusedPill == index) { onPill(index) })
+                    }
+                }
+                    .padding(.leading, canvas.u(SeleneTokens.Space.seam))
+                    .padding(.top, canvas.u(pillSet.isFailed ? 10 : 18))
+                if let state = cloud.states[game.id] {
+                    CloudGameStatus(state: state, playable: game.isPlayableLocally || isRunning,
+                        hasCover: cloudCoverVisible, hasDownloadPill: showsDownloadPill && state.activeItem == downloadItem)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
+                        .padding(.top, canvas.u(SeleneTokens.Space.small))
+                }
+                portingNote
+                    .oortShadow(.text)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
+                SeleneStatsRow(presentation: presentation, onlineTitleID: game.titleId)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                    .padding(.top, canvas.u(SeleneTokens.Space.large))
+            }
+            .opacity(restShown ? 1 : 0)
+        }
+        .frame(width: canvas.u(900), alignment: .leading)
+        .onAppear { reveal() }
+        .onChange(of: game.id) { reveal() }
+    }
+
+    private var logoArea: some View {
+        GameLogoArea(title: game.name, logo: logo)
+    }
+
+    @ViewBuilder private var portingNote: some View {
+        switch pillSet {
+        case .queued:
+            EmptyView()
+        case .porting:
+            if let etaText {
+                Text(etaText)
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink82)
+                    .transition(.opacity)
+            }
+        case .normalAfterFailure(let failure):
+            Button(action: onOpenLog) {
+                Text(PortingPillCopy.lastFailure(failure, reason: game.portingFailureReason))
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink82)
+            }
+            .buttonStyle(OortPressStyle())
+        case .failed(let failure):
+            if failure == .failed, let reason = game.portingFailureReason {
+                Text(reason.title)
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink82)
+            }
+        case .unavailable(let reason) where downloadItem == nil:
+            Text(reason.detail).seleneFont(.text).foregroundColor(SeleneTheme.ink82)
+        case .normal, .unavailable:
+            if downloadItem != nil {
+                EmptyView()
+            } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
+                Text(L10n.text("Game files not found · Rebuild unavailable"))
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink82)
+            } else if !game.isPlayableLocally {
+                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink82)
+            }
+        }
+    }
+
+    @ViewBuilder private var pills: some View {
+        switch pillSet {
+        case .porting:
+            pill(0, SelenePillButton(title: L10n.text("Porting"), height: 52, focused: focusedPill == 0,
+                                     waveDots: true) { onPill(0) })
+                .accessibilityLabel(L10n.text("Porting, show progress"))
+        case .failed:
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
+                ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
+                    pill(index, SelenePillButton(title: title, height: 52, focused: focusedPill == index,
+                                                 tint: PortingPillCopy.deletes(index) ? PortingPillCopy.softRed : nil) { onPill(index) })
+                        // What deletes stands apart.
+                        .padding(.leading, PortingPillCopy.deletes(index) ? canvas.u(SeleneTokens.Space.group) : 0)
+                }
+            }
+        case .normal, .queued, .normalAfterFailure, .unavailable:
+            normalPills
+        }
+    }
+
+    private var normalPills: some View {
+        let state = cloud.states[game.id] ?? CloudLibraryState()
+        return GamePrimaryActions(primaryTitle: primaryTitle,
+                           secondaryTitle: isRunning ? "Close Game" : "Options",
+                           isFavorite: game.isFavorite, focused: focusedPill,
+                           primaryEnabled: isRunning || (downloadItem != nil
+                               ? downloadEnabled && cloud.states[game.id]?.action == nil && cloud.states[game.id]?.refreshing != true
+                               : pillSet.unavailableReason == nil),
+                           primaryQueued: pillSet == .queued,
+                           primaryDownloadFill: showsDownloadPill
+                               ? (cloudCoverVisible ? 0 : downloadItem.flatMap { CloudLibraryProgressView.downloadFill(state, item: $0) } ?? 0) : nil,
+                           cloud: showsCloudPill ? CloudLibraryIndicator(state: state) : nil,
+                           onAction: onPill, onHover: onHoverPill)
+    }
+
+    private var showsDownloadPill: Bool {
+        downloadItem != nil && pillSet != .queued && pillSet != .porting && !pillSet.isFailed
+    }
+
+    private var primaryTitle: String {
+        if isRunning { return L10n.text("Resume") }
+        if let downloadItem { return downloadItem.primaryDownloadTitle }
+        if pillSet.unavailableReason != nil { return L10n.text("Unavailable") }
+        return game.isPlayableLocally ? L10n.text("Play") : "Build"
+    }
+
+    /// Selene's pill Button is 60 high around a 52 high capsule.
+    private func pill<V: View>(_ index: Int, _ view: V) -> some View {
+        view
+            .frame(height: canvas.u(60))
+            .seleneHover { onHoverPill(index) }
+    }
+
+    private var nowPlaying: some View {
+        HStack(spacing: 0) {
+            NowPlayingDot()
+                .frame(width: canvas.u(20), height: canvas.u(20))
+                .padding(.trailing, canvas.u(SeleneTokens.Space.compact))
+            Text(L10n.text("NOW PLAYING")).seleneFont(.text, .bold).foregroundColor(SeleneTheme.success)
+            Rectangle().fill(SeleneTheme.ink25)
+                .frame(width: max(1, canvas.u(1)), height: canvas.u(18))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
+            Text(L10n.text("Continue where you left off")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
+        }
+        .padding(EdgeInsets(top: canvas.u(6), leading: canvas.u(12), bottom: canvas.u(7), trailing: canvas.u(18)))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.spotlightFocus))
+    }
+
+    /// The pills and stats' fade after a change (the genres below come in with them, `SpotlightInfoFollow`).
+    static let restMotion = Animation.easeOut(duration: 0.4).delay(0.42)
+    /// The logo's fade and slide after a change. A Steam game's head uses the same three motions.
+    static let logoFade = Animation.easeOut(duration: 0.45).delay(0.3)
+    static let logoSlide = SeleneTheme.cubicOut(0.55).delay(0.3)
+    static let logoSlideDistance: CGFloat = -30
+
+    /// Reduce motion keeps the fades and drops the slide.
+    private func reveal() {
+        var reset = Transaction()
+        reset.disablesAnimations = true
+        withTransaction(reset) {
+            shown = false
+            restShown = false
+            slid = reduceMotion
+        }
+        DispatchQueue.main.async {
+            withAnimation(Self.logoFade) { shown = true }
+            withAnimation(Self.restMotion) { restShown = true }
+            if !reduceMotion {
+                withAnimation(Self.logoSlide) { slid = true }
+            }
+        }
+    }
+}
+
+/// Fades in with the game's pills and stats (`SpotlightGameInfoView.restMotion`): hidden as the game changes, then
+/// in with them. Give the view the game's `.id` so each change replays it.
+struct SpotlightInfoFollow: ViewModifier {
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shown ? 1 : 0)
+            .onAppear {
+                DispatchQueue.main.async { withAnimation(SpotlightGameInfoView.restMotion) { shown = true } }
+            }
+    }
+}
+
+/// Selene's success dot: a 9u dot with a ring pulsing 0.5 → 1 and fading 0.45 → 0 over 1.4 s.
+private struct NowPlayingDot: View {
+    @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack {
+            if !reduceMotion {
+                TimelineView(.animation) { context in
+                    let p = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.4) / 1.4
+                    let eased = 1 - pow(1 - p, 3)
+                    Circle().fill(SeleneTheme.success)
+                        .scaleEffect(0.5 + 0.5 * eased)
+                        .opacity(SeleneTokens.Alpha.half * (1 - p))
+                }
+            }
+            Circle().fill(SeleneTheme.success)
+                .frame(width: canvas.u(9), height: canvas.u(9))
+        }
+    }
+}
+
+/// Copy shared by Spotlight's and Details' porting pills.
+enum PortingPillCopy {
+    static let failedTitles = ["Try again", "Open log", "Delete"]
+    static func deletes(_ index: Int) -> Bool { failedTitles.indices.contains(index) && failedTitles[index] == "Delete" }
+    /// Soft, never alarm red.
+    static let softRed = Color(hex: SeleneTokens.Art.softRed)
+
+    static func lastFailure(_ failure: PortingFailure, reason: PortingFailureReason? = nil) -> String {
+        if failure == .cancelled { return L10n.text("Last porting cancelled · Open log") }
+        return L10n.format("%@ · Open log", [String(describing: reason?.title ?? L10n.text("Last porting failed"))])
+    }
+}
+
+extension PortingPills {
+    var isFailed: Bool {
+        if case .failed = self { return true }
+        return false
+    }
+}

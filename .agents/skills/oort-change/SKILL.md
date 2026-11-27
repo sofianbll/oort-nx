@@ -17,8 +17,8 @@ description: Start here for any change to Oort NX, before writing code. Decides 
 
    | The diff touches | Skill |
    |---|---|
-   | `Sources/NXLibrary/Views`, a string of the catalog, an icon, a sound, a token, a menu, a hint, `desktop/ui`, `android/.../ui`, `mobile` screens | [oort-visual-change](../oort-visual-change/SKILL.md) |
-   | `OortCore`, `NXLibraryCore`, `ArcanePorting`, a model or a service, a file format, the network, an engine call, a script that ships | [oort-core-change](../oort-core-change/SKILL.md) |
+   | `apps/mac/OortMac/Views`, a string of the catalog, an icon, a sound, a token, a menu, a hint, `desktop/ui`, `android/.../ui`, `mobile` screens | [oort-visual-change](../oort-visual-change/SKILL.md) |
+   | `OortCore`, `OortLibrary`, `NxnativeAdapter`, a model or a service, a file format, the network, an engine call, a script that ships | [oort-core-change](../oort-core-change/SKILL.md) |
    | A rule a player sees the effect of: an order, a filter, a default, an error message, a name | both |
 
 3. Read G1–G10 in [change-criteria](../../../docs/working-on-it/change-criteria.md), then the rows of the skill. A row is met, not concerned with its reason, or a gap with its reason. Never blank.

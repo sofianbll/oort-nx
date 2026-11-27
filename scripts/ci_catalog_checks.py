@@ -40,7 +40,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("batch", help="matrix, debug, or a numbered standalone batch")
     batch = parser.parse_args().batch
-    debug, standalone = partition(sorted((ROOT / "Tests/CatalogAppChecks").glob("run_*.py")))
+    debug, standalone = partition(sorted((ROOT / "apps/mac/Tests/CatalogAppChecks").glob("run_*.py")))
     if not debug or not standalone:
         parser.error("expected both shared-debug and standalone probes")
     if batch == "matrix":

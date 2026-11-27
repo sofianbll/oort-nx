@@ -8,8 +8,10 @@ import plistlib
 import re
 from xml.parsers.expat import ExpatError
 
+import names  # architecture/names.json
+
 LANGUAGES = ('en', 'it', 'fr', 'de', 'es', 'pt-BR', 'zh-Hans')
-BUNDLE = 'NXLibrary_NXLibraryCore.bundle'
+BUNDLE = names.RESOURCE_BUNDLE
 PLACEHOLDER = re.compile(r'%(?:(\d+)\$)?(lld|ld|d|@|(?:\.\d+)?f)')
 # SF Symbol names are identifiers: translated, they name no symbol and the icon disappears.
 TRANSLATED_SYMBOL = re.compile(r'\b(?:systemImage|systemName|systemSymbolName)\s*:\s*L10n\.')
@@ -113,11 +115,15 @@ def check_app(app):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--catalog', type=Path, default=Path(__file__).resolve().parents[1] / 'Sources/NXLibraryCore/Resources/Localizable.xcstrings')
+    parser.add_argument('--catalog', type=Path, default=Path(__file__).resolve().parents[1] / 'core/OortLibrary/Resources/Localizable.xcstrings')
     parser.add_argument('--app', type=Path)
-    parser.add_argument('--sources', type=Path, default=Path(__file__).resolve().parents[1] / 'Sources')
+    parser.add_argument('--sources', type=Path, action='append',
+                        help='a folder of Swift sources; default: every module of architecture/names.json')
     args = parser.parse_args()
-    errors = check_catalog(args.catalog) + check_sources(args.sources) + check_achievements(args.sources)
+    sources = args.sources or [names.ROOT / module['path'] for module in names.MODULES.values()]
+    errors = check_catalog(args.catalog)
+    for folder in sources:
+        errors += check_sources(folder) + check_achievements(folder)
     if args.app:
         errors += check_app(args.app)
     if errors:

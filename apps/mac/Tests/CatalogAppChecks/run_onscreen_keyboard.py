@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Type into real text fields with controller actions, offscreen and on an isolated home."""
+from pathlib import Path
+import os
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
+with tempfile.TemporaryDirectory(prefix="kb-", dir="/private/tmp") as scratch:
+    output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(scratch) / "screens"
+    subprocess.run([ROOT / ".build/debug" / names.APP, "--render-keyboard", output], cwd=ROOT, check=True, timeout=300,
+                   env=dict(os.environ, HOME=scratch, CFFIXED_USER_HOME=scratch, TMPDIR=scratch))

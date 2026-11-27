@@ -1,0 +1,310 @@
+import AppKit
+import Combine
+import OortLibrary
+import NxnativeAdapter
+
+/// Arcane's own updates: the check against GitHub, the download, the checks of `AppUpdate`,
+/// the swap and the relaunch. Hidden entirely while `AppUpdate.repository()` is nil.
+@MainActor
+final class AppUpdater: ObservableObject {
+    typealias State = AppUpdateState
+
+    @Published private(set) var state: State
+    /// The release the launch dialog offers; nil when no dialog is up.
+    @Published var offer: AppUpdate.Release?
+    @Published var isCheckPresented = false
+    @Published private(set) var checkedRelease: AppUpdate.Release?
+    @Published var notesScroll = 0
+    @Published var offerFocus: SeleneConfirmButton = .confirm
+    /// Why an update must wait ("After the porting"); nil when it may run. Set by the shell.
+    var blockedReason: () -> String? = { nil }
+    /// Held across replacement and relaunch so new save operations cannot enter between the checks.
+    var acquireInstallLease: () -> (() -> Void)? = { nil }
+
+    private let repository: String?
+    private let runningVersion: String
+    private let defaults = AppData.preferences
+    private var downloadSession: URLSession?
+    private var lastRelease: AppUpdate.Release?
+    private var shouldOfferResult = false
+
+    private enum Keys {
+        static let lastCheck = "NXLibrary_UpdateLastCheck"
+        static let laterVersion = "NXLibrary_UpdateLaterVersion"
+        static let laterAt = "NXLibrary_UpdateLaterAt"
+    }
+
+    init() {
+        repository = AppUpdate.repository()
+        runningVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
+        if repository == nil {
+            state = .hidden
+        } else {
+            switch AppUpdate.installability(Bundle.main.bundleURL) {
+            case .developer: state = .developer
+            case .readOnly: state = .readOnly
+            case .ok: state = .idle
+            }
+        }
+    }
+
+    var currentVersion: String { runningVersion }
+    var installation: AppUpdate.Installability { AppUpdate.installability(Bundle.main.bundleURL) }
+    var canInstallRelease: Bool {
+        release.map { AppUpdate.mayInstall($0, runningVersion: runningVersion, installation: installation) } == true
+    }
+    var dialogRelease: AppUpdate.Release? { offer ?? checkedRelease ?? release }
+    var dialogHasSecondaryButton: Bool {
+        switch state {
+        case .available, .readyToInstall: return canInstallRelease
+        case .failed: return true
+        default: return false
+        }
+    }
+    func showDetails() {
+        notesScroll = 0
+        offerFocus = .confirm
+        isCheckPresented = true
+    }
+    func confirmDialog() {
+        switch state {
+        case .available, .readyToInstall:
+            if canInstallRelease { update() } else { later() }
+        case .failed: checkNow()
+        default: later()
+        }
+    }
+
+    /// The release's page on GitHub, for its notes in full.
+    var releasePageURL: URL? {
+        guard let repository, let release else { return nil }
+        return URL(string: "https://github.com/\(repository)/releases/tag/\(release.tag)")
+    }
+
+    /// The release the About row and the dialog act on.
+    var release: AppUpdate.Release? {
+        switch state {
+        case .available(let release), .readyToInstall(let release): return release
+        default: return offer ?? lastRelease
+        }
+    }
+
+    func checkAtLaunch(enabled: Bool) {
+        guard enabled, state == .idle,
+              AppUpdate.shouldCheck(lastCheck: defaults.object(forKey: Keys.lastCheck) as? Date, now: Date())
+        else { return }
+        check(offering: true)
+    }
+
+    func checkNow(presenting: Bool = true) {
+        shouldOfferResult = false
+        if presenting {
+            notesScroll = 0
+            offerFocus = .confirm
+            isCheckPresented = true
+        }
+        switch state {
+        case .developer, .readOnly, .idle, .upToDate, .available, .failed: check(offering: false)
+        default: break
+        }
+    }
+
+    private func check(offering: Bool) {
+        guard let repository,
+              let url = AppUpdate.releasesURL(repository: repository, runningVersion: runningVersion) else { return }
+        state = .checking
+        offer = nil
+        shouldOfferResult = offering
+        checkedRelease = nil
+        var request = URLRequest(url: url, timeoutInterval: 20)
+        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        Task {
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                if status == 404 {
+                    defaults.set(Date(), forKey: Keys.lastCheck)
+                    lastRelease = nil; offer = nil; state = .upToDate; return
+                }
+                guard status == 200 else { state = .failed("GitHub answered \(status); try again later."); return }
+                guard let release = AppUpdate.parseReleases(data, repository: repository) else {
+                    state = .failed("The update could not be verified. Try again later.")
+                    return
+                }
+                checkedRelease = release
+                defaults.set(Date(), forKey: Keys.lastCheck)
+                guard AppUpdate.isNewer(release.version, than: runningVersion) else {
+                    lastRelease = nil; offer = nil; state = .upToDate; return
+                }
+                lastRelease = release
+                state = .available(release)
+                let laterVersion = defaults.string(forKey: Keys.laterVersion)
+                let laterAt = defaults.object(forKey: Keys.laterAt) as? Date
+                if shouldOfferResult, AppUpdate.shouldOffer(release.version, laterVersion: laterVersion, laterAt: laterAt, now: Date()) {
+                    // It opens by itself: a press meant for Play only closes it.
+                    offerFocus = dialogHasSecondaryButton ? .cancel : .confirm
+                    notesScroll = 0
+                    offer = release
+                }
+            } catch {
+                state = .failed("Could not reach GitHub.")
+            }
+        }
+    }
+
+    /// Hides the dialog for this version for a day; About still offers it.
+    func later() {
+        if let offer {
+            defaults.set(offer.version, forKey: Keys.laterVersion)
+            defaults.set(Date(), forKey: Keys.laterAt)
+        }
+        offer = nil
+        isCheckPresented = false
+    }
+
+    func update() {
+        guard let release, canInstallRelease, blockedReason() == nil else { return }
+        offer = nil
+        let folder = Self.workFolder()
+        let zip = folder.appendingPathComponent(AppUpdate.archiveName(release.version))
+        switch state {
+        case .readyToInstall:
+            isCheckPresented = true
+            verifyAndInstall(zip: zip, release: release, folder: folder)
+            return
+        case .available, .failed: break
+        default: return
+        }
+        isCheckPresented = true
+        state = .downloading(0)
+        do {
+            let fm = FileManager.default
+            if fm.fileExists(atPath: folder.path) { try fm.removeItem(at: folder) }
+            try fm.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        } catch { return fail(L10n.text("The update archive could not be verified; nothing was changed.")) }
+        let policy = AppUpdateDownload(expectedBytes: release.archiveBytes, progress: { [weak self] fraction in
+            Task { @MainActor in
+                guard let self, case .downloading = self.state else { return }
+                self.state = .downloading(fraction)
+            }
+        }) { [weak self] location, response, error in
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            var moved = false
+            if let location, error == nil, status == 200 {
+                moved = (try? FileManager.default.moveItem(at: location, to: zip)) != nil
+            }
+            Task { @MainActor in
+                guard let self else { return }
+                self.downloadSession = nil
+                guard moved else { return self.fail("The download did not finish; nothing was changed.") }
+                self.verifyAndInstall(zip: zip, release: release, folder: folder)
+            }
+        }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 60
+        configuration.timeoutIntervalForResource = 15 * 60
+        let session = URLSession(configuration: configuration, delegate: policy, delegateQueue: nil)
+        downloadSession = session
+        let task = session.downloadTask(with: release.zipURL)
+        task.resume()
+    }
+
+    private func verifyAndInstall(zip: URL, release: AppUpdate.Release, folder: URL) {
+        state = .verifying
+        let expectedID = Bundle.main.bundleIdentifier ?? AppDataProfile.identifier
+        let runningOS = ProcessInfo.processInfo.operatingSystemVersion
+        Task {
+            let prepared = await Task.detached(priority: .userInitiated) {
+                Self.prepare(zip: zip, release: release, folder: folder, expectedID: expectedID, runningOS: runningOS)
+            }.value
+            switch prepared {
+            case .failure(let error): fail(error.message)
+            case .success(let staged): install(staged: staged, folder: folder, release: release)
+            }
+        }
+    }
+
+    private struct PreparationError: Error {
+        let message: String
+    }
+
+    nonisolated private static func prepare(zip: URL, release: AppUpdate.Release, folder: URL,
+                                           expectedID: String, runningOS: OperatingSystemVersion) -> Result<URL, PreparationError> {
+        guard AppUpdate.checkDigest(zip, expected: release.digest) == .match else {
+            return .failure(.init(message: L10n.text("The download did not match the release; nothing was changed.")))
+        }
+        let unpacked = folder.appendingPathComponent("unpacked")
+        // A retry re-verifies and extracts the retained ZIP, rather than trusting a staged app left on disk.
+        if FileManager.default.fileExists(atPath: unpacked.path) {
+            do { try FileManager.default.removeItem(at: unpacked) }
+            catch { return .failure(.init(message: L10n.text("The update archive could not be verified; nothing was changed."))) }
+        }
+        guard let resources = Bundle.main.resourceURL,
+              let runtime = BundledRuntime.locate(resourceURL: resources),
+              run(runtime.python.path, ["-I", "-B", resources.appendingPathComponent("validate_update.py").path,
+                                        zip.path, unpacked.path]) else {
+            return .failure(.init(message: L10n.text("The update archive could not be verified; nothing was changed.")))
+        }
+        let staged = unpacked.appendingPathComponent(AppUpdate.bundleName)
+        if let problem = AppUpdate.bundleProblem(staged, expectedID: expectedID, version: release.version, runningOS: runningOS) {
+            if case .needsNewerMacOS(let minimum) = problem {
+                return .failure(.init(message: L10n.format("Arcane %@ needs macOS %@ or later; nothing was changed.", [String(describing: release.version), String(describing: minimum)])))
+            }
+            return .failure(.init(message: L10n.format("The download is not a valid Arcane %@; nothing was changed.", [String(describing: release.version)])))
+        }
+        guard AppUpdate.validCodeSignature(staged) else {
+            return .failure(.init(message: L10n.text("The app signature could not be verified; nothing was changed.")))
+        }
+        return .success(staged)
+    }
+
+    private func install(staged: URL, folder: URL, release: AppUpdate.Release) {
+        guard AppUpdate.mayInstall(release, runningVersion: runningVersion, installation: installation) else {
+            return fail("This copy cannot install updates. Download a release copy to Applications.")
+        }
+        guard blockedReason() == nil, let releaseLease = acquireInstallLease() else {
+            state = .readyToInstall(release)
+            return
+        }
+        state = .installing
+        let current = Bundle.main.bundleURL
+        Task.detached(priority: .userInitiated) {
+            let result = Result { try AppUpdate.install(staged, over: current) }
+            await MainActor.run {
+                defer { releaseLease() }
+                try? FileManager.default.removeItem(at: folder)
+                switch result {
+                case .success(let placed):
+                    if AppUpdate.relaunch(placed) {
+                        AppDelegate.relaunchScheduled = true
+                        NSApp.terminate(nil)
+                    } else {
+                        self.state = .failed("\(AppIdentity.displayName) \(release.version) is installed; open it again to finish.")
+                    }
+                case .failure:
+                    self.fail("\(AppIdentity.displayName) could not be replaced; the current version is unchanged.")
+                }
+            }
+        }
+    }
+
+    private func fail(_ message: String) {
+        try? FileManager.default.removeItem(at: Self.workFolder())
+        state = .failed(message)
+    }
+
+    private static func workFolder() -> URL {
+        AppData.supportRoot.appendingPathComponent("Temp/Update")
+    }
+
+    nonisolated private static func run(_ tool: String, _ arguments: [String]) -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: tool)
+        process.arguments = arguments
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        guard let waitForExit = try? process.runWithExitWait() else { return false }
+        waitForExit()
+        return process.terminationStatus == 0
+    }
+}

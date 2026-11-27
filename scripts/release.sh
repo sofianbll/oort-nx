@@ -138,17 +138,17 @@ check_release_tree
 if [ "$PUBLISH" = "1" ]; then
   [ -n "$NOTES" ] && [ -f "$NOTES" ] || fail "--publish needs --notes <file> with the release notes"
   command -v gh >/dev/null || fail "--publish needs the GitHub CLI (gh)"
-  REPOSITORY="$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")"
+  REPOSITORY="$(resolve_release_repository "$ROOT/core/OortLibrary/App/AppUpdate.swift")"
   RELEASE_COMMIT="$(git rev-parse --verify HEAD)" || fail "could not resolve the release commit"
   check_publish_target
 fi
 
-MIN_XCODE="$(sed -n 's/.*minimumXcode: "\([0-9.]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/ToolchainRequirements.swift" | head -1)"
-ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-f]\{40\}\)".*/\1/p' "$ROOT/Sources/NXLibrary/ViewModels/AppViewModel.swift" | head -1)}"
+MIN_XCODE="$(sed -n 's/.*minimumXcode: "\([0-9.]*\)".*/\1/p' "$ROOT/engines/nxnative/NxnativeAdapter/Setup/ToolchainRequirements.swift" | head -1)"
+ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-f]\{40\}\)".*/\1/p' "$ROOT/apps/mac/OortMac/ViewModels/AppViewModel.swift" | head -1)}"
 [ -n "$MIN_XCODE" ] && [ -n "$ENGINE" ] || fail "could not read minimumXcode or defaultPinnedEngineCommit from the sources"
 
 # An implicit pin uses the app's upstream engine; a partially supplied override is never valid.
-ENGINE_TARGET="${ENGINE_REPO:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/SetupActions.swift")}"
+ENGINE_TARGET="${ENGINE_REPO:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/engines/nxnative/NxnativeAdapter/Setup/SetupActions.swift")}"
 if [[ -n "$ENGINE_REPO$ENGINE_COMMIT" ]]; then
   [ -n "$ENGINE_REPO" ] && [ -n "$ENGINE_COMMIT" ] || fail "supply both --engine-repo and --engine-commit"
 fi
@@ -174,12 +174,12 @@ export NX_ENGINE_REPO="$ENGINE_REPO" NX_ENGINE_COMMIT="$ENGINE_COMMIT"
 NX_TEST_ENGINE_REPO="$engine_probe/checkout" NX_TEST_ENGINE_COMMIT="$ENGINE" NX_TEST_ENGINE_REQUIRED=1 \
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" swift test --package-path "$ROOT" \
   || fail "swift test failed"
-for check in "$ROOT"/Tests/CatalogAppChecks/run_*.py; do
+for check in "$ROOT"/apps/mac/Tests/CatalogAppChecks/run_*.py; do
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" python3 "$check" \
     || fail "application regressions failed: ${check##*/}"
 done
-(cd "$ROOT" && python3 -m unittest discover -s Tests/PublicationChecks >/dev/null 2>&1) \
-  || fail "the publication checks' tests failed (python3 -m unittest discover -s Tests/PublicationChecks)"
+(cd "$ROOT" && python3 -m unittest discover -s scripts/tests/PublicationChecks >/dev/null 2>&1) \
+  || fail "the publication checks' tests failed (python3 -m unittest discover -s scripts/tests/PublicationChecks)"
 [ -d "$ROOT/work/Runtime" ] || fail "no work/Runtime: run scripts/bundle_runtime.sh first (a release carries its Python and tools)"
 python3 "$ROOT/scripts/check_publication.py" --runtime "$ROOT/work/Runtime"
 
@@ -257,7 +257,7 @@ if [ "$PUBLISH" = "1" ]; then
   check_engine_pin "$ENGINE_TARGET" "$ENGINE" \
     || fail "engine commit $ENGINE is no longer verified on a public branch of $ENGINE_TARGET"
   check_release_tree
-  [ "$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")" = "$REPOSITORY" ] \
+  [ "$(resolve_release_repository "$ROOT/core/OortLibrary/App/AppUpdate.swift")" = "$REPOSITORY" ] \
     || fail "the public update repository changed during release preparation"
   check_publish_target
   if [ "$RESUME_TAG" = "0" ]; then
