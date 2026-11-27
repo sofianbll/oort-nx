@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/bundle_runtime.sh — maintainer only.
-# Builds work/Runtime from runtime.lock: python-build-standalone CPython, the
+# Builds work/Runtime from engines/nxnative/runtime.lock: python-build-standalone CPython, the
 # engine's wheels (zbic's GPLv2 source beside them; nsz and its dependencies for
 # NSZ / XCZ inputs), and Homebrew's zstd and glslangValidator with their
 # dylibs, relinked to @loader_path and ad-hoc signed. build_app.sh copies it
@@ -8,7 +8,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-LOCK="$ROOT/runtime.lock"
+LOCK="$ROOT/engines/nxnative/runtime.lock"
 WORK="$ROOT/work"
 CACHE="$WORK/cache"
 STAGE="$WORK/Runtime.staging"
@@ -31,7 +31,7 @@ if [ ! -f "$PY_TAR" ] || [ "$(sha256 "$PY_TAR")" != "$PY_SHA" ]; then
   curl -fL --retry 3 -o "$PY_TAR.part" "$PY_URL"
   mv "$PY_TAR.part" "$PY_TAR"
 fi
-[ "$(sha256 "$PY_TAR")" = "$PY_SHA" ] || { rm -f "$PY_TAR"; fail "Python tarball does not match runtime.lock."; }
+[ "$(sha256 "$PY_TAR")" = "$PY_SHA" ] || { rm -f "$PY_TAR"; fail "Python tarball does not match engines/nxnative/runtime.lock."; }
 
 # 2. Extract (the tarball's top folder is python/).
 tar -xzf "$PY_TAR" -C "$STAGE"
@@ -59,7 +59,7 @@ while plutil -extract "wheels.$i" json -o /dev/null "$LOCK" 2>/dev/null; do
   echo "$(lock wheels.$i.name) @ $(lock wheels.$i.url) --hash=sha256:$(lock wheels.$i.sha256)" >> "$REQS"
   i=$((i + 1))
 done
-[ "$i" -gt 0 ] || fail "runtime.lock lists no wheels."
+[ "$i" -gt 0 ] || fail "engines/nxnative/runtime.lock lists no wheels."
 "$PY" -I -m pip install --disable-pip-version-check --no-deps --no-compile --require-hashes \
   --only-binary=:all: --target "$SITE" -r "$REQS"
 # The runtime is read-only: no pip inside it. Console scripts (nsz, ttx…) are not used (the engine runs
@@ -75,7 +75,7 @@ while plutil -extract "sources.$i" json -o /dev/null "$LOCK" 2>/dev/null; do
     curl -fL --retry 3 -o "$src.part" "$(lock sources.$i.url)"
     mv "$src.part" "$src"
   fi
-  [ "$(sha256 "$src")" = "$(lock sources.$i.sha256)" ] || { rm -f "$src"; fail "$(lock sources.$i.file) does not match runtime.lock."; }
+  [ "$(sha256 "$src")" = "$(lock sources.$i.sha256)" ] || { rm -f "$src"; fail "$(lock sources.$i.file) does not match engines/nxnative/runtime.lock."; }
   cp "$src" "$STAGE/sources/"
   i=$((i + 1))
 done
@@ -90,7 +90,7 @@ while plutil -extract "brew.$i" json -o /dev/null "$LOCK" 2>/dev/null; do
   installed="$(brew list --versions "$formula" | awk '{print $2}')"
   case "$installed" in
     "$version"|"$version"_*) ;;
-    *) fail "$formula is $installed, runtime.lock wants $version." ;;
+    *) fail "$formula is $installed, engines/nxnative/runtime.lock wants $version." ;;
   esac
   src="$(brew --prefix "$formula")/bin/$binary"
   [ -e "$src" ] || fail "missing $src"

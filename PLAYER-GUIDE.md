@@ -56,7 +56,7 @@ bash scripts/build_app.sh
 open "$HOME/Applications/Oort NX Dev.app"
 ~~~
 
-Run `bundle_runtime.sh` once, and again when `runtime.lock` changes. `build_app.sh` prepares, signs and verifies the app before installing it atomically in `~/Applications`.
+Run `bundle_runtime.sh` once, and again when `engines/nxnative/runtime.lock` changes. `build_app.sh` prepares, signs and verifies the app before installing it atomically in `~/Applications`.
 
 Build options, runtime dependencies, debug builds and release packaging are documented in the [development guide](docs/working-on-it/development.md).
 

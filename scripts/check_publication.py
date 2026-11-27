@@ -93,7 +93,7 @@ def check_files(root):
 
 def check_runtime(root, runtime):
     try:
-        lock_bytes = (root / "runtime.lock").read_bytes()
+        lock_bytes = (root / "engines/nxnative/runtime.lock").read_bytes()
         lock = json.loads(lock_bytes)
         versions = json.loads((runtime / "versions.json").read_text())
         expected = {"python": lock["python"]["version"],
@@ -101,7 +101,7 @@ def check_runtime(root, runtime):
         expected.update((item["name"].lower(), item["version"]) for item in lock["wheels"])
         expected.update((item["formula"], item["version"]) for item in lock["brew"])
         if any(versions.get(name) != value for name, value in expected.items()):
-            return ["Runtime does not match runtime.lock; run scripts/bundle_runtime.sh."]
+            return ["Runtime does not match engines/nxnative/runtime.lock; run scripts/bundle_runtime.sh."]
         required = ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]
         if not all((runtime / name).is_file() and os.access(runtime / name, os.X_OK) for name in required):
             return ["Runtime is missing an executable."]
@@ -161,7 +161,7 @@ def check_app(root, app, require_runtime=True):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runtime", type=Path, help="Also verify a bundled runtime against runtime.lock.")
+    parser.add_argument("--runtime", type=Path, help="Also verify a bundled runtime against engines/nxnative/runtime.lock.")
     parser.add_argument("--app", type=Path, help="Also verify a release app's reviewed licence and source files.")
     parser.add_argument("--without-runtime", action="store_true", help="Allow a development bundle without the runtime.")
     args = parser.parse_args()

@@ -72,7 +72,7 @@ Use synthetic fixtures in tests. Never commit a game, a key, a save, an extracte
 - Credit [Arcane by Bium23](https://github.com/Bium23/NxLibrary) for work it contains, and [Selene by Matthew Silva](https://github.com/mattxslv/Selene) for the design system. Credit [Josef Nemec and Playnite](https://github.com/JosefNemec/Playnite) for any picker work taken from Playnite.
 - A licence on code is not permission to use branding or other assets.
 - Every project, service, font or symbol in use has its entry in [design/credits.json](design/credits.json), the only list: run `scripts/generate` after editing it.
-- A new dependency needs a compatible licence, an entry in `design/credits.json` and `NOTICE` and, for the engine runtime, an entry in `runtime.lock`.
+- A new dependency needs a compatible licence, an entry in `design/credits.json` and `NOTICE` and, for the engine runtime, an entry in `engines/nxnative/runtime.lock`.
 
 ### Importing from Arcane
 

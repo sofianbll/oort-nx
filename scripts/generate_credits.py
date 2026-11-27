@@ -132,14 +132,14 @@ def dependencies():
         found.setdefault(key, where)
 
     names = tracked()
-    if text := read(ROOT / "runtime.lock"):
+    if text := read(ROOT / "engines/nxnative/runtime.lock"):
         lock = json.loads(text)
-        add("python:cpython", "runtime.lock")
-        add("python:standalone", "runtime.lock")
+        add("python:cpython", "engines/nxnative/runtime.lock")
+        add("python:standalone", "engines/nxnative/runtime.lock")
         for wheel in lock["wheels"]:
-            add("wheel:" + wheel["name"].lower(), "runtime.lock")
+            add("wheel:" + wheel["name"].lower(), "engines/nxnative/runtime.lock")
         for item in lock["brew"]:
-            add("brew:" + item["formula"], "runtime.lock")
+            add("brew:" + item["formula"], "engines/nxnative/runtime.lock")
         # The libraries those two tools load, copied beside them by bundle_runtime.sh.
         bundled = read(ROOT / "scripts/bundle_runtime.sh") + read(ROOT / "scripts/relink_macho.py")
         if bundled:

@@ -2,7 +2,7 @@ import XCTest
 
 /// The bundled runtime carries every Python package the pinned engine asks players to install: its README's
 /// `pip install` line and, from engines that have it, `.github/requirements/tools.txt`. A re-pin that adds one
-/// (zbic in 0.1.3, found only by a player) fails here until runtime.lock has it or `notBundled` says why not.
+/// (zbic in 0.1.3, found only by a player) fails here until engines/nxnative/runtime.lock has it or `notBundled` says why not.
 final class EngineRuntimeRequirementsTests: XCTestCase {
     /// Packages the README lists that the runtime leaves out on purpose, with the reason.
     static let notBundled: [String: String] = [
@@ -40,12 +40,12 @@ final class EngineRuntimeRequirementsTests: XCTestCase {
         XCTAssertFalse(fromReadme.isEmpty, "no `pip install` line in nxnative \(pin.prefix(7)) README.md")
         let required = fromReadme + Self.requirementPackages(in: gitShow("\(pin):.github/requirements/tools.txt", in: engine) ?? "")
 
-        let lock = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("runtime.lock")))
+        let lock = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("engines/nxnative/runtime.lock")))
         let wheels = ((lock as? [String: Any])?["wheels"] as? [[String: Any]] ?? [])
             .compactMap { ($0["name"] as? String)?.lowercased() }
         for package in required where Self.notBundled[package] == nil {
             XCTAssertTrue(wheels.contains(package),
-                          "nxnative \(pin.prefix(7)) needs \(package): add it to runtime.lock or to notBundled with the reason")
+                          "nxnative \(pin.prefix(7)) needs \(package): add it to engines/nxnative/runtime.lock or to notBundled with the reason")
         }
     }
 

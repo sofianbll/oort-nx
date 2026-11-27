@@ -13,7 +13,7 @@
 /engines/nxnative/NxnativeAdapter/Setup/       @sofianbll
 /engines/nxnative/NxnativeAdapter/Build/       @sofianbll
 /Package.swift                      @sofianbll
-/runtime.lock                       @sofianbll
+/engines/nxnative/runtime.lock                       @sofianbll
 /NOTICE                             @sofianbll
 /LICENSE                            @sofianbll
 /SECURITY.md                        @sofianbll

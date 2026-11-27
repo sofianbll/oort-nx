@@ -17,6 +17,7 @@ class PublicationChecks(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         subprocess.run(["git", "init", "-q", str(self.root)], check=True)
+        (self.root / "engines/nxnative").mkdir(parents=True)  # where runtime.lock lives
 
     def track(self, name, content):
         file = self.root / name
@@ -91,7 +92,7 @@ class PublicationChecks(unittest.TestCase):
     def test_runtime_must_match_the_exact_lock(self):
         lock = {"python": {"version": "3.14.6"}, "wheels": [], "brew": []}
         data = json.dumps(lock).encode()
-        (self.root / "runtime.lock").write_bytes(data)
+        (self.root / "engines/nxnative/runtime.lock").write_bytes(data)
         runtime = self.root / "runtime"
         runtime.mkdir()
         for path in ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]:
@@ -103,7 +104,7 @@ class PublicationChecks(unittest.TestCase):
         manifest = {"python": "3.14.6", "lock": hashlib.sha256(data).hexdigest()}
         (runtime / "versions.json").write_text(json.dumps(manifest))
         self.assertEqual(self.scan("--runtime", str(runtime)).returncode, 0)
-        (self.root / "runtime.lock").write_bytes(data + b"\n")
+        (self.root / "engines/nxnative/runtime.lock").write_bytes(data + b"\n")
         result = self.scan("--runtime", str(runtime))
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("runtime", result.stdout.lower())
@@ -112,7 +113,7 @@ class PublicationChecks(unittest.TestCase):
         lock = {"python": {"version": "3.14.6"}, "wheels": [], "brew": [],
                 "sources": [{"name": "zbic", "file": "zbic-1.0.1.post1.tar.gz"}]}
         data = json.dumps(lock).encode()
-        (self.root / "runtime.lock").write_bytes(data)
+        (self.root / "engines/nxnative/runtime.lock").write_bytes(data)
         runtime = self.root / "runtime"
         runtime.mkdir()
         for path in ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]:
@@ -134,7 +135,7 @@ class PublicationChecks(unittest.TestCase):
         resources = app / "Contents/Resources"
         runtime = resources / "Runtime"
         lock = b'{"python":{"version":"3.14.6"},"wheels":[],"brew":[]}'
-        (self.root / "runtime.lock").write_bytes(lock)
+        (self.root / "engines/nxnative/runtime.lock").write_bytes(lock)
         for path in [runtime / name for name in ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]]:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("fixture")

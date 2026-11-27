@@ -18,7 +18,7 @@ One list, for every change to Oort NX. G applies to all, V to anything a player 
 | G6 | One thing keeps one word: the existing catalog key is reused before a new one. | Search of the catalog | [HIG Writing](https://developer.apple.com/design/human-interface-guidelines/writing), Build language patterns | Two words read as two things. |
 | G7 | File map, area page, flows, validation and Unreleased notes change in the same commit. | Diff read | [AGENTS.md](../../AGENTS.md), Documentation | The next session trusts the docs. |
 | G8 | Fixtures and captures are synthetic: no game, key, save, personal path or account. | `check_publication.py`, look | [AGENTS.md](../../AGENTS.md), Non-negotiables | The repository is public. |
-| G9 | Reused work names its author and licence; a new dependency has a reason, a licence and a lock. | `NOTICE`, `runtime.lock` | [CONTRIBUTING.md](../../CONTRIBUTING.md) | Others' work stays theirs. |
+| G9 | Reused work names its author and licence; a new dependency has a reason, a licence and a lock. | `NOTICE`, `engines/nxnative/runtime.lock` | [CONTRIBUTING.md](../../CONTRIBUTING.md) | Others' work stays theirs. |
 | G10 | The pull request says what was run, what was seen, what was not tried. | Pull request text | [AGENTS.md](../../AGENTS.md), Verification | Implemented, verified and confirmed differ. |
 
 ## Visual: how much, and where
