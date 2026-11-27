@@ -177,7 +177,18 @@ public enum SourceSelection {
         return selected.union(files.filter { $0.kind == .dlc && paths.contains(path($0)) }.map(\.id))
     }
 
-    private static func version(_ file: GameFileItem) -> Int {
-        Int(file.versionString?.replacingOccurrences(of: "v", with: "") ?? "") ?? -1
+    /// A version read as numbers: a raw one ("v131072") or a dotted one ("v2.0.2"), so 2.0.2 is newer than 1.2.0.
+    /// Before, a dotted version read as -1 and the first update of the list was taken as the newest.
+    static func version(_ file: GameFileItem) -> Version {
+        let text = (file.versionString ?? "").trimmingCharacters(in: .whitespaces).lowercased()
+        let digits = text.hasPrefix("v") ? String(text.dropFirst()) : text
+        let parts = digits.split(separator: ".", omittingEmptySubsequences: false).map { Int($0) }
+        guard !parts.isEmpty, parts.allSatisfy({ $0 != nil }) else { return Version(parts: [-1]) }
+        return Version(parts: parts.compactMap { $0 })
+    }
+
+    struct Version: Comparable {
+        let parts: [Int]
+        static func < (lhs: Version, rhs: Version) -> Bool { lhs.parts.lexicographicallyPrecedes(rhs.parts) }
     }
 }

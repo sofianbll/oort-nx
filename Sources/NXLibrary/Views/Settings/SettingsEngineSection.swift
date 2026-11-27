@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import NXLibraryCore
 import ArcanePorting
 
@@ -22,6 +23,15 @@ struct SettingsEngineSection: View {
     }
 
     var body: some View {
+        if let readiness = setup.readiness {
+            readinessBody(readiness)
+                .onAppear { publishReadinessActions(readiness) }
+        } else {
+            nxnativeBody
+        }
+    }
+
+    private var nxnativeBody: some View {
         OortSettingsGroup {
             SeleneRow("Engine repository",
                       subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
@@ -211,10 +221,12 @@ struct SettingsEngineSection: View {
     }
 
     private var statusText: String {
-        setup.toolchainGateSummary?.label ?? L10n.text(setup.isCheckingEnvironment ? "Checking" : "Unknown")
+        if let readiness = setup.readiness, setup.toolchainGateSummary == nil { return readiness.overall.title }
+        return setup.toolchainGateSummary?.label ?? L10n.text(setup.isCheckingEnvironment ? "Checking" : "Unknown")
     }
 
     private var statusColor: Color {
+        if let readiness = setup.readiness, setup.toolchainGateSummary == nil { return readiness.overall.tone.color }
         guard let summary = setup.toolchainGateSummary else { return SeleneTheme.ink60 }
         switch summary.tone {
         case .certified: return SeleneTheme.success
@@ -511,6 +523,134 @@ struct SettingsEngineSection: View {
         case .warn: return SeleneTheme.untested
         case .block: return SeleneTheme.danger
         }
+    }
+
+    // MARK: - Readiness (proposal)
+
+    /// One page for both engines: the copy in use and its state, its compatibility (with the firmware only
+    /// Ryujinx needs), and the launch check. nxnative's own settings (repository, toolchain override, upstream,
+    /// Setup) follow under Advanced. Oort never ships Ryujinx: it finds a copy or opens the official page.
+    private func readinessBody(_ readiness: SwitchReadiness) -> some View {
+        let ryujinx = readiness.engine == .ryujinx
+        return OortSettingsGroup {
+            SelenePanel(readiness.engineName,
+                        info: ryujinx ? L10n.text("Oort uses the copy of Ryujinx-Nextendo you installed. It never downloads or ships it.")
+                            : L10n.text("The upstream nxnative checkout used for builds. Updates stay manual."),
+                        infoRow: "Engine") {
+                ReadinessStatus(line: readiness.engineLine)
+                HStack(spacing: SeleneTokens.Space.line) {
+                    ReadinessButton(title: ryujinx ? "Choose folder…" : "Change",
+                                    focused: focusedRowTitle == "Engine" && focusedButton == 0) { if !ryujinx { chooseEnginePath() } }
+                    ReadinessButton(title: ryujinx ? "Official page" : "Reveal",
+                                    focused: focusedRowTitle == "Engine" && focusedButton == 1) {
+                        if ryujinx { NSWorkspace.shared.open(SwitchReadiness.ryujinxDownload) } else { revealEngine() }
+                    }
+                    Spacer()
+                }
+            }
+            .seleneRowFocus(focusedRowTitle == "Engine", radius: SeleneTheme.cardRadius)
+
+            SelenePanel(L10n.text("Compatibility"),
+                        info: L10n.text("Checks the program, its version and data folder, your keys and the firmware. Nothing is sent."),
+                        infoRow: "Compatibility") {
+                HStack(spacing: SeleneTokens.Space.compact) {
+                    Circle().fill(readiness.overall.tone.color).frame(width: 8, height: 8)
+                    Text(readiness.overall.title)
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(readiness.overall.tone.color)
+                    Spacer()
+                    ReadinessButton(title: "Re-check") {}
+                }
+                ForEach(readiness.checks) { check in
+                    readinessRow(L10n.text(check.title), detail: check.detail, tone: check.tone)
+                }
+                readinessRow(L10n.text("Keys"), detail: readiness.keysLine.title, tone: readiness.keysLine.tone)
+
+                if readiness.needsFirmware {
+                Divider().overlay(SeleneTheme.ink15)
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.compact) {
+                    Text(L10n.text("Firmware"))
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.ink75)
+                    ReadinessStatus(line: readiness.firmwareLine)
+                    HStack(spacing: SeleneTokens.Space.line) {
+                        ReadinessButton(title: "Check a firmware…",
+                                        focused: focusedRowTitle == "Compatibility" && focusedButton == 0) {}
+                        Spacer()
+                    }
+                    Text(L10n.text("Oort never downloads a firmware. It checks yours against your keys before Ryujinx installs it."))
+                        .seleneFont(.badge)
+                        .foregroundColor(SeleneTheme.ink60)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                }
+            }
+            .seleneRowFocus(focusedRowTitle == "Compatibility", radius: SeleneTheme.cardRadius)
+
+            SeleneToggleRow("Check engine at launch",
+                            subtitle: "Verify the engine, keys and firmware when the app starts.",
+                            info: "Checks the engine, your keys and, for Ryujinx, the firmware before you play. Nothing is sent.",
+                            isOn: $settings.settings.checkEngineAtLaunch)
+
+            if !ryujinx {
+                SettingsSubheading("Advanced")
+                SeleneRow("Untested toolchain override", subtitle: overrideSubtitle,
+                          info: "Permits building games when the toolchain differs from the certified engine and Metal combination shown above. Passes --allow-other-metal to nxnative. Builds are recorded as unverified.") {
+                    Toggle("", isOn: overrideBinding)
+                        .labelsHidden()
+                        .toggleStyle(SeleneToggleStyle())
+                        .disabled(!canChangeOverride)
+                }
+                SeleneButtonRow("Upstream", subtitle: upstreamSubtitle, buttonTitle: upstreamButtonTitle) {
+                    setup.checkUpstreamChangelog()
+                }
+                SeleneButtonRow("Setup", subtitle: "Open the Setup check: what Arcane needs and what is ready.",
+                                buttonTitle: "Open Setup") {
+                    viewModel.reopenSetup()
+                }
+            }
+        }
+    }
+
+    private func readinessRow(_ title: String, detail: String, tone: SwitchReadiness.Tone) -> some View {
+        HStack(alignment: .top, spacing: SeleneTokens.Space.compact) {
+            Image(systemName: tone.symbol)
+                .seleneFont(.text, .bold)
+                .foregroundColor(tone.color)
+                .frame(width: 14)
+            Text(title)
+                .seleneFont(.text, .semibold)
+                .foregroundColor(SeleneTheme.ink)
+                .frame(width: 116, alignment: .leading)
+            Text(detail)
+                .seleneFont(.text)
+                .foregroundColor(tone == .problem ? SeleneTheme.danger : SeleneTheme.ink75)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func publishReadinessActions(_ readiness: SwitchReadiness) {
+        var actions: [SettingsRowAction] = [
+            readiness.engine == .ryujinx
+                ? .init(id: "engine", title: "Engine",
+                        secondary: ("Official page", { NSWorkspace.shared.open(SwitchReadiness.ryujinxDownload) })) {}
+                : .init(id: "engine", title: "Engine", secondary: ("Reveal", revealEngine)) { chooseEnginePath() },
+            .init(id: "recheck", title: "Compatibility") {},
+            .init(id: "engineAtLaunch", title: "Check engine at launch") {
+                settings.settings.checkEngineAtLaunch.toggle()
+            }
+        ]
+        if readiness.engine == .nxnative {
+            actions += [
+                .init(id: "override", title: "Untested toolchain override", isEnabled: canChangeOverride) {
+                    stageOverride(!proposedOverride)
+                },
+                .init(id: "upstream", title: "Upstream") { setup.checkUpstreamChangelog() },
+                .init(id: "setup", title: "Setup") { viewModel.reopenSetup() }
+            ]
+        }
+        onActions(actions)
     }
 
     private func publishActions() {

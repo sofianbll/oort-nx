@@ -35,6 +35,100 @@ struct SettingsLibrarySection: View {
     }
 
     var body: some View {
+        if let readiness = viewModel.setup.readiness {
+            proposal(readiness)
+                .onAppear { publishProposalActions(readiness) }
+        } else {
+            current
+        }
+    }
+
+    // MARK: - Proposal (feat/proposition-accueil-ryujinx)
+
+    /// Game files first, with the formats the engine in use reads and what was found; "No folder chosen" is not
+    /// "No games found". Game apps and the porting notification stay with nxnative, which compiles; Ryujinx gets
+    /// its optional updates and DLC folder instead. Two groups of five rows at most.
+    private func proposal(_ readiness: SwitchReadiness) -> some View {
+        let line = readiness.foldersLine
+        let chosen = if case .none = readiness.folders { false } else { true }
+        return OortSettingsGroup {
+            SettingsSubheading("Where your games are")
+            SeleneRow(GameFoldersCopy.sourcesTitle,
+                      subtitle: [line.title, line.detail].compactMap { $0 }.joined(separator: "\n"),
+                      verbatimSubtitle: true, formatBadges: readiness.formats) {
+                HStack(spacing: SeleneTokens.Space.gap) {
+                    Image(systemName: line.tone.symbol)
+                        .seleneFont(.text, .bold)
+                        .foregroundColor(line.tone.color)
+                    ReadinessButton(title: chosen ? "Change" : "Choose",
+                                    focused: focusedRowID == GameFoldersCopy.sourcesTitle && focusedButton == 0) {}
+                }
+            }
+            if readiness.compiles {
+                SeleneRow(GameFoldersCopy.appsTitle, subtitle: GameFoldersCopy.appsContents,
+                          verbatimSubtitle: true, formatBadges: GameFoldersCopy.appBadges) {
+                    HStack(spacing: SeleneTokens.Space.gap) {
+                        Text(appsPath.map { ($0 as NSString).lastPathComponent } ?? L10n.text("Not selected"))
+                            .seleneFont(.text, .medium)
+                            .foregroundColor(SeleneTheme.ink75)
+                            .lineLimit(1)
+                        ReadinessButton(title: "Change",
+                                        focused: focusedRowID == GameFoldersCopy.appsTitle && focusedButton == 0) {}
+                    }
+                }
+            } else {
+                SeleneRow("Updates and DLC",
+                          subtitle: L10n.text("Optional. Ryujinx loads the newest update and the DLC it finds there."),
+                          verbatimSubtitle: true, formatBadges: [".nsp"]) {
+                    HStack(spacing: SeleneTokens.Space.gap) {
+                        Text(L10n.text("No folder chosen"))
+                            .seleneFont(.text, .medium)
+                            .foregroundColor(SeleneTheme.ink60)
+                        ReadinessButton(title: "Choose", focused: focusedRowID == "Updates and DLC" && focusedButton == 0) {}
+                    }
+                }
+            }
+
+            SettingsSubheading("Reading the library")
+            SeleneToggleRow("Sort incoming files",
+                            subtitle: "Check the Inbox for Switch files to sort.",
+                            isOn: $settings.settings.gameInboxEnabled)
+            SeleneButtonRow("Library refresh",
+                            subtitle: "Read the game files again and update the library.",
+                            buttonTitle: "Refresh") {}
+            SeleneToggleRow("Refresh library at launch",
+                            subtitle: "Rescan the app library for new or removed builds.",
+                            isOn: $settings.settings.refreshLibraryAtLaunch)
+            if readiness.compiles {
+                SeleneToggleRow("Notify when a porting ends",
+                                subtitle: "A notification when a porting finishes while Arcane is in the background.",
+                                isOn: $settings.settings.notifyPortingEnds)
+            }
+            SeleneButtonRow("Box covers", subtitle: "GameTDB covers", buttonTitle: "Open GameTDB") {
+                NSWorkspace.shared.open(GameTDB.siteURL)
+            }
+        }
+    }
+
+    private func publishProposalActions(_ readiness: SwitchReadiness) {
+        var actions: [SettingsRowAction] = [.init(id: "romChoose", title: GameFoldersCopy.sourcesTitle) {}]
+        actions.append(readiness.compiles ? .init(id: "appsChange", title: GameFoldersCopy.appsTitle) {}
+                                          : .init(id: "autoload", title: "Updates and DLC") {})
+        actions += [
+            .init(id: "gameInboxEnabled", title: "Sort incoming files") { settings.settings.gameInboxEnabled.toggle() },
+            .init(id: "refresh", title: "Library refresh") {},
+            .init(id: "refreshAtLaunch", title: "Refresh library at launch") {
+                settings.settings.refreshLibraryAtLaunch.toggle()
+            }
+        ]
+        if readiness.compiles {
+            actions.append(.init(id: "notify", title: "Notify when a porting ends") { settings.settings.notifyPortingEnds.toggle() })
+        }
+        actions.append(.init(id: "covers", title: "Box covers") { NSWorkspace.shared.open(GameTDB.siteURL) })
+        onActions(actions)
+    }
+
+    private var current: some View {
         OortSettingsGroup {
             SeleneRow(GameFoldersCopy.appsTitle,
                       subtitle: GameFoldersCopy.appsContents,

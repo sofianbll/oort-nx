@@ -16,6 +16,7 @@ extension AddGameView {
     /// The row a step opens on.
     func defaultRowID(for step: Int) -> String {
         switch step {
+        case 1, 2 where keysBlock: return "keys"
         case 1: return porting.canAddSelectedGame ? "continue" : "chooseFiles"
         case 2: return porting.canStartBuild ? "build" : "library"
         default: return portingRows.first(where: \.focusable)?.id ?? ""
@@ -28,12 +29,15 @@ extension AddGameView {
         var rows: [AddGameRow] = []
         let folder = porting.selectedGameFolder
         rows.append(AddGameRow(id: "chooseFiles", kind: .action { porting.selectGameFiles() },
-                               icon: .add, title: L10n.text("Choose game files"), about: L10n.text("NSP, XCI, NSZ, XCZ or a Switch 2 NUP.")))
-        let adoptionBlocker = viewModel.localAppAdoptionBlocker
-        rows.append(AddGameRow(id: "adoptApp", kind: .action { viewModel.chooseLocalApp() },
-                               icon: .add, title: L10n.text("Add ported app"),
-                               about: adoptionBlocker ?? L10n.text("Copy a local nxnative app into Game apps."),
-                               enabled: adoptionBlocker == nil))
+                               icon: .add, title: L10n.text("Choose game files"),
+                               about: ryujinx ? L10n.text("NSP, XCI, PFS0, NCA or NRO.") : L10n.text("NSP, XCI, NSZ, XCZ or a Switch 2 NUP.")))
+        if !ryujinx {
+            let adoptionBlocker = viewModel.localAppAdoptionBlocker
+            rows.append(AddGameRow(id: "adoptApp", kind: .action { viewModel.chooseLocalApp() },
+                                   icon: .add, title: L10n.text("Add ported app"),
+                                   about: adoptionBlocker ?? L10n.text("Copy a local nxnative app into Game apps."),
+                                   enabled: adoptionBlocker == nil))
+        }
         rows.append(AddGameRow(id: "choose", kind: .action { porting.selectGameFolder() },
                                icon: .folder, title: folder == nil ? L10n.text("Choose folder") : L10n.text("Change folder"),
                                about: folder.map { ($0.path as NSString).abbreviatingWithTildeInPath }
@@ -41,9 +45,12 @@ extension AddGameView {
         if let game = porting.selectedGame {
             rows.append(AddGameRow(id: "continue", kind: .action(goToReview), icon: .chevron,
                                    title: L10n.text("Continue"),
-                                   about: "\(game.name) · \(sourceCountText) · \(porting.formattedSelectedSourcesSize)",
+                                   about: "\(game.name) · \(selectionSummary) · \(porting.formattedSelectedSourcesSize)",
                                    enabled: porting.canAddSelectedGame))
         }
+        // Keys that stop the game come right after the next move, not under the sources.
+        let blocking = readinessRows(includeBuildError: false)
+        if keysBlock { rows += blocking }
         if porting.isScanningGameFolder {
             rows.append(AddGameRow(id: "scanning", kind: .note, title: L10n.text("Reading the folder…")))
         }
@@ -68,8 +75,10 @@ extension AddGameView {
         if let game = porting.selectedGame {
             rows.append(AddGameRow(id: "sourcesHeading", kind: .heading, title: L10n.text("Sources")))
             if !game.hasGame {
-                rows.append(AddGameRow(id: "noBase", kind: .warning(action: nil), title: L10n.text("Base game required"),
-                                       about: L10n.text("This folder has an update or DLC but no base game.")))
+                rows.append(AddGameRow(id: "noBase", kind: .warning(action: nil),
+                                       title: ryujinx ? L10n.text("This update needs its base game") : L10n.text("Base game required"),
+                                       about: ryujinx ? L10n.text("Ryujinx starts a game from its base game. Add the base game’s file with this update.")
+                                           : L10n.text("This folder has an update or DLC but no base game.")))
             } else if game.isUpdateOnly {
                 // The engine's NO_BASE note (nxnative 777a5f6c): nothing in the file proves the update is complete.
                 let folder = game.files.contains { $0.layout == .extracted }
@@ -79,7 +88,7 @@ extension AddGameView {
                                            : L10n.text("The selected update is played as the whole game. If the game stops on missing files, use a NUP that includes the base game.")))
             }
             // The same note for an NSP, a NUP or a folder: the engine makes a provisional profile for each.
-            if !viewModel.setup.hasVerifiedEngineProfile(titleId: game.titleId) {
+            if !ryujinx, !viewModel.setup.hasVerifiedEngineProfile(titleId: game.titleId) {
                 rows.append(AddGameRow(id: "noProfile", kind: .warning(action: nil), title: L10n.text("Not tested with this engine yet"),
                                        about: L10n.text("The engine has no profile for this game, so it makes a provisional one. ")
                                            + L10n.text("The porting may stop, or the game may not start.")))
@@ -98,13 +107,42 @@ extension AddGameView {
                 if locked { rows[rows.count - 1].enabled = false }
             }
             rows.append(AddGameRow(id: "sourcesNote", kind: .note,
-                                   title: game.isUpdateOnly
+                                   title: game.isUpdateOnly || !game.files.contains(where: { $0.kind == .base })
                                        ? L10n.text("One update at a time; bundled DLC stay together.")
                                        : L10n.text("The base stays in. One update at a time; bundled DLC stay together.")))
         }
-        rows += readinessRows(includeBuildError: false)
-        rows.append(destinationRow)
+        if !keysBlock { rows += blocking }
+        rows.append(ryujinx ? filesStayRow : destinationRow)
         return rows
+    }
+
+    /// Where the keys go, in words true on the Mac and the PC once the proposal is on.
+    private var keysCopyNote: String {
+        setup.readiness == nil ? L10n.text("Copied once to Application Support, readable only by you.")
+            : L10n.text("Copied once to Oort’s private folder, readable only by you.")
+    }
+
+    /// Proposal (feat/proposition-accueil-ryujinx): the engine in use reads files without compiling them.
+    private var ryujinx: Bool { setup.readiness?.engine == .ryujinx }
+
+    /// Keys missing, or too old for the checked files: their fix comes before the step's other moves.
+    var keysBlock: Bool {
+        (porting.selectedSourcesRequireKeys && !setup.isProdKeysValid) || porting.keyCheckBlocks
+    }
+
+    /// What will be played, in words: "Game + update 2.0.2 + 1 DLC".
+    var selectionSummary: String {
+        let picked = porting.selectedSources
+        var parts: [String] = []
+        if picked.contains(where: { $0.kind == .base }) { parts.append(L10n.text("Game")) }
+        if let update = picked.first(where: { $0.kind == .update }) {
+            let raw = (update.versionString ?? "").trimmingCharacters(in: .whitespaces)
+            let version = raw.lowercased().hasPrefix("v") ? String(raw.dropFirst()) : raw
+            parts.append(version.isEmpty ? L10n.text("Update") : L10n.format("update %@", [version]))
+        }
+        let dlc = Set(picked.filter { $0.kind == .dlc }.map(\.id)).count
+        if dlc > 0 { parts.append(L10n.format("%@ DLC", [String(dlc)])) }
+        return parts.isEmpty ? sourceCountText : parts.joined(separator: " + ")
     }
 
     private var sourceCountText: String {
@@ -131,6 +169,7 @@ extension AddGameView {
     // MARK: - Review
 
     private var reviewRows: [AddGameRow] {
+        if ryujinx { return ryujinxReviewRows }
         var rows: [AddGameRow] = [
             AddGameRow(id: "build", kind: .action { addSelectedGame(buildNow: true) }, icon: .build,
                        title: porting.selectedLibraryGame == nil ? L10n.text("Add and port") : L10n.text("Rebuild"), about: buildHint, enabled: porting.canStartBuild),
@@ -141,7 +180,7 @@ extension AddGameView {
             AddGameRow(id: "sources", kind: .action {
                 withAnimation(reduceMotion ? nil : SeleneTheme.standard) { porting.goToWizardStep(1) }
             }, icon: .folder, title: L10n.text("Change sources"),
-               about: "\(sourceCountText) · \(porting.formattedSelectedSourcesSize)"),
+               about: "\(selectionSummary) · \(porting.formattedSelectedSourcesSize)"),
             AddGameRow(id: "runtimeHeading", kind: .heading, title: L10n.text("Next launch")),
             toggle("fps60", "60 FPS", "Frame-rate target",
                    $porting.pendingRuntimeConfig.enable60FPS),
@@ -165,13 +204,46 @@ extension AddGameView {
             rows.append(AddGameRow(id: "bundleID", kind: .field($porting.bundleId, placeholder: "org.nxnative.game"),
                                    title: L10n.text("Bundle identifier"), compact: true))
         }
-        rows += readinessRows(includeBuildError: true)
+        let readiness = readinessRows(includeBuildError: true)
+        rows = keysBlock ? readiness + rows : rows + readiness
         rows.append(destinationRow)
         return rows
     }
 
+    /// Ryujinx-Nextendo reads the files where they are: no build, no app name. The checked update and DLC are what
+    /// it will load; MetalFX and the Metal HUD belong to the Mac engine and are not offered.
+    private var ryujinxReviewRows: [AddGameRow] {
+        var rows: [AddGameRow] = [
+            AddGameRow(id: "library", kind: .action { addSelectedGame(buildNow: false) }, icon: .add,
+                       title: porting.selectedLibraryGame == nil ? L10n.text("Add to library") : L10n.text("Save changes"),
+                       about: L10n.text("Ryujinx loads the update and DLC you checked."),
+                       enabled: porting.canAddSelectedGame && !keysBlock),
+            AddGameRow(id: "sources", kind: .action {
+                withAnimation(reduceMotion ? nil : SeleneTheme.standard) { porting.goToWizardStep(1) }
+            }, icon: .folder, title: L10n.text("Change sources"),
+               about: "\(selectionSummary) · \(porting.formattedSelectedSourcesSize)"),
+            AddGameRow(id: "runtimeHeading", kind: .heading, title: L10n.text("Next launch")),
+            toggle("fps60", "60 FPS", "Frame-rate target", $porting.pendingRuntimeConfig.enable60FPS),
+            toggle("docked", "Docked mode", "Console profile", $porting.pendingRuntimeConfig.isDockedMode),
+        ]
+        let languages = languageOptions
+        let current = languages.firstIndex { $0.code == porting.pendingRuntimeConfig.language } ?? 0
+        rows.append(AddGameRow(id: "language", kind: .choice(values: languages.map(\.label), index: current) { index in
+            guard languages.indices.contains(index) else { return }
+            porting.pendingRuntimeConfig.language = languages[index].code
+        }, title: L10n.text("Game language"), compact: true))
+        let readiness = readinessRows(includeBuildError: false)
+        rows = keysBlock ? readiness + rows : rows + readiness
+        rows.append(filesStayRow)
+        return rows
+    }
+
+    private var filesStayRow: AddGameRow {
+        AddGameRow(id: "destination", kind: .note, title: L10n.text("Your files stay where they are. Nothing is copied or converted."))
+    }
+
     private func toggle(_ id: String, _ title: String, _ about: String, _ isOn: Binding<Bool>) -> AddGameRow {
-        AddGameRow(id: id, kind: .toggle(isOn), title: title, about: about, compact: true)
+        AddGameRow(id: id, kind: .toggle(isOn), title: L10n.text(title), about: L10n.text(about), compact: true)
     }
 
     private var buildHint: String {
@@ -187,7 +259,7 @@ extension AddGameView {
     }
 
     private var languageOptions: [(code: String, label: String)] {
-        var options = viewModel.availableLanguages
+        var options = viewModel.availableLanguages.map { (code: $0.code, label: L10n.text($0.label)) }
         let current = porting.pendingRuntimeConfig.language
         if !options.contains(where: { $0.code == current }) {
             options.append((current, current.isEmpty ? L10n.text("Game default") : current))
@@ -214,7 +286,7 @@ extension AddGameView {
         if porting.selectedSourcesRequireKeys && !setup.isProdKeysValid {
             rows.append(AddGameRow(id: "keys", kind: .action { setup.selectProdKeysFile() }, icon: .key,
                                    title: L10n.text("Import prod.keys"),
-                                   about: L10n.text("Copied once to Application Support, readable only by you.")))
+                                   about: keysCopyNote))
         }
         if setup.isProdKeysValid, let readiness = porting.keyCheck?.readiness {
             if readiness.warning {
@@ -222,7 +294,7 @@ extension AddGameView {
                                        title: readiness.title, about: readiness.about))
                 rows.append(AddGameRow(id: "keys", kind: .action { setup.selectProdKeysFile() }, icon: .key,
                                        title: L10n.text("Import prod.keys"),
-                                       about: L10n.text("Copied once to Application Support, readable only by you.")))
+                                       about: keysCopyNote))
             } else {
                 rows.append(AddGameRow(id: "keyCheck", kind: .note, title: "\(readiness.title). \(readiness.about)"))
             }

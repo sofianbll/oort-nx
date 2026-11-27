@@ -17,7 +17,45 @@ struct SettingsKeysSection: View {
         OortSettingsGroup {
             SelenePanel(GameFoldersCopy.keysTitle,
                         info: L10n.text("Nintendo Switch cryptographic keys required to decrypt game packages (NSP/XCI). Arcane stores a private copy with mode 0600 permissions; key values are never displayed or logged."), infoRow: "prod.keys") {
-                OortReadout(text: GameFoldersCopy.keysContents)
+                OortReadout(text: setup.readiness?.keysContents ?? GameFoldersCopy.keysContents)
+                if let readiness = setup.readiness {
+                    proposal(readiness)
+                } else {
+                    current
+                }
+
+                Text(setup.readiness == nil
+                     ? L10n.text("The original file is untouched. The stored copy is mode 0600 and key values are never shown or logged.")
+                     : L10n.text("The original file is untouched. Oort keeps a copy only you can read, and never shows or logs key values."))
+                    .seleneFont(.badge)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .seleneRowFocus(focusedRowTitle == "prod.keys", radius: SeleneTheme.cardRadius)
+        }
+        .onAppear(perform: publishActions)
+        .onChange(of: configurationLocked) { publishActions() }
+    }
+
+    /// Proposal (feat/proposition-accueil-ryujinx): the keys' reach in firmware, title.keys checked when present,
+    /// and a failed choice explained here, where it was made. Same words on the Mac and the PC.
+    @ViewBuilder
+    private func proposal(_ readiness: SwitchReadiness) -> some View {
+        OortFormatBadges(labels: GameFoldersCopy.keyBadges + ["title.keys"])
+        ReadinessStatus(line: readiness.keysLine)
+        ReadinessStatus(line: readiness.titleKeysLine)
+        HStack(spacing: SeleneTokens.Space.line) {
+            let imported = if case .imported = readiness.keys { true } else { false }
+            ReadinessButton(title: imported ? "Replace Key..." : "Import Key...",
+                            focused: focusedRowTitle == "prod.keys" && focusedButton == 0) {}
+            ReadinessButton(title: "Detect Ryujinx...", focused: focusedRowTitle == "prod.keys" && focusedButton == 1) {}
+            ReadinessButton(title: "Add title.keys…", focused: focusedRowTitle == "prod.keys" && focusedButton == 2) {}
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private var current: some View {
                 OortFormatBadges(labels: GameFoldersCopy.keyBadges)
                 HStack(spacing: SeleneTokens.Space.compact) {
                     Image(systemName: setup.isProdKeysValid ? "checkmark.circle.fill" : "xmark.octagon.fill")
@@ -59,16 +97,6 @@ struct SettingsKeysSection: View {
                         .disabled(configurationLocked)
                     Spacer()
                 }
-
-                Text(L10n.text("The original file is untouched. The stored copy is mode 0600 and key values are never shown or logged."))
-                    .seleneFont(.badge)
-                    .foregroundColor(SeleneTheme.ink60)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .seleneRowFocus(focusedRowTitle == "prod.keys", radius: SeleneTheme.cardRadius)
-        }
-        .onAppear(perform: publishActions)
-        .onChange(of: configurationLocked) { publishActions() }
     }
 
     private func publishActions() {

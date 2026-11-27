@@ -46,6 +46,10 @@ final class SetupModel: ObservableObject {
         EngineSourceCapabilities(repo: URL(fileURLWithPath: nxnativePath))
     }
 
+    /// Proposal (feat/proposition-accueil-ryujinx): the checked state of each prerequisite for the engine in use.
+    /// Set only by the screen probe; nil keeps today's screens and behaviour.
+    @Published var readiness: SwitchReadiness? = nil
+
     // MARK: - Keys
     @Published var localKeyStatus: LocalKeyStatus = .required
     var isProdKeysValid: Bool { keyGenerationCount != nil }

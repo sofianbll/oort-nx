@@ -99244,7 +99244,4049 @@
     "In Details": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In Details"}},"fr":{"stringUnit":{"state":"translated","value":"Dans Détails"}},"it":{"stringUnit":{"state":"translated","value":"Nei dettagli"}},"de":{"stringUnit":{"state":"translated","value":"In den Details"}},"es":{"stringUnit":{"state":"translated","value":"En Detalles"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Em Detalhes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在详情中"}}}},
     "On the game page": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"On the game page"}},"fr":{"stringUnit":{"state":"translated","value":"Sur la fiche du jeu"}},"it":{"stringUnit":{"state":"translated","value":"Nella scheda del gioco"}},"de":{"stringUnit":{"state":"translated","value":"Auf der Spielseite"}},"es":{"stringUnit":{"state":"translated","value":"En la ficha del juego"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Na página do jogo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在游戏页面上"}}}},
     "Choose where to show Nextendo players. Turn off all four to stop the requests.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose where to show Nextendo players. Turn off all four to stop the requests."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis où afficher les joueurs Nextendo. Désactive les quatre options pour arrêter les requêtes."}},"it":{"stringUnit":{"state":"translated","value":"Scegli dove mostrare i giocatori Nextendo. Disattiva tutte e quattro le opzioni per interrompere le richieste."}},"de":{"stringUnit":{"state":"translated","value":"Wähle, wo Nextendo-Spieler angezeigt werden. Schalte alle vier Optionen aus, um die Abfragen zu stoppen."}},"es":{"stringUnit":{"state":"translated","value":"Elige dónde mostrar los jugadores de Nextendo. Desactiva las cuatro opciones para detener las solicitudes."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha onde mostrar os jogadores do Nextendo. Desative as quatro opções para interromper as consultas."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择在哪里显示 Nextendo 玩家。关闭全部四个选项即可停止请求。"}}}},
-    "%lld Nextendo players": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo player"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo players"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld joueur Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld joueurs Nextendo"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld giocatore Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld giocatori Nextendo"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jugador de Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jugadores de Nextendo"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogador do Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogadores do Nextendo"}}}}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 位 Nextendo 玩家"}}}}
+    "%lld Nextendo players": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo player"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo players"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld joueur Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld joueurs Nextendo"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld giocatore Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld giocatori Nextendo"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jugador de Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jugadores de Nextendo"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogador do Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogadores do Nextendo"}}}}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 位 Nextendo 玩家"}}}},
+    "Ready · %@" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronto · %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prêt · %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereit · %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo · %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronto · %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "就绪 · %@"
+          }
+        }
+      }
+    },
+    "Portable copy: its data stays next to the program." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portable copy: its data stays next to the program."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia portatile: i suoi dati restano accanto al programma."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copie portable : ses données restent à côté du programme."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portable Kopie: Ihre Daten bleiben neben dem Programm."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia portátil: sus datos se quedan junto al programa."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cópia portátil: os dados ficam ao lado do programa."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "便携版：数据保存在程序旁边。"
+          }
+        }
+      }
+    },
+    "Its data is in your user folder." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its data is in your user folder."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I suoi dati sono nella tua cartella utente."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ses données sont dans ton dossier utilisateur."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihre Daten liegen in deinem Benutzerordner."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sus datos están en tu carpeta de usuario."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os dados estão na sua pasta de usuário."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据位于你的用户文件夹中。"
+          }
+        }
+      }
+    },
+    "Oort does not provide Ryujinx. Get it from the official page, then choose its folder." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort does not provide Ryujinx. Get it from the official page, then choose its folder."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort non fornisce Ryujinx. Scaricalo dalla pagina ufficiale, poi scegli la sua cartella."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort ne fournit pas Ryujinx. Récupère-le sur la page officielle, puis choisis son dossier."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort liefert Ryujinx nicht mit. Lade es von der offiziellen Seite und wähle dann seinen Ordner."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort no incluye Ryujinx. Descárgalo de la página oficial y luego elige su carpeta."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Oort não fornece o Ryujinx. Baixe-o na página oficial e depois escolha a pasta."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort 不提供 Ryujinx。请从官方页面获取，然后选择其文件夹。"
+          }
+        }
+      }
+    },
+    "Too old · %@" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too old · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troppo vecchio · %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trop ancien · %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu alt · %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiado antiguo · %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antigo demais · %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本过旧 · %@"
+          }
+        }
+      }
+    },
+    "Playing online with friends needs version %@. Update it from the official page." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Playing online with friends needs version %@. Update it from the official page."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il gioco online con gli amici richiede la versione %@. Aggiornalo dalla pagina ufficiale."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le jeu en ligne avec tes amis demande la version %@. Mets-le à jour depuis la page officielle."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Online-Spiel mit Freunden braucht Version %@. Aktualisiere es über die offizielle Seite."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jugar en línea con amigos necesita la versión %@. Actualízalo desde la página oficial."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogar online com amigos precisa da versão %@. Atualize pela página oficial."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与好友联机需要 %@ 版本。请从官方页面更新。"
+          }
+        }
+      }
+    },
+    "Keys imported · up to firmware %@" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keys imported · up to firmware %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiavi importate · fino al firmware %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clés importées · jusqu’au firmware %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel importiert · bis Firmware %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claves importadas · hasta el firmware %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaves importadas · até o firmware %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "密钥已导入 · 最高支持固件 %@"
+          }
+        }
+      }
+    },
+    "No keys yet" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No keys yet"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna chiave per ora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas encore de clés"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Schlüssel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay claves"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma chave ainda"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚无密钥"
+          }
+        }
+      }
+    },
+    "Choose your prod.keys file, or find it in Ryujinx." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose your prod.keys file, or find it in Ryujinx."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli il tuo file prod.keys, o trovalo in Ryujinx."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis ton fichier prod.keys, ou retrouve-le dans Ryujinx."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle deine prod.keys-Datei oder finde sie in Ryujinx."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige tu archivo prod.keys o búscalo en Ryujinx."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha seu arquivo prod.keys ou encontre-o no Ryujinx."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择你的 prod.keys 文件，或在 Ryujinx 中查找。"
+          }
+        }
+      }
+    },
+    "This file is a title.keys" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file is a title.keys"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo file è un title.keys"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce fichier est un title.keys"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei ist eine title.keys"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este archivo es un title.keys"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este arquivo é um title.keys"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件是 title.keys"
+          }
+        }
+      }
+    },
+    "Choose prod.keys first. You can add title.keys after." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose prod.keys first. You can add title.keys after."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli prima prod.keys. Potrai aggiungere title.keys dopo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis d’abord prod.keys. Tu pourras ajouter title.keys ensuite."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle zuerst prod.keys. title.keys kannst du danach hinzufügen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige primero prod.keys. Podrás añadir title.keys después."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha primeiro o prod.keys. Você pode adicionar o title.keys depois."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先选择 prod.keys，之后可以再添加 title.keys。"
+          }
+        }
+      }
+    },
+    "No prod.keys in this folder" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No prod.keys in this folder"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun prod.keys in questa cartella"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun prod.keys dans ce dossier"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine prod.keys in diesem Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay prod.keys en esta carpeta"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum prod.keys nesta pasta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件夹中没有 prod.keys"
+          }
+        }
+      }
+    },
+    "Choose the folder where Ryujinx is installed." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the folder where Ryujinx is installed."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli la cartella in cui è installato Ryujinx."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis le dossier où Ryujinx est installé."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle den Ordner, in dem Ryujinx installiert ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige la carpeta donde está instalado Ryujinx."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha a pasta onde o Ryujinx está instalado."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请选择 Ryujinx 的安装文件夹。"
+          }
+        }
+      }
+    },
+    "Keys too old · up to firmware %@" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keys too old · up to firmware %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiavi troppo vecchie · fino al firmware %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clés trop anciennes · jusqu’au firmware %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel zu alt · bis Firmware %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claves demasiado antiguas · hasta el firmware %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaves antigas demais · até o firmware %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "密钥过旧 · 最高支持固件 %@"
+          }
+        }
+      }
+    },
+    "Your Switch key file lets Oort read protected game files. It stays on this computer." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Switch key file lets Oort read protected game files. It stays on this computer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo file di chiavi Switch permette a Oort di leggere i file di gioco protetti. Resta su questo computer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton fichier de clés Switch permet à Oort de lire les fichiers de jeu protégés. Il reste sur cet ordinateur."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit deiner Switch-Schlüsseldatei liest Oort geschützte Spieldateien. Sie bleibt auf diesem Computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu archivo de claves de Switch permite a Oort leer archivos de juego protegidos. Se queda en este ordenador."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seu arquivo de chaves do Switch permite que o Oort leia arquivos de jogo protegidos. Ele fica neste computador."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的 Switch 密钥文件让 Oort 能读取受保护的游戏文件。它只保存在这台电脑上。"
+          }
+        }
+      }
+    },
+    "Found" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Found"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trovato"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trouvé"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encontrado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encontrado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已找到"
+          }
+        }
+      }
+    },
+    "Set up %@, your games and your keys." : {
+      "comment" : "OnboardingView.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up %@, your games and your keys."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepara %@, i tuoi giochi e le tue chiavi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prépare %@, tes jeux et tes clés."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richte %@, deine Spiele und deine Schlüssel ein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepara %@, tus juegos y tus claves."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepare o %@, seus jogos e suas chaves."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 %@、你的游戏和密钥。"
+          }
+        }
+      }
+    },
+    "The original file is untouched. Oort keeps a copy only you can read, and never shows or logs key values." : {
+      "comment" : "SettingsKeysSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The original file is untouched. Oort keeps a copy only you can read, and never shows or logs key values."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file originale resta intatto. Oort ne conserva una copia leggibile solo da te e non mostra né registra mai i valori delle chiavi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier d’origine reste intact. Oort garde une copie lisible par toi seul et n’affiche ni n’inscrit jamais les valeurs des clés."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Originaldatei bleibt unverändert. Oort behält eine Kopie, die nur du lesen kannst, und zeigt oder protokolliert nie Schlüsselwerte."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo original queda intacto. Oort guarda una copia que solo tú puedes leer y nunca muestra ni registra los valores de las claves."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O arquivo original fica intacto. O Oort guarda uma cópia que só você pode ler e nunca mostra nem registra os valores das chaves."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原始文件保持不变。Oort 保存一份只有你能读取的副本，绝不显示或记录密钥值。"
+          }
+        }
+      }
+    },
+    "Copied once to Oort’s private folder, readable only by you." : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied once to Oort’s private folder, readable only by you."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiato una volta nella cartella privata di Oort, leggibile solo da te."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copié une seule fois dans le dossier privé d’Oort, lisible par toi seul."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einmal in Oorts privaten Ordner kopiert, nur für dich lesbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se copia una vez en la carpeta privada de Oort, solo tú puedes leerlo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiado uma vez para a pasta privada do Oort, só você pode ler."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅复制一次到 Oort 的私有文件夹，只有你能读取。"
+          }
+        }
+      }
+    },
+    "Checks the engine, your keys and, for Ryujinx, the firmware before you play. Nothing is sent." : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks the engine, your keys and, for Ryujinx, the firmware before you play. Nothing is sent."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica il motore, le tue chiavi e, per Ryujinx, il firmware prima di giocare. Non viene inviato nulla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifie le moteur, tes clés et, pour Ryujinx, le firmware avant de jouer. Rien n’est envoyé."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüft Engine, deine Schlüssel und bei Ryujinx die Firmware, bevor du spielst. Es wird nichts gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprueba el motor, tus claves y, con Ryujinx, el firmware antes de jugar. No se envía nada."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica o motor, suas chaves e, no Ryujinx, o firmware antes de jogar. Nada é enviado."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你开始游戏前检查引擎、密钥以及（Ryujinx 的）固件。不会发送任何内容。"
+          }
+        }
+      }
+    },
+    "title.keys checked · %@ titles" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys checked · %@ titles"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys verificato · %@ titoli"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys vérifié · %@ titres"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys geprüft · %@ Titel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys verificado · %@ títulos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys verificado · %@ títulos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys 已检查 · %@ 个标题"
+          }
+        }
+      }
+    },
+    "title.keys · optional" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · optional"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · facoltativo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · facultatif"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · optional"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · opcional"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · opcional"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys · 可选"
+          }
+        }
+      }
+    },
+    "Some eShop games, updates and DLC need it." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some eShop games, updates and DLC need it."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serve ad alcuni giochi, aggiornamenti e DLC dell’eShop."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certains jeux, mises à jour et DLC de l’eShop en ont besoin."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manche eShop-Spiele, Updates und DLC brauchen sie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algunos juegos, actualizaciones y DLC de la eShop lo necesitan."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alguns jogos, atualizações e DLC da eShop precisam dele."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部分 eShop 游戏、更新和 DLC 需要它。"
+          }
+        }
+      }
+    },
+    "Installed · %@" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installato · %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installé · %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installiert · %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalado · %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalado · %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已安装 · %@"
+          }
+        }
+      }
+    },
+    "It works with your keys." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It works with your keys."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funziona con le tue chiavi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il fonctionne avec tes clés."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie passt zu deinen Schlüsseln."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funciona con tus claves."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funciona com suas chaves."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与你的密钥兼容。"
+          }
+        }
+      }
+    },
+    "Not installed" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not installed"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non installato"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non installé"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht installiert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No instalado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não instalado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未安装"
+          }
+        }
+      }
+    },
+    "Choose a firmware .zip, .xci or folder. Oort checks it before Ryujinx installs it." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a firmware .zip, .xci or folder. Oort checks it before Ryujinx installs it."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli un firmware .zip, .xci o una cartella. Oort lo verifica prima che Ryujinx lo installi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis un firmware en .zip, .xci ou dossier. Oort le vérifie avant que Ryujinx l’installe."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle eine Firmware als .zip, .xci oder Ordner. Oort prüft sie, bevor Ryujinx sie installiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige un firmware .zip, .xci o una carpeta. Oort lo comprueba antes de que Ryujinx lo instale."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha um firmware .zip, .xci ou pasta. O Oort verifica antes de o Ryujinx instalar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请选择 .zip、.xci 或文件夹形式的固件。Oort 会在 Ryujinx 安装前检查它。"
+          }
+        }
+      }
+    },
+    "Keys too old for this firmware" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keys too old for this firmware"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiavi troppo vecchie per questo firmware"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clés trop anciennes pour ce firmware"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel zu alt für diese Firmware"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claves demasiado antiguas para este firmware"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaves antigas demais para este firmware"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "密钥对此固件而言过旧"
+          }
+        }
+      }
+    },
+    "Your keys go up to firmware %@; this one needs %@. Update your keys first." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your keys go up to firmware %@; this one needs %@. Update your keys first."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue chiavi arrivano al firmware %@; questo richiede la %@. Aggiorna prima le chiavi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes clés vont jusqu’au firmware %@ ; celui-ci demande la %@. Mets d’abord tes clés à jour."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Schlüssel reichen bis Firmware %@; diese braucht %@. Aktualisiere zuerst deine Schlüssel."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus claves llegan hasta el firmware %@; este necesita la %@. Actualiza primero tus claves."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suas chaves vão até o firmware %@; este precisa da %@. Atualize suas chaves primeiro."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的密钥最高支持固件 %@；此固件需要 %@。请先更新密钥。"
+          }
+        }
+      }
+    },
+    "No folder chosen" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No folder chosen"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna cartella scelta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun dossier choisi"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Ordner gewählt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna carpeta elegida"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma pasta escolhida"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择文件夹"
+          }
+        }
+      }
+    },
+    "Choose the folder that holds your game files." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the folder that holds your game files."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli la cartella che contiene i file dei tuoi giochi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis le dossier qui contient tes fichiers de jeu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle den Ordner mit deinen Spieldateien."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige la carpeta que contiene tus archivos de juego."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha a pasta com seus arquivos de jogo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请选择存放游戏文件的文件夹。"
+          }
+        }
+      }
+    },
+    "%@ has no file that %@ reads." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ has no file that %@ reads."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ non contiene file che %@ legge."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ne contient aucun fichier que %@ sait lire."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ enthält keine Datei, die %@ liest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ no tiene ningún archivo que %@ lea."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ não tem nenhum arquivo que o %@ leia."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 中没有 %@ 可读取的文件。"
+          }
+        }
+      }
+    },
+    "%@ · %@ games read" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@ games read"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@ giochi letti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@ jeux lus"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@ Spiele gelesen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@ juegos leídos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@ jogos lidos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · 已读取 %@ 个游戏"
+          }
+        }
+      }
+    },
+    "%@ .nsz or .xcz files skipped: decompress them to .nsp or .xci for %@." : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ .nsz or .xcz files skipped: decompress them to .nsp or .xci for %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ file .nsz o .xcz ignorati: decomprimili in .nsp o .xci per %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fichiers .nsz ou .xcz ignorés : décompresse-les en .nsp ou .xci pour %@."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ .nsz- oder .xcz-Dateien übersprungen: entpacke sie für %@ zu .nsp oder .xci."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ archivos .nsz o .xcz omitidos: descomprímelos a .nsp o .xci para %@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ arquivos .nsz ou .xcz ignorados: descompacte-os em .nsp ou .xci para o %@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已跳过 %@ 个 .nsz 或 .xcz 文件：请为 %@ 解压为 .nsp 或 .xci。"
+          }
+        }
+      }
+    },
+    "Something to fix" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something to fix"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qualcosa da correggere"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un point à corriger"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etwas zu beheben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algo que corregir"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algo para corrigir"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有问题需要处理"
+          }
+        }
+      }
+    },
+    "To finish" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To finish"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da completare"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À terminer"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch abzuschließen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por terminar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A concluir"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待完成"
+          }
+        }
+      }
+    },
+    "Oort uses the copy of Ryujinx-Nextendo you installed. It never downloads or ships it." : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort uses the copy of Ryujinx-Nextendo you installed. It never downloads or ships it."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort usa la copia di Ryujinx-Nextendo che hai installato. Non la scarica né la distribuisce mai."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort utilise la copie de Ryujinx-Nextendo que tu as installée. Il ne la télécharge ni ne la fournit jamais."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort nutzt die Kopie von Ryujinx-Nextendo, die du installiert hast. Es lädt oder verteilt sie nie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort usa la copia de Ryujinx-Nextendo que instalaste. Nunca la descarga ni la distribuye."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Oort usa a cópia do Ryujinx-Nextendo que você instalou. Nunca a baixa nem a distribui."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort 使用你安装的 Ryujinx-Nextendo 副本，从不下载或分发它。"
+          }
+        }
+      }
+    },
+    "Choose folder…" : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose folder…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli cartella…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir le dossier…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner wählen…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir carpeta…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher pasta…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择文件夹…"
+          }
+        }
+      }
+    },
+    "Official page" : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Official page"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagina ufficiale"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page officielle"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offizielle Seite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Página oficial"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Página oficial"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "官方页面"
+          }
+        }
+      }
+    },
+    "Checks the program, its version and data folder, your keys and the firmware. Nothing is sent." : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks the program, its version and data folder, your keys and the firmware. Nothing is sent."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica il programma, la sua versione e la cartella dati, le tue chiavi e il firmware. Non viene inviato nulla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifie le programme, sa version et son dossier de données, tes clés et le firmware. Rien n’est envoyé."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüft Programm, Version und Datenordner, deine Schlüssel und die Firmware. Es wird nichts gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprueba el programa, su versión y carpeta de datos, tus claves y el firmware. No se envía nada."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica o programa, a versão e a pasta de dados, suas chaves e o firmware. Nada é enviado."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查程序、版本和数据文件夹、你的密钥和固件。不会发送任何内容。"
+          }
+        }
+      }
+    },
+    "Firmware" : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固件"
+          }
+        }
+      }
+    },
+    "Check a firmware…" : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check a firmware…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica un firmware…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifier un firmware…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware prüfen…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprobar un firmware…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verificar um firmware…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查固件…"
+          }
+        }
+      }
+    },
+    "Oort never downloads a firmware. It checks yours against your keys before Ryujinx installs it." : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort never downloads a firmware. It checks yours against your keys before Ryujinx installs it."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort non scarica mai un firmware. Verifica il tuo con le tue chiavi prima che Ryujinx lo installi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort ne télécharge jamais de firmware. Il vérifie le tien avec tes clés avant que Ryujinx l’installe."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort lädt nie eine Firmware herunter. Es prüft deine mit deinen Schlüsseln, bevor Ryujinx sie installiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort nunca descarga un firmware. Comprueba el tuyo con tus claves antes de que Ryujinx lo instale."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Oort nunca baixa firmware. Ele verifica o seu com suas chaves antes de o Ryujinx instalar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oort 从不下载固件。它会在 Ryujinx 安装前用你的密钥检查你的固件。"
+          }
+        }
+      }
+    },
+    "Verify the engine, keys and firmware when the app starts." : {
+      "comment" : "SettingsEngineSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verify the engine, keys and firmware when the app starts."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica motore, chiavi e firmware all’avvio dell’app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifie le moteur, les clés et le firmware au démarrage de l’app."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüft Engine, Schlüssel und Firmware beim Start der App."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprueba el motor, las claves y el firmware al abrir la app."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica o motor, as chaves e o firmware ao abrir o app."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用启动时检查引擎、密钥和固件。"
+          }
+        }
+      }
+    },
+    "Program" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Program"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programma"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programme"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programm"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programa"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "程序"
+          }
+        }
+      }
+    },
+    "Data folder" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data folder"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella dati"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta de datos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasta de dados"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据文件夹"
+          }
+        }
+      }
+    },
+    "%@ · needs %@" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · needs %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · richiede %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · demande %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · braucht %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · necesita %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · precisa de %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · 需要 %@"
+          }
+        }
+      }
+    },
+    "Next to the program (portable)" : {
+      "comment" : "SwitchReadiness.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next to the program (portable)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accanto al programma (portatile)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À côté du programme (portable)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neben dem Programm (portabel)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Junto al programa (portátil)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao lado do programa (portátil)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "程序旁边（便携）"
+          }
+        }
+      }
+    },
+    "Add title.keys…" : {
+      "comment" : "SettingsKeysSection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add title.keys…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi title.keys…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter title.keys…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "title.keys hinzufügen…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir title.keys…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar title.keys…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加 title.keys…"
+          }
+        }
+      }
+    },
+    "Where your games are" : {
+      "comment" : "SettingsLibrarySection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Where your games are"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dove sono i tuoi giochi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Où sont tes jeux"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wo deine Spiele liegen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dónde están tus juegos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onde estão seus jogos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "游戏所在位置"
+          }
+        }
+      }
+    },
+    "Reading the library" : {
+      "comment" : "SettingsLibrarySection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading the library"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lettura della libreria"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture de la bibliothèque"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bibliothek einlesen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lectura de la biblioteca"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leitura da biblioteca"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取游戏库"
+          }
+        }
+      }
+    },
+    "Updates and DLC" : {
+      "comment" : "SettingsLibrarySection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updates and DLC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornamenti e DLC"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mises à jour et DLC"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updates und DLC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizaciones y DLC"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atualizações e DLC"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新和 DLC"
+          }
+        }
+      }
+    },
+    "Optional. Ryujinx loads the newest update and the DLC it finds there." : {
+      "comment" : "SettingsLibrarySection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional. Ryujinx loads the newest update and the DLC it finds there."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facoltativo. Ryujinx carica l’aggiornamento più recente e i DLC che trova qui."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facultatif. Ryujinx charge la mise à jour la plus récente et les DLC qu’il y trouve."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional. Ryujinx lädt das neueste Update und die DLC, die es dort findet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcional. Ryujinx carga la actualización más reciente y los DLC que encuentra ahí."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcional. O Ryujinx carrega a atualização mais recente e os DLC que encontrar ali."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选。Ryujinx 会加载在此找到的最新更新和 DLC。"
+          }
+        }
+      }
+    },
+    "Read the game files again and update the library." : {
+      "comment" : "SettingsLibrarySection.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read the game files again and update the library."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rileggi i file dei giochi e aggiorna la libreria."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relis les fichiers de jeu et mets la bibliothèque à jour."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieldateien neu einlesen und die Bibliothek aktualisieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuelve a leer los archivos de juego y actualiza la biblioteca."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leia os arquivos de jogo de novo e atualize a biblioteca."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新读取游戏文件并更新游戏库。"
+          }
+        }
+      }
+    },
+    "Games on this computer" : {
+      "comment" : "OnboardingView.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Games on this computer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giochi su questo computer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeux sur cet ordinateur"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiele auf diesem Computer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Juegos en este ordenador"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogos neste computador"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此电脑上的游戏"
+          }
+        }
+      }
+    },
+    "Builds your games into Mac apps." : {
+      "comment" : "OnboardingView.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Builds your games into Mac apps."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trasforma i tuoi giochi in app per Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compile tes jeux en apps Mac."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macht aus deinen Spielen Mac-Apps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convierte tus juegos en apps para Mac."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transforma seus jogos em apps para Mac."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将你的游戏编译为 Mac 应用。"
+          }
+        }
+      }
+    },
+    "Your own copy. Oort never ships it." : {
+      "comment" : "OnboardingView.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your own copy. Oort never ships it."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua copia. Oort non la distribuisce mai."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta propre copie. Oort ne la fournit jamais."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine eigene Kopie. Oort liefert sie nie mit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu propia copia. Oort nunca la distribuye."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua própria cópia. O Oort nunca a distribui."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你自己的副本。Oort 从不分发它。"
+          }
+        }
+      }
+    },
+    "Uses the keys your Ryujinx already has. Nothing is shown or sent." : {
+      "comment" : "OnboardingView.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uses the keys your Ryujinx already has. Nothing is shown or sent."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa le chiavi che il tuo Ryujinx ha già. Nulla viene mostrato o inviato."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reprend les clés que ton Ryujinx a déjà. Rien n’est affiché ni envoyé."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nutzt die Schlüssel, die dein Ryujinx schon hat. Nichts wird angezeigt oder gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa las claves que ya tiene tu Ryujinx. No se muestra ni se envía nada."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa as chaves que seu Ryujinx já tem. Nada é exibido nem enviado."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用你的 Ryujinx 已有的密钥。不会显示或发送任何内容。"
+          }
+        }
+      }
+    },
+    "No folder chosen yet. You can add games later." : {
+      "comment" : "OnboardingView.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No folder chosen yet. You can add games later."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna cartella scelta per ora. Puoi aggiungere giochi più tardi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun dossier choisi pour l’instant. Tu pourras ajouter des jeux plus tard."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch kein Ordner gewählt. Du kannst Spiele später hinzufügen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no has elegido una carpeta. Puedes añadir juegos más tarde."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma pasta escolhida ainda. Você pode adicionar jogos depois."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未选择文件夹。你可以稍后再添加游戏。"
+          }
+        }
+      }
+    },
+    "NSP, XCI, PFS0, NCA or NRO." : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP, XCI, PFS0, NCA or NRO."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP, XCI, PFS0, NCA o NRO."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP, XCI, PFS0, NCA ou NRO."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP, XCI, PFS0, NCA oder NRO."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP, XCI, PFS0, NCA o NRO."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP, XCI, PFS0, NCA ou NRO."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSP、XCI、PFS0、NCA 或 NRO。"
+          }
+        }
+      }
+    },
+    "This update needs its base game" : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This update needs its base game"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo aggiornamento richiede il gioco base"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette mise à jour a besoin de son jeu de base"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Update braucht sein Hauptspiel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta actualización necesita su juego base"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta atualização precisa do jogo base"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此更新需要其本体游戏"
+          }
+        }
+      }
+    },
+    "Ryujinx starts a game from its base game. Add the base game’s file with this update." : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx starts a game from its base game. Add the base game’s file with this update."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx avvia un gioco dal gioco base. Aggiungi il file del gioco base insieme a questo aggiornamento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx lance un jeu à partir de son jeu de base. Ajoute le fichier du jeu de base avec cette mise à jour."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx startet ein Spiel über sein Hauptspiel. Füge die Datei des Hauptspiels zu diesem Update hinzu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx inicia un juego desde su juego base. Añade el archivo del juego base con esta actualización."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Ryujinx inicia um jogo pelo jogo base. Adicione o arquivo do jogo base com esta atualização."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx 从本体游戏启动。请将本体游戏文件与此更新一起添加。"
+          }
+        }
+      }
+    },
+    "update %@" : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "update %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "agg. %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MÀJ %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "act. %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "atualização %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新 %@"
+          }
+        }
+      }
+    },
+    "%@ DLC" : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ DLC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ DLC"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ DLC"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ DLC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ DLC"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ DLC"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 个 DLC"
+          }
+        }
+      }
+    },
+    "Add to library" : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to library"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi alla libreria"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter à la bibliothèque"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zur Bibliothek hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir a la biblioteca"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar à biblioteca"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加到游戏库"
+          }
+        }
+      }
+    },
+    "Ryujinx loads the update and DLC you checked." : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx loads the update and DLC you checked."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx carica l’aggiornamento e i DLC selezionati."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx charge la mise à jour et les DLC cochés."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx lädt das markierte Update und die markierten DLC."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx carga la actualización y los DLC marcados."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Ryujinx carrega a atualização e os DLC marcados."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryujinx 会加载你勾选的更新和 DLC。"
+          }
+        }
+      }
+    },
+    "Your files stay where they are. Nothing is copied or converted." : {
+      "comment" : "AddGameView+Rows.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your files stay where they are. Nothing is copied or converted."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi file restano dove sono. Nulla viene copiato o convertito."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes fichiers restent où ils sont. Rien n’est copié ni converti."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Dateien bleiben, wo sie sind. Nichts wird kopiert oder umgewandelt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus archivos se quedan donde están. No se copia ni se convierte nada."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seus arquivos ficam onde estão. Nada é copiado nem convertido."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的文件保持原位，不会被复制或转换。"
+          }
+        }
+      }
+    },
+    "English (US)" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English (US)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglese (USA)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anglais (États-Unis)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Englisch (USA)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglés (EE. UU.)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglês (EUA)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英语（美国）"
+          }
+        }
+      }
+    },
+    "English (UK)" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English (UK)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglese (Regno Unito)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anglais (Royaume-Uni)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Englisch (UK)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglés (Reino Unido)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglês (Reino Unido)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英语（英国）"
+          }
+        }
+      }
+    },
+    "Japanese" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japanese"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giapponese"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japonais"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japanisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japonés"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japonês"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日语"
+          }
+        }
+      }
+    },
+    "Portuguese (Brazil)" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portuguese (Brazil)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portoghese (Brasile)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portugais (Brésil)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portugiesisch (Brasilien)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portugués (Brasil)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Português (Brasil)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "葡萄牙语（巴西）"
+          }
+        }
+      }
+    },
+    "Spanish" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spanish"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spagnolo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espagnol"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spanisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Español"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espanhol"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "西班牙语"
+          }
+        }
+      }
+    },
+    "French" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "French"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Francese"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Français"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Französisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Francés"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Francês"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "法语"
+          }
+        }
+      }
+    },
+    "German" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "German"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tedesco"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allemand"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deutsch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alemán"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alemão"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "德语"
+          }
+        }
+      }
+    },
+    "Italian" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italian"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italiano"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italien"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italienisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italiano"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italiano"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "意大利语"
+          }
+        }
+      }
+    },
+    "Chinese (Simplified)" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chinese (Simplified)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cinese (semplificato)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chinois (simplifié)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chinesisch (vereinfacht)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chino (simplificado)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chinês (simplificado)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简体中文"
+          }
+        }
+      }
+    },
+    "Korean" : {
+      "comment" : "AppViewModel.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korean"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coreano"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coréen"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koreanisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coreano"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coreano"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "韩语"
+          }
+        }
+      }
+    },
+    "prod.keys is missing, unreadable or has no header_key. Import it again." : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prod.keys is missing, unreadable or has no header_key. Import it again."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prod.keys manca, è illeggibile o non ha header_key. Importalo di nuovo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prod.keys est absent, illisible ou sans header_key. Importe-le à nouveau."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prod.keys fehlt, ist unlesbar oder hat keinen header_key. Importiere sie erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prod.keys falta, no se puede leer o no tiene header_key. Impórtalo de nuevo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O prod.keys está ausente, ilegível ou sem header_key. Importe-o de novo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prod.keys 缺失、无法读取或没有 header_key。请重新导入。"
+          }
+        }
+      }
+    },
+    "These keys do not open %@" : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These keys do not open %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Queste chiavi non aprono %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces clés n’ouvrent pas %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Schlüssel öffnen %@ nicht"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas claves no abren %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas chaves não abrem %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些密钥无法打开 %@"
+          }
+        }
+      }
+    },
+    "Your keys are too old for this game" : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your keys are too old for this game"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue chiavi sono troppo vecchie per questo gioco"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes clés sont trop anciennes pour ce jeu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Schlüssel sind zu alt für dieses Spiel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus claves son demasiado antiguas para este juego"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suas chaves são antigas demais para este jogo"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的密钥对此游戏而言过旧"
+          }
+        }
+      }
+    },
+    "Your keys are too old for this update" : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your keys are too old for this update"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue chiavi sono troppo vecchie per questo aggiornamento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes clés sont trop anciennes pour cette mise à jour"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Schlüssel sind zu alt für dieses Update"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus claves son demasiado antiguas para esta actualización"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suas chaves são antigas demais para esta atualização"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的密钥对此更新而言过旧"
+          }
+        }
+      }
+    },
+    "Your keys are too old for this DLC" : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your keys are too old for this DLC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue chiavi sono troppo vecchie per questo DLC"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes clés sont trop anciennes pour ce DLC"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Schlüssel sind zu alt für diesen DLC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus claves son demasiado antiguas para este DLC"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suas chaves são antigas demais para este DLC"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的密钥对此 DLC 而言过旧"
+          }
+        }
+      }
+    },
+    "It needs keys from firmware %@ or later. Dump prod.keys again from your console." : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It needs keys from firmware %@ or later. Dump prod.keys again from your console."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servono chiavi del firmware %@ o successivo. Estrai di nuovo prod.keys dalla tua console."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il faut des clés du firmware %@ ou plus récent. Extrais à nouveau prod.keys de ta console."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es braucht Schlüssel ab Firmware %@. Lies prod.keys erneut von deiner Konsole aus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Necesita claves del firmware %@ o posterior. Vuelve a extraer prod.keys de tu consola."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precisa de chaves do firmware %@ ou mais recente. Extraia o prod.keys do seu console de novo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要固件 %@ 或更高版本的密钥。请从你的主机重新导出 prod.keys。"
+          }
+        }
+      }
+    },
+    "It needs keys from a newer firmware. Dump prod.keys again from your console." : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It needs keys from a newer firmware. Dump prod.keys again from your console."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servono chiavi di un firmware più recente. Estrai di nuovo prod.keys dalla tua console."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il faut des clés d’un firmware plus récent. Extrais à nouveau prod.keys de ta console."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es braucht Schlüssel einer neueren Firmware. Lies prod.keys erneut von deiner Konsole aus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Necesita claves de un firmware más reciente. Vuelve a extraer prod.keys de tu consola."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precisa de chaves de um firmware mais recente. Extraia o prod.keys do seu console de novo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要更新固件的密钥。请从你的主机重新导出 prod.keys。"
+          }
+        }
+      }
+    },
+    "Keys not checked against %@" : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keys not checked against %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiavi non verificate su %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clés non vérifiées pour %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel nicht gegen %@ geprüft"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claves no comprobadas con %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaves não verificadas para %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未针对 %@ 检查密钥"
+          }
+        }
+      }
+    },
+    "%@ reads NSP and NSZ headers only; the porting checks the rest." : {
+      "comment" : "KeyCheck.swift",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ reads NSP and NSZ headers only; the porting checks the rest."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ legge solo le intestazioni NSP e NSZ; il porting verifica il resto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ne lit que les en-têtes NSP et NSZ ; la compilation vérifie le reste."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ liest nur NSP- und NSZ-Header; die Portierung prüft den Rest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ solo lee las cabeceras NSP y NSZ; la conversión comprueba el resto."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O %@ lê apenas os cabeçalhos NSP e NSZ; a conversão verifica o resto."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 只读取 NSP 和 NSZ 头部；移植过程会检查其余部分。"
+          }
+        }
+      }
+    }
   },
   "version": "1.0"
 }

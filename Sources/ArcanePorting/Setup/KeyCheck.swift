@@ -42,16 +42,24 @@ public enum KeyCheck {
             case .fits:
                 return nil
             case .unreadableKeys, .noHeaderKey:
-                return ("Your keys could not be read", "prod.keys is missing, unreadable or has no header_key. Import it again.", true)
+                return (L10n.text("Your keys could not be read"),
+                        L10n.text("prod.keys is missing, unreadable or has no header_key. Import it again."), true)
             case .wrongHeaderKey(let file):
-                return ("These keys do not open \(file)", "Import prod.keys from the console these files were dumped with.", true)
+                return (L10n.format("These keys do not open %@", [file]),
+                        L10n.text("Import prod.keys from the console these files were dumped with."), true)
             case .tooOld(let part, let generation, _):
-                let what = part == .base ? "game" : (part == .update ? "update" : "DLC")
-                let firmware = KeyCheck.firmware(forGeneration: generation).map { "firmware \($0)" } ?? "a newer firmware"
-                return ("Your keys are too old for this \(what)",
-                        "It needs keys from \(firmware) or later. Dump prod.keys again from your console.", true)
+                let title = switch part {
+                case .base: L10n.text("Your keys are too old for this game")
+                case .update: L10n.text("Your keys are too old for this update")
+                case .dlc: L10n.text("Your keys are too old for this DLC")
+                }
+                let about = KeyCheck.firmware(forGeneration: generation).map {
+                    L10n.format("It needs keys from firmware %@ or later. Dump prod.keys again from your console.", [$0])
+                } ?? L10n.text("It needs keys from a newer firmware. Dump prod.keys again from your console.")
+                return (title, about, true)
             case .cannotCheck(let file):
-                return ("Keys not checked against \(file)", "\(AppIdentity.displayName) reads NSP and NSZ headers only; the porting checks the rest.", false)
+                return (L10n.format("Keys not checked against %@", [file]),
+                        L10n.format("%@ reads NSP and NSZ headers only; the porting checks the rest.", [AppIdentity.displayName]), false)
             }
         }
     }

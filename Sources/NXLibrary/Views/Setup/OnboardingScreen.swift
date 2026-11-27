@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import ArcanePorting
 import NXLibraryCore
 
 /// The guided pages and What’s New share a single readable Selene layout.
@@ -37,6 +38,8 @@ struct OnboardingScreen: View {
     var progress: String? = nil
     let rows: [Row]
     var message: String? = nil
+    /// Proposal (feat/proposition-accueil-ryujinx): a state under the rows, with its mark, as Settings shows it.
+    var statusLine: SwitchReadiness.Line? = nil
     @Binding var focus: String
     let primary: (String, () -> Void)
     var secondary: (String, () -> Void)? = nil
@@ -73,6 +76,9 @@ struct OnboardingScreen: View {
                             }
                         }
                     }
+                }
+                if let statusLine {
+                    ReadinessStatus(line: statusLine).fixedSize(horizontal: false, vertical: true)
                 }
                 if let message {
                     Text(verbatim: message).seleneFont(.text)

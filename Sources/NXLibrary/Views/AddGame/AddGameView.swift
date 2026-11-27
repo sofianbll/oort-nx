@@ -198,7 +198,10 @@ struct AddGameView: View {
     private var stepLine: some View {
         let step = porting.buildWizardStep
         return HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            ForEach(Array([L10n.text("Choose"), L10n.text("Review"), L10n.text("Build")].enumerated()), id: \.offset) { index, title in
+            // Ryujinx-Nextendo (proposal) reads the files as they are: there is no Build step.
+            let steps = setup.readiness?.engine == .ryujinx ? [L10n.text("Choose"), L10n.text("Review")]
+                : [L10n.text("Choose"), L10n.text("Review"), L10n.text("Build")]
+            ForEach(Array(steps.enumerated()), id: \.offset) { index, title in
                 if index > 0 {
                     Circle().fill(SeleneTheme.ink25).frame(width: canvas.u(4), height: canvas.u(4))
                 }

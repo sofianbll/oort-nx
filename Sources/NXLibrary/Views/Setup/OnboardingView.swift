@@ -25,7 +25,7 @@ struct OnboardingView: View {
         case .welcome: return "Welcome to Oort NX"
         case .controller: return "Your controller"
         case .profile: return "Your local profile"
-        case .localGames: return "Games on this Mac"
+        case .localGames: return viewModel.setup.readiness?.engine == .ryujinx ? "Games on this computer" : "Games on this Mac"
         case .services: return "Optional services"
         default: return "Look and sound"
         }
@@ -35,7 +35,9 @@ struct OnboardingView: View {
         case .welcome: return "Play games already on your Mac. No account is required."
         case .controller: return "Connect a controller in macOS, or continue with your keyboard and mouse."
         case .profile: return "Your profile keeps your play history and preferences on this Mac."
-        case .localGames: return "Add the checked games without moving their files or starting a build."
+        case .localGames:
+            if let readiness = viewModel.setup.readiness { return L10n.format("Set up %@, your games and your keys.", [readiness.engineName]) }
+            return "Add the checked games without moving their files or starting a build."
         case .services: return "Set up only what you want. You can do this later in Settings."
         default: return "Choose how the library looks and sounds. You can change it anytime."
         }
@@ -50,7 +52,8 @@ struct OnboardingView: View {
     var body: some View {
         OnboardingScreen(title: L10n.text(title), detail: L10n.text(detail),
                          progress: "\(step) / \(FirstRunSetup.Page.tour.count)",
-                         rows: rows, message: error ?? status, focus: $focus,
+                         rows: rows, message: error ?? status,
+                         statusLine: page == .localGames ? viewModel.setup.readiness?.firstStepsLine : nil, focus: $focus,
                          primary: (nextTitle, advance), secondary: page == .welcome ? ("Skip setup", finish) : ("Back", back),
                          backSkips: page == .welcome)
             .task(id: scanID) {
@@ -124,6 +127,7 @@ struct OnboardingView: View {
 
     private var status: String? {
         guard page == .localGames else { return nil }
+        if viewModel.setup.readiness != nil { return nil }
         guard let inventory else { return L10n.text("Looking at your Mac…") }
         if inventory.incomplete { return L10n.text("Some folders could not be read. Check the folders or continue.") }
         if inventory.entries.isEmpty { return L10n.text("No games found") }
@@ -158,7 +162,8 @@ struct OnboardingView: View {
     }
 
     private var gameRows: [OnboardingScreen.Row] {
-        [
+        if let readiness = viewModel.setup.readiness { return proposalRows(readiness) }
+        return [
             .init("files", L10n.text(GameFoldersCopy.sourcesTitle),
                   GameFoldersCopy.sourcesContents, .folder,
                   note: viewModel.porting.gameFilesFolder?.lastPathComponent ?? L10n.text("No folder selected"),
@@ -180,6 +185,32 @@ struct OnboardingView: View {
                 AppData.preferences.set(Array(exclusions), forKey: AppViewModel.StorageKeys.onboardingExclusions)
             } : nil)
         } ?? [])
+    }
+
+    // MARK: - Proposal (feat/proposition-accueil-ryujinx)
+
+    /// The engine in use and what it needs, checked at a glance: the same rows on the Mac and the PC, at most five.
+    /// A failed key choice is said here, where it was made; Detect Ryujinx is offered from the start.
+    private func proposalRows(_ readiness: SwitchReadiness) -> [OnboardingScreen.Row] {
+        var rows: [OnboardingScreen.Row] = [
+            .init("engine", readiness.engineName,
+                  L10n.text(readiness.compiles ? "Builds your games into Mac apps." : "Your own copy. Oort never ships it."),
+                  .settings, note: readiness.engineLine.title, action: { openSettings(.engine) }),
+            .init("files", L10n.text(GameFoldersCopy.sourcesTitle), readiness.sourcesContents, .folder,
+                  note: readiness.foldersLine.title, badges: readiness.formats, action: { pickFolder(apps: false) })
+        ]
+        if readiness.compiles {
+            rows.append(.init("apps", L10n.text(GameFoldersCopy.appsTitle), GameFoldersCopy.appsContents, .folder,
+                              note: viewModel.gameAppsFolder.lastPathComponent,
+                              badges: GameFoldersCopy.appBadges, action: { pickFolder(apps: true) }))
+        }
+        rows.append(.init("keys", L10n.text(GameFoldersCopy.keysTitle), readiness.keysContents, .key,
+                          note: readiness.keysLine.title, badges: GameFoldersCopy.keyBadges + ["title.keys"],
+                          action: { viewModel.setup.selectProdKeysFile() }))
+        rows.append(.init("detect", L10n.text("Detect Ryujinx..."),
+                          L10n.text("Uses the keys your Ryujinx already has. Nothing is shown or sent."), .search,
+                          action: { viewModel.selectRyujinxFolder() }))
+        return rows
     }
 
     private var serviceRows: [OnboardingScreen.Row] {
