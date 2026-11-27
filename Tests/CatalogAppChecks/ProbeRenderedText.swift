@@ -2,17 +2,18 @@ import AppKit
 import PDFKit
 import SwiftUI
 
-// Frames kept in memory by name: the probe writes no capture beyond its PNG and PDF.
-nonisolated(unsafe) private var probeFrames: [String: (shown: CGImage, hidden: CGImage)] = [:]
+// Frames kept in memory by name: the probe writes no capture beyond its PNG and PDF. The redacted render is made
+// only when assertVisible reads it, after the probe's renders, so the order of the probe's own renders is unchanged.
+nonisolated(unsafe) private var probeFrames: [String: (shown: CGImage, hidden: @MainActor () -> CGImage?)] = [:]
 nonisolated(unsafe) private var probeSelfTest: [String]? = nil
 
-/// Saves the PDF of a render beside its PNG, and keeps the frame with every text redacted for `assertVisible`.
+/// Saves the PDF of a render beside its PNG, and keeps the shown frame and how to render it with every text redacted,
+/// for `assertVisible`.
 @MainActor
-func saveProbeText<V: View, H: View>(_ renderer: ImageRenderer<V>, hidden: ImageRenderer<H>, beside image: URL) throws {
+func saveProbeText<V: View>(_ renderer: ImageRenderer<V>, shown: CGImage, hidden: @escaping @MainActor () -> CGImage?,
+                            beside image: URL) throws {
     try probePDF(renderer).write(to: image.deletingPathExtension().appendingPathExtension("pdf"))
-    guard let shown = renderer.cgImage, let redacted = hidden.cgImage else { throw CocoaError(.fileWriteUnknown) }
-    probeFrames[image.deletingPathExtension().lastPathComponent] = (shown, redacted)
-    if probeSelfTest == nil { probeSelfTest = probeVisibilitySelfTest() }
+    probeFrames[image.deletingPathExtension().lastPathComponent] = (shown, hidden)
 }
 
 @MainActor
@@ -51,13 +52,16 @@ func readProbeText(_ output: URL, name: String) throws -> String {
 /// Limits: a text hidden by another text passes (both change once redacted); contrast is the best pixel's, a lenient
 /// measure; a text too faint to differ by 25/255 from its redacted render is refused as not in front.
 func assertVisible(_ output: URL, name: String, _ texts: [String]) -> [String] {
-    guard let selfTest = probeSelfTest else { return ["\(name): no frame was saved for assertVisible"] }
-    guard selfTest.isEmpty else { return selfTest.map { "assertVisible self-test: \($0)" } }
-    guard let frames = probeFrames[name] else { return ["\(name): no frame was saved for assertVisible"] }
+    // The self-test renders its own texts: it runs here, after the probe's renders, so its PNGs stay as they were.
+    if probeSelfTest == nil { probeSelfTest = MainActor.assumeIsolated { probeVisibilitySelfTest() } }
+    if let selfTest = probeSelfTest, !selfTest.isEmpty { return selfTest.map { "assertVisible self-test: \($0)" } }
+    guard let frames = probeFrames[name], let redacted = MainActor.assumeIsolated({ frames.hidden() }) else {
+        return ["\(name): no frame was saved for assertVisible"]
+    }
     guard let page = PDFDocument(url: output.appendingPathComponent(name + ".pdf"))?.page(at: 0) else {
         return ["\(name): its PDF cannot be read"]
     }
-    let shown = ProbeBitmap(frames.shown), hidden = ProbeBitmap(frames.hidden)
+    let shown = ProbeBitmap(frames.shown), hidden = ProbeBitmap(redacted)
     return texts.compactMap { text in
         let verdicts: [String?] = probeLines(of: text, on: page).map { lines in
             guard !lines.isEmpty else { return "no line box" }
@@ -199,11 +203,8 @@ private func probeVisibilitySelfTest() -> [String] {
         for (name, view, reason) in cases {
             let image = folder.appendingPathComponent("self-\(name).png")
             try probePDF(ImageRenderer(content: view)).write(to: image.deletingPathExtension().appendingPathExtension("pdf"))
-            guard let shown = ImageRenderer(content: view).cgImage,
-                  let hidden = ImageRenderer(content: view.redacted(reason: .placeholder)).cgImage else {
-                problems.append("\(name): no image"); continue
-            }
-            probeFrames["self-\(name)"] = (shown, hidden)
+            guard let shown = ImageRenderer(content: view).cgImage else { problems.append("\(name): no image"); continue }
+            probeFrames["self-\(name)"] = (shown, { ImageRenderer(content: view.redacted(reason: .placeholder)).cgImage })
             probeSelfTest = []
             let text = name.prefix(1).uppercased() + name.dropFirst() + " words"
             let found = assertVisible(folder, name: "self-\(name)", [text]).joined(separator: "; ")

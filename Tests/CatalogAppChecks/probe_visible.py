@@ -1,7 +1,7 @@
 """Give a screen probe what assertVisible needs (rule R13), written once for every probe that reads rendered text.
 
 text_render() rewrites the shared render function so it saves, beside each PNG, the PDF of the render and keeps the
-same content rendered with every text redacted; install() copies ProbeRenderedText.swift with the contrast the
+shown frame and the content, to render it with every text redacted when assertVisible runs; install() copies ProbeRenderedText.swift with the contrast the
 charte requires of text (scripts/generate_oort_tokens.py). The PNGs written are the same as before.
 """
 from pathlib import Path
@@ -23,7 +23,8 @@ def text_render(render, only=None):
     render = replace_once(render, "let renderer = ImageRenderer(content: view.frame", "let content = view.frame")
     render = replace_once(render, ".environment(\\.seleneReduceMotion, true))",
                           ".environment(\\.seleneReduceMotion, true)\n        let renderer = ImageRenderer(content: content)")
-    save = "try saveProbeText(renderer, hidden: ImageRenderer(content: content.redacted(reason: .placeholder)), beside: imageURL)"
+    save = ("try saveProbeText(renderer, shown: image, "
+            "hidden: { ImageRenderer(content: content.redacted(reason: .placeholder)).cgImage }, beside: imageURL)")
     return replace_once(render, 'try png.write(to: output.appendingPathComponent(name + ".png"))',
                         'let imageURL = output.appendingPathComponent(name + ".png")\n'
                         "        try png.write(to: imageURL)\n"
