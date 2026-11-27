@@ -3,7 +3,7 @@
   "package": "NXLibrary",
   "modules": {
     "core": {"name": "OortCore", "kind": "core", "layer": 0, "path": "core/OortCore", "model": "oort",
-             "tests": {"name": "OortCoreTests", "path": "Tests/OortCoreTests"}},
+             "tests": {"name": "OortCoreTests", "path": "core/Tests/OortCoreTests"}},
     "library": {"name": "NXLibraryCore", "kind": "core", "layer": 1, "path": "core/OortLibrary", "model": "oort",
                 "tests": {"name": "NXLibraryCoreTests", "path": "Tests/NXLibraryCoreTests"}},
     "nxnative": {"name": "ArcanePorting", "kind": "engine", "layer": 2, "path": "Sources/ArcanePorting", "model": "oort.mac",

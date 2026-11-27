@@ -4,7 +4,7 @@ import XCTest
 final class CreditsTests: XCTestCase {
     private func credits() throws -> Credits {
         try Credits(contentsOf: URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().appendingPathComponent("design/credits.json"))
+            .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("design/credits.json"))
     }
 
     func testEverySystemThanksTheProjectsItIsBuiltOn() throws {

@@ -27,12 +27,12 @@ model {
       metadata { path "core" }
       coreOortCore = folder "OortCore/" { metadata { path "core/OortCore" } }
       coreLibrary = folder "OortLibrary/" { metadata { path "core/OortLibrary" } }
+      coreTests = folder "Tests/" { metadata { path "core/Tests" } }
     }
 
     tests = folder "Tests/" {
       summary "Swift tests, app probes, Python checks"
       metadata { path "Tests" }
-      testOortCore = folder "OortCoreTests/" { metadata { path "Tests/OortCoreTests" } }
       testLibraryCore = folder "NXLibraryCoreTests/" { metadata { path "Tests/NXLibraryCoreTests" } }
       testPorting = folder "ArcanePortingTests/" { metadata { path "Tests/ArcanePortingTests" } }
       testProbes = folder "CatalogAppChecks/" { metadata { path "Tests/CatalogAppChecks" } }

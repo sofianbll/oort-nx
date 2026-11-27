@@ -1137,7 +1137,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/VocabularyTests.swift](../../Tests/NXLibraryCoreTests/VocabularyTests.swift) | Parole del contratto: Rimuovi e Elimina, Spotlight, compilazione. |
 | [Tests/NXLibraryCoreTests/OnScreenKeyboardTests.swift](../../Tests/NXLibraryCoreTests/OnScreenKeyboardTests.swift) | Caratteri disponibili, maiuscole, focus e cambio pagina della tastiera a schermo. |
 | [Tests/NXLibraryCoreTests/SettingsResetQuestionTests.swift](../../Tests/NXLibraryCoreTests/SettingsResetQuestionTests.swift) | Domanda prima di ogni ripristino di gruppo e suo testo. |
-| [Tests/OortCoreTests/ControllerInputTests.swift](../../Tests/OortCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici, calibrazione, transizioni e precedenza di GameController. |
+| [core/Tests/OortCoreTests/ControllerInputTests.swift](../../core/Tests/OortCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici, calibrazione, transizioni e precedenza di GameController. |
 | [Tests/ArcanePortingTests/CheatCopyTests.swift](../../Tests/ArcanePortingTests/CheatCopyTests.swift) | Testi di intestazione, rifiuto, conferma e rimozione dei cheats. |
 | [Tests/ArcanePortingTests/CheatFileTests.swift](../../Tests/ArcanePortingTests/CheatFileTests.swift) | Parsing dei codici secondo il motore, sezioni, metadati, nomi duplicati e codici non validi. |
 | [Tests/ArcanePortingTests/CheatInstallTests.swift](../../Tests/ArcanePortingTests/CheatInstallTests.swift) | Build ID, title ID, file senza nome, cartelle e decisioni di installazione. |
@@ -1166,18 +1166,18 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/EngineLocationTests.swift](../../Tests/ArcanePortingTests/EngineLocationTests.swift) | Percorso predefinito, cartella scelta e fallback quando scompare. |
 | [Tests/ArcanePortingTests/EngineToolchainTests.swift](../../Tests/ArcanePortingTests/EngineToolchainTests.swift) | Rilevamento del runtime incluso e fallback a Python e strumenti del checkout. |
 | [Tests/ArcanePortingTests/EnvironmentTests.swift](../../Tests/ArcanePortingTests/EnvironmentTests.swift) | Parsing di Metal e controlli dell’ambiente mediante runner sintetico. |
-| [Tests/OortCoreTests/FocusIndexTests.swift](../../Tests/OortCoreTests/FocusIndexTests.swift) | Movimento limitato agli elementi della lista e liste vuote. |
+| [core/Tests/OortCoreTests/FocusIndexTests.swift](../../core/Tests/OortCoreTests/FocusIndexTests.swift) | Movimento limitato agli elementi della lista e liste vuote. |
 | [Tests/ArcanePortingTests/GameDetailPresentationTests.swift](../../Tests/ArcanePortingTests/GameDetailPresentationTests.swift) | Disponibilità di build e sorgenti e formattazione di metadati e azioni Details. |
 | [Tests/ArcanePortingTests/GameResourceStateTests.swift](../../Tests/ArcanePortingTests/GameResourceStateTests.swift) | App spostata e ripristinata, input assenti, Play senza sorgenti e conservazione di workspace e build attive durante Refresh. |
 | [Tests/ArcanePortingTests/GameOptionsPresentationTests.swift](../../Tests/ArcanePortingTests/GameOptionsPresentationTests.swift) | Ordine, focus e capacità della build, incluse le righe multigiocatore e RomFS. |
 | [Tests/ArcanePortingTests/GameRuntimeConfigTests.swift](../../Tests/ArcanePortingTests/GameRuntimeConfigTests.swift) | Review di giochi nuovi ed esistenti, persistenza con plist temporaneo, lingua del rebuild e conversione DM_* con merge di env.txt. |
 | [Tests/ArcanePortingTests/GameTDBTests.swift](../../Tests/ArcanePortingTests/GameTDBTests.swift) | Database, normalizzazione dei nomi, regioni e matching delle copertine. |
-| [Tests/OortCoreTests/HoldDetectorTests.swift](../../Tests/OortCoreTests/HoldDetectorTests.swift) | Soglia temporale e distinzione fra pressione breve e prolungata. |
+| [core/Tests/OortCoreTests/HoldDetectorTests.swift](../../core/Tests/OortCoreTests/HoldDetectorTests.swift) | Soglia temporale e distinzione fra pressione breve e prolungata. |
 | [Tests/ArcanePortingTests/ImportServiceTests.swift](../../Tests/ArcanePortingTests/ImportServiceTests.swift) | Identità, firma originale o di ripiego senza cloud, spazio, riparazione, rifiuto di sidecar non sicuri, conflitto, modifica dopo l'anteprima e rollback. |
 | [Tests/NXLibraryCoreTests/CursorIdleTests.swift](../../Tests/NXLibraryCoreTests/CursorIdleTests.swift) | Ritardo del cursore, ripristino e ripartenza dopo interruzione o attività del mouse. |
 | [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali e byte. |
-| [Tests/OortCoreTests/LineBufferTests.swift](../../Tests/OortCoreTests/LineBufferTests.swift) | Ricomposizione delle righe parziali e separatori dei progressi. |
-| [Tests/OortCoreTests/CreditsTests.swift](../../Tests/OortCoreTests/CreditsTests.swift) | Autori, gruppi per sistema, lingue e immagini permesse dei crediti. |
+| [core/Tests/OortCoreTests/LineBufferTests.swift](../../core/Tests/OortCoreTests/LineBufferTests.swift) | Ricomposizione delle righe parziali e separatori dei progressi. |
+| [core/Tests/OortCoreTests/CreditsTests.swift](../../core/Tests/OortCoreTests/CreditsTests.swift) | Autori, gruppi per sistema, lingue e immagini permesse dei crediti. |
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura di intestazioni sintetiche, intervalli troncati e chiavi richieste dalle sorgenti. |
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
@@ -1192,7 +1192,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift](../../Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift) | Persistenza e merge nxnative, ripresa e copia senza eseguire rimozioni o build ereditate; staging esterno preservato e nuova build ancora in coda. |
 | [Tests/NXLibraryCoreTests/MaterialIconTests.swift](../../Tests/NXLibraryCoreTests/MaterialIconTests.swift) | Integrità dei glifi e del font delle icone. |
 | [Tests/ArcanePortingTests/MetadataPickerTests.swift](../../Tests/ArcanePortingTests/MetadataPickerTests.swift) | Alternative per campo, override persistiti e applicazione ai metadati del gioco. |
-| [Tests/OortCoreTests/MoonlightFieldTests.swift](../../Tests/OortCoreTests/MoonlightFieldTests.swift) | Generazione deterministica e limiti dei dati delle particelle. |
+| [core/Tests/OortCoreTests/MoonlightFieldTests.swift](../../core/Tests/OortCoreTests/MoonlightFieldTests.swift) | Generazione deterministica e limiti dei dati delle particelle. |
 | [MoonlightAppearanceTests.swift](../../Tests/ArcanePortingTests/MoonlightAppearanceTests.swift) | Ignora la preferenza storica delle particelle senza perdere altri valori; continuità del ciclo e bordi della griglia colori. |
 | [Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift](../../Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift) | Matching dei titoli e risposte delle sorgenti artwork aggiuntive. |
 | [Tests/ArcanePortingTests/MoreLikeThisTests.swift](../../Tests/ArcanePortingTests/MoreLikeThisTests.swift) | Ranking condiviso, precedenza Steam e ripiego Switch, giochi nascosti e metadati incompleti. |
@@ -1217,8 +1217,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/PlayerPlanTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanTests.swift) | Posti, accesso ai profili, identità ambigue e conferme dei controller. |
 | [Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Persistenza e conservazione dei campi sconosciuti; rifiuto dei documenti non validi. |
 | [Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift](../../Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift) | Modalità di lancio, capacità dichiarate, precedenza di `env.txt` e limiti del nickname. |
-| [Tests/OortCoreTests/ProfileKeypadTests.swift](../../Tests/OortCoreTests/ProfileKeypadTests.swift) | Navigazione, cancellazione, zero iniziale e lunghezza del PIN fornita dal chiamante. |
-| [Tests/OortCoreTests/PaletteTests.swift](../../Tests/OortCoreTests/PaletteTests.swift) | Accenti, errori, ordine, gruppi, focus e recenti di Cerca ovunque. |
+| [core/Tests/OortCoreTests/ProfileKeypadTests.swift](../../core/Tests/OortCoreTests/ProfileKeypadTests.swift) | Navigazione, cancellazione, zero iniziale e lunghezza del PIN fornita dal chiamante. |
+| [core/Tests/OortCoreTests/PaletteTests.swift](../../core/Tests/OortCoreTests/PaletteTests.swift) | Accenti, errori, ordine, gruppi, focus e recenti di Cerca ovunque. |
 | [Tests/NXLibraryCoreTests/PaletteActionTests.swift](../../Tests/NXLibraryCoreTests/PaletteActionTests.swift) | Sezioni, scorciatoie, traduzioni e recenti per profilo di Cerca ovunque. |
 | [Tests/NXLibraryCoreTests/ProfileLayersTests.swift](../../Tests/NXLibraryCoreTests/ProfileLayersTests.swift) | In ogni stato un solo strato della schermata profilo riceve l’input e mostra i suggerimenti; la procedura guidata sostituisce il selettore. |
 | [Tests/ArcanePortingTests/PortedGameTests.swift](../../Tests/ArcanePortingTests/PortedGameTests.swift) | Modello del gioco, compatibilità dei record, disponibilità dell’app e selezione delle ultime compilazioni riuscite. |
@@ -1278,7 +1278,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/ThemePickerTests.swift](../../Tests/NXLibraryCoreTests/ThemePickerTests.swift) | Navigazione della griglia, tab e selezione degli sfondi. |
 | [Tests/ArcanePortingTests/ToolchainGateCopyTests.swift](../../Tests/ArcanePortingTests/ToolchainGateCopyTests.swift) | Testi del gate per Metal certificato, precedente, successivo e altre cause di blocco. |
 | [Tests/ArcanePortingTests/ToolchainRequirementsTests.swift](../../Tests/ArcanePortingTests/ToolchainRequirementsTests.swift) | Versioni minime e identificativi degli asset Metal da scaricare. |
-| [Tests/OortCoreTests/VersionNumberTests.swift](../../Tests/OortCoreTests/VersionNumberTests.swift) | Confronto numerico delle versioni. |
+| [core/Tests/OortCoreTests/VersionNumberTests.swift](../../core/Tests/OortCoreTests/VersionNumberTests.swift) | Confronto numerico delle versioni. |
 | [Tests/ArcanePortingTests/UpstreamCheckerTests.swift](../../Tests/ArcanePortingTests/UpstreamCheckerTests.swift) | Changelog HTTP, cache e gestione degli errori del provider. |
 | [Tests/ArcanePortingTests/UpstreamCopyTests.swift](../../Tests/ArcanePortingTests/UpstreamCopyTests.swift) | Testi della riga upstream e adozione dei commit attraverso gli aggiornamenti dell’app. |
 | [Tests/NXLibraryCoreTests/WallpaperBrightnessTests.swift](../../Tests/NXLibraryCoreTests/WallpaperBrightnessTests.swift) | Maschere e livelli di luminosità dello sfondo. |

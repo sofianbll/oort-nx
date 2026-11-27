@@ -8,7 +8,7 @@ let core = (name: "OortCore", path: "core/OortCore")
 let library = (name: "NXLibraryCore", path: "core/OortLibrary")
 let nxnative = (name: "ArcanePorting", path: "Sources/ArcanePorting")
 let mac = (name: "NXLibrary", path: "Sources/NXLibrary")
-let coreTests = (name: "OortCoreTests", path: "Tests/OortCoreTests")
+let coreTests = (name: "OortCoreTests", path: "core/Tests/OortCoreTests")
 let libraryTests = (name: "NXLibraryCoreTests", path: "Tests/NXLibraryCoreTests")
 let nxnativeTests = (name: "ArcanePortingTests", path: "Tests/ArcanePortingTests")
 // END GENERATED NAMES
