@@ -26,7 +26,12 @@ final class IntegrationsTests: XCTestCase {
         do { _ = try ask(c, method, params); return nil } catch { return (error as? Manifest.Failure)?.code }
     }
 
-    private func entries(_ page: CatalogJSON) -> [CatalogJSON] { page["sections"].items.flatMap { $0["entries"].items } + page["entries"].items }
+    private func summaries(_ page: CatalogJSON) -> [CatalogJSON] { page["sections"].items.flatMap { $0["entries"].items } }
+    private func entries(_ page: CatalogJSON) -> [CatalogJSON] {
+        summaries(page).flatMap { summary in
+            summary["steps"].items.flatMap { $0["items"].items.compactMap { $0["row"] } }
+        } + page["entries"].items
+    }
     private func entry(_ page: CatalogJSON, _ id: String) -> CatalogJSON? { entries(page).first { $0["id"]?.stringValue == id } }
     private func act(_ c: Companion, _ page: CatalogJSON, _ id: String, at place: String? = nil) throws -> CatalogJSON {
         var params: [String: CatalogJSON] = ["id": .string(id), "token": entry(page, id)?["token"] ?? .null]
@@ -146,7 +151,13 @@ final class IntegrationsTests: XCTestCase {
     func testOpeningIsNotARequestAndUnknownRowsAreRefused() throws {
         let c = try companion()
         let page = try ask(c, "integrations")
-        XCTAssertEqual(page["sections"].items.map { $0["entries"].items.compactMap { $0["id"]?.stringValue } }, [["steam", "online"], ["prog"]])
+        XCTAssertEqual(page["sections"].items.map { $0["id"] }, ["sources", "engines", "services"])
+        XCTAssertEqual(page["sections"].items.map { $0["entries"].items.compactMap { $0["id"]?.stringValue } },
+                       [["steam", "prog"], [], ["online"]])
+        XCTAssertEqual(summaries(page).map { $0["action"] }, [["Open"], ["Open"], ["Open"]])
+        XCTAssertTrue(summaries(page).allSatisfy { $0["token"] == nil && $0["checked"] == nil })
+        XCTAssertEqual(summaries(page).map { $0["steps"].items.compactMap { $0["id"]?.stringValue } },
+                       [["link", "verify"], ["verify", "next"], ["link", "verify"]])
         let programs = try XCTUnwrap(entry(page, "prog"))
         XCTAssertEqual(programs["open"], "programs")
         XCTAssertNil(programs["token"])
@@ -352,11 +363,23 @@ final class IntegrationsTests: XCTestCase {
         keys.remove("%@")
         XCTAssertGreaterThanOrEqual(keys.count, 14)
         let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let headings = pages.flatMap { $0["sections"].items }.compactMap { $0["title"].items.first?.stringValue }
+        let catalogueKeys = Set(headings + pages.flatMap(summaries).flatMap { summary -> [String] in
+            ["title", "status", "capabilities", "action", "about"].compactMap { summary[$0].items.first?.stringValue } +
+                summary["steps"].items.flatMap { step in
+                    [step["title"].items.first?.stringValue].compactMap { $0 } +
+                        step["items"].items.flatMap { item in ["label", "text"].compactMap { item[$0].items.first?.stringValue } }
+                }
+        })
         // What the page has: desktop/scripts/generate.py's output, from the Mac catalog and desktop/strings.json.
         let generated = try String(contentsOf: repository.appendingPathComponent("desktop/ui/gen/strings.js"), encoding: .utf8)
         for key in keys.sorted() {
             let quoted = String(decoding: try JSONEncoder().encode(key), as: UTF8.self)
             XCTAssertGreaterThanOrEqual(generated.components(separatedBy: quoted + ":").count - 1, 2, "en and fr: \(key)")
+        }
+        for key in catalogueKeys.sorted() {
+            let quoted = String(decoding: try JSONEncoder().encode(key), as: UTF8.self)
+            XCTAssertEqual(generated.components(separatedBy: quoted + ":").count - 1, 7, "catalogue: \(key)")
         }
     }
 

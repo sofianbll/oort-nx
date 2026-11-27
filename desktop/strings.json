@@ -28,16 +28,6 @@
    "other": "%lld jeux dans ta bibliothèque"
   }
  },
- "%lld games known": {
-  "en": {
-   "one": "%lld game known",
-   "other": "%lld games known"
-  },
-  "fr": {
-   "one": "%lld jeu connu",
-   "other": "%lld jeux connus"
-  }
- },
  "%lld h %lld min": {
   "fr": "%lld h %lld min"
  },
@@ -46,26 +36,6 @@
  },
  "%lld settings changed.": {
   "fr": "%lld réglages ont changé."
- },
- "%lld still downloading, left out": {
-  "en": {
-   "one": "%lld still downloading, left out",
-   "other": "%lld still downloading, left out"
-  },
-  "fr": {
-   "one": "%lld en téléchargement, laissé de côté",
-   "other": "%lld en téléchargement, laissés de côté"
-  }
- },
- "%lld tools and extras, left out": {
-  "en": {
-   "one": "%lld tool or extra, left out",
-   "other": "%lld tools and extras, left out"
-  },
-  "fr": {
-   "one": "%lld outil ou extra, laissé de côté",
-   "other": "%lld outils et extras, laissés de côté"
-  }
  },
  "A PNG, JPEG or WebP of yours. It stays on this computer.": {
   "fr": "Une image à toi, PNG, JPEG ou WebP. Elle reste sur cet ordinateur."
@@ -111,9 +81,6 @@
  },
  "Any game or emulator, or its menu entry. Its name and icon come with it.": {
   "fr": "Un jeu ou un émulateur, ou son entrée de menu. Il arrive avec son nom et son icône."
- },
- "Any program with its arguments, an emulator with a game for example. Sends nothing.": {
-  "fr": "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
  },
  "Anything not saved in the game is lost.": {
   "fr": "Ce qui n’est pas enregistré dans le jeu sera perdu."
@@ -169,17 +136,8 @@
  "Controller": {
   "fr": "Manette"
  },
- "Covers and descriptions found online leave this computer. Your own pictures stay.": {
-  "fr": "Les jaquettes et descriptions trouvées en ligne sont supprimées de cet ordinateur. Tes images restent."
- },
  "Delete": {
   "fr": "Supprimer"
- },
- "Delete what was found online": {
-  "fr": "Supprimer ce qui a été trouvé en ligne"
- },
- "Delete what was found online?": {
-  "fr": "Supprimer ce qui a été trouvé en ligne ?"
  },
  "Double-click, or touch it again": {
   "fr": "Double-clic, ou touche-le encore"
@@ -210,9 +168,6 @@
  },
  "Game file": {
   "fr": "Fichier du jeu"
- },
- "Game information online": {
-  "fr": "Informations en ligne"
  },
  "Game settings": {
   "fr": "Réglages du jeu"
@@ -344,9 +299,6 @@
  "Oort NX does not check this copy; the project does.": {
   "fr": "Oort NX ne vérifie pas cette copie, le projet s’en charge."
  },
- "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.": {
-  "fr": "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur."
- },
  "Oort NX lost its place and started again. Try once more.": {
   "fr": "Oort NX s’est interrompu puis a repris. Réessaie."
  },
@@ -377,9 +329,6 @@
  "Program": {
   "fr": "Programme"
  },
- "Programs": {
-  "fr": "Programmes"
- },
  "Project": {
   "fr": "Projet"
  },
@@ -397,9 +346,6 @@
  },
  "Read: %@": {
   "fr": "Lire : %@"
- },
- "Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.": {
-  "fr": "Lit les listes de jeux installés de Steam et les images qu’il garde sur cet ordinateur. Ne modifie rien et n’envoie rien ; c’est Steam qui lance les jeux."
  },
  "Reads the game folders again.": {
   "fr": "Relit les dossiers de jeux."
@@ -479,9 +425,6 @@
  },
  "Steam store": {
   "fr": "Magasin Steam"
- },
- "Steam was not found on this computer. It is looked for again each time.": {
-  "fr": "Steam n’a pas été trouvé sur cet ordinateur. Il sera cherché à nouveau à chaque fois."
  },
  "The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the control center: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.": {
   "fr": "Le bouton + (Menu, Options) ouvre maintenant les options du jeu choisi. Home, ou + maintenu, ouvre le centre de contrôle : ta bibliothèque, les réglages, le plein écran, quitter. À la souris : la molette, et le clic droit pour les options."

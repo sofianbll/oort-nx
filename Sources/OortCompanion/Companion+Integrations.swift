@@ -28,24 +28,65 @@ extension Companion {
     /// What information online does and sends: under its switch, and in the question asked before it is on.
     static let onlineAbout: IntegrationWords = .init("Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.")
 
-    /// The rows of a place, in the order the page shows them: in Settings, Steam and information online, then programs;
-    /// in the activity center, information still looked for online, then what Steam still downloads.
-    func integrationSections(at place: IntegrationPlace) -> [[IntegrationEntry]] {
-        guard place == .settings else { return [place == .activity ? onlineWaiting() : nil, steamEntry(at: place)].compactMap { $0 }.map { [$0] } }
-        let on = choices.online == true, known = records.values.filter(\.found).count
-        let online = IntegrationEntry(id: "online", title: .init("Game information online"), about: Self.onlineAbout,
-                                      value: on ? .init("%lld games known", count: known) : .init("Off"), icon: "search",
-                                      control: .toggle(checked: on), request: .online(on: !on))
-        // Offered once something was found, and asked first: it cannot be taken back.
-        let clear = IntegrationEntry(id: "clear", title: .init("Delete what was found online"), value: .init("%lld games", count: known),
-                                     icon: "delete", control: .row, request: .clearOnline,
-                                     confirmation: .init(title: .init("Delete what was found online?"),
-                                                         message: .init("Covers and descriptions found online leave this computer. Your own pictures stay."),
-                                                         confirm: .init("Delete")))
-        let programs = IntegrationEntry(id: "prog", title: .init("Programs"),
-                                        about: .init("Any program with its arguments, an emulator with a game for example. Sends nothing."),
-                                        value: .verbatim(String(shelf.programs.count)), icon: "terminal", control: .open(.programs), request: nil)
-        return [[steamEntry(at: .settings)!, online] + (known > 0 ? [clear] : []), [programs]]
+    private struct SettingsIntegration {
+        enum Detail {
+            case row(IntegrationEntry), primary(IntegrationEntry), access(IntegrationWords, IntegrationWords)
+        }
+        let status: IntegrationWords
+        let row: IntegrationEntry
+        let steps: [IntegrationCatalog.Step<Detail>]
+    }
+
+    // Only shipped offers enter the common catalogue. Opening the detail sends no request.
+    private func settingsIntegration(_ id: IntegrationCatalog.ID) -> SettingsIntegration? {
+        func access(reads: IntegrationWords, writes: IntegrationWords, sends: IntegrationWords) -> [SettingsIntegration.Detail] {
+            [.access(IntegrationCatalog.reads, reads), .access(IntegrationCatalog.writes, writes), .access(IntegrationCatalog.sends, sends)]
+        }
+        let nothing: IntegrationWords = .init("Nothing")
+        switch id {
+        case .steam:
+            let counts = steamSeen()?.counts
+            guard let steam = steamEntry(at: .settings, counts: counts) else { return nil }
+            let on = steam.checked == true
+            let status = counts == nil ? IntegrationCatalog.notFound
+                : !on ? IntegrationCatalog.off
+                : counts?.games.isEmpty == true ? .init("No games found") : IntegrationCatalog.ready
+            let rights = access(reads: .init("Installed game lists and local Steam pictures."),
+                                writes: .init("Oort NX catalog, not Steam files."), sends: nothing)
+            let games = IntegrationEntry(id: "open-steam-games", title: IntegrationCatalog.steamGames,
+                                         control: .open(.steamLibrary), request: nil)
+            return .init(status: status, row: steam, steps: IntegrationCatalog.steps(
+                link: on ? [] : [.row(steam)], verify: (on ? [.row(steam)] : []) + rights,
+                next: on && counts?.games.isEmpty == false ? [.primary(games)] : []))
+        case .online:
+            let on = choices.online == true, known = records.values.filter(\.found).count
+            let online = IntegrationEntry(id: id.rawValue, title: id.title, about: Self.onlineAbout,
+                                          value: on ? .init("%lld games known", count: known) : .init("Off"), icon: "search",
+                                          control: .toggle(checked: on), request: .online(on: !on))
+            let clear = IntegrationEntry(id: "clear", title: .init("Delete what was found online"), value: .init("%lld games", count: known),
+                                         icon: "delete", control: .row, request: .clearOnline,
+                                         confirmation: .init(title: .init("Delete what was found online?"),
+                                                             message: .init("Covers and descriptions found online leave this computer. Your own pictures stay."),
+                                                             confirm: .init("Delete")))
+            let rights = access(reads: .init("Game titles or Steam IDs."),
+                                writes: .init("Covers and information in the local cache."),
+                                sends: .init("Game titles or Steam IDs and your language to the Steam store, Wikipedia and Wikidata."))
+            return .init(status: on ? .init("On") : .init("Off"), row: online, steps: IntegrationCatalog.steps(
+                link: on ? [] : [.row(online)], verify: (on ? [.row(online)] : []) + rights + (known > 0 ? [.row(clear)] : [])))
+        case .programs:
+            let programs = IntegrationEntry(id: id.rawValue, title: .init("Open programs"),
+                                            about: .init("Any program with its arguments, an emulator with a game for example. Sends nothing."),
+                                            icon: "terminal", control: .open(.programs), request: nil)
+            let rights = access(reads: .init("The chosen program’s name, location and icon."),
+                                writes: .init("The shortcut in this library, not the program."), sends: nothing)
+            return .init(status: shelf.programs.isEmpty ? .init("No programs added") : IntegrationCatalog.ready, row: programs,
+                         steps: IntegrationCatalog.steps(verify: rights, next: [.primary(programs)]))
+        default: return nil
+        }
+    }
+
+    private func integrationEntries(at place: IntegrationPlace) -> [IntegrationEntry] {
+        [place == .activity ? onlineWaiting() : nil, steamEntry(at: place)].compactMap { $0 }
     }
 
     /// Games whose information is still looked for online, while it is on: what the activity center shows and the
@@ -151,22 +192,53 @@ extension Companion {
     }
 
     func integrationsPage(at place: IntegrationPlace) -> CatalogJSON {
-        // In the first steps A is the steps' own: their switch waits for them to go on (integrations.keep).
-        let sections = integrationSections(at: place).map { $0.map { json($0, token: place == .guide ? nil : token($0)) } }
         switch place {
-        case .settings: return ["sections": .array(sections.map { ["entries": .array($0)] })]
+        case .settings:
+            let sections = IntegrationCatalog.sections { id in settingsIntegration(id).map { settingsJSON(id, $0) } }
+            return ["sections": .array(sections.map {
+                ["id": .string($0.id.rawValue), "title": words($0.id.title), "entries": .array($0.entries),
+                 "empty": $0.entries.isEmpty ? words(IntegrationCatalog.empty) : .null]
+            })]
         // `working`: information is still looked for online, the control center's dot (what Steam downloads is Steam's).
         case .activity:
-            let entries = sections.flatMap { $0 }
+            let entries = integrationEntries(at: place).map { json($0, token: token($0)) }
             return ["entries": .array(entries), "working": .bool(entries.contains { $0["id"]?.stringValue == "online" })]
-        case .guide, .add: return ["entries": .array(sections.flatMap { $0 })]
+        // In the first steps A is the steps' own: their switch waits for them to go on (integrations.keep).
+        case .guide, .add:
+            return ["entries": .array(integrationEntries(at: place).map { json($0, token: place == .guide ? nil : token($0)) })]
         }
+    }
+
+    private func settingsJSON(_ id: IntegrationCatalog.ID, _ integration: SettingsIntegration) -> CatalogJSON {
+        let steps = integration.steps.map { step -> CatalogJSON in
+            let items = step.content.map { item -> CatalogJSON in
+                switch item {
+                case .row(let entry): ["row": json(entry, token: token(entry))]
+                case .primary(let entry): ["row": json(entry, token: token(entry)), "primary": true]
+                case .access(let label, let value): ["label": words(label), "text": words(value)]
+                }
+            }
+            return ["id": .string(step.id.rawValue), "title": words(step.id.title), "items": .array(items)]
+        }
+        var result: [String: CatalogJSON] = ["id": .string(id.rawValue), "title": words(id.title),
+            "status": words(integration.status), "capabilities": words(id.capabilities), "action": words(IntegrationCatalog.open),
+            "steps": .array(steps)]
+        result["icon"] = integration.row.icon.map(CatalogJSON.string)
+        result["about"] = integration.row.about.map(words)
+        return .object(result)
     }
 
     /// Done by the owner, only if the row is still the one shown and was not done since.
     func actIntegration(_ p: CatalogJSON) throws -> CatalogJSON {
         let place = try place(p)
-        guard let entry = integrationSections(at: place).joined().first(where: { $0.id == p["id"]?.stringValue }) else { throw Manifest.Failure(code: "entry-missing") }
+        let entries = place == .settings ? IntegrationCatalog.sections(offering: settingsIntegration)
+            .flatMap(\.entries).flatMap(\.steps).flatMap(\.content).compactMap { item -> IntegrationEntry? in
+                switch item {
+                case .row(let entry), .primary(let entry): return entry
+                case .access: return nil
+                }
+            } : integrationEntries(at: place)
+        guard let entry = entries.first(where: { $0.id == p["id"]?.stringValue }) else { throw Manifest.Failure(code: "entry-missing") }
         let done: () throws -> Void
         switch (place, entry.request) {
         case (.guide, _), (_, nil), (_, .refreshSteam?), (_, .cancelSteamRefresh?), (_, .chooseSteamFolder?), (_, .readSteamAgain?):

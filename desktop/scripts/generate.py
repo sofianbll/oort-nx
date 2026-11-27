@@ -15,7 +15,7 @@ ROOT = HERE.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 import generate_oort_tokens as tokens  # noqa: E402
 
-LANGUAGES = ("en", "fr")
+LANGUAGES = ("en", "fr", "it", "de", "es", "pt-BR", "zh-Hans")
 ROLES = {"focus": "focus", "onFocus": "on-focus", "ink": "ink", "scrim": "scrim", "glass": "glass", "glyph": "glyph",
          "success": "success", "light": "light"}
 
@@ -89,6 +89,12 @@ def integration_words():
     text = (ROOT / "Sources/OortCompanion/Companion+Integrations.swift").read_text(encoding="utf-8")
     return [k.replace('\\"', '"') for k in re.findall(r'\.init\("((?:[^"\\]|\\.)*)"', text)]
 
+def catalogue_words():
+    common = (ROOT / "Sources/NXLibraryCore/Settings/IntegrationCatalog.swift").read_text(encoding="utf-8")
+    companion = (ROOT / "Sources/OortCompanion/Companion+Integrations.swift").read_text(encoding="utf-8")
+    companion = companion.split("private func settingsIntegration", 1)[1].split("private func integrationEntries", 1)[0]
+    return re.findall(r'(?:\.init|IntegrationWords)\("((?:[^"\\]|\\.)*)"', common + companion)
+
 
 def used():
     """Every text the page or the core can show, by key."""
@@ -106,7 +112,7 @@ def used():
         if row in rows:
             keys += [title, about]
     keys += literals(ROOT / "Sources/OortCompanion/SettingRows.swift")
-    keys += integration_words()
+    keys += integration_words() + catalogue_words()
     keys += [f"Settings navigation: {c}" for c in ("general", "appearance", "sound", "controllers", "account", "home", "library", "integrations", "about")]
     keys += ["Settings navigation: Games", "Settings navigation: Profile"]
     return list(dict.fromkeys(keys))
@@ -119,7 +125,8 @@ def strings():
     for file in sorted((HERE / "ui").glob("*.js")):
         explicit |= {t for _, t in re.findall(r"\bt\(\s*(['\"])((?:(?!\1)[^\\]|\\.)+)\1", file.read_text(encoding="utf-8"))}
     # The page shows them as it shows its own: each needs its words, in English and in French.
-    explicit |= set(integration_words())
+    catalogue = set(catalogue_words())
+    explicit |= set(integration_words()) | catalogue
     out, missing = {lang: {} for lang in LANGUAGES}, []
 
     def leaf(entry, lang):
@@ -138,7 +145,7 @@ def strings():
             if value is None and key in extra and lang == "en":
                 value = key
             if value is None:
-                if key in explicit or key in extra:
+                if key in catalogue or lang in ("en", "fr") and (key in explicit or key in extra):
                     missing.append(f"{lang}: {key}")
                 continue
             # The Mac app's own wording, with the name this app has.

@@ -34,7 +34,10 @@ let wrongRoute = null, hold = null, cut = false, fake = false;
       r.entries = [{ id: 'online', title: ['Information online'], sub: ['Looking…'], value: ['%lld games', 7], icon: 'search', open: 'integrations' }, ...r.entries.filter(e => e.id !== 'online')];
       r.working = true;
     }
-    if (wrongRoute && name === 'core' && args.method === 'integrations' && !args.params?.at) r.sections.at(-1).entries[0].open = wrongRoute;
+    if (wrongRoute && name === 'core' && args.method === 'integrations' && !args.params?.at) {
+      const programs = r.sections.flatMap(s => s.entries).find(e => e.id === 'prog');
+      programs.steps.flatMap(s => s.items).find(i => i.row).row.open = wrongRoute;
+    }
     return r;
   };
 })();
@@ -124,9 +127,13 @@ probe(async P => {
   const close = async () => { while (oort.layers.length > 1) await P.press('b'); await P.wait(200); };
   await open();
   P.ok(asked.includes('integrations'), 'the rows are the core’s');
-  P.same(ids(), ['steam', 'online', 'clear', 'prog'], 'the rows, in their order');
+  P.same(ids(), ['steam', 'prog', 'online'], 'the catalogue rows, in their order');
+  const detail = async id => {
+    row(id).focus(); await P.press('a');
+    await P.until(() => document.querySelector('.shell [data-id=integration-back]'), 5000, `detail ${id}`);
+  };
+  await detail('steam');
   P.same([text(row('steam'), '.what'), text(row('steam'), '.value'), row('steam').dataset.help?.includes('/Steam'), row('steam').dataset.help?.includes('1 still downloading')], [reads, '2 games', true, true], 'Steam: its words, its folders, what still downloads');
-  P.same([text(row('online'), '.value'), text(row('clear'), '.value'), text(row('prog'), '.value')], ['Off', '2 games', '0'], 'the other rows say what they did before');
 
   // PC_STEAM: off and on are two rows; A asks for the other state, at once; the focus stays.
   P.same([row('steam').getAttribute('role'), row('steam').getAttribute('aria-checked')], ['switch', 'false'], 'Steam is a switch, off');
@@ -144,6 +151,9 @@ probe(async P => {
   P.same([(await ask('steam')).on, heard.includes('deny')], [true, true], 'one change for one look; the second press is refused');
 
   // PC_ONLINE: the switch both ways; Delete asks first, Cancel has the focus and deletes nothing.
+  await P.press('b');
+  await detail('online');
+  P.same([text(row('online'), '.value'), text(row('clear'), '.value')], ['Off', '2 games'], 'online words and existing delete action');
   row('online').focus(); await P.press('a');
   await P.until(() => row('online')?.getAttribute('aria-checked') === 'true', 5000, 'online on');
   P.same([(await ask('online')).on, text(row('online'), '.value')], [true, '2 games known'], 'online on, two known');
@@ -159,6 +169,7 @@ probe(async P => {
   row('online').focus(); await P.press('a');
   await P.until(() => row('online')?.getAttribute('aria-checked') === 'false', 5000, 'online off');
   P.same((await ask('online')).on, false, 'and the switch goes back');
+  await P.press('b');
 
   // Back, B and Esc: one way back, the shell's, the same three times.
   const settings = oort.layers.at(-1), b = settings.actions.b; let backs = 0;
@@ -176,12 +187,12 @@ probe(async P => {
   for (const route of ['not-a-real-destination', 'match']) {
     wrongRoute = route; await open(); wrongRoute = null;
     const layers = oort.layers.length; heard.length = 0;
-    row('prog').focus(); await P.press('a'); await P.wait(300);
+    await detail('prog'); await P.press('a'); await P.wait(300);
     P.same([oort.layers.length, heard.includes('deny')], [layers, true], `${route} is refused here`);
     await close();
   }
   await open();
-  row('prog').focus(); await P.press('a');
+  await detail('prog'); await P.press('a');
   await P.until(() => document.querySelector('.sheet [data-id=program]'), 3000, 'Programs opens Add a program');
   await close();
 

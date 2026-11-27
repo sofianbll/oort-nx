@@ -26,6 +26,7 @@ public enum IntegrationRequest: Equatable, Sendable {
 /// A page, picker or dialog an entry opens in the same app. The app has one way to each (Windows and Linux:
 /// `PAGES` in desktop/ui/app.js, checked by IntegrationsTests).
 public enum IntegrationRoute: String, CaseIterable, Equatable, Sendable {
+    case steamLibrary
     case programs, integrations, folder, match, onlineQuestion
 }
 

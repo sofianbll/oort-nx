@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 27 novembre 2026. Copertura di **1146 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 27 novembre 2026. Il repository versiona **1289 file**. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -424,6 +424,7 @@ Cartella `Sources/NXLibraryCore/Settings/`. Il catalogo dei testi sta in `Resour
 | [Sources/NXLibraryCore/Settings/AppSettings.swift](../../Sources/NXLibraryCore/Settings/AppSettings.swift) | Impostazioni globali e decodifica compatibile, anche per Inbox, Compilati di recente (attivi per default), Home in gioco e scelta VPN da ZeroTier Automatico. Tiene le chiavi del modulo come JSON e ignora chiavi e card Spotlight sconosciute. |
 | [Sources/NXLibraryCore/Settings/AppSettingsStore.swift](../../Sources/NXLibraryCore/Settings/AppSettingsStore.swift) | Separa bozza, anteprime e valori applicati; salva settings.json con lock, sostituzione atomica e rilettura. Conserva un file illeggibile e scrive l'ultima selezione in background. |
 | [Sources/NXLibraryCore/Settings/AppSettingsDraft.swift](../../Sources/NXLibraryCore/Settings/AppSettingsDraft.swift) | Confronta ogni campo modificabile con l'originale, espone i cambi e unisce le modifiche senza sovrascrivere un conflitto. |
+| [Sources/NXLibraryCore/Settings/IntegrationCatalog.swift](../../Sources/NXLibraryCore/Settings/IntegrationCatalog.swift) | Ordine, sezioni, nomi, capacità e fasi con contenuto; condiviso da Mac e PC. |
 | [Sources/NXLibraryCore/Settings/IntegrationEntry.swift](../../Sources/NXLibraryCore/Settings/IntegrationEntry.swift) | Riga decisa di un’integrazione: chiavi dei testi, controllo, richiesta tipizzata al proprietario, conferma; regola comune dell’interruttore Steam (scelta in attesa, altrimenti in vigore; A chiede l’altra). Lo stesso file serve l’app Mac. |
 | [Sources/NXLibraryCore/Settings/SettingsRowAction.swift](../../Sources/NXLibraryCore/Settings/SettingsRowAction.swift) | Identifica azioni e righe Settings, mantenendo una sola azione primaria per riga senza accorpare giochi omonimi. |
 | [Sources/NXLibraryCore/Settings/SettingsCatalog.swift](../../Sources/NXLibraryCore/Settings/SettingsCatalog.swift) | Righe fuori da Porting, incluse Play together, Hidden game apps e Home in gioco; ordina, cerca e confronta per identità. |

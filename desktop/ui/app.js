@@ -486,7 +486,7 @@ const found = ({ id }) => { clearTimeout(redone); redone = setTimeout(async () =
 
 /* ---------- Rows about integrations: each as the core decides it (integrations), sent back as it was shown ---------- */
 /* The pages a row may open, each once. One the core names and this app does not have is refused. */
-const PAGES = { programs: () => openProgram(), folder: o => pickFolder(o.after), match: (o, el) => o.game ? openMatch(...o.game()) : deny(el, ''), onlineQuestion: o => askOnline(o.after), integrations: () => openSettings('integrations') };
+const PAGES = { programs: () => openProgram(), folder: o => pickFolder(o.after), match: (o, el) => o.game ? openMatch(...o.game()) : deny(el, ''), onlineQuestion: o => askOnline(o.after), integrations: () => openSettings('integrations'), steamLibrary: o => o.steamLibrary?.() };
 /* The core's words, [key, count?, args…]; "%@" alone is shown as it is (a path, a number). */
 const wording = w => w && (w[0] === '%@' ? String(w[1]) : t(...w));
 /* o.at: the place (Settings by default); o.chevron: false where a page opens without one; o.press: A, when the place keeps
@@ -634,7 +634,7 @@ const openSettings = async (start = 'general') => {
   if (typeof start !== 'string') start = 'general';
   const open = layers.find(l => l.settings); if (open) return open === top() ? open.go(start) : S.play('deny');
   const icons = { general: 'settings', appearance: 'palette', sound: 'volume', controllers: 'gamepad', account: 'person', home: 'collections', library: 'image', integrations: 'puzzle', about: 'info' };
-  let integrations = await ask('integrations'), online = await ask('online'), page = await ask('settings'), folders = await ask('folders'), people = await ask('profiles'), cat = start, sub = null;
+  let integrations = await ask('integrations'), online = await ask('online'), page = await ask('settings'), folders = await ask('folders'), people = await ask('profiles'), cat = start, sub = null, integrationID = null;
   const layer = { el: h('section'), page: true, settings: true, pending: () => page.pending };
   const take = async (p, redraw = true) => { page = await p; apply(page.view); if (redraw) again(layer, draw); };
   const set = (id, value) => take(ask('settings.set', { id, value })).catch(e => deny(document.activeElement, because(e)));
@@ -652,30 +652,92 @@ const openSettings = async (start = 'general') => {
     account: () => [h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? type(t('Name'), p.name, async name => { people = await ask('profiles.rename', { profile: p.id, name }); again(layer, draw); }) : choose(p), { id: 'p' + p.id, ic: 'person', help: p.id === people.active ? t('Select to rename it.') : t('Select to play as this profile.') })), row(t('New profile'), icon('add'), () => type(t('Name'), '', async name => { people = await ask('profiles.add', { name }); again(layer, draw); }), { id: 'newp' }))],
     general: () => [h('div', { cls: 'rows' }, abilities.includes('fullscreen') && row(t('Fullscreen'), h('span', { cls: 'sw' }), () => { S.play('confirm', document.activeElement); setFullscreen(!full); }, { id: 'full', ic: 'monitor', role: 'switch', checked: full, help: t('Right now. F11 does the same.') }), row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', help: t('Reopen the guided setup without resetting your library.') }), abilities.includes('quit') && row(t('Quit Oort NX'), '', askQuit, { id: 'quit', ic: 'power' }))],
     controllers: () => [h('div', {}, controlsMap(padKind(pad?.name)), h('div', { cls: 'rows' }, row(t('Controls'), icon('chevron'), () => openControls(), { id: 'controls', ic: 'gamepad', help: t('What each button, key and gesture does.') })))],
-    integrations: () => integrations.sections.map(x => h('div', { cls: 'rows' }, x.entries.map(e => entryRow(e, acted)))),
+    integrations: () => integrations.sections.map(group => h('section', { 'data-section': group.id },
+      h('h2', {}, wording(group.title)),
+      group.entries.length ? h('div', { cls: 'rows' }, group.entries.map(e => row(wording(e.title),
+        [h('span', { cls: 'integration-status' }, wording(e.status)), h('span', { cls: 'integration-open' }, wording(e.action))],
+        () => openIntegration(e.id), { id: e.id, ic: e.icon, sub: wording(e.capabilities), cls: 'integration-summary' })))
+        : h('p', { cls: 'say' }, wording(group.empty)))),
     about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), [version, icon('link')], () => link('https://github.com/sofianbll/oort-nx/releases'), { id: 'version', help: t('Opens the page of versions in your browser. Oort NX does not look by itself.') }), row(t('Logs'), icon('folder'), openLogs, { id: 'logs', help: t('What games said the last time they ran.') }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
   // What a row asked is done: the core's rows again, then the library (Steam's games come or go) and what About says.
-  const acted = async r => { integrations = r || await ask('integrations'); if (r) { online = await ask('online'); await reload(!!r.rescan); } again(layer, draw); };
+  const acted = async r => {
+    const id = integrationID;
+    integrations = r || await ask('integrations');
+    if (r) { online = await ask('online'); await reload(!!r.rescan); }
+    again(layer, draw);
+    if (integrationID && integrationID === id && top() === layer && document.activeElement.closest('.side')) {
+      const row = layerRow();
+      if (row) go(row);
+    }
+  };
+  const integration = () => integrationID && integrations.sections.flatMap(group => group.entries).find(e => e.id === integrationID);
+  const steamLibrary = async () => {
+    if (page.pending) return deny(document.activeElement, t('Save your changes?'));
+    const active = integrationID;
+    const games = await ask('library', { tab: TABS[0], sort: V.sort }).catch(e => { if (top() === layer) deny(document.activeElement, because(e)); });
+    if (!games || top() !== layer || integrationID !== active) return;
+    const first = games.games.find(g => g.kind === 'steam');
+    if (!first) return deny(document.activeElement, t('Not found'));
+    tab = TABS[0]; L = games; selected = first.id;
+    while (layers.length > 1) pop();
+    homeLayer.redraw();
+  };
+  const openIntegration = id => {
+    integrationID = id; S.play('open'); again(layer, draw);
+    const first = $('[data-primary]', layer.el) || layerRow() || $('[data-id=integration-back]', layer.el);
+    if (first) go(first);
+  };
+  const backIntegration = () => {
+    const id = integrationID; integrationID = null; S.play('back'); again(layer, draw);
+    const summary = $(`[data-id="${CSS.escape(id)}"]`, layer.el);
+    if (summary) go(summary);
+  };
+  const integrationDetail = e => [
+    h('p', { cls: 'say' }, h('strong', {}, wording(e.status))),
+    h('p', { cls: 'say' }, wording(e.about)),
+    ...e.steps.map(step => h('section', { 'data-phase': step.id }, h('h2', {}, wording(step.title)),
+      h('div', { cls: 'rows' }, step.items.map(item => {
+        if (!item.row) return h('p', { cls: 'say' }, t(item.label[0], wording(item.text)));
+        if (!item.primary) return entryRow(item.row, acted);
+        const action = key(wording(item.row.title), event => askEntry(item.row, event.currentTarget, acted, undefined, { steamLibrary }), { id: item.row.id });
+        action.setAttribute('data-primary', '');
+        return h('div', { cls: 'integration-primary' }, action);
+      })))),
+  ];
   const choose = p => selectProfile(p, async list => { people = list; await take(ask('settings'), false); again(layer, draw); });
-  layer.go = to => { cat = to; sub = null; layer.keep = 'c-' + to; again(layer, draw); layer.focus(layer); };
+  layer.go = to => { cat = to; sub = null; integrationID = null; layer.keep = 'c-' + to; again(layer, draw); layer.focus(layer); };
   layer.fullChanged = () => cat === 'general' && again(layer, draw);
   const draw = () => {
     const c = page.categories.find(x => x.id === cat), s = sub && c.subjects.find(x => x.id === sub);
-    const title = s ? t(s.title) : section(cat);
-    const own = (s || c).rows, body = [own.length && h('div', { cls: 'rows' }, own.map(draft)), !s && c.subjects.length && h('div', { cls: 'rows' }, c.subjects.map(x => row(t(x.title), icon('chevron'), () => { S.play('open'); sub = x.id; layer.keep = null; again(layer, draw); layerRow()?.focus(); }, { id: 'sub-' + x.id }))), ...(!s && extra[cat] ? extra[cat]() : [])];
-    const foot = page.pending && h('div', { cls: 'draft panel' }, h('p', {}, t('%lld changes to save', page.changes.length)), key(t('Leave without saving'), async () => { S.play('back'); await take(ask('settings.discard'), false); pop(); }, { id: 'discard' }), key(t('Save'), () => { S.play('success'); take(ask('settings.save')); }, { id: 'save' }));
-    return shellOf(null, page.categories.map(x => ({ id: 'c-' + x.id, title: section(x.id), ic: icons[x.id], group: x.group && t(x.group), on: x.id === cat, pick: () => { cat = x.id; sub = null; again(layer, draw); } })), title, body, foot);
+    const detail = integration(), title = detail ? wording(detail.title) : s ? t(s.title) : section(cat);
+    const own = (s || c).rows, body = detail ? integrationDetail(detail) : [own.length && h('div', { cls: 'rows' }, own.map(draft)), !s && c.subjects.length && h('div', { cls: 'rows' }, c.subjects.map(x => row(t(x.title), icon('chevron'), () => { S.play('open'); sub = x.id; layer.keep = null; again(layer, draw); layerRow()?.focus(); }, { id: 'sub-' + x.id }))), ...(!s && extra[cat] ? extra[cat]() : [])];
+    const foot = detail ? h('div', { cls: 'keys' }, key(t('Back'), backIntegration, { id: 'integration-back' })) : page.pending && h('div', { cls: 'draft panel' }, h('p', {}, t('%lld changes to save', page.changes.length)), key(t('Leave without saving'), async () => { S.play('back'); await take(ask('settings.discard'), false); pop(); }, { id: 'discard' }), key(t('Save'), () => { S.play('success'); take(ask('settings.save')); }, { id: 'save' }));
+    return shellOf(null, page.categories.map(x => ({ id: 'c-' + x.id, title: section(x.id), ic: icons[x.id], group: x.group && t(x.group), on: x.id === cat, pick: () => { cat = x.id; sub = null; integrationID = null; again(layer, draw); } })), title, body, foot);
   };
   shellActions(layer, () => {
     if (!page.pending) { S.play('back'); return pop(); }
     dialog(t('Save your changes?'), page.changes.length === 1 ? t('One setting changed.') : t('%lld settings changed.', page.changes.length), [[t('Keep editing'), () => {}], [t('Leave without saving'), async () => { await take(ask('settings.discard'), false); pop(); }], [t('Save'), async () => { await take(ask('settings.save'), false); S.play('success'); pop(); }]]);
   });
   const b = layer.actions.b;
-  layer.actions.b = () => { if (sub && !document.activeElement.closest('.side')) { const was = 'sub-' + sub; sub = null; S.play('back'); layer.keep = was; again(layer, draw); $(`[data-id="${was}"]`, layer.el)?.focus(); } else b(); };
+  layer.actions.b = () => { if (integration()) return backIntegration(); if (sub && !document.activeElement.closest('.side')) { const was = 'sub-' + sub; sub = null; S.play('back'); layer.keep = was; again(layer, draw); $(`[data-id="${was}"]`, layer.el)?.focus(); } else b(); };
+  const turn = layer.turn;
+  layer.turn = d => { if (!integration()) turn(d); };
+  const move = layer.move;
+  layer.move = (dir, active) => {
+    if (!integration()) return move(dir, active);
+    if (dir === 'left' || dir === 'right') {
+      const next = dir === 'left' ? $('[data-id=integration-back]', layer.el) : $('[data-primary]', layer.el) || layerRow();
+      if (next && next !== active) go(next);
+      return true;
+    }
+    const list = focusable($('.col', layer.el)), next = list[list.indexOf(active) + (dir === 'up' ? -1 : 1)];
+    if (next) go(next);
+    return true;
+  };
   layer.actions.x = () => { const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows, sections = [...new Set(rows.filter(r => r.changed).map(r => r.section))]; if (!sections.length) return S.play('deny'); (async () => { for (const section of sections) await take(ask('settings.reset', { section }), false); S.play('confirm'); again(layer, draw); })(); };
   const baseHints = layer.hints;
-  layer.hints = () => { const [l, r] = baseHints(); const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows; return [l, [rows.some(r => r.changed) && ['x', t('Reset group'), layer.actions.x], ...r]]; };
+  layer.hints = () => { const [l, r] = baseHints(); if (integration()) return [l, [aHint()]]; const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows; return [l, [rows.some(r => r.changed) && ['x', t('Reset group'), layer.actions.x], ...r]]; };
   layer.redraw = () => again(layer, draw);
   layer.back = () => { (async () => { [folders, integrations, online] = [await ask('folders'), await ask('integrations'), await ask('online')]; await take(ask('settings')); })(); };
   layer.gone = async () => { await reload(); TABS.includes(tab) || (tab = TABS[0]); homeLayer.redraw(); };
