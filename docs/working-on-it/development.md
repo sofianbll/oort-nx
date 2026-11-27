@@ -266,7 +266,7 @@ These are distribution decisions. Do not bypass the dirty-tree check, change the
 | `engines/nxnative/NxnativeAdapter/` | The `ArcanePorting` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `NXLibraryCore`. |
 | `Sources/NXLibrary/` | App entry, coordination, SwiftUI screens, theme and macOS integration. |
 | `core/Tests/OortLibraryTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `NXLibraryCore`. |
-| `Tests/ArcanePortingTests/` | Automated regressions of every file that uses the `ArcanePorting` module. |
+| `engines/nxnative/Tests/NxnativeAdapterTests/` | Automated regressions of every file that uses the `ArcanePorting` module. |
 | `Tests/PublicationChecks/` | Publication-guard regressions. |
 | `Resources/` | App icon, fonts, interface media and their notices. |
 | `scripts/` | Runtime preparation, app packaging, installation helpers, release packaging and publication checks. |

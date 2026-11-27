@@ -10,7 +10,7 @@ let nxnative = (name: "ArcanePorting", path: "engines/nxnative/NxnativeAdapter")
 let mac = (name: "NXLibrary", path: "Sources/NXLibrary")
 let coreTests = (name: "OortCoreTests", path: "core/Tests/OortCoreTests")
 let libraryTests = (name: "NXLibraryCoreTests", path: "core/Tests/OortLibraryTests")
-let nxnativeTests = (name: "ArcanePortingTests", path: "Tests/ArcanePortingTests")
+let nxnativeTests = (name: "ArcanePortingTests", path: "engines/nxnative/Tests/NxnativeAdapterTests")
 // END GENERATED NAMES
 
 let package = Package(
