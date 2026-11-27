@@ -44,6 +44,7 @@ struct IntegrationFixtureView: View {
             data.igdb = index & 2 != 0
             if index.isMultiple(of: 3) { data.saves = .folder("/fixture/saves") }
         }
+        data.steamEnabled = data.steam != .disabled
         return data
     }
 

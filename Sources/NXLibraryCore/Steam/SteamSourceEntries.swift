@@ -35,6 +35,12 @@ public extension SteamSourceEntries {
         }
     }
 
+    /// The other state of the source in force, as the catalogue's switch asks it: the same folder, a new generation
+    /// that replaces the one in force (so a choice made elsewhere since is refused, never overwritten).
+    static func flipped(_ current: CatalogSourceConfiguration, root: URL) -> SteamSourceChoice {
+        SteamSourceChoice(enabled: !current.isEnabled, root: root, replaces: current.generation)
+    }
+
     /// The setting and draft change ID. The drawn row has its own identity (`sourceRowID`).
     static let sourceID = "steamSource"
 

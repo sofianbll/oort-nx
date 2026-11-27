@@ -20,6 +20,10 @@ public struct IntegrationRow: Identifiable {
 
     /// On or off, for an entry whose owner offers a switch (IntegrationCatalog.ID.hasSwitch); nil otherwise.
     public var switchOn: Bool? = nil
+    /// The owner's fact for Link, when it is not just « nothing to link » (Nextendo signed in, Steam on and read).
+    fileprivate var linked: Bool? = nil
+    /// Link's sentence, when the owner knows better than linked/not linked.
+    fileprivate var says: IntegrationWords? = nil
 
     public var barStatus: String { legacyStatus ?? status }
     public var barName: String { id == .switchGames ? "Switch (nxnative)" : name }
@@ -32,7 +36,7 @@ public struct IntegrationRow: Identifiable {
     public var steps: [IntegrationCatalog.Step<Detail>] {
         let check: [Detail] = [.status] + (checkDate.map { [.date($0)] } ?? []) + (checks.isEmpty ? [] : [.words(checks)]) + [.access]
         let settingsInLink = link || browse != nil
-        return IntegrationCatalog.steps(id, linked: !link, link: settingsInLink ? [.action(.settings)] : [], verify: check,
+        return IntegrationCatalog.steps(id, linked: linked ?? !link, says: says, link: settingsInLink ? [.action(.settings)] : [], verify: check,
             next: browse.map { [.action($0)] } ?? (settingsInLink ? [] : [.action(.settings)]), say: Detail.say)
     }
 
@@ -60,9 +64,13 @@ public struct IntegrationOverview {
     public var keyStatus: LocalKeyStatus?
     public var xcodeVersion: String?
     public var metalVersion: String?
-    public var engineGate: String?
+    /// Why new builds are blocked, said plainly; the details stay in the engine settings.
+    public enum BuildBlock: CaseIterable { case appleTools, buildTools }
+    public var buildBlock: BuildBlock?
     public var hasSwitchGames = false
     public var steam: CatalogSourceStatus = .disabled
+    /// The source's choice in force: what Steam's switch shows and what X turns into its opposite.
+    public var steamEnabled = false
     public var steamGameCount = 0
     public var hasMacShortcuts = false
     public var drive: Drive = .notConfigured
@@ -80,9 +88,10 @@ public struct IntegrationOverview {
     private var engineChecks: [IntegrationWords] {
         // Said plainly; the versions themselves stay in the engine settings (Open engine settings).
         var checks: [IntegrationWords] = []
-        if let engineCommit, let expectedEngineCommit {
-            checks.append(engineCommit.hasPrefix(expectedEngineCommit.prefix(8)) || expectedEngineCommit.hasPrefix(engineCommit.prefix(8))
-                ? .init("Engine up to date") : .init("Engine not the tested version"))
+        // The same engine when one names the other in full or by a prefix Git accepts (seven characters or more).
+        if let engineCommit, let expectedEngineCommit, min(engineCommit.count, expectedEngineCommit.count) >= 7 {
+            let (short, long) = engineCommit.count <= expectedEngineCommit.count ? (engineCommit, expectedEngineCommit) : (expectedEngineCommit, engineCommit)
+            checks.append(long.lowercased().hasPrefix(short.lowercased()) ? .init("Engine up to date") : .init("Engine not the tested version"))
         }
         switch keyStatus {
         case .available?: checks.append(.init("Switch keys selected"))
@@ -90,11 +99,14 @@ public struct IntegrationOverview {
         case .invalid(let issue)?: checks.append(.verbatim(issue.message))
         case nil: break
         }
-        switch (xcodeVersion, metalVersion) {
-        case (nil, nil): break
-        case (_?, _?): checks.append(.init("Apple tools ready"))
+        switch (buildBlock, xcodeVersion, metalVersion) {
+        case (.appleTools?, _, _): checks.append(.init("Apple tools not the tested version"))
+        case (_, nil, nil): break
+        case (_, _?, _?): checks.append(.init("Apple tools ready"))
         default: checks.append(.init("Apple tools incomplete"))
         }
+        if buildBlock == .buildTools { checks.append(.init("Build tools incomplete")) }
+        if buildBlock != nil { checks.append(.init("The details are in the engine settings.")) }
         return checks
     }
 
@@ -124,7 +136,7 @@ public struct IntegrationOverview {
                          writes: "The games it builds, its working files and a private copy of your keys. The games write their own saves.",
                          sends: "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple.",
                          settingID: engine == .blocked ? "engineStatus" : "engineFolder", link: engine == .notDetected,
-                         checks: engineChecks + (engineGate.map { [.verbatim($0)] } ?? []), browse: hasSwitchGames ? .switchGames : nil)
+                         checks: engineChecks, browse: hasSwitchGames ? .switchGames : nil)
         case .steam:
             // The same state as Settings › Sources shows, said for the overview (NXLibraryCore/Steam/SteamSourceEntries.swift).
             let state = SteamSourceEntries.state(steam, found: steamGameCount)
@@ -136,7 +148,8 @@ public struct IntegrationOverview {
                          sends: "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements.",
                          settingID: SteamSourceEntries.sourceID, link: steam == .disabled,
                          browse: steam == .ready && steamGameCount > 0 ? .steamGames : nil, legacyStatus: state.summary.key,
-                         switchOn: steam != .disabled)
+                         switchOn: steamEnabled, linked: steamEnabled && steam != .failed,
+                         says: steamEnabled && steam == .failed ? state.detail : nil)
         case .macApps:
             return .init(id: id, purpose: "Add local Mac apps as library shortcuts.",
                          status: hasMacShortcuts ? "Mac shortcuts added" : "No Mac shortcuts added",
@@ -183,8 +196,9 @@ public struct IntegrationOverview {
                          action: nextendo == .noLocalProfile ? "Open profile settings" : "Open Nextendo settings",
                          reads: "Your Nextendo account, your friends, their pictures and who is online.",
                          writes: "Your sign-in on this computer, and the friend changes you ask for.",
-                         sends: "To Nextendo: your sign-in, your friend requests and the game you play online. What your friends see depends on your settings.",
-                         settingID: nextendo == .noLocalProfile ? "showProfilePicker" : "nextendo", link: nextendo == .noLocalProfile || nextendo == .expired)
+                         sends: "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings.",
+                         settingID: nextendo == .noLocalProfile ? "showProfilePicker" : "nextendo", link: nextendo == .noLocalProfile || nextendo == .expired,
+                         linked: nextendo == .connected, says: nextendo == .unavailable ? .init("Nextendo cannot be reached right now.") : nil)
         case .images:
             let state: String
             switch (steamGridDB, igdb) {
@@ -197,7 +211,7 @@ public struct IntegrationOverview {
                          status: state, emphasis: .neutral, action: "Open provider settings",
                          reads: "Your game names or numbers and what the sites find.",
                          writes: "Your keys, kept private, your picture choices, and the pictures and scores it keeps.",
-                         sends: "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch).",
+                         sends: "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch).",
                          settingID: steamGridDB && !igdb ? "igdb" : "steamGridDB", link: !steamGridDB && !igdb)
         case .saves:
             let state = switch saves {

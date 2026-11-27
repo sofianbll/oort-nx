@@ -36,6 +36,19 @@ final class IntegrationEntryTests: XCTestCase {
     }
 
     /// `isEnabled: sources.configuration.isEnabled || sources.status == .failed`, and Cancel while it reads.
+    /// The catalogue's Steam switch asks for the other state of the source in force, same folder, replacing its
+    /// generation: a choice made elsewhere since is refused by the repository, never overwritten.
+    func testTheCatalogueSwitchAsksForTheOtherStateOfTheSourceInForce() {
+        let root = URL(fileURLWithPath: "/fixture/Steam")
+        let on = CatalogSourceConfiguration(integration: .steam, isEnabled: true, rootURL: root)
+        let off = SteamSourceEntries.flipped(on, root: root)
+        XCTAssertFalse(off.enabled)
+        XCTAssertEqual(off.root, root)
+        XCTAssertEqual(off.replaces, on.generation)
+        XCTAssertNotEqual(off.generation, on.generation)
+        XCTAssertTrue(SteamSourceEntries.flipped(.init(integration: .steam), root: root).enabled)
+    }
+
     func testRefreshNeedsTheSourceInForceUnlessItFailed() {
         for status in Self.every {
             XCTAssertEqual(mac(applied: true, status)[1].request, status == .scanning ? .cancelSteamRefresh : .refreshSteam, "\(status)")

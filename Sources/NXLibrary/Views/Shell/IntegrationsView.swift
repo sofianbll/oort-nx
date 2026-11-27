@@ -37,14 +37,18 @@ struct IntegrationSurface: View {
         }
     }
 
-    /// Steam's switch, from the list: the same choice Settings › Sources saves (its generation guards a stale draft),
-    /// applied by the shell as a saved choice is. Refused while a settings draft waits, so none is overwritten.
+    /// Steam's switch, from the list: the same choice Settings › Sources saves, written as one committed field and
+    /// applied by the shell as a saved choice is. Refused, with nothing written, when the catalogue changed since it was
+    /// shown, when the write fails, or while a settings draft waits.
     private func toggle(_ id: IntegrationID) -> Bool {
         guard id == .steam, !router.hasPendingSettings() else { return false }
         let current = sources.configuration
-        settings.settings.launcherChoices.steamSource = SteamSourceChoice(enabled: !current.isEnabled,
-            root: sources.discoveryRoot, replaces: current.generation)
-        return true
+        guard (try? app.catalogRepository.load().source(.steam)?.generation) == current.generation else { return false }
+        var change = AppSettingsDraft(settings.settings, fields: [
+            .init(SteamSourceEntries.sourceID, \.launcherChoices.steamSource) { _ in "" }
+        ])
+        change.values.launcherChoices.steamSource = SteamSourceEntries.flipped(current, root: sources.discoveryRoot)
+        return (try? settings.commit(change)) != nil
     }
 
     private func overview(_ account: IntegrationOverview.Account) -> IntegrationOverview {
@@ -59,12 +63,11 @@ struct IntegrationSurface: View {
         data.keyStatus = setup.localKeyStatus
         data.xcodeVersion = setup.environmentStatus?.xcodeVersion
         data.metalVersion = setup.environmentStatus?.metalVersion
-        data.engineGate = setup.toolchainGateSummary.flatMap { $0.message ?? ($0.buildHint.isEmpty ? nil : $0.buildHint) }
-        if data.engineGate == nil, setup.environmentStatus?.canBuild == false {
-            data.engineGate = setup.environmentStatus?.issues.first
-        }
+        if setup.compatibilityReport != nil && !setup.canPassToolchainGate { data.buildBlock = .appleTools }
+        else if setup.environmentStatus?.canBuild == false { data.buildBlock = .buildTools }
         data.hasSwitchGames = app.visibleCatalogGames.contains { $0.integration == .nxnative && !$0.isHidden }
         data.steam = sources.status
+        data.steamEnabled = sources.configuration.isEnabled
         data.steamGameCount = sources.observedGameCount
         data.hasMacShortcuts = app.catalogGames.contains { $0.macShortcut != nil }
         if cloud.preference.remote == nil { data.drive = .notConfigured }

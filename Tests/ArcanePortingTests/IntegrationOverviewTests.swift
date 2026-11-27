@@ -113,6 +113,7 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(said(drive.steps[0]), "Linked to your Google Drive.")
         XCTAssertTrue(drive.steps[1].content.contains { if case .date(date) = $0 { true } else { false } })
         snapshot.steam = .ready
+        snapshot.steamEnabled = true
         snapshot.steamGameCount = 2
         let steam = try XCTUnwrap(snapshot.row(.steam))
         XCTAssertEqual(steam.switchOn, true)
@@ -151,6 +152,42 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(try checks(snapshot), ["Engine not the tested version", "Switch keys selected", "Apple tools incomplete"])
         let words = try checks(snapshot).joined(separator: " ")
         for hidden in ["0123456", "f1c7100", "33000", "Xcode 27"] { XCTAssertFalse(words.contains(hidden)) }
+        // A blocked build is said plainly, never « ready », and points at the engine settings.
+        snapshot.metalVersion = "33000.1"
+        snapshot.buildBlock = .appleTools
+        XCTAssertEqual(try checks(snapshot).suffix(2), ["Apple tools not the tested version", "The details are in the engine settings."])
+        snapshot.buildBlock = .buildTools
+        XCTAssertEqual(try checks(snapshot).suffix(3), ["Apple tools ready", "Build tools incomplete", "The details are in the engine settings."])
+        snapshot.engineCommit = "f1c7"
+        XCTAssertFalse(try checks(snapshot).contains("Engine up to date"), "a prefix Git would not accept proves nothing")
+    }
+
+    /// The catalogue's switches are exactly the offered entries the core gives one, said as the owner's choice in force.
+    func testSwitchesComingEntriesAndLinkFacts() throws {
+        var snapshot = IntegrationOverview()
+        let offered = snapshot.sections.flatMap(\.entries)
+        XCTAssertEqual(offered.filter { $0.switchOn != nil }.map(\.id), offered.map(\.id).filter { $0.hasSwitch })
+        XCTAssertEqual(snapshot.sections.map(\.id), [.sources, .engines, .services])
+        XCTAssertEqual(snapshot.sections.map { $0.upcoming?.args }, [["Epic Games · GOG · Minecraft · CrossOver"], ["Ryujinx-Nextendo"], nil])
+        XCTAssertTrue(snapshot.sections.allSatisfy { $0.entries.count <= 5 })
+        func link(_ id: IntegrationID) throws -> String? {
+            if case .say(let words)? = try XCTUnwrap(snapshot.row(id)).steps[0].content.first { words.key } else { nil }
+        }
+        // On, but the read failed: the switch says on (what X turns off), Link says what happened.
+        snapshot.steamEnabled = true
+        snapshot.steam = .failed
+        XCTAssertEqual(snapshot.row(.steam)?.switchOn, true)
+        XCTAssertEqual(try link(.steam), "Steam could not be refreshed. Your library has been kept.")
+        snapshot.steamEnabled = false
+        XCTAssertEqual(snapshot.row(.steam)?.switchOn, false)
+        XCTAssertEqual(try link(.steam), "Turn on Steam to add the games it installed.")
+        // Nextendo is linked only when signed in.
+        for (account, said) in [(IntegrationOverview.Account.unchecked, "Sign in to Nextendo to begin."),
+                                (.connected, "Linked to your Nextendo account."),
+                                (.unavailable, "Nextendo cannot be reached right now.")] {
+            snapshot.nextendo = account
+            XCTAssertEqual(try link(.nextendo), said)
+        }
     }
 
     func testTheBarOnlyTakesConfirmAfterExplicitFocusEvenWhenAServiceFails() {
