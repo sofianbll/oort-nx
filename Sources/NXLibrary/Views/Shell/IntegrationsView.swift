@@ -233,17 +233,16 @@ struct IntegrationsView: View {
         return OortPage(title: text(row.name), scrollFocus: router.integrationAction, initialFocus: row.actions.last,
                         back: backHint, confirm: action.map { confirmHint(row.title(of: $0)) } ?? nil) {
             OortReadout(text: text(row.purpose), preset: .lead)
+            // One box per step (IntegrationCatalog.steps): title, sentences, then its buttons under them, aligned.
             ForEach(row.steps) { step in
-                OortSection(title: text(step.id.title.key)) {
+                OortCard(step.id.title.key) {
                     ForEach(Array(step.content.enumerated()), id: \.offset) { _, item in
                         switch item {
                         case .say(let words):
                             OortReadout(text: text(words))
                         case .words(let words):
-                            OortCard {
-                                ForEach(Array(words.enumerated()), id: \.offset) { _, word in
-                                    OortReadout(text: text(word))
-                                }
+                            ForEach(Array(words.enumerated()), id: \.offset) { _, word in
+                                OortReadout(text: text(word))
                             }
                         case .status:
                             OortStatus(text: text(row.status), tone: tone(row))
@@ -252,18 +251,15 @@ struct IntegrationsView: View {
                                 date.formatted(.dateTime.year().month().day().hour().minute().locale(locale.formatLocale))
                             ], context: locale), preset: .quiet)
                         case .access:
-                            OortCard {
-                                ForEach([(IntegrationCatalog.reads, row.reads), (IntegrationCatalog.writes, row.writes),
-                                         (IntegrationCatalog.sends, row.sends)], id: \.0.key) { label, value in
-                                    OortReadout(text: L10n.format(label.key, [text(value)], context: locale))
-                                }
+                            ForEach([(IntegrationCatalog.reads, row.reads), (IntegrationCatalog.writes, row.writes),
+                                     (IntegrationCatalog.sends, row.sends)], id: \.0.key) { label, value in
+                                OortReadout(text: L10n.format(label.key, [text(value)], context: locale))
                             }
                         case .action(let choice):
                             OortButton(title: row.title(of: choice), focused: choice == action, preset: .compact) {
                                 activate(choice, for: row)
                             }
                             .accessibilityFocused($accessibilityAction, equals: choice)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
                             .id(choice)
                         }
                     }

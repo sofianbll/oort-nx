@@ -143,7 +143,9 @@ public enum IntegrationCatalog {
         public let content: [Content]
     }
 
-    /// The validated template: Link, Verify, Continue, always in this order and always shown. Link opens on what the
+    /// The validated template: Link, Verify, Continue, always in this order and always shown, each drawn as one box:
+    /// its title, its sentences, then its actions right under them and aligned with them, never an action set apart.
+    /// The order of the content is the focus order. Link opens on what the
     /// entry is linked to, or how to link it (`says`, when the owner knows better: Steam on but not found);
     /// Continue says why there is nothing to do when it has no action. `linked` is the owner's fact, not where the
     /// settings button goes.
