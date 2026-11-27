@@ -96,18 +96,29 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Python tests on the Mac (release.sh needs macOS)
+        run: python3 scripts/check python
       - name: Swift tests
         run: python3 scripts/check swift
       - name: The shared Debug app
         run: python3 scripts/check app-build
       - name: Application regressions without UI
         run: python3 scripts/check app-probes debug
-      - name: Python tests on the Mac (release.sh needs macOS)
-        run: python3 scripts/check python
+
+  # Five Mac runners per account: the batches queue a few seconds after the Debug and Release jobs, so that the
+  # longest job does not wait behind them (measured: started 8 min late, run 2.7 min longer).
+  probe-order:
+    name: Standalone probes, after Debug and Release
+    needs: [areas, checks]
+    if: needs.areas.outputs.swift == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: echo "The Debug and Release jobs are queued first."
 
   swift-app:
     name: Mac / standalone app probes (${{ matrix.batch }})
-    needs: [areas, checks]
+    needs: [areas, checks, probe-order]
     if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
     timeout-minutes: 25
