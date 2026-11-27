@@ -79,7 +79,7 @@ final class SoundPackTests: XCTestCase {
         let sources = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         try withFolder { root in
-            let library = SoundPackLibrary(root: root, bundled: sources.appendingPathComponent("Resources/SoundPacks"))
+            let library = SoundPackLibrary(root: root, bundled: sources.appendingPathComponent("design/SoundPacks"))
             XCTAssertEqual(library.choices().map(\.name), ["Oort", "Frost", "Mist", "Nucleus", "Selene", "Pollen", "Umbra", "Impulsion"])
             let oort = try XCTUnwrap(library.load("oort"))
             XCTAssertNil(oort.audio(for: .move))
@@ -112,7 +112,7 @@ final class SoundPackTests: XCTestCase {
             try metadata.write(to: incoming.appendingPathComponent("manifest.json"))
             try wave.write(to: incoming.appendingPathComponent("tone.wav"))
             let library = SoundPackLibrary(root: root.appendingPathComponent("installed"),
-                                           bundled: sources.appendingPathComponent("Resources/SoundPacks"))
+                                           bundled: sources.appendingPathComponent("design/SoundPacks"))
             try library.install(SoundPack.read(incoming))
             let others = SoundPackRow.others(library.choices())
             XCTAssertEqual(others.map(\.key), ["selene", "pollen", "umbra", "impulsion", "custom.fixture"])

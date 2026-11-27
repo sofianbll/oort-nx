@@ -1541,10 +1541,10 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [design/Selene/Sounds/Key.wav](../../design/Selene/Sounds/Key.wav) | Cue sonoro incluso per la pressione dei tasti. |
 | [design/Selene/Sounds/Success.wav](../../design/Selene/Sounds/Success.wav) | Cue sonoro incluso per il completamento di un’azione. |
 | [design/Selene/Sounds/navigation.wav](../../design/Selene/Sounds/navigation.wav) | Cue sonoro incluso per la navigazione. |
-| [Resources/SoundPacks/oort.oortsound](../../Resources/SoundPacks/oort.oortsound) | Manifesto CC0 e dieci cue WAV originali; firma punto/risposta al ritorno. |
-| [Resources/SoundPacks/pollen.oortsound](../../Resources/SoundPacks/pollen.oortsound) | Manifesto CC0 e dodici cue WAV chiari e brevi. |
-| [Resources/SoundPacks/umbra.oortsound](../../Resources/SoundPacks/umbra.oortsound) | Manifesto CC0 e dodici cue WAV morbidi. |
-| [Resources/SoundPacks/impulsion.oortsound](../../Resources/SoundPacks/impulsion.oortsound) | Manifesto CC0 e dodici cue WAV elettronici. |
+| [design/SoundPacks/oort.oortsound](../../design/SoundPacks/oort.oortsound) | Manifesto CC0 e dieci cue WAV originali; firma punto/risposta al ritorno. |
+| [design/SoundPacks/pollen.oortsound](../../design/SoundPacks/pollen.oortsound) | Manifesto CC0 e dodici cue WAV chiari e brevi. |
+| [design/SoundPacks/umbra.oortsound](../../design/SoundPacks/umbra.oortsound) | Manifesto CC0 e dodici cue WAV morbidi. |
+| [design/SoundPacks/impulsion.oortsound](../../design/SoundPacks/impulsion.oortsound) | Manifesto CC0 e dodici cue WAV elettronici. |
 
 ## Screenshot e demo
 

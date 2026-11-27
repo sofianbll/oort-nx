@@ -150,7 +150,7 @@ Bundled media (Material Icons, Selene sounds and palettes): see
 design/Selene/NOTICE.txt and
 design/Selene/NOTICE-palettes.txt, which ship inside the app bundle.
 
-The four packs of synthesized interface cues in Resources/SoundPacks are declared
+The four packs of synthesized interface cues in design/SoundPacks are declared
 CC0-1.0 in their manifests: https://creativecommons.org/publicdomain/zero/1.0/
 Versions before f87f0119 drew a platform icon adapted from SVG Repo
 (https://www.svgrepo.com); exact work and licence are not confirmed. That drawing is

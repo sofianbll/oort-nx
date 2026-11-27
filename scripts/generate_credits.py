@@ -187,8 +187,8 @@ def dependencies():
             add("dir:ThirdPartyLicenses/" + path.name.split("-")[0], name)
         if name.startswith("design/Selene/"):
             add("dir:design/Selene", name)
-        if name.startswith("Resources/SoundPacks/"):
-            add("dir:Resources/SoundPacks", name)
+        if name.startswith("design/SoundPacks/"):
+            add("dir:design/SoundPacks", name)
         if name.startswith("design/Brands/Platforms/"):
             add("dir:design/Brands/Platforms", name)
         if "core/OortLibrary/Resources/crystal-" in name:
