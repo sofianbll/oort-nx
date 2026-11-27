@@ -8,6 +8,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - **Settings → Account → Nextendo** wraps access and verification messages across the account row instead of squeezing them next to the buttons.
 - **Play on Mac** opens the selected app rather than another copy with the same identifier. Rejoining a Switch app opened outside Oort no longer creates a play session, including when it opens at the same time as Play.
 - **Cloud library** keeps reading rclone’s output when macOS is slow to close its streams, instead of reporting a successful command as unavailable.
+- **Cloud library** keeps its single rclone when the Mac is busy: a daemon slow to start is no longer stopped for a 30-second fallback to one rclone per command, and its private folder can no longer be removed while it is being created.
 
 ## 0.5.0-beta.4 — unreleased
 
