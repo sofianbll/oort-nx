@@ -29,7 +29,7 @@ A development copy carries the version in progress from the `VERSION` file at th
 An alternate destination can be supplied without replacing the installed development copy:
 
 ~~~sh
-bash scripts/build_app.sh /tmp/NXLibrary-Review.app
+bash scripts/build_app.sh /tmp/Oort-NX-Review.app
 ~~~
 
 A plain development app uses bundle ID `local.nxlibrary.development`, takes its version from `VERSION` and has no release marker. It never installs its own updates.
@@ -62,7 +62,7 @@ texts and source files whenever an input changes; update the checked hashes
 only after that review. To check an existing release bundle without building it:
 
 ~~~sh
-python3 scripts/check_publication.py --app /path/to/NXLibrary.app
+python3 scripts/check_publication.py --app /path/to/Oort\ NX.app
 ~~~
 
 Passing this check establishes presence and byte identity of the reviewed files,
@@ -75,7 +75,7 @@ Generated `.build/`, `work/` and `dist/` content stays outside version control. 
 ### Debug configuration
 
 ~~~sh
-NX_BUILD_CONFIG=debug bash scripts/build_app.sh /tmp/NXLibrary-Debug.app
+NX_BUILD_CONFIG=debug bash scripts/build_app.sh /tmp/Oort-NX-Debug.app
 ~~~
 
 Debug builds recognise `--show-setup` and `--preview-build` for manual inspection of Setup and the simulated porting presentation. These flags are compiled out of Release builds. The preview is UI development data, not evidence that a real game builds or launches.
@@ -199,7 +199,7 @@ bash scripts/release.sh 0.1.2
 
 The script builds a release-marked app, verifies its version and signature, and produces a ZIP and DMG in `work/release/`. Without `--publish`, it does not push a tag or create a GitHub release. Version `0.1.0` is the first public alpha; use an unused version for later releases.
 
-To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/NXLibrary.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
+To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/Oort NX.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
 
 Platform SVGs, generic Lucide fallbacks and notices live in `design/Brands/Platforms`.
 Publication checks verify reviewed hashes and reject extra brand files. Only the two Switch platform symbols are an exception to the Nintendo artwork rule.
