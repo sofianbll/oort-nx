@@ -65,7 +65,7 @@ The portable rules are the reason for `OortCore`. Before a shared rule is added 
 
 ## Checks that keep the map true
 
-`architecture/structure.c4` declares every root file and first- and second-level folder, and which folders may hold documentation; `scripts/check` refuses anything undeclared (`structure`, `docs`) and holds Swift imports to `architecture/model.c4` (`boundaries`). `scripts/check --list` names the tests of each rule.
+`architecture/structure.c4` declares every root file and first- and second-level folder, and which folders may hold documentation; `scripts/check` refuses anything undeclared (`structure`, `docs`) and holds Swift imports to `architecture/model.c4` (`boundaries`). `scripts/check --list` names the tests of each rule. On `alpha/windows`, `scripts/check_portable_core.py` also keeps the portable core free of Apple imports, until that app joins `main`.
 
 Update `architecture/model.c4` in the same change as a changed system, module or domain boundary. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against it and does not need Node. Check navigability and labels in the live preview when a view changes.
 

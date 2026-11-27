@@ -1,4 +1,5 @@
 import json
+import subprocess
 import unittest
 
 from support import ROOT, Fixture
@@ -48,6 +49,25 @@ class DocsTests(unittest.TestCase):
         fixture.track("docs/guide.md", "Built in a project.\n")
         self.assertIn("scripts/private-markers.json: docs/guide.md no longer holds '/Users/'; remove the allowance",
                       check_docs.check(fixture.root))
+
+    def test_a_base_without_the_list_starts_it(self):
+        fixture = Fixture(self)
+        (fixture.root / "scripts/private-markers.json").unlink()
+        subprocess.run(["git", "rm", "-q", "--cached", "scripts/private-markers.json"], cwd=fixture.root, check=True)
+        base = fixture.commit()
+        fixture.track("docs/guide.md", "Built in /Users/someone/project.\n")
+        fixture.track("scripts/private-markers.json",
+                      json.dumps({"markers": ["/Users/"], "allowed": {"docs/guide.md": ["/Users/"]}}))
+        self.assertEqual(check_docs.check(fixture.root, base), [])
+
+    def test_an_unknown_base_is_an_error(self):
+        with self.assertRaises(ValueError):
+            check_docs.check(Fixture(self).root, "no-such-ref")
+
+    def test_links_inside_long_fences_are_not_links(self):
+        fixture = Fixture(self)
+        fixture.track("docs/guide.md", "````md\n[example](missing.md)\n````\n")
+        self.assertEqual(check_docs.check(fixture.root), [])
 
     def test_the_allowances_only_shrink(self):
         fixture = Fixture(self)

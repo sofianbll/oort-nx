@@ -1,7 +1,7 @@
 // The repository's folders, declared once. scripts/check_structure.py reads every `path` and the root `files`
 // and refuses a first- or second-level folder, or a root file, that is not declared here. A folder marked
 // `markdown "yes"` may hold documentation; scripts/check_docs.py refuses a .md file anywhere else.
-// The target layout replaces this tree folder by folder (Sofian's validated plan); update both in one change.
+// Update this model in the same change as the folders.
 specification {
   element repository { style { color slate; border dashed; opacity 8% } }
   element folder { style { color slate; size sm } }

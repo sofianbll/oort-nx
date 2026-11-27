@@ -42,11 +42,14 @@ func readProbeText(_ output: URL, name: String) throws -> String {
 }
 
 /// Proves that each text is seen, from pixels only (rule R13). For one occurrence of the text at least:
-/// 1. its line boxes, read from the PDF, lie inside the frame;
+/// 1. it is drawn whole inside the frame: PDFKit reads only the glyphs inside the page, and its line boxes must lie
+///    inside the frame;
 /// 2. the render with every text redacted differs from the shown render across the box: nothing covers it;
 /// 3. its most contrasted pixel stands out from the surrounding background by `probeMinimumContrast`.
 /// Case, accents, apostrophes and spaces are compared loosely, as the probes write their expectations.
 /// Returns the problems; an empty list means every text is visible.
+/// Limits: a text hidden by another text passes (both change once redacted); contrast is the best pixel's, a lenient
+/// measure; a text too faint to differ by 25/255 from its redacted render is refused as not in front.
 func assertVisible(_ output: URL, name: String, _ texts: [String]) -> [String] {
     guard let selfTest = probeSelfTest else { return ["\(name): no frame was saved for assertVisible"] }
     guard selfTest.isEmpty else { return selfTest.map { "assertVisible self-test: \($0)" } }
@@ -60,7 +63,7 @@ func assertVisible(_ output: URL, name: String, _ texts: [String]) -> [String] {
             guard !lines.isEmpty else { return "no line box" }
             return lines.lazy.compactMap { probeVisibility(of: $0, page: page, shown: shown, hidden: hidden) }.first
         }
-        if verdicts.isEmpty { return "\(name): \"\(text)\" is not drawn" }
+        if verdicts.isEmpty { return "\(name): \"\(text)\" is not drawn whole inside the frame" }
         if verdicts.contains(where: { $0 == nil }) { return nil }
         return "\(name): \"\(text)\" is drawn but not visible (\(verdicts.compactMap { $0 }.joined(separator: "; ")))"
     }
@@ -116,7 +119,9 @@ private func probeVisibility(of line: CGRect, page: PDFPage, shown: ProbeBitmap,
         if changed { changedColumns += 1 }
     }
     let covered = Double(changedColumns) / Double(xs.count)
-    guard covered >= 0.8 else { return String(format: "%.0f%% of its width in front", covered * 100) }
+    guard covered >= 0.8 else {
+        return String(format: "only %.0f%% of its width differs once redacted: covered, clipped or too faint", covered * 100)
+    }
     var ring: [Double] = []
     for x in (xs.lowerBound - 3)..<(xs.upperBound + 3) {
         for y in [ys.lowerBound - 3, ys.lowerBound - 2, ys.upperBound + 1, ys.upperBound + 2] { ring.append(shown.luminance(x, y)) }
@@ -165,9 +170,9 @@ private struct ProbeBitmap {
     }
 }
 
-/// The red examples of assertVisible, run once per probe: an outside text (frame), a covered and a clipped one (front)
-/// and a faint one (contrast) must each be refused, and a plain one accepted. Returns what went wrong; empty when the
-/// helper still tells them apart.
+/// The red examples of assertVisible, run once per probe: a text across the edge (frame), a covered and a clipped one
+/// (front) and a faint one (contrast) must each be refused for that reason, and a plain one accepted. Returns what went
+/// wrong; empty when the helper still tells them apart.
 @MainActor
 private func probeVisibilitySelfTest() -> [String] {
     let background = Color(red: 0.09, green: 0.13, blue: 0.20)
@@ -176,19 +181,22 @@ private func probeVisibilitySelfTest() -> [String] {
             .frame(width: 320, height: 120, alignment: .topLeading).padding(20)
             .frame(width: 360, height: 160).background(background))
     }
-    let cases: [(String, AnyView, Bool)] = [
-        ("plain", scene(Text("Plain words")), true),
-        ("covered", scene(ZStack(alignment: .topLeading) { Text("Covered words"); background.frame(width: 300, height: 60) }), false),
-        ("clipped", scene(Text("Clipped words here").fixedSize().frame(width: 30, alignment: .leading).clipped()), false),
-        ("outside", scene(Text("Outside words").offset(x: 900)), false),
-        ("faint", scene(Text("Faint words").foregroundStyle(Color(white: 0.35))), false),
+    // Each case names the reason it must be refused for; nil means it must be accepted.
+    let cases: [(String, AnyView, String?)] = [
+        ("plain", scene(Text("Plain words")), nil),
+        ("covered", scene(ZStack(alignment: .topLeading) { Text("Covered words"); background.frame(width: 300, height: 60) }),
+         "differs once redacted"),
+        ("clipped", scene(Text("Clipped words here").fixedSize().frame(width: 30, alignment: .leading).clipped()),
+         "differs once redacted"),
+        ("outside", scene(Text("Outside words").fixedSize().offset(x: 300)), "inside the frame"),
+        ("faint", scene(Text("Faint words").foregroundStyle(Color(white: 0.35))), "contrast"),
     ]
     let folder = FileManager.default.temporaryDirectory.appendingPathComponent("oort-visible-\(UUID().uuidString)")
     defer { try? FileManager.default.removeItem(at: folder) }
     var problems: [String] = []
     do {
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        for (name, view, visible) in cases {
+        for (name, view, reason) in cases {
             let image = folder.appendingPathComponent("self-\(name).png")
             try probePDF(ImageRenderer(content: view)).write(to: image.deletingPathExtension().appendingPathExtension("pdf"))
             guard let shown = ImageRenderer(content: view).cgImage,
@@ -198,9 +206,13 @@ private func probeVisibilitySelfTest() -> [String] {
             probeFrames["self-\(name)"] = (shown, hidden)
             probeSelfTest = []
             let text = name.prefix(1).uppercased() + name.dropFirst() + " words"
-            let refused = !assertVisible(folder, name: "self-\(name)", [text]).isEmpty
+            let found = assertVisible(folder, name: "self-\(name)", [text]).joined(separator: "; ")
             probeFrames["self-\(name)"] = nil
-            if refused == visible { problems.append("\(name) text was \(visible ? "refused" : "accepted")") }
+            if let reason, !found.contains(reason) {
+                problems.append("\(name) text should be refused for \"\(reason)\", got \"\(found)\"")
+            } else if reason == nil, !found.isEmpty {
+                problems.append("\(name) text should be accepted, got \"\(found)\"")
+            }
         }
     } catch {
         problems.append("\(error)")

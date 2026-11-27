@@ -8,9 +8,9 @@ import subprocess
 from pathlib import Path
 
 MODEL = "architecture/structure.c4"
-COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.DOTALL)
+COMMENT = re.compile(r"(?m)(?:^|(?<=[ \t]))//[^\n]*|/\*.*?\*/", re.DOTALL)
 METADATA = re.compile(r"\bmetadata\s*\{([^{}]*)\}")
-FIELD = re.compile(r'\b(path|files|markdown)\s+"([^"]*)"')
+FIELD = re.compile(r"\b(path|files|markdown)\s+(?:\"([^\"]*)\"|'([^']*)')")
 
 
 class Layout:
@@ -24,7 +24,7 @@ def read_layout(root):
     text = COMMENT.sub("", (Path(root) / MODEL).read_text(encoding="utf-8"))
     folders, files, markdown = set(), set(), set()
     for block in METADATA.findall(text):
-        fields = dict(FIELD.findall(block))
+        fields = {key: double or single for key, double, single in FIELD.findall(block)}
         if "path" in fields:
             folders.add(fields["path"])
             if fields.get("markdown") == "yes":

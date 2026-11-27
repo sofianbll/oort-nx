@@ -36,6 +36,16 @@ class StructureTests(unittest.TestCase):
         self.assertIn("Sources/Ghost/: declared in architecture/structure.c4 but holds no tracked file",
                       check_structure.check(fixture.root))
 
+    def test_single_quotes_and_urls_in_strings_are_read(self):
+        fixture = Fixture(self)
+        fixture.track("notes/plan.txt", "x")
+        model = fixture.root / "architecture/structure.c4"
+        fixture.track("architecture/structure.c4", model.read_text().replace(
+            'scripts = folder "scripts/" { metadata { path "scripts" } }',
+            'scripts = folder "scripts/" { metadata { path "scripts" } }\n'
+            "    notes = folder 'notes/' { link https://example.org/a//b; metadata { path 'notes' } }"))
+        self.assertEqual(check_structure.check(fixture.root), [])
+
     def test_a_commented_declaration_does_not_count(self):
         fixture = Fixture(self)
         fixture.track("notes/plan.txt", "x")

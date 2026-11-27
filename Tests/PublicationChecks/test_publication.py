@@ -61,6 +61,13 @@ class PublicationChecks(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("LICENSE differs from its reviewed digest", result.stdout)
 
+    def test_licence_digest_cannot_leave_the_manifest(self):
+        self.track("LICENSE", "MIT License\n")
+        self.track("scripts/bundle-licences.json", json.dumps({"NOTICE": "0" * 64}))
+        result = self.scan()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("LICENSE has no reviewed digest", result.stdout)
+
     def test_untracked_personal_files_are_not_read(self):
         (self.root / "prod.keys").write_text("header_key = " + "01" * 32)
         self.track("README.md", "Source code only.")

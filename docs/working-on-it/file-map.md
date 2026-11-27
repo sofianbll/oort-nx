@@ -1037,7 +1037,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [scripts/check](../../scripts/check) | Unico ingresso dei controlli, usato dalla CI e dalla documentazione: ogni regola (R1–R13 pronte), `--base` per i debiti che possono solo ridursi, `--list` con i test rossi di ogni regola, e i passi pesanti (`swift`, `app-build`, `app-probes`, `release-build`). |
+| [scripts/check](../../scripts/check) | Unico ingresso dei controlli, usato dalla CI e dalla documentazione: ogni regola pronta (R1, R2, R4, R5, R8, R10, R13), `--base` per i debiti che possono solo ridursi, `--list` con i test rossi di ogni regola, e i passi pesanti (`swift`, `app-build`, `app-probes`, `release-build`). |
 | [scripts/generate](../../scripts/generate) | Unico ingresso dei file generati (token, crediti); `--check` rifiuta un'uscita non aggiornata o modificata a mano. |
 | [scripts/repo_model.py](../../scripts/repo_model.py) | Legge da `architecture/structure.c4` le cartelle dichiarate, i file della radice e le cartelle di documentazione. |
 | [scripts/check_structure.py](../../scripts/check_structure.py) | R1: rifiuta un file della radice o una cartella di primo o secondo livello non dichiarati, e una dichiarazione senza file. |
