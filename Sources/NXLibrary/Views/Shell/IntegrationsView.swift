@@ -63,8 +63,9 @@ struct IntegrationSurface: View {
         data.keyStatus = setup.localKeyStatus
         data.xcodeVersion = setup.environmentStatus?.xcodeVersion
         data.metalVersion = setup.environmentStatus?.metalVersion
-        if setup.compatibilityReport != nil && !setup.canPassToolchainGate { data.buildBlock = .appleTools }
-        else if setup.environmentStatus?.canBuild == false { data.buildBlock = .buildTools }
+        data.buildBlock = IntegrationOverview.buildBlock(setup.compatibilityReport, canPass: setup.canPassToolchainGate,
+                                                         canBuild: setup.environmentStatus?.canBuild)
+        data.appleToolsTested = setup.compatibilityReport.map { $0.metal == .same }
         data.hasSwitchGames = app.visibleCatalogGames.contains { $0.integration == .nxnative && !$0.isHidden }
         data.steam = sources.status
         data.steamEnabled = sources.configuration.isEnabled

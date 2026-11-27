@@ -65,8 +65,22 @@ public struct IntegrationOverview {
     public var xcodeVersion: String?
     public var metalVersion: String?
     /// Why new builds are blocked, said plainly; the details stay in the engine settings.
-    public enum BuildBlock: CaseIterable { case appleTools, buildTools }
+    public enum BuildBlock: CaseIterable { case appleTools, buildTools, engineVersion }
     public var buildBlock: BuildBlock?
+    /// The installed Metal compiler against the one the engine tested; nil until the engine check ran.
+    public var appleToolsTested: Bool?
+
+    /// What blocks new builds, from the engine check's blocking lines: Metal is Apple's tools; a commit alone is the
+    /// engine's version (already said by its own line); anything else is the build tools. The override lets it pass.
+    public static func buildBlock(_ report: CompatibilityReport?, canPass: Bool, canBuild: Bool?) -> BuildBlock? {
+        if let report, !canPass {
+            let blocking = Set(report.checks.filter { $0.status == .block }.map(\.id))
+            if blocking.contains("metal") { return .appleTools }
+            if !blocking.subtracting(["commit"]).isEmpty { return .buildTools }
+            if !blocking.isEmpty { return .engineVersion }
+        }
+        return canBuild == false ? .buildTools : nil
+    }
     public var hasSwitchGames = false
     public var steam: CatalogSourceStatus = .disabled
     /// The source's choice in force: what Steam's switch shows and what X turns into its opposite.
@@ -99,8 +113,8 @@ public struct IntegrationOverview {
         case .invalid(let issue)?: checks.append(.verbatim(issue.message))
         case nil: break
         }
-        switch (buildBlock, xcodeVersion, metalVersion) {
-        case (.appleTools?, _, _): checks.append(.init("Apple tools not the tested version"))
+        switch (buildBlock == .appleTools || appleToolsTested == false, xcodeVersion, metalVersion) {
+        case (true, _, _): checks.append(.init("Apple tools not the tested version"))
         case (_, nil, nil): break
         case (_, _?, _?): checks.append(.init("Apple tools ready"))
         default: checks.append(.init("Apple tools incomplete"))
@@ -198,7 +212,12 @@ public struct IntegrationOverview {
                          writes: "Your sign-in on this computer, and the friend changes you ask for.",
                          sends: "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings.",
                          settingID: nextendo == .noLocalProfile ? "showProfilePicker" : "nextendo", link: nextendo == .noLocalProfile || nextendo == .expired,
-                         linked: nextendo == .connected, says: nextendo == .unavailable ? .init("Nextendo cannot be reached right now.") : nil)
+                         linked: nextendo == .connected, says: switch nextendo {
+                             case .unavailable: .init("Nextendo cannot be reached right now.")
+                             // Not checked in this session, or being checked: maybe signed in, maybe not.
+                             case .unchecked, .checking: .init("Account not checked yet: open the Nextendo settings.")
+                             default: nil
+                         })
         case .images:
             let state: String
             switch (steamGridDB, igdb) {

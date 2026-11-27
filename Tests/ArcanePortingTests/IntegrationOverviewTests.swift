@@ -1,6 +1,6 @@
 import XCTest
 import NXLibraryCore
-import ArcanePorting
+@testable import ArcanePorting
 
 final class IntegrationOverviewTests: XCTestCase {
     func testAnEmptySteamScanIsNotAnUnfinishedOrSuccessfulPlayCheck() throws {
@@ -160,6 +160,26 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(try checks(snapshot).suffix(3), ["Apple tools ready", "Build tools incomplete", "The details are in the engine settings."])
         snapshot.engineCommit = "f1c7"
         XCTAssertFalse(try checks(snapshot).contains("Engine up to date"), "a prefix Git would not accept proves nothing")
+        // The untested-toolchain override lets a newer Metal build: still not « ready ».
+        snapshot.buildBlock = nil
+        snapshot.appleToolsTested = false
+        XCTAssertTrue(try checks(snapshot).contains("Apple tools not the tested version"))
+    }
+
+    /// Which check blocks says what is blamed: Metal is Apple's tools, a commit alone the engine's version.
+    func testBuildBlockNamesTheRealCause() {
+        func report(_ blocking: [String]) -> CompatibilityReport {
+            .init(ok: blocking.isEmpty, checks: ["commit", "tree", "metal", "python", "cli"].map {
+                .init(id: $0, title: $0, status: blocking.contains($0) ? .block : .pass, detail: "")
+            })
+        }
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["metal", "commit"]), canPass: false, canBuild: true), .appleTools)
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["commit"]), canPass: false, canBuild: true), .engineVersion)
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["tree"]), canPass: false, canBuild: true), .buildTools)
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["python", "commit"]), canPass: false, canBuild: true), .buildTools)
+        XCTAssertNil(IntegrationOverview.buildBlock(report(["metal"]), canPass: true, canBuild: true), "the override lets it pass")
+        XCTAssertEqual(IntegrationOverview.buildBlock(nil, canPass: false, canBuild: false), .buildTools)
+        XCTAssertNil(IntegrationOverview.buildBlock(nil, canPass: false, canBuild: nil))
     }
 
     /// The catalogue's switches are exactly the offered entries the core gives one, said as the owner's choice in force.
@@ -167,6 +187,7 @@ final class IntegrationOverviewTests: XCTestCase {
         var snapshot = IntegrationOverview()
         let offered = snapshot.sections.flatMap(\.entries)
         XCTAssertEqual(offered.filter { $0.switchOn != nil }.map(\.id), offered.map(\.id).filter { $0.hasSwitch })
+        XCTAssertFalse(offered.contains { $0.id.explainsBeforeOn }, "the Mac would have to explain it on its row first")
         XCTAssertEqual(snapshot.sections.map(\.id), [.sources, .engines, .services])
         XCTAssertEqual(snapshot.sections.map { $0.upcoming?.args }, [["Epic Games · GOG · Minecraft · CrossOver"], ["Ryujinx-Nextendo"], nil])
         XCTAssertTrue(snapshot.sections.allSatisfy { $0.entries.count <= 5 })
@@ -182,7 +203,8 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(snapshot.row(.steam)?.switchOn, false)
         XCTAssertEqual(try link(.steam), "Turn on Steam to add the games it installed.")
         // Nextendo is linked only when signed in.
-        for (account, said) in [(IntegrationOverview.Account.unchecked, "Sign in to Nextendo to begin."),
+        for (account, said) in [(IntegrationOverview.Account.noLocalProfile, "Sign in to Nextendo to begin."),
+                                (.unchecked, "Account not checked yet: open the Nextendo settings."),
                                 (.connected, "Linked to your Nextendo account."),
                                 (.unavailable, "Nextendo cannot be reached right now.")] {
             snapshot.nextendo = account

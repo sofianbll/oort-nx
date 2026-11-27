@@ -82,6 +82,8 @@ class IntegrationContract(unittest.TestCase):
                                  "images": ["SteamGridDB", "IGDB", "Twitch", "Nlib", "Nintendo", "LaunchBox", "GameTDB", "Switch Icon Showdown"],
                                  "saves": ["iCloud", "Apple"]}[row]:
                         self.assertIn(term, rendered["sends"])
+                    if row == "images" and language in ("en", "fr"):
+                        self.assertIn("Wikidata", rendered["sends"])
                     if row == "switchGames" and language in ("en", "fr"):
                         self.assertIn("private copy" if language == "en" else "copie privée", rendered["writes"])
                     if row == "saves" and language in ("en", "fr"):
