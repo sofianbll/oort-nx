@@ -9,5 +9,16 @@
     "nxnative": {"name": "ArcanePorting", "kind": "engine", "layer": 2, "path": "Sources/ArcanePorting", "model": "oort.mac",
                  "tests": {"name": "ArcanePortingTests", "path": "Tests/ArcanePortingTests"}},
     "mac": {"name": "NXLibrary", "kind": "app", "layer": 3, "path": "Sources/NXLibrary", "model": "oort.mac"}
-  }
+  },
+  "former": [
+    {"until": "c9c2909d76f3609bb6b1dd84a67aa28cf5615a1a",
+     "about": "The layout before names.json; names.stage() reads it to build a past revision.",
+     "package": "NXLibrary",
+     "modules": {
+       "core": {"name": "OortCore", "path": "Sources/OortCore", "tests": {"name": "OortCoreTests", "path": "Tests/OortCoreTests"}},
+       "library": {"name": "NXLibraryCore", "path": "Sources/NXLibraryCore", "tests": {"name": "NXLibraryCoreTests", "path": "Tests/NXLibraryCoreTests"}},
+       "nxnative": {"name": "ArcanePorting", "path": "Sources/ArcanePorting", "tests": {"name": "ArcanePortingTests", "path": "Tests/ArcanePortingTests"}},
+       "mac": {"name": "NXLibrary", "path": "Sources/NXLibrary"}
+     }}
+  ]
 }
