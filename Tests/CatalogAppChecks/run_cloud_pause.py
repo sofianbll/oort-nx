@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
+from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
 
 SCENARIO = r'''
         let fm = FileManager.default
@@ -24,7 +24,9 @@ SCENARIO = r'''
             return game
         }
         _ = try repository.mergeNXNative(scanned: games, enableSource: true)
-        let rclone = try require(RcloneStorageBackend.findExecutable(), "Local rclone fixture unavailable")
+        let rclone = try require(RcloneStorageBackend.findExecutable(
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) }),
+            "Local rclone fixture unavailable")
         let config = data.appendingPathComponent("rclone.conf")
         try Data().write(to: config)
         let scope = CloudDriveScope(remote: "fixture", account: "account-a", library: .init(path: "Games", id: "folder-a"))
@@ -299,7 +301,7 @@ extension CloudLibraryPanel {
         (app / "CloudScreenProbe.swift").write_text(header + SCENARIO + render)
         fixture_home = package / "profile"
         fixture_home.mkdir()
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
+        subprocess.run([str(build_probe(package)), str(output),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png")], check=True,
                        env=isolated_home_env(fixture_home))

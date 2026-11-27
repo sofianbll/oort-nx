@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter
+from run_cloud_screens import build_probe
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -380,11 +381,9 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
     if args:
         Path(args[0]).mkdir(parents=True, exist_ok=True)
         args = [str(Path(args[0]).resolve())]
-    env = dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp, DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer")
-    command = ["swift", "build", "-j", "5", "--package-path", str(package)]
-    subprocess.run(command, check=True, env=env)
-    build = Path(subprocess.check_output(command + ["--show-bin-path"], env=env, text=True).strip())
-    app_probe = build / "NXLibrary"
+    env = dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp)
+    env.setdefault("DEVELOPER_DIR", "/Applications/Xcode.app/Contents/Developer")
+    app_probe = build_probe(package, jobs=5, environment=env)
     subprocess.run([app_probe, *args], check=True, env=env)
     coverage = Counter()
     for trial in ("success", "rollback"):

@@ -888,8 +888,23 @@ import ArcanePorting
                 precondition(!window.isVisible)
                 let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds)!
                 host.cacheDisplay(in: host.bounds, to: bitmap)
-                try bitmap.representation(using: .png, properties: [:])!
-                    .write(to: output.appendingPathComponent("\(name).png"))
+                let png = output.appendingPathComponent("\(name).png")
+                try bitmap.representation(using: .png, properties: [:])!.write(to: png)
+                if let reader = ProcessInfo.processInfo.environment["OORT_PROBE_OCR"] {
+                    let language = locale.language == .french ? "fra" : "eng"
+                    let task = Process()
+                    task.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+                    task.arguments = ["node", reader, language, png.path]
+                    let pipe = Pipe()
+                    task.standardOutput = pipe
+                    try task.run()
+                    let text = pipe.fileHandleForReading.readDataToEndOfFile()
+                    task.waitUntilExit()
+                    guard task.terminationStatus == 0 else {
+                        throw CocoaError(.fileReadUnknown, userInfo: [NSURLErrorKey: png])
+                    }
+                    return String(decoding: text, as: UTF8.self)
+                }
                 let request = VNRecognizeTextRequest()
                 request.recognitionLanguages = [locale.language == .french ? "fr-FR" : "en-US"]
                 try VNImageRequestHandler(cgImage: bitmap.cgImage!).perform([request])

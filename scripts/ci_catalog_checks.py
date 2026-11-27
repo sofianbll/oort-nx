@@ -16,8 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def partition(paths):
     debug, standalone = [], []
     for path in paths:
-        # Probes that build a temporary package pass --package-path instead of using the shared debug build.
-        group = standalone if "--package-path" in path.read_text(encoding="utf-8") else debug
+        # Standalone probes build a temporary package, directly or via the Cloud build helper.
+        source = path.read_text(encoding="utf-8")
+        group = standalone if "--package-path" in source or "build_probe(" in source else debug
         group.append(path)
     return debug, [standalone[i:i + 2] for i in range(0, len(standalone), 2)]
 
@@ -28,7 +29,7 @@ def run(paths, temp):
         with tempfile.TemporaryDirectory(prefix="oort-home-", dir=temp) as home:
             print(f"Running {path.name}", flush=True)
             start = time.monotonic()
-            env = dict(os.environ, HOME=home, CFFIXED_USER_HOME=home)
+            env = dict(os.environ, HOME=home, CFFIXED_USER_HOME=home, OORT_PROBE_BUILD_HOME=str(Path.home()))
             code = subprocess.run([sys.executable, str(path)], cwd=ROOT, env=env).returncode
             print(f"{path.name}: exit {code} in {time.monotonic() - start:.1f}s", flush=True)
             failed |= code != 0

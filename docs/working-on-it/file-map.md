@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 26 novembre 2026. Il repository versiona **1647 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 26 novembre 2026. Il repository versiona **1651 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1359,7 +1359,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_reference.py](../../Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
 | [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. Identifica il PNG se Vision non riesce a leggerlo. |
 | [run_store_next_step.py](../../Tests/CatalogAppChecks/run_store_next_step.py) | Rende le prossime azioni e gli stati passivi di Details in francese su dati sintetici. |
-| [StoreNextStepOCR.swift](../../Tests/CatalogAppChecks/StoreNextStepOCR.swift) | Legge i PNG della sonda Details e verifica testi, origine e assenza di misure ripetute. |
+| [StoreNextStepText.swift](../../Tests/CatalogAppChecks/StoreNextStepText.swift) | Legge il testo del PDF della sonda Details e verifica testi, origine e assenza di misure ripetute. |
+| [ProbeRenderedText.swift](../../Tests/CatalogAppChecks/ProbeRenderedText.swift) | Legge il testo disegnato dal renderer SwiftUI in un PDF accanto al PNG, senza Vision. |
+| [ocr/read.cjs](../../Tests/CatalogAppChecks/ocr/read.cjs) | Legge i PNG delle finestre AppKit nascoste con OCR su CPU e modelli locali. |
+| [ocr/package.json](../../Tests/CatalogAppChecks/ocr/package.json), [ocr/package-lock.json](../../Tests/CatalogAppChecks/ocr/package-lock.json) | Dipendenze e integrità dei soli strumenti OCR di test. |
 | [run_cloud_personal_update.py](../../Tests/CatalogAppChecks/run_cloud_personal_update.py) | Esercita l’offerta personale, la conferma e le copie sostituite o conservate tramite un cloud e bundle sintetici. |
 | [run_settings_confirmations.py](../../Tests/CatalogAppChecks/run_settings_confirmations.py) | Lancia la sonda di Settings con dati, selettore rclone e preferenze sintetici. |
 | [SettingsConfirmationProbe.swift](../../Tests/CatalogAppChecks/SettingsConfirmationProbe.swift) | Prova bozza, conferme, collegamento rclone, blocco di ⌘K e avvisi di avvio fuori schermo. |

@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup
+from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup
 
 SCENARIO = r'''
         let fm = FileManager.default
@@ -15,7 +15,8 @@ SCENARIO = r'''
         let config = data.appendingPathComponent("empty-rclone.conf")
         try Data().write(to: config)
         let title = "FEDCBA9876543210", bundleID = "local.oort.personal-update-fixture"
-        guard let rclone = RcloneStorageBackend.findExecutable() else {
+        guard let rclone = RcloneStorageBackend.findExecutable(
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) }) else {
             throw CocoaError(.fileNoSuchFile, userInfo: [NSDebugDescriptionErrorKey: "rclone fixture tool is not available"])
         }
         let offline = OSAllocatedUnfairLock(initialState: false)
@@ -306,7 +307,7 @@ extension CloudLibraryModel {
         (app / "PersonalUpdateScreenProbe.swift").write_text(preamble + SCENARIO + renderer)
         home = package / "fixture-home"
         home.mkdir()
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
+        subprocess.run([str(build_probe(package)), str(output),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(ROOT / "Resources/AppIcon-Light.png")],
                        check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
 

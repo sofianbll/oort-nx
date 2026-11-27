@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from run_cloud_screens import build_probe
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -207,7 +208,7 @@ def main():
                    RCLONE_CONFIG_PASS="fixture-only", RCLONE_PASSWORD_COMMAND="/usr/bin/false",
                    GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", temp, "NXLibrary", str(output), str(font)],
+        subprocess.run([str(build_probe(package)), str(output), str(font)],
                        env=env, check=True)
 
 

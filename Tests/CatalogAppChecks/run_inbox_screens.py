@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from run_cloud_screens import install_settings_reset_fixture, isolate_startup
+from run_cloud_screens import build_probe, install_settings_reset_fixture, isolate_startup
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -380,7 +380,7 @@ def main():
                'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         (app / "InboxProbe.swift").write_text(HOST)
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
-        subprocess.run(["swift", "run", "--package-path", str(package), "NXLibrary", str(output), str(font)],
+        subprocess.run([str(build_probe(package, jobs=None)), str(output), str(font)],
                        env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)), check=True)
 
 

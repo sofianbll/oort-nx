@@ -1,7 +1,6 @@
 import Foundation
-import Vision
 
-func checkNextStepOCR(_ output: URL) throws {
+func checkNextStepText(_ output: URL) throws {
     let cases: [(String, [String], [String])] = [
         ("online-app", ["app dans ton cloud", "telecharger l'app", "temps de jeu", "derniere partie", "plateforme", "aucune description"], []),
         ("offline-local", ["app sur ce mac", "jouer"], ["telecharger"]),
@@ -20,11 +19,8 @@ func checkNextStepOCR(_ output: URL) throws {
         ("blocked", ["telechargement indisponible"], ["telecharger"]),
     ]
     for (state, expected, unexpected) in cases {
-        let request = VNRecognizeTextRequest()
-        request.recognitionLanguages = ["fr-FR"]
-        try VNImageRequestHandler(url: output.appendingPathComponent(state + "-1120.png")).perform([request])
-        let screen = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
-            .joined(separator: "\n").folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "fr"))
+        let screen = try readProbeText(output, name: state + "-1120")
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "fr"))
             .replacingOccurrences(of: "’", with: "'")
         let missing = expected.filter { !screen.contains($0) }
         let found = unexpected.filter { screen.contains($0) }
