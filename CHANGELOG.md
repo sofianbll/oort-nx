@@ -4,6 +4,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ## Unreleased
 
+- **My profile** keeps each total on one line at larger interface sizes and in every language, and shows achievement texts in full. An empty card says what to do and offers no **See all**. The buttons at the top are selected like **See all**, and the week writes the time above each day played. With a controller, ZL/ZR go to the first and last item, Right reaches Friends, and the hints show that holding Menu opens **Profile page**.
 - **Settings → Switch → Keys** no longer shows the private file’s location. Checking the keys does not change file permissions.
 - **Settings → Account → Nextendo** wraps access and verification messages across the account row instead of squeezing them next to the buttons.
 - **Play on Mac** opens the selected app rather than another copy with the same identifier. Rejoining a Switch app opened outside Oort no longer creates a play session, including when it opens at the same time as Play.
