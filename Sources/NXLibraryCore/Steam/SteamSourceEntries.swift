@@ -60,18 +60,11 @@ public extension SteamSourceEntries {
         return zip(rows.all, about).map { SettingsCatalog.action($0.id, .sources, $0.title.key, $1?.key ?? "") }
     }()
 
-    /// A Steam choice waiting in the draft holds the switch and the folder: both rows show it waiting.
-    static let draftRows: [String] = {
-        let rows = mac(applied: true, staged: nil, status: .idle, found: 0, root: "")
-        return [rows.source.rowID, rows.folder.rowID]
-    }()
+    /// What the source's switch in Settings › Sources is known by: the tour opens Sources on it.
+    static let sourceRowID = mac(applied: true, staged: nil, status: .idle, found: 0, root: "").source.rowID
 
-    /// The tour's Steam service: set up while the source is in force. A opens Settings › Sources on the source's switch.
-    static func tour(inForce: Bool) -> OptionalServiceEntries.Service {
-        let source = mac(applied: inForce, staged: nil, status: .idle, found: 0, root: "").source
-        return .init(OptionalServiceEntries.entry("steam", "Steam", "Read your installed Mac games from Steam.", .store, setUp: inForce),
-                     section: .sources, row: source.rowID)
-    }
+    /// A Steam choice waiting in the draft holds the switch and the folder: both rows show it waiting.
+    static let draftRows: [String] = [sourceRowID, mac(applied: true, staged: nil, status: .idle, found: 0, root: "").folder.rowID]
 
     /// The first launch's `found` page: the switch when Steam was read, Retry when it could not be read in full, nothing
     /// without Steam. The reader never reports both a count and a failure. The choice waits in FirstRunSetup until the

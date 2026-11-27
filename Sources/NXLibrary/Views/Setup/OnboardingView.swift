@@ -189,11 +189,8 @@ struct OnboardingView: View {
                                    nextendoSignedIn: viewModel.profileNextendo?.status == .signedIn,
                                    steamInForce: sources.configuration.isEnabled,
                                    savesOn: settings.settings.cloudSaves != .off).map { service in
-            let entry = service.entry
-            return .init(entry.id, L10n.text(entry.title.key), entry.about.map { L10n.text($0.key) } ?? "",
-                         entry.icon.flatMap(MaterialIcon.init(rawValue:)) ?? .store,
-                         .text(entry.value.map { L10n.text($0.key) } ?? ""),
-                         action: { openSettings(service.section, service.row) })
+            .init(service.id, L10n.text(service.title.key), L10n.text(service.about.key), service.icon,
+                  .text(L10n.text(service.value.key)), action: { openSettings(service.section, service.row) })
         }
     }
 
