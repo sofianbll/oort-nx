@@ -1499,7 +1499,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [Resources/AppIconParticles.icon/icon.json](../../Resources/AppIconParticles.icon/icon.json) | Sorgente Icon Composer per le immagini del Dock a particelle. |
 | [Resources/AppIconParticles.icon/Assets/glyph.svg](../../Resources/AppIconParticles.icon/Assets/glyph.svg) | Livello vettoriale delle particelle. |
 | [Resources/AppIconParticles.icon/Assets/sun.svg](../../Resources/AppIconParticles.icon/Assets/sun.svg) | Livello vettoriale del Sole nella variante a particelle. |
-| [Resources/AppIcon.icns](../../Resources/AppIcon.icns) | Ripiego `.icns` della trama. |
+| [apps/mac/AppIcon.icns](../../apps/mac/AppIcon.icns) | Ripiego `.icns` della trama. |
 | [Resources/AppIcon-Light.png](../../Resources/AppIcon-Light.png) | Anteprima chiara della trama nel README. |
 | [Resources/AppIcon-Particles-Dark.png](../../Resources/AppIcon-Particles-Dark.png) | Icona Dock a particelle scura. |
 | [Resources/AppIcon-Particles-Light.png](../../Resources/AppIcon-Particles-Light.png) | Icona Dock a particelle chiara. |

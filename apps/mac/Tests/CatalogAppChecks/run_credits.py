@@ -10,7 +10,7 @@ from audit_probe_host import run_host
 def run(output):
     run_host("// The screen with the credits of design/credits.json.\n"
              + Path(__file__).with_name("CreditsProbe.swift").read_text().replace("#if CREDITS", "#if true"),
-             save_model=True, capture=output, resources=["AppIcon.icns"])
+             save_model=True, capture=output, resources=["apps/mac/AppIcon.icns"])
 
 
 parser = argparse.ArgumentParser()

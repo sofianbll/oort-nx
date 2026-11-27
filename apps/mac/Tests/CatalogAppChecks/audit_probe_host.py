@@ -40,7 +40,7 @@ def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_
             shutil.copytree(ROOT / "Resources/Selene/Fonts", scratch / "Selene/Fonts")
             shutil.copyfile(ROOT / "Resources/Selene/palettes.json", scratch / "Selene/palettes.json")
         for resource in resources:
-            shutil.copy2(ROOT / "Resources" / resource, scratch / resource)
+            shutil.copy2(ROOT / resource, scratch / Path(resource).name)
         home_check = r'''
 func assertFixtureHome() {
     let home = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).resolvingSymlinksInPath().path

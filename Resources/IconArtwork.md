@@ -16,7 +16,7 @@ for look in Default:Light Dark:Dark; do
 done
 xcrun actool Resources/AppIcon.icon --compile "$out" --platform macosx --minimum-deployment-target 13.0 \
   --app-icon AppIcon --include-all-app-icons --output-partial-info-plist "$out/partial.plist"
-cp "$out/AppIcon.icns" Resources/AppIcon.icns
+cp "$out/AppIcon.icns" apps/mac/AppIcon.icns
 "$ictool" Resources/AppIcon.icon --export-image --output-file Resources/AppIcon-Light.png \
   --platform macOS --rendition Default --width 512 --height 512 --scale 2  # README
 ```

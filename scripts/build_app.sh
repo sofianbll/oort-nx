@@ -79,8 +79,8 @@ LOCALIZATION_BUNDLE="$ROOT/.build/$CONFIG/$RESOURCE_BUNDLE"
 [ -d "$LOCALIZATION_BUNDLE" ] || { echo "error: compiled localization bundle missing" >&2; exit 1; }
 cp -R "$LOCALIZATION_BUNDLE" "$APP/Contents/Resources/"
 
-if [ -f "$ROOT/Resources/AppIcon.icns" ]; then
-  cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+if [ -f "$ROOT/apps/mac/AppIcon.icns" ]; then
+  cp "$ROOT/apps/mac/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 fi
 for icon in "$ROOT"/Resources/AppIcon-Particles-*.png; do
   cp "$icon" "$APP/Contents/Resources/"
