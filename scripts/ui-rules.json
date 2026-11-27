@@ -1112,8 +1112,8 @@
   }
  ],
  "mouse_paths": {
-  "Sources/NXLibrary/Views/Shell/IntegrationsView.swift": {
-   "x text(IntegrationCatalog.toggle(on: on).k": "the switch on the row is clicked"
+  "Sources/NXLibrary/Views/OortUI/ScreenView.swift": {
+   "PromptButton(rawValue:key.rawValue) say(gesture.title)": "each gesture of a node is also its click: A the row or the button, X the row's switch; B stays for the mouse (SeleneHintsBar.mouseBack)"
   },
   "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
    "lb Previous": "the tabs are clickable",

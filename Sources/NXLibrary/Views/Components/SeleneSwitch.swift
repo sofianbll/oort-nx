@@ -5,6 +5,7 @@ struct SeleneSwitch: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.screenTrace) private var trace
     @Binding var isOn: Bool
     private var reduced: Bool { reduceMotion || systemReduceMotion }
 
@@ -36,5 +37,6 @@ struct SeleneSwitch: View {
         .animation(Motion.press(reduced, down: false), value: isOn)
         .accessibilityValue(isOn ? L10n.text("On") : L10n.text("Off"))
         .accessibilityAddTraits(.isButton)
+        .screenTrace(trace, [.init(kind: .switch, on: isOn)])
     }
 }

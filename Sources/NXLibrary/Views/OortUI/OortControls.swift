@@ -18,6 +18,8 @@ struct OortFormatBadges: View {
 struct OortRow: View {
     enum Preset {
         case navigation(label: String, action: () -> Void)
+        /// A switch drawn flat, without chevron: the row and its switch ask for the other state (`isOn`'s setter).
+        case toggle(label: String)
         case info
     }
 
@@ -46,6 +48,16 @@ struct OortRow: View {
             .accessibilityValue([status, about].compactMap { $0 }.joined(separator: ". "))
             .accessibilityHint(label)
             .accessibilityAddTraits(focused ? .isSelected : [])
+        case .toggle(let label):
+            // The row asks as its switch does, with the switch's sound.
+            Button { isOn?.wrappedValue.toggle(); SoundEffectService.shared.play(.key) } label: {
+                row { if let isOn { SeleneSwitch(isOn: isOn).accessibilityHidden(true) } }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(title)
+            .accessibilityValue([isOn.map { L10n.text($0.wrappedValue ? "On" : "Off") }, about].compactMap { $0 }.joined(separator: ". "))
+            .accessibilityHint(label)
+            .accessibilityAddTraits(focused ? [.isSelected, .isToggle] : .isToggle)
         case .info:
             row { EmptyView() }
                 .accessibilityElement(children: .combine)
@@ -68,6 +80,7 @@ struct OortRow: View {
 struct OortReadout: View {
     /// `lead` is the explanation under a large heading.
     enum Preset { case body, quiet, lead }
+    @Environment(\.screenTrace) private var trace
 
     let text: String
     var preset: Preset = .body
@@ -76,6 +89,7 @@ struct OortReadout: View {
         Text(text).seleneFont(preset == .body ? .text : preset == .lead ? .row : .badge)
             .foregroundStyle(preset == .body ? SeleneTheme.ink : preset == .lead ? SeleneTheme.ink82 : SeleneTheme.ink75)
             .fixedSize(horizontal: false, vertical: true)
+            .screenTrace(trace, [.init(kind: .text, text: text, role: preset == .body ? .body : preset == .lead ? .lead : .quiet)])
     }
 }
 

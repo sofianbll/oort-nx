@@ -4,6 +4,7 @@ import NXLibraryCore
 struct SeleneOptionRow<Trailing: View>: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.oortGroupedRow) private var grouped
+    @Environment(\.screenTrace) private var trace
     @State private var hovered = false
 
     let icon: MaterialIcon?
@@ -43,6 +44,7 @@ struct SeleneOptionRow<Trailing: View>: View {
         .preference(key: OortRowHelpKey.self, value: grouped && aboutIsHelp && (focused || hovered) ? about : nil)
         .accessibilityHint(grouped && aboutIsHelp ? about ?? "" : "")
         .containerValue(\.oortSettingsRow, true)
+        .screenTrace(trace, [.init(kind: .row, text: title, about: grouped && aboutIsHelp ? nil : about, focused: focused)])
     }
 
     private var row: some View {

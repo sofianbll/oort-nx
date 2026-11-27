@@ -288,6 +288,7 @@ struct OortCard<Content: View>: View {
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneFocusedRowID) private var focusedRowID
+    @Environment(\.screenTrace) private var trace
     let title: String?
     let info: String?
     /// The row whose focus lets the help key open `info`: the one named like the card, unless told otherwise.
@@ -309,6 +310,7 @@ struct OortCard<Content: View>: View {
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                         .accessibilityAddTraits(.isHeader)
+                        .screenTrace(trace, [.init(kind: .text, text: L10n.text(title, context: localization), role: .card)])
                     if let info {
                         SeleneInfoTip(info, row: infoRow ?? title, focused: focusedRowID != nil && focusedRowID == infoRow ?? title)
                     }

@@ -1,10 +1,18 @@
 import SwiftUI
 import NXLibraryCore
 
+extension EnvironmentValues {
+    /// A probe draws the whole page at once, without its scroll view: ImageRenderer paints no scroll view's content,
+    /// and its PDF is what assertVisible reads. Off in the app.
+    @Entry var oortPageUnscrolled = false
+}
+
 struct OortPage<ID: Hashable, Content: View>: View {
     enum Preset { case standard, legacyBackdrop }
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
+    @Environment(\.oortPageUnscrolled) private var unscrolled
+    @Environment(\.screenTrace) private var trace
     let title: String
     var preset: Preset = .standard
     var scrollFocus: ID?
@@ -20,15 +28,16 @@ struct OortPage<ID: Hashable, Content: View>: View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.panel)) {
             Text(title).seleneFont(.screen, .semibold)
                 .accessibilityAddTraits(.isHeader)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small), content: content)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                }
-                .onChange(of: scrollFocus, initial: true) { old, id in
-                    guard let id, old != id || id != initialFocus || restoreScroll else { return }
-                    withAnimation(Motion.focus(reduceMotion)) { proxy.scrollTo(id, anchor: .top) }
+                .screenTrace(trace, [.init(kind: .text, text: title, role: .screen)])
+            if unscrolled {
+                column.frame(maxHeight: .infinity, alignment: .top)
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView { column }
+                    .onChange(of: scrollFocus, initial: true) { old, id in
+                        guard let id, old != id || id != initialFocus || restoreScroll else { return }
+                        withAnimation(Motion.focus(reduceMotion)) { proxy.scrollTo(id, anchor: .top) }
+                    }
                 }
             }
         }
@@ -54,8 +63,17 @@ struct OortPage<ID: Hashable, Content: View>: View {
     }
 }
 
+private extension OortPage {
+    var column: some View {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small), content: content)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, canvas.u(SeleneTokens.Space.control))
+    }
+}
+
 struct OortSection<Content: View>: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.screenTrace) private var trace
     let title: String
     @ViewBuilder var content: () -> Content
 
@@ -63,6 +81,7 @@ struct OortSection<Content: View>: View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(title).seleneFont(.heading, .semibold)
                 .accessibilityAddTraits(.isHeader)
+                .screenTrace(trace, [.init(kind: .text, text: title, role: .heading)])
             content()
         }
         .foregroundStyle(SeleneTheme.ink)

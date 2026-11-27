@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import Synchronization
+import OortCore
 
 /// The selected locale is captured by background work, while views observe changes on the main thread.
 public final class AppLocalization: ObservableObject {
@@ -70,5 +71,19 @@ public enum L10n {
         let value = String(format: text(key, context: context), locale: context.formatLocale, arguments: [count] + arguments)
         // shortcut: branded plurals only interpolate the count; if one needs other arguments, brand the variant before interpolation.
         return arguments.isEmpty ? displayCopy(value, key: key) : value
+    }
+}
+
+public extension L10n {
+    /// A screen's words, said once for every renderer of this app: the catalogue's words that fill it first, then its
+    /// verbatim arguments, its count (plural) and its date in the reader's locale.
+    static func say(_ text: Screen.Text, context: AppLocale? = nil) -> String {
+        let context = context ?? Self.context
+        var arguments: [CVarArg] = text.words.map { say($0, context: context) } + text.args
+        if let date = text.date {
+            arguments.append(date.formatted(.dateTime.year().month().day().hour().minute().locale(context.formatLocale)))
+        }
+        if let count = text.count { return Self.count(text.key, count, arguments: arguments, context: context) }
+        return arguments.isEmpty ? Self.text(text.key, context: context) : format(text.key, arguments, context: context)
     }
 }

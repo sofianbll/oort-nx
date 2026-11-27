@@ -6,6 +6,7 @@ struct SelenePillButton: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.screenTrace) private var trace
     @State private var hovered = false
 
     let title: String?
@@ -47,6 +48,12 @@ struct SelenePillButton: View {
     }
 
     var body: some View {
+        face.screenTrace(trace, [.init(kind: .pill, text: title.map { titleArguments.isEmpty ? L10n.text($0, context: localization)
+                                                                         : L10n.format($0, titleArguments, context: localization) },
+                                       focused: focused, destructive: tint == SeleneTheme.dangerText ? true : nil)])
+    }
+
+    @ViewBuilder private var face: some View {
         if queuedBuild {
             pill.onHover { hovered = $0 }
                 .accessibilityLabel(L10n.text("Cancel queued build", context: localization))

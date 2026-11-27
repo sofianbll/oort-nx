@@ -5,6 +5,7 @@ import NXLibraryCore
 /// A short status label; its dot is decorative, not the only status cue.
 struct SeleneStatusDot: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.screenTrace) private var trace
     let text: String
     let color: Color
     var labelColor: Color = SeleneTheme.ink60
@@ -21,6 +22,7 @@ struct SeleneStatusDot: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityTitle ?? text)
         .accessibilityValue(accessibilityTitle == nil ? "" : text)
+        .screenTrace(trace, [.init(kind: .dot, text: text, tone: OortStatus.Tone.screen(color))])
     }
 }
 

@@ -24,7 +24,9 @@ let package = Package(
         .testTarget(
             name: "NXLibraryCoreTests",
             dependencies: ["NXLibraryCore"],
-            path: "Tests/NXLibraryCoreTests"
+            path: "Tests/NXLibraryCoreTests",
+            // The reviewed screens and reference tree, read by IntegrationScreenTests from their path.
+            exclude: ["Screens"]
         ),
         .testTarget(
             name: "ArcanePortingTests",

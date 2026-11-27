@@ -1,9 +1,7 @@
-/// The catalogue order, words and detail phases are shared. Each owner supplies only the installed offers and
-/// their observed state; a renderer neither classifies an integration nor invents a missing capability.
+/// The catalogue order and words are shared. Each owner supplies only the installed offers and their observed state
+/// (IntegrationFacts); IntegrationScreen lays the screens out; a renderer neither classifies an integration nor
+/// invents a missing capability.
 public enum IntegrationCatalog {
-    /// The app that draws the catalogue: what it announces depends on where it would run.
-    public enum Host: Sendable { case mac, pc }
-
     public enum ID: String, CaseIterable, Sendable {
         case switchGames, steam, macApps, drive, nextendo, saves, images, programs = "prog", online
 
@@ -89,13 +87,13 @@ public enum IntegrationCatalog {
             }
         }
 
-        /// Announced, not offered: one quiet line under the section, never a row. Ryujinx-Nextendo runs on PC only,
-        /// so the Mac does not announce it.
-        public func upcoming(on host: Host) -> [String] {
-            switch (self, host) {
-            case (.sources, _): ["Epic Games", "GOG", "Minecraft", "CrossOver"]
-            case (.engines, .pc): ["Ryujinx-Nextendo"]
-            case (.engines, .mac), (.services, _): []
+        /// Announced, not offered: one quiet line under the section, never a row. Ryujinx-Nextendo is announced only
+        /// where it will run (a fact of the system).
+        public func upcoming(announcingRyujinx ryujinx: Bool) -> [String] {
+            switch self {
+            case .sources: ["Epic Games", "GOG", "Minecraft", "CrossOver"]
+            case .engines: ryujinx ? ["Ryujinx-Nextendo"] : []
+            case .services: []
             }
         }
     }
@@ -107,11 +105,11 @@ public enum IntegrationCatalog {
         public let upcoming: IntegrationWords?
     }
 
-    /// A section shows its offers and what it announces on this host; one with neither is left out, so none is ever
-    /// empty.
-    public static func sections<Entry>(on host: Host, offering entry: (ID) -> Entry?) -> [Group<Entry>] {
+    /// A section shows its offers and what it announces on this system; one with neither is left out, so none is
+    /// ever empty.
+    public static func sections<Entry>(announcingRyujinx ryujinx: Bool, offering entry: (ID) -> Entry?) -> [Group<Entry>] {
         Section.allCases.map { section in
-            let coming = section.upcoming(on: host)
+            let coming = section.upcoming(announcingRyujinx: ryujinx)
             return Group(id: section, entries: section.order.compactMap(entry),
                          upcoming: coming.isEmpty ? nil : .init("Coming later: %@", args: [coming.joined(separator: " · ")]))
         }
@@ -132,36 +130,19 @@ public enum IntegrationCatalog {
     /// What X does on a row with a switch, said for its current state.
     public static func toggle(on: Bool) -> IntegrationWords { on ? .init("Turn off") : .init("Turn on") }
 
-    public enum Phase: String, Identifiable, Sendable {
-        case link, verify, next
-
-        public var id: Self { self }
-        public var title: IntegrationWords {
-            switch self {
-            case .link: .init("Link")
-            case .verify: .init("Verify")
-            case .next: .init("Continue")
-            }
-        }
+    /// The detail's boxes, in this order: Link, Verify, Continue.
+    public static let link = IntegrationWords("Link")
+    public static let verify = IntegrationWords("Verify")
+    public static let next = IntegrationWords("Continue")
+    /// Continue, when it has no action.
+    public static func rest(linked: Bool) -> IntegrationWords {
+        linked ? .init("Nothing else to do here: it works on its own.") : .init("Link it first to continue.")
     }
 
-    public struct Step<Content>: Identifiable {
-        public let id: Phase
-        public let content: [Content]
-    }
-
-    /// The validated template: Link, Verify, Continue, always in this order and always shown, each drawn as one box:
-    /// its title, its sentences, then its actions right under them and aligned with them, never an action set apart.
-    /// The order of the content is the focus order. Link opens on what the
-    /// entry is linked to, or how to link it (`says`, when the owner knows better: Steam on but not found);
-    /// Continue says why there is nothing to do when it has no action. `linked` is the owner's fact, not where the
-    /// settings button goes.
-    public static func steps<Content>(_ id: ID, linked: Bool, says: IntegrationWords? = nil, link: [Content] = [],
-                                      verify: [Content], next: [Content] = [],
-                                      say: (IntegrationWords) -> Content) -> [Step<Content>] {
-        let rest: IntegrationWords = linked ? .init("Nothing else to do here: it works on its own.")
-            : .init("Link it first to continue.")
-        return [Step(id: .link, content: [say(says ?? id.link(linked))] + link), Step(id: .verify, content: verify),
-                Step(id: .next, content: next.isEmpty ? [say(rest)] : next)]
-    }
+    /// What information online does and sends: under its switch while it is off, and in the question asked before
+    /// it is on (its consent depends on it: never truncated).
+    public static let onlineAbout = IntegrationWords("Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.")
+    public static let clearOnline = IntegrationWords("Delete what was found online")
+    public static let clearOnlineQuestion = IntegrationWords("Delete what was found online?")
+    public static let clearOnlineMessage = IntegrationWords("Covers and descriptions found online leave this computer. Your own pictures stay.")
 }

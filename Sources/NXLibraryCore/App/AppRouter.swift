@@ -29,7 +29,6 @@ public enum AppRoute: Equatable {
 }
 
 public typealias IntegrationID = IntegrationCatalog.ID
-public enum IntegrationDetailAction: Hashable, Sendable { case settings, switchGames, steamGames }
 
 /// A full-screen page covers lower UI layers while their shared background stays mounted.
 public enum ShellBackdropCover: Equatable {
@@ -115,7 +114,8 @@ public final class AppRouter: ObservableObject {
     public var showsIntegrationBar = false
     @Published public var integrationFocus: IntegrationID?
     @Published public private(set) var integrationDetail: IntegrationID?
-    @Published public var integrationAction: IntegrationDetailAction?
+    /// The focused node of the open detail (IntegrationScreen), by its identity.
+    @Published public var integrationAction: String?
     private var integrationLibraryPlatform: CatalogIntegration?
     @Published public private(set) var settingsRowID: String?
     public enum SettingsDecision: Equatable { case save, leave }
