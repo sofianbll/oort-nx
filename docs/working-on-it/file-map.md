@@ -1056,11 +1056,11 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [scripts/tests/CIChecks/test_catalog_checks.py](../../scripts/tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [scripts/tests/ModuleChecks/test_module_boundaries.py](../../scripts/tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
-| [Tests/RepoChecks/support.py](../../Tests/RepoChecks/support.py) | Repository Git usa e getta per i controlli del repository. |
-| [Tests/RepoChecks/test_structure.py](../../Tests/RepoChecks/test_structure.py) | Esempi rossi di R1: cartella, sottocartella e file non dichiarati, dichiarazione senza file. |
-| [Tests/RepoChecks/test_docs.py](../../Tests/RepoChecks/test_docs.py) | Esempi rossi di R8: documentazione fuori posto, link morto, marcatore privato, eccezione nuova o superata. |
-| [Tests/RepoChecks/test_probes.py](../../Tests/RepoChecks/test_probes.py) | Esempio rosso di R13: una sonda che legge il testo del PDF senza `assertVisible`. |
-| [Tests/RepoChecks/test_check.py](../../Tests/RepoChecks/test_check.py) | Elenco delle regole, nome sconosciuto, un errore che fa fallire la corsa e uscita generata non aggiornata. |
+| [scripts/tests/RepoChecks/support.py](../../scripts/tests/RepoChecks/support.py) | Repository Git usa e getta per i controlli del repository. |
+| [scripts/tests/RepoChecks/test_structure.py](../../scripts/tests/RepoChecks/test_structure.py) | Esempi rossi di R1: cartella, sottocartella e file non dichiarati, dichiarazione senza file. |
+| [scripts/tests/RepoChecks/test_docs.py](../../scripts/tests/RepoChecks/test_docs.py) | Esempi rossi di R8: documentazione fuori posto, link morto, marcatore privato, eccezione nuova o superata. |
+| [scripts/tests/RepoChecks/test_probes.py](../../scripts/tests/RepoChecks/test_probes.py) | Esempio rosso di R13: una sonda che legge il testo del PDF senza `assertVisible`. |
+| [scripts/tests/RepoChecks/test_check.py](../../scripts/tests/RepoChecks/test_check.py) | Elenco delle regole, nome sconosciuto, un errore che fa fallire la corsa e uscita generata non aggiornata. |
 | [docs/working-on-it/architecture-map.md](architecture-map.md) | Collegamento al modello, controlli e dove mettere il codice. |
 | [docs/working-on-it/branch-rules.md](branch-rules.md) | Regole proposte per rami, tag e controlli richiesti; nessuna applicata su GitHub. |
 | [.agents/skills/oort-contribute/SKILL.md](../../.agents/skills/oort-contribute/SKILL.md) | Prepara un contributo: sistema, controlli, dati privati, bozza di pull request. |
