@@ -45,7 +45,6 @@ model {
       }
       resIcon = folder "AppIcon.icon/" { metadata { path "Resources/AppIcon.icon" } }
       resIconParticles = folder "AppIconParticles.icon/" { metadata { path "Resources/AppIconParticles.icon" } }
-      resLicences = folder "ThirdPartyLicenses/" { metadata { path "Resources/ThirdPartyLicenses" } }
     }
 
     design = folder "design/" {
@@ -54,6 +53,7 @@ model {
       designBrands = folder "Brands/" { metadata { path "design/Brands" } }
       designSelene = folder "Selene/" { metadata { path "design/Selene" } }
       designSounds = folder "SoundPacks/" { metadata { path "design/SoundPacks" } }
+      designLicences = folder "ThirdPartyLicenses/" { metadata { path "design/ThirdPartyLicenses" } }
     }
 
     docs = folder "docs/" {

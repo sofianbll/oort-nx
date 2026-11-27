@@ -183,7 +183,7 @@ def dependencies():
         path = Path(name)
         if path.suffix.lower() in (".ttf", ".otf", ".woff", ".woff2"):
             add("font:" + path.name, name)
-        if name.startswith("Resources/ThirdPartyLicenses/") and "wheel" not in name:
+        if name.startswith("design/ThirdPartyLicenses/") and "wheel" not in name:
             add("dir:ThirdPartyLicenses/" + path.name.split("-")[0], name)
         if name.startswith("design/Selene/"):
             add("dir:design/Selene", name)

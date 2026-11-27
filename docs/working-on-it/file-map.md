@@ -1533,10 +1533,10 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [design/Brands/Platforms/package.svg](../../design/Brands/Platforms/package.svg) | Simbolo generico GOG. |
 | [design/Brands/Platforms/shield.svg](../../design/Brands/Platforms/shield.svg) | Simbolo generico Epic Games. |
 | [design/Selene/NOTICE-palettes.txt](../../design/Selene/NOTICE-palettes.txt) | Attribuzioni delle palette incluse con esse. |
-| [Resources/ThirdPartyLicenses/omarchy-LICENSE.txt](../../Resources/ThirdPartyLicenses/omarchy-LICENSE.txt) | Testo MIT di Omarchy per le palette derivate. |
-| [Resources/ThirdPartyLicenses/python-LICENSES.txt](../../Resources/ThirdPartyLicenses/python-LICENSES.txt) | Licenze delle dipendenze native di CPython, Tcl/Tk e delle estensioni. |
-| [Resources/ThirdPartyLicenses/rclone-LICENSES.txt](../../Resources/ThirdPartyLicenses/rclone-LICENSES.txt) | Licenze e avvisi di rclone, delle dipendenze Go incluse e della libreria standard. |
-| [Resources/ThirdPartyLicenses/wheel-NOTICES.txt](../../Resources/ThirdPartyLicenses/wheel-NOTICES.txt) | Avvisi aggiuntivi per il codice incorporato nelle wheel Python. |
+| [design/ThirdPartyLicenses/omarchy-LICENSE.txt](../../design/ThirdPartyLicenses/omarchy-LICENSE.txt) | Testo MIT di Omarchy per le palette derivate. |
+| [design/ThirdPartyLicenses/python-LICENSES.txt](../../design/ThirdPartyLicenses/python-LICENSES.txt) | Licenze delle dipendenze native di CPython, Tcl/Tk e delle estensioni. |
+| [design/ThirdPartyLicenses/rclone-LICENSES.txt](../../design/ThirdPartyLicenses/rclone-LICENSES.txt) | Licenze e avvisi di rclone, delle dipendenze Go incluse e della libreria standard. |
+| [design/ThirdPartyLicenses/wheel-NOTICES.txt](../../design/ThirdPartyLicenses/wheel-NOTICES.txt) | Avvisi aggiuntivi per il codice incorporato nelle wheel Python. |
 | [design/Selene/Sounds/Boot.wav](../../design/Selene/Sounds/Boot.wav) | Cue sonoro incluso per l’avvio. |
 | [design/Selene/Sounds/Key.wav](../../design/Selene/Sounds/Key.wav) | Cue sonoro incluso per la pressione dei tasti. |
 | [design/Selene/Sounds/Success.wav](../../design/Selene/Sounds/Success.wav) | Cue sonoro incluso per il completamento di un’azione. |
