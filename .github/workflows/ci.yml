@@ -144,7 +144,7 @@ jobs:
           unzip -q "$archive"
           echo "OORT_PROBE_RCLONE=$dir/${archive%.zip}/rclone" >> "$GITHUB_ENV"
       - name: Install CPU OCR for AppKit captures
-        working-directory: Tests/CatalogAppChecks/ocr
+        working-directory: apps/mac/Tests/CatalogAppChecks/ocr
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           echo "OORT_PROBE_OCR=$PWD/read.cjs" >> "$GITHUB_ENV"

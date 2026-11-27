@@ -24,7 +24,7 @@ final class CloudAssistantNetworkTests: XCTestCase {
         try Self.fill(drive)
         let fake = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Tests/CatalogAppChecks/fake_rclone.py")
+            .appendingPathComponent("apps/mac/Tests/CatalogAppChecks/fake_rclone.py")
         try Data("#!/bin/sh\nFAKE_DRIVE='\(drive.path)' FAKE_LOG='\(log.path)' FAKE_DELAY=0.2 exec /usr/bin/python3 '\(fake.path)' \"$@\"\n".utf8)
             .write(to: tool)
         try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: tool.path)

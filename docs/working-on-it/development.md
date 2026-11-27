@@ -139,11 +139,11 @@ The nested-bundle check creates tiny Mach-O fixtures with signed data bundles an
 
 The artwork-return check compiles the real tile views, loading tasks and retained Mods host with generated images and isolated preferences. It records which image the first body selects after view recreation, without rendering or opening a window, and checks pick removal, Steam app updates, Mods badges after external removal and changed GameBanana matches. Network is forbidden in the Mods fixture.
 
-For the optional Mac shortcut handoff check, set `OORT_MAC_SHORTCUT_PROBE=1` for `Tests/CatalogAppChecks/run_profiles.py` and pass a fresh output directory. The probe renders Sources, Spotlight, Collection and the shortcut dialogs in English and French at two sizes, and hands only its own temporary, compiled fixture to Launch Services.
+For the optional Mac shortcut handoff check, set `OORT_MAC_SHORTCUT_PROBE=1` for `apps/mac/Tests/CatalogAppChecks/run_profiles.py` and pass a fresh output directory. The probe renders Sources, Spotlight, Collection and the shortcut dialogs in English and French at two sizes, and hands only its own temporary, compiled fixture to Launch Services.
 
-After building Debug, `python3 Tests/CatalogAppChecks/run_platform_cards.py /absolute/new-output` renders Spotlight in French at two sizes on a bright synthetic wallpaper. It exercises the card through the screen's controller action receiver without opening a window or running games; with ffmpeg it also saves a silent clip.
+After building Debug, `python3 apps/mac/Tests/CatalogAppChecks/run_platform_cards.py /absolute/new-output` renders Spotlight in French at two sizes on a bright synthetic wallpaper. It exercises the card through the screen's controller action receiver without opening a window or running games; with ffmpeg it also saves a silent clip.
 
-After building Debug, `python3 Tests/CatalogAppChecks/run_credits.py /absolute/new-output` renders Settings › About in French, English and German and checks that every credit is within the controller's reach. A new dependency, service, font or symbol needs its entry in `design/credits.json`; run `python3 scripts/generate_credits.py` (add `--engine <checkout>` and `--site <folder>` to check them too).
+After building Debug, `python3 apps/mac/Tests/CatalogAppChecks/run_credits.py /absolute/new-output` renders Settings › About in French, English and German and checks that every credit is within the controller's reach. A new dependency, service, font or symbol needs its entry in `design/credits.json`; run `python3 scripts/generate_credits.py` (add `--engine <checkout>` and `--site <folder>` to check them too).
 
 Passing checks do not establish that an interactive update or a game works. See the [test catalog](file-map.md#test-e-fixture).
 

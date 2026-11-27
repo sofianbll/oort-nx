@@ -10,7 +10,7 @@ class ProbeTests(unittest.TestCase):
     def folder(self):
         temp = tempfile.TemporaryDirectory(prefix="oort-probes-")
         self.addCleanup(temp.cleanup)
-        probes = Path(temp.name) / "Tests/CatalogAppChecks"
+        probes = Path(temp.name) / "apps/mac/Tests/CatalogAppChecks"
         probes.mkdir(parents=True)
         (probes / "ProbeRenderedText.swift").write_text("func readProbeText() {}\nfunc assertVisible() {}\n")
         return Path(temp.name), probes
@@ -22,7 +22,7 @@ class ProbeTests(unittest.TestCase):
         root, probes = self.folder()
         (probes / "run_example.py").write_text('SCENARIO = "let text = try readProbeText(output, name: n)"\n')
         self.assertEqual(check_probes.check(root),
-                         ["Tests/CatalogAppChecks/run_example.py: reads rendered text without using assertVisible"])
+                         ["apps/mac/Tests/CatalogAppChecks/run_example.py: reads rendered text without using assertVisible"])
 
     def test_an_ignored_empty_or_commented_proof_fails(self):
         root, probes = self.folder()

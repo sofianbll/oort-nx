@@ -174,7 +174,7 @@ export NX_ENGINE_REPO="$ENGINE_REPO" NX_ENGINE_COMMIT="$ENGINE_COMMIT"
 NX_TEST_ENGINE_REPO="$engine_probe/checkout" NX_TEST_ENGINE_COMMIT="$ENGINE" NX_TEST_ENGINE_REQUIRED=1 \
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" swift test --package-path "$ROOT" \
   || fail "swift test failed"
-for check in "$ROOT"/Tests/CatalogAppChecks/run_*.py; do
+for check in "$ROOT"/apps/mac/Tests/CatalogAppChecks/run_*.py; do
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" python3 "$check" \
     || fail "application regressions failed: ${check##*/}"
 done

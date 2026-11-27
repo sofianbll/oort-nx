@@ -41,7 +41,7 @@ reports/
 research_notes/
 __pycache__/
 *.pyc
-/Tests/CatalogAppChecks/ocr/node_modules/
+/apps/mac/Tests/CatalogAppChecks/ocr/node_modules/
 
 # Bundled wallpaper artwork is not distributed: the app reads the player's own
 # files and downloaded backgrounds from Application Support instead.

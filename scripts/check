@@ -58,7 +58,7 @@ RULES = [
      "Tests/PublicationChecks/test_publication.py"),
     ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible",
      lambda base: [script("check_probes.py")],
-     "Tests/RepoChecks/test_probes.py; the visibility self-test in Tests/CatalogAppChecks/ProbeRenderedText.swift"),
+     "Tests/RepoChecks/test_probes.py; the visibility self-test in apps/mac/Tests/CatalogAppChecks/ProbeRenderedText.swift"),
     ("python", "", "The Python tests of every check (each Tests/*/test_*.py folder)",
      python_tests,
      "themselves"),

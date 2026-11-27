@@ -39,7 +39,6 @@ model {
     tests = folder "Tests/" {
       summary "Swift tests, app probes, Python checks"
       metadata { path "Tests" }
-      testProbes = folder "CatalogAppChecks/" { metadata { path "Tests/CatalogAppChecks" } }
       testCI = folder "CIChecks/" { metadata { path "Tests/CIChecks" } }
       testModules = folder "ModuleChecks/" { metadata { path "Tests/ModuleChecks" } }
       testPublication = folder "PublicationChecks/" { metadata { path "Tests/PublicationChecks" } }
