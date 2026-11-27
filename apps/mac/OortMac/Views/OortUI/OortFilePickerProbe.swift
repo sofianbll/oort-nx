@@ -7,7 +7,7 @@ import NXLibraryCore
 enum OortFilePickerProbe {
     @MainActor static func capture(to output: URL) throws {
         NSApplication.shared.setActivationPolicy(.prohibited)
-        let font = URL(fileURLWithPath: "Resources/Selene/Fonts/MaterialIcons-Regular.ttf")
+        let font = URL(fileURLWithPath: "design/Selene/Fonts/MaterialIcons-Regular.ttf")
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         let locale = AppLocale(language: .french, region: "FR")
         L10n.setContext(locale)

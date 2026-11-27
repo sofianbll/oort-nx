@@ -304,7 +304,7 @@ extension CloudLibraryModel {
         home = package / "fixture-home"
         home.mkdir()
         subprocess.run([str(build_probe(package)), str(output),
-                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(ROOT / "Resources/AppIcon-Light.png")],
+                        str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"), str(ROOT / "Resources/AppIcon-Light.png")],
                        check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
 
 

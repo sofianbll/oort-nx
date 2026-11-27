@@ -150,7 +150,7 @@ extension CloudLibraryPanel {
         renderer = renderer.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
         (app / "CloudScreenProbe.swift").write_text(preamble + SCENARIO + text_render(renderer))
         install(app)
-        font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
+        font = ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"
         icon = ROOT / "Resources/AppIcon-Light.png"
         home = package / "fixture-home"
         home.mkdir()

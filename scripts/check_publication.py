@@ -17,7 +17,7 @@ PRIVATE_DIRS = {
     ("docs", "superpowers"),
     ("docs", "upstream-issues"),
     ("docs", "private"),
-    ("Resources", "Selene", "Wallpapers"),
+    ("design", "Selene", "Wallpapers"),
 }
 PRIVATE_EXTENSIONS = {
     ".keys", ".nsp", ".xci", ".nsz", ".xcz", ".nca", ".nso", ".tik", ".cert",

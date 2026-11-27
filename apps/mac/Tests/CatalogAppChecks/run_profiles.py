@@ -1676,7 +1676,7 @@ extension AppIconModel {
         replace(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
         replace(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")
         replace(app / "Views/Theme/ThemeStore.swift", r"static let shared = ThemeStore\(\)",
-                f'static let shared = ThemeStore(palettesURL: URL(fileURLWithPath: "{ROOT}/Resources/Selene/palettes.json"))')
+                f'static let shared = ThemeStore(palettesURL: URL(fileURLWithPath: "{ROOT}/design/Selene/palettes.json"))')
         replace(app / "Views/Search/FindGameView.swift",
                 r'TextField\(L10n.text\("Find a game"\), text: \$query\).*?\.onSubmit \{ typed\(\) \}',
                 'Text(query.isEmpty ? L10n.text("Find a game") : query).seleneFont(19)'
@@ -1855,7 +1855,7 @@ extension NextendoSettings {
                     "        try await checkMacShortcuts(in: out, refs: refs)\n"
                     "        L10n.setContext(fr)")
         subprocess.run([str(build_probe(package, product="ProfileScreenProbe", jobs=2)), str(out),
-                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
+                        str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))
 
 

@@ -141,7 +141,7 @@ def main():
         real_library = Path(pwd.getpwuid(os.getuid()).pw_dir) / "Library"
         result = subprocess.run(["sandbox-exec", "-D", f"REAL_LIBRARY={real_library}", "-p", sandbox,
                                  str(executable), str(output),
-                                 str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
+                                 str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
                                  str(ROOT / "Resources/AppIcon-Light.png")],
                                 env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
         if result.returncode or baseline:

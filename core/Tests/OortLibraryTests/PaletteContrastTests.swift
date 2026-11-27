@@ -7,7 +7,7 @@ final class PaletteContrastTests: XCTestCase {
 
     func testEveryPaletteKeepsTextAndFocusReadable() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let palettes = try SelenePaletteCatalog.load(from: root.appendingPathComponent("Resources/Selene/palettes.json"))
+        let palettes = try SelenePaletteCatalog.load(from: root.appendingPathComponent("design/Selene/palettes.json"))
         XCTAssertGreaterThan(palettes.count, 20)
         for palette in palettes {
             XCTAssertGreaterThanOrEqual(ratio(palette.ink, palette.glass), 4.5, "\(palette.id) ink on glass")

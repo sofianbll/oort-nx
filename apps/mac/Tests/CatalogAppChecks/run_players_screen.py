@@ -805,8 +805,8 @@ if __name__ == "__main__":
     output = Path(args[0]).resolve() if len(args) == 1 else None
     with tempfile.TemporaryDirectory(prefix="players-screen-", dir="/private/tmp") as stage:
         stage = Path(stage)
-        shutil.copyfile(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf", stage / "MaterialIcons.ttf")
-        shutil.copyfile(ROOT / "Resources/Selene/palettes.json", stage / "palettes.json")
+        shutil.copyfile(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf", stage / "MaterialIcons.ttf")
+        shutil.copyfile(ROOT / "design/Selene/palettes.json", stage / "palettes.json")
         os.environ["PLAYERS_STAGE"] = str(stage)
         try:
             run_host(HOST, save_model=True)

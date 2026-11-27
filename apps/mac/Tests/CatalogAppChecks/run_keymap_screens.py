@@ -40,7 +40,7 @@ final class ThemeStore {
     @MainActor static func main() throws {
         let root = URL(fileURLWithPath: CommandLine.arguments[1])
         let output = URL(fileURLWithPath: CommandLine.arguments[2])
-        let font = root.appendingPathComponent("Resources/Selene/Fonts/MaterialIcons-Regular.ttf")
+        let font = root.appendingPathComponent("design/Selene/Fonts/MaterialIcons-Regular.ttf")
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         let locale = AppLocale(language: .french, region: "FR")
         L10n.setContext(locale)

@@ -41,7 +41,7 @@ enum OortKeyboardProbe {
 
     @MainActor static func run(to output: URL) throws {
         NSApplication.shared.setActivationPolicy(.prohibited)
-        let font = URL(fileURLWithPath: "Resources/Selene/Fonts/MaterialIcons-Regular.ttf")
+        let font = URL(fileURLWithPath: "design/Selene/Fonts/MaterialIcons-Regular.ttf")
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         let draft = Draft()

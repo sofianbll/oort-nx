@@ -37,8 +37,8 @@ def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_
         shutil.copytree(products / names.RESOURCE_BUNDLE, scratch / names.RESOURCE_BUNDLE)
         if capture is not None:
             shutil.copytree(ROOT / "design/Brands", scratch / "Brands")
-            shutil.copytree(ROOT / "Resources/Selene/Fonts", scratch / "Selene/Fonts")
-            shutil.copyfile(ROOT / "Resources/Selene/palettes.json", scratch / "Selene/palettes.json")
+            shutil.copytree(ROOT / "design/Selene/Fonts", scratch / "Selene/Fonts")
+            shutil.copyfile(ROOT / "design/Selene/palettes.json", scratch / "Selene/palettes.json")
         for resource in resources:
             shutil.copy2(ROOT / resource, scratch / Path(resource).name)
         home_check = r'''

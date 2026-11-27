@@ -817,7 +817,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="download-proof-") as out:
         stage = Path(out)
         for asset in ["Selene/palettes.json", "Selene/Fonts/MaterialIcons-Regular.ttf"]:
-            shutil.copyfile(ROOT / "Resources" / asset, stage / Path(asset).name)
+            shutil.copyfile(ROOT / "design" / asset, stage / Path(asset).name)
         if ffmpeg:
             (stage / "frames").mkdir()
         try:

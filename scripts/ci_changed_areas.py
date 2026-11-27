@@ -14,16 +14,16 @@ import argparse
 from pathlib import Path
 import sys
 
-# Prefixes end with "/"; other entries are exact file names.
+# Prefixes end with "/"; "folder/*" is only the files directly in folder; other entries are exact file names.
 AREAS = {
-    "swift": ("core/", "engines/", "apps/", "design/Brands/", "Resources/", "scripts/", "Package.swift", "engines/nxnative/runtime.lock", "VERSION"),
+    "swift": ("core/", "engines/", "apps/", "design/Brands/", "design/Selene/", "Resources/", "scripts/", "Package.swift", "engines/nxnative/runtime.lock", "VERSION"),
     "desktop": ("desktop/", "core/OortCore/", "core/OortLibrary/", "scripts/check_portable_core.py", "Package.swift",
                 # desktop/scripts/generate.py reads these.
-                "design/", "Resources/Selene/palettes.json", "scripts/generate_oort_tokens.py"),
+                "design/*", "design/Selene/palettes.json", "scripts/generate_oort_tokens.py"),
     "mobile": ("mobile/", "core/OortCore/", "Package.swift"),
     "android": ("android/", "Tests/AndroidChecks/", "scripts/generate_oort_android_tokens.py",
                 # The tokens and the app mark Android is drawn from.
-                "design/", "Resources/AppIcon.icon/"),
+                "design/*", "Resources/AppIcon.icon/"),
 }
 # An area needs its folder in the checkout; without it the area stays off.
 FOLDER = {"desktop": "desktop", "mobile": "mobile", "android": "android"}
@@ -32,7 +32,11 @@ EVERYTHING = (".github/",)
 
 
 def matches(path, rules):
-    return any(path.startswith(rule) if rule.endswith("/") else path == rule for rule in rules)
+    def one(rule):
+        if rule.endswith("/*"):
+            return path.startswith(rule[:-1]) and "/" not in path[len(rule) - 1:]
+        return path.startswith(rule) if rule.endswith("/") else path == rule
+    return any(one(rule) for rule in rules)
 
 
 def decide(paths, root, everything=False):

@@ -2262,7 +2262,7 @@ extension CloudArtifactStatus {
 }
 '''.replace("/* FILE_BY_FILE */", "" if before else
             ', remoteFolder: fileByFile ? "Fixture [0100000000001000]/app/version" : nil'))
-        font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
+        font = ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"
         icon = ROOT / "Resources/AppIcon-Light.png"
         scenarios = ("results",) if "--results-only" in sys.argv[2:] else \
             ("screens",) if before or baseline else ("results", "screens", "play", "sources")

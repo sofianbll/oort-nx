@@ -41,7 +41,7 @@ class ChangedAreasTests(unittest.TestCase):
     def test_shared_design_sources_reach_the_ports_that_read_them(self):
         cases = {
             "design/oort.tokens.json": {"desktop", "android"},
-            "Resources/Selene/palettes.json": {"swift", "desktop"},
+            "design/Selene/palettes.json": {"swift", "desktop"},
             "scripts/generate_oort_tokens.py": {"swift", "desktop"},
             "Resources/AppIcon.icon/Assets/glyph.svg": {"swift", "android"},
         }

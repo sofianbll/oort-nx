@@ -1503,10 +1503,10 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [Resources/AppIcon-Light.png](../../Resources/AppIcon-Light.png) | Anteprima chiara della trama nel README. |
 | [Resources/AppIcon-Particles-Dark.png](../../Resources/AppIcon-Particles-Dark.png) | Icona Dock a particelle scura. |
 | [Resources/AppIcon-Particles-Light.png](../../Resources/AppIcon-Particles-Light.png) | Icona Dock a particelle chiara. |
-| [Resources/Selene/palettes.json](../../Resources/Selene/palettes.json) | Catalogo delle 26 palette: Oort predefinito, blu classico Arcane e superfici opzionali Crystal e Flow. |
-| [Resources/Selene/Fonts/MaterialIcons-Regular.ttf](../../Resources/Selene/Fonts/MaterialIcons-Regular.ttf) | Font dei glifi Material Icons disegnati dalla UI. |
-| [Resources/Selene/Fonts/MaterialIcons-LICENSE.txt](../../Resources/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
-| [Resources/Selene/NOTICE.txt](../../Resources/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
+| [design/Selene/palettes.json](../../design/Selene/palettes.json) | Catalogo delle 26 palette: Oort predefinito, blu classico Arcane e superfici opzionali Crystal e Flow. |
+| [design/Selene/Fonts/MaterialIcons-Regular.ttf](../../design/Selene/Fonts/MaterialIcons-Regular.ttf) | Font dei glifi Material Icons disegnati dalla UI. |
+| [design/Selene/Fonts/MaterialIcons-LICENSE.txt](../../design/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
+| [design/Selene/NOTICE.txt](../../design/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
 | [design/Brands/Platforms/LICENSE-Lucide.txt](../../design/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
 | [design/Brands/Credits/arcane.png](../../design/Brands/Credits/arcane.png) | Icona di Arcane, dal suo deposito MIT, solo per il credito. |
 | [design/Brands/Credits/playnite.png](../../design/Brands/Credits/playnite.png) | Icona di Playnite, dal suo deposito MIT, solo per il credito. |
@@ -1532,15 +1532,15 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [design/Brands/Platforms/laptop.svg](../../design/Brands/Platforms/laptop.svg) | Simbolo generico dei collegamenti alle app Mac. |
 | [design/Brands/Platforms/package.svg](../../design/Brands/Platforms/package.svg) | Simbolo generico GOG. |
 | [design/Brands/Platforms/shield.svg](../../design/Brands/Platforms/shield.svg) | Simbolo generico Epic Games. |
-| [Resources/Selene/NOTICE-palettes.txt](../../Resources/Selene/NOTICE-palettes.txt) | Attribuzioni delle palette incluse con esse. |
+| [design/Selene/NOTICE-palettes.txt](../../design/Selene/NOTICE-palettes.txt) | Attribuzioni delle palette incluse con esse. |
 | [Resources/ThirdPartyLicenses/omarchy-LICENSE.txt](../../Resources/ThirdPartyLicenses/omarchy-LICENSE.txt) | Testo MIT di Omarchy per le palette derivate. |
 | [Resources/ThirdPartyLicenses/python-LICENSES.txt](../../Resources/ThirdPartyLicenses/python-LICENSES.txt) | Licenze delle dipendenze native di CPython, Tcl/Tk e delle estensioni. |
 | [Resources/ThirdPartyLicenses/rclone-LICENSES.txt](../../Resources/ThirdPartyLicenses/rclone-LICENSES.txt) | Licenze e avvisi di rclone, delle dipendenze Go incluse e della libreria standard. |
 | [Resources/ThirdPartyLicenses/wheel-NOTICES.txt](../../Resources/ThirdPartyLicenses/wheel-NOTICES.txt) | Avvisi aggiuntivi per il codice incorporato nelle wheel Python. |
-| [Resources/Selene/Sounds/Boot.wav](../../Resources/Selene/Sounds/Boot.wav) | Cue sonoro incluso per l’avvio. |
-| [Resources/Selene/Sounds/Key.wav](../../Resources/Selene/Sounds/Key.wav) | Cue sonoro incluso per la pressione dei tasti. |
-| [Resources/Selene/Sounds/Success.wav](../../Resources/Selene/Sounds/Success.wav) | Cue sonoro incluso per il completamento di un’azione. |
-| [Resources/Selene/Sounds/navigation.wav](../../Resources/Selene/Sounds/navigation.wav) | Cue sonoro incluso per la navigazione. |
+| [design/Selene/Sounds/Boot.wav](../../design/Selene/Sounds/Boot.wav) | Cue sonoro incluso per l’avvio. |
+| [design/Selene/Sounds/Key.wav](../../design/Selene/Sounds/Key.wav) | Cue sonoro incluso per la pressione dei tasti. |
+| [design/Selene/Sounds/Success.wav](../../design/Selene/Sounds/Success.wav) | Cue sonoro incluso per il completamento di un’azione. |
+| [design/Selene/Sounds/navigation.wav](../../design/Selene/Sounds/navigation.wav) | Cue sonoro incluso per la navigazione. |
 | [Resources/SoundPacks/oort.oortsound](../../Resources/SoundPacks/oort.oortsound) | Manifesto CC0 e dieci cue WAV originali; firma punto/risposta al ritorno. |
 | [Resources/SoundPacks/pollen.oortsound](../../Resources/SoundPacks/pollen.oortsound) | Manifesto CC0 e dodici cue WAV chiari e brevi. |
 | [Resources/SoundPacks/umbra.oortsound](../../Resources/SoundPacks/umbra.oortsound) | Manifesto CC0 e dodici cue WAV morbidi. |

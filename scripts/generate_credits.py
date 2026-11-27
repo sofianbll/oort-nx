@@ -185,8 +185,8 @@ def dependencies():
             add("font:" + path.name, name)
         if name.startswith("Resources/ThirdPartyLicenses/") and "wheel" not in name:
             add("dir:ThirdPartyLicenses/" + path.name.split("-")[0], name)
-        if name.startswith("Resources/Selene/"):
-            add("dir:Resources/Selene", name)
+        if name.startswith("design/Selene/"):
+            add("dir:design/Selene", name)
         if name.startswith("Resources/SoundPacks/"):
             add("dir:Resources/SoundPacks", name)
         if name.startswith("design/Brands/Platforms/"):
@@ -199,10 +199,10 @@ def dependencies():
             add("mark:" + ("simple-icons" if "simple-icons" in source else "wikimedia" if "wikimedia" in source
                            else "codeweavers" if "codeweavers" in source else source), name)
     families = ("selene", "catppuccin", "everforest", "flexoki", "gruvbox", "kanagawa", "nord", "rose-pine", "tokyo-night")
-    for palette in json.loads(read(ROOT / "Resources/Selene/palettes.json") or "[]"):
+    for palette in json.loads(read(ROOT / "design/Selene/palettes.json") or "[]"):
         for family in families:
             if palette["id"].startswith(family):
-                add("palette:" + family, "Resources/Selene/palettes.json")
+                add("palette:" + family, "design/Selene/palettes.json")
     if (ROOT / "LICENSE").is_file():
         add("file:LICENSE", "LICENSE")
     modules = tuple(module["path"] + "/" for module in package_names.MODULES.values())
@@ -229,8 +229,8 @@ def dependencies():
     for name in ("scripts/bundle_runtime.sh", "scripts/relink_macho.py"):
         if "LumaNX" in read(ROOT / name):
             add("source:LumaNX", name)
-    if list(ROOT.glob("Resources/Selene/Sounds/*.wav")):
-        add("sound:Selene", "Resources/Selene/Sounds")
+    if list(ROOT.glob("design/Selene/Sounds/*.wav")):
+        add("sound:Selene", "design/Selene/Sounds")
     return found
 
 

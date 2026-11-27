@@ -313,8 +313,8 @@ if len(sys.argv) > 1:
         executable = bundle / 'MacOS' / names.APP
         executable.parent.mkdir()
         shutil.copy2(library / names.APP, executable)
-        shutil.copytree(ROOT / 'Resources/Selene/Fonts', resources / 'Fonts')
-        shutil.copy2(ROOT / 'Resources/Selene/palettes.json', resources)
+        shutil.copytree(ROOT / 'design/Selene/Fonts', resources / 'Fonts')
+        shutil.copy2(ROOT / 'design/Selene/palettes.json', resources)
         (bundle / 'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleIdentifier': 'local.oort.onboarding.probe', 'CFBundleExecutable': executable.name,
             'CFBundlePackageType': 'APPL',

@@ -203,7 +203,7 @@ def main():
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"),
                    RCLONE_CONFIG_PASS="fixture-only", RCLONE_PASSWORD_COMMAND="/usr/bin/false",
                    GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
-        font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
+        font = ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"
         subprocess.run([str(build_probe(package)), str(output), str(font)],
                        env=env, check=True)
 

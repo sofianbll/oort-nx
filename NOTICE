@@ -147,8 +147,8 @@ scripts/bundle-licences.json.
 
 --------------------------------------------------------------------------------
 Bundled media (Material Icons, Selene sounds and palettes): see
-Resources/Selene/NOTICE.txt and
-Resources/Selene/NOTICE-palettes.txt, which ship inside the app bundle.
+design/Selene/NOTICE.txt and
+design/Selene/NOTICE-palettes.txt, which ship inside the app bundle.
 
 The four packs of synthesized interface cues in Resources/SoundPacks are declared
 CC0-1.0 in their manifests: https://creativecommons.org/publicdomain/zero/1.0/

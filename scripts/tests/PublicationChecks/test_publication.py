@@ -36,7 +36,7 @@ class PublicationChecks(unittest.TestCase):
     def test_game_and_private_output_files_are_rejected_by_path(self):
         for name in ["Games/Game.NSP", "reports/private.md", "docs/audits/local.md",
                      "docs/superpowers/plans/plan.md", "docs/upstream-issues/note.md",
-                     "Resources/Selene/Wallpapers/theme/one.jpg"]:
+                     "design/Selene/Wallpapers/theme/one.jpg"]:
             with self.subTest(name=name):
                 self.track(name, "synthetic")
                 result = self.scan()

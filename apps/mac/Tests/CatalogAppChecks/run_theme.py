@@ -137,7 +137,7 @@ final class BackdropViewModel {
         let settingsURL = scratch.appendingPathComponent("settings.json")
         let settings = AppSettingsStore(fileURL: settingsURL)
         let palettes = SelenePaletteCatalog.pickerOrder(try SelenePaletteCatalog.load(from:
-            URL(fileURLWithPath: "Resources/Selene/palettes.json")))
+            URL(fileURLWithPath: "design/Selene/palettes.json")))
         precondition(palettes[0].name == "Oort" && palettes[0].id == "oort")
         precondition(palettes[0].surface == .cloud && palettes.first { $0.id == "oort-vesper" }?.surface == .classic
                      && SelenePalette.fallback.surface == .cloud)

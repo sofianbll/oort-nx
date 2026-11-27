@@ -5,7 +5,7 @@ final class SelenePaletteTests: XCTestCase {
     private var paletteURL: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Resources/Selene/palettes.json")
+            .appendingPathComponent("design/Selene/palettes.json")
     }
 
     func testLoadsAll27Palettes() throws {

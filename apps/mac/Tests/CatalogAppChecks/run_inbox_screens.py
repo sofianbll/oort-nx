@@ -376,7 +376,7 @@ def main():
         change(profile, "public static var preferences: UserDefaults { configuredPreferences() }",
                'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         (app / "InboxProbe.swift").write_text(HOST)
-        font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
+        font = ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"
         subprocess.run([str(build_probe(package, jobs=None)), str(output), str(font)],
                        env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)), check=True)
 

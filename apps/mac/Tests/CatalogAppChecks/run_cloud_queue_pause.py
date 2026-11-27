@@ -88,7 +88,7 @@ def main():
             profile_home = package / phase
             profile_home.mkdir()
             subprocess.run([str(executable), str(dest),
-                            str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
+                            str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
                             str(ROOT / "Resources/AppIcon-Light.png")], check=True,
                            env=dict(isolated_home_env(profile_home), OORT_QUEUE_PAUSED=str(paused)))
     for name in ("activite-large-fr.png", "activite-etroite-fr.png"):

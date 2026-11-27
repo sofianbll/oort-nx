@@ -45,4 +45,4 @@ __pycache__/
 
 # Bundled wallpaper artwork is not distributed: the app reads the player's own
 # files and downloaded backgrounds from Application Support instead.
-Resources/Selene/Wallpapers/
+design/Selene/Wallpapers/

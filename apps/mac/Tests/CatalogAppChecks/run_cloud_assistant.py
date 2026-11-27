@@ -203,7 +203,7 @@ extension CloudFolderDiscovery {
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"), RCLONE_PASSWORD_COMMAND="/usr/bin/false",
                    OORT_FAKE_RCLONE=str(Path(__file__).with_name("fake_rclone.py").resolve()))
         subprocess.run([str(build_probe(package)), str(output),
-                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
+                        str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         *(a for a in arguments if a in {"--full", "--focus-proof"})], env=env, check=True)
 
 
