@@ -28,7 +28,7 @@ def script(name, *args):
 
 
 def python_tests(_base):
-    folders = sorted({path.parent for pattern in ("Tests/*/test_*.py", "scripts/tests/*/test_*.py") for path in ROOT.glob(pattern)})
+    folders = sorted({path.parent for path in ROOT.glob("scripts/tests/*/test_*.py")})
     return [[PY, "-m", "unittest", "discover", "-s", folder.relative_to(ROOT).as_posix()] for folder in folders]
 
 
@@ -49,7 +49,7 @@ RULES = [
     ("interface", "", "Measurable interface rules and Selene tokens; their debt lists only shrink",
      lambda base: [script("check_ui_rules.py"), script("check_selene_tokens.py")]
      + ([script("check_ui_rules.py", "--base", base), script("check_selene_tokens.py", "--base", base)] if base else []),
-     "Tests/UIRulesChecks, scripts/tests/PublicationChecks/test_selene_tokens.py"),
+     "scripts/tests/UIRulesChecks, scripts/tests/PublicationChecks/test_selene_tokens.py"),
     ("docs", "R8", "Docs only in documentation folders, links resolve, no private marker; player guides",
      lambda base: [script("check_docs.py", *(["--base", base] if base else [])), script("check_guides.py")],
      "scripts/tests/RepoChecks/test_docs.py, scripts/tests/PublicationChecks/test_check_guides.py, scripts/tests/SkillChecks"),
@@ -59,7 +59,7 @@ RULES = [
     ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible",
      lambda base: [script("check_probes.py")],
      "scripts/tests/RepoChecks/test_probes.py; the visibility self-test in apps/mac/Tests/CatalogAppChecks/ProbeRenderedText.swift"),
-    ("python", "", "The Python tests of every check (each Tests/*/test_*.py folder)",
+    ("python", "", "The Python tests of every check (each scripts/tests/*/test_*.py folder)",
      python_tests,
      "themselves"),
 ]

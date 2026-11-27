@@ -1473,7 +1473,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [scripts/tests/PublicationChecks/test_selene_tokens.py](../../scripts/tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
 | [scripts/check_ui_rules.py](../../scripts/check_ui_rules.py) | Misura menu, profondità, testi senza traduzione, misure e forme locali, nomi di accessibilità, ordine dei pulsanti, focus iniziale pericoloso e percorsi da tastiera e mouse; blocca il nuovo. |
 | [scripts/ui-rules.json](../../scripts/ui-rules.json) | Superfici contate, valori, righe di pulsanti note, percorsi dichiarati di mouse e tastiera, parti non misurate e debito che può solo diminuire. |
-| [Tests/UIRulesChecks/test_ui_rules.py](../../Tests/UIRulesChecks/test_ui_rules.py) | Prove negative di ogni regola e coerenza fra controllo, criteri e skill. |
+| [scripts/tests/UIRulesChecks/test_ui_rules.py](../../scripts/tests/UIRulesChecks/test_ui_rules.py) | Prove negative di ogni regola e coerenza fra controllo, criteri e skill. |
 | [scripts/tests/PublicationChecks/test_credits.py](../../scripts/tests/PublicationChecks/test_credits.py) | Prova che una dipendenza senza credito, un NOTICE o un sito diversi falliscono. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |

@@ -36,11 +36,6 @@ model {
       appMac = folder "mac/" { metadata { path "apps/mac" } }
     }
 
-    tests = folder "Tests/" {
-      summary "Swift tests, app probes, Python checks"
-      metadata { path "Tests" }
-      testUIRules = folder "UIRulesChecks/" { metadata { path "Tests/UIRulesChecks" } }
-    }
 
     resources = folder "Resources/" {
       summary "Icons, brands, Selene media, sounds, third-party licences"

@@ -11,7 +11,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.dont_write_bytecode = True
 import check_ui_rules as ui  # noqa: E402
