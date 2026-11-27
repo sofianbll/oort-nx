@@ -58,7 +58,7 @@ extension Companion {
             let games = IntegrationEntry(id: "open-steam-games", title: IntegrationCatalog.steamGames,
                                          control: .open(.steamLibrary), request: nil)
             return .init(status: status, row: steam, steps: IntegrationCatalog.steps(id, linked: on && counts != nil,
-                link: [.row(steam)], verify: rights,
+                says: on && counts == nil ? IntegrationCatalog.steamMissing : nil, link: [.row(steam)], verify: rights,
                 next: on && counts?.games.isEmpty == false ? [.primary(games)] : [], say: SettingsIntegration.Detail.say), toggle: steam)
         case .online:
             let on = choices.online == true, known = records.values.filter(\.found).count
@@ -233,6 +233,8 @@ extension Companion {
         if let toggle = integration.toggle, id.hasSwitch {
             result["switch"] = json(toggle, token: token(toggle))
             result["toggle"] = words(IntegrationCatalog.toggle(on: toggle.checked == true))
+            // Off, what it does and sends is on the row itself before X can turn it on.
+            if id.explainsBeforeOn, toggle.checked != true { result["note"] = toggle.about.map(words) }
         }
         return .object(result)
     }

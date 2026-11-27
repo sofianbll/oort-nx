@@ -57,6 +57,7 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .row>.value{display:flex;align-items:center;gap:var(--space-small);color:var(--quiet);font-size:var(--s-text);max-width:55%;min-width:0}.row>.value>span:not([class]){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row[aria-disabled=true]{opacity:.55}
 .integration-summary .value{flex-wrap:wrap;justify-content:flex-end}
+[data-upcoming]{margin-top:var(--space-small)}
 .integration-primary{display:flex;justify-content:flex-end}
 .row .icon{color:var(--mark)}.row.chosen .tick{color:var(--ink)}
 .dot{flex:none;width:calc(9*var(--u));height:calc(9*var(--u));min-width:6px;min-height:6px;border-radius:50%;background:var(--status-untested)}.dot.ok{background:var(--status-status-ok)}.dot.bad{background:var(--status-danger)}.dot.mark{background:var(--mark)}

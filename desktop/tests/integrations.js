@@ -131,6 +131,7 @@ probe(async P => {
   // The catalogue's switches: X, or a click on the switch, turns it on or off from the list; A still opens the detail.
   const sw = id => document.querySelector(`.shell .list [data-id="${id}"] .sw`);
   P.same([!!sw('steam'), !!sw('prog'), !!sw('online')], [true, false, true], 'a switch on the rows that have one');
+  P.same([text(row('online'), '.what small'), row('online').getAttribute('aria-keyshortcuts')], [en[ONLINE], 'X'], 'off, online says what it sends on its row before X');
   P.same(P.text('[data-section=engines] [data-upcoming]'), 'Coming later: Ryujinx-Nextendo', 'Engines is not empty: what is coming');
   row('steam').focus(); await P.wait(100);
   P.ok([...document.querySelectorAll('#hints .hint')].some(x => x.textContent.includes('Turn on')), 'X says what it does');

@@ -37,6 +37,10 @@ public enum IntegrationCatalog {
         /// The same switch is the Link step of the detail.
         public var hasSwitch: Bool { self == .steam || self == .online }
 
+        /// Turned on from the list, it starts sending at once: while it is off, its row says what it does and sends
+        /// instead of its capabilities, as its question does elsewhere, so X never turns it on unexplained.
+        public var explainsBeforeOn: Bool { self == .online }
+
         /// The Link step says what the entry is linked to, or how to link it.
         public func link(_ linked: Bool) -> IntegrationWords {
             switch (self, linked) {
@@ -115,6 +119,8 @@ public enum IntegrationCatalog {
     public static let reads = IntegrationWords("Reads: %@")
     public static let writes = IntegrationWords("Writes: %@")
     public static let sends = IntegrationWords("Sends: %@")
+    /// Link, when Steam is on but cannot be found or read here.
+    public static let steamMissing = IntegrationWords("Steam was not found on this computer.")
 
     /// What X does on a row with a switch, said for its current state.
     public static func toggle(on: Bool) -> IntegrationWords { on ? .init("Turn off") : .init("Turn on") }
@@ -138,12 +144,15 @@ public enum IntegrationCatalog {
     }
 
     /// The validated template: Link, Verify, Continue, always in this order and always shown. Link opens on what the
-    /// entry is linked to, or how to link it; Continue says why there is nothing to do when it has no action.
-    public static func steps<Content>(_ id: ID, linked: Bool, link: [Content] = [], verify: [Content],
-                                      next: [Content] = [], say: (IntegrationWords) -> Content) -> [Step<Content>] {
+    /// entry is linked to, or how to link it (`says`, when the owner knows better: Steam on but not found);
+    /// Continue says why there is nothing to do when it has no action. `linked` is the owner's fact, not where the
+    /// settings button goes.
+    public static func steps<Content>(_ id: ID, linked: Bool, says: IntegrationWords? = nil, link: [Content] = [],
+                                      verify: [Content], next: [Content] = [],
+                                      say: (IntegrationWords) -> Content) -> [Step<Content>] {
         let rest: IntegrationWords = linked ? .init("Nothing else to do here: it works on its own.")
             : .init("Link it first to continue.")
-        return [Step(id: .link, content: [say(id.link(linked))] + link), Step(id: .verify, content: verify),
+        return [Step(id: .link, content: [say(says ?? id.link(linked))] + link), Step(id: .verify, content: verify),
                 Step(id: .next, content: next.isEmpty ? [say(rest)] : next)]
     }
 }

@@ -170,6 +170,8 @@ final class IntegrationsTests: XCTestCase {
         for summary in summaries(page) where summary["switch"] != nil {
             XCTAssertEqual(summary["switch"], summary["steps"].items.first?["items"].items.compactMap { $0["row"] }.first)
         }
+        // Off, information online says on its row what it sends before X can turn it on; Steam needs no such note.
+        XCTAssertEqual(summaries(page).map { $0["note"] }, [nil, nil, ["Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer."]])
         let programs = try XCTUnwrap(entry(page, "prog"))
         XCTAssertEqual(programs["open"], "programs")
         XCTAssertNil(programs["token"])
@@ -184,6 +186,11 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertNil(guide["token"])
         XCTAssertEqual(code(c, "integrations.act", ["at": "guide", "id": "steam", "token": "0.0"]), "not-a-request")
         XCTAssertEqual(try ask(c, "steam")["chosen"], false, "nothing written")
+        // On, but no Steam here: Link says so, and is not « linked ».
+        _ = try ask(c, "steam.set", ["on": true])
+        let missing = try XCTUnwrap(summaries(try ask(c, "integrations")).first { $0["id"] == "steam" })
+        XCTAssertEqual(missing["steps"].items.map { $0["items"].items.first?["say"] },
+                       [["Steam was not found on this computer."], nil, ["Link it first to continue."]])
     }
 
     /// The first steps: Steam offered on while never chosen, the choice kept only as shown and only if it changes
