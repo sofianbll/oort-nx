@@ -254,20 +254,30 @@ final class IntegrationsTests: XCTestCase {
                                                     "value": ["%lld games", 2], "icon": "search", "open": "integrations"])
         XCTAssertEqual(activity["working"], true)
         XCTAssertEqual(code(c, "integrations.act", ["id": "online", "token": .null, "at": "activity"]), "not-a-request")
-        // Steam off, the activity center says only what is looked for online.
+        XCTAssertEqual(try ask(c, "online")["waiting"], 2, "the same count as online’s")
+        // Steam off, its games leave: a program still looked for online is all the activity center says, and Steam is not read.
+        let program = root + "/emulator"
+        FileManager.default.createFile(atPath: program, contents: Data())
+        _ = try ask(c, "programs.add", ["program": .string(program), "name": "Lamp Keeper"])
         _ = try ask(c, "steam.set", ["on": false])
-        XCTAssertEqual(entries(try ask(c, "integrations", ["at": "activity"])).map { $0["id"] }, [])
+        activity = try ask(c, "integrations", ["at": "activity"])
+        XCTAssertEqual(entries(activity).map { $0["id"] }, ["online"])
+        XCTAssertEqual(entry(activity, "online")?["value"], ["%lld games", 1])
+        XCTAssertEqual(activity["working"], true)
+        _ = try ask(c, "online.set", ["on": false])
+        activity = try ask(c, "integrations", ["at": "activity"])
+        XCTAssertEqual(entries(activity).count, 0, "off: nothing is looked for")
+        XCTAssertEqual(activity["working"], false)
     }
 
     /// The question asked before information online is on: once, in the core's words, with the switch's own text; the
-    /// page has it from the start (hello) and in the first steps (guide).
+    /// page has it from the start (hello), for the first steps and a game's details.
     func testInformationOnlineIsAskedInTheCoresWords() throws {
         let c = try companion()
-        let question = try ask(c, "guide")["online"]
+        let question = try ask(c, "hello", ["languages": ["fr-FR"]])["onlineQuestion"]
         XCTAssertEqual(question, ["title": ["Look for game information online?"], "no": ["No"], "yes": ["Yes, look online"],
                                   "text": ["Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer."]])
         XCTAssertEqual(question?["text"], entry(try ask(c, "integrations"), "online")?["sub"], "what the switch says")
-        XCTAssertEqual(try ask(c, "hello", ["languages": ["fr-FR"]])["guide"]?["online"], question)
     }
 
     /// Every page a row may open, in every place, is one the page knows (desktop/ui/app.js PAGES).
@@ -297,7 +307,7 @@ final class IntegrationsTests: XCTestCase {
                 for words in [e["confirm"]?["title"], e["confirm"]?["text"], e["confirm"]?["label"]] { if let key = words.items.first?.stringValue { keys.insert(key) } }
             }
         }
-        let question = try ask(c, "guide")["online"]
+        let question = try ask(c, "hello", ["languages": ["fr-FR"]])["onlineQuestion"]
         for field in ["title", "text", "no", "yes"] { if let key = question?[field].items.first?.stringValue { keys.insert(key) } }
         keys.remove("%@")
         XCTAssertGreaterThanOrEqual(keys.count, 14)

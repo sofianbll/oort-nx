@@ -465,7 +465,8 @@ const openOptions = async (id, start) => {
 };
 
 /* ---------- Information online: asked first, and corrected by hand ---------- */
-/* The question asked before information online is on, as the core says it (guide): what it does and sends, No and Yes. */
+/* The question asked before information online is on, as the core says it (hello): what it does and sends, No and Yes.
+   The first steps ask it too. */
 let onlineQuestion = null;
 const askOnline = after => dialog(wording(onlineQuestion.title), wording(onlineQuestion.text), [[wording(onlineQuestion.no), () => {}], [wording(onlineQuestion.yes), async () => { await ask('online.set', { on: true }); S.play('success'); await reload(); await after?.(); }]]);
 const openMatch = (id, name, done) => {
@@ -550,10 +551,11 @@ const openProfiles = async () => {
 /* ---------- The menu: one row of icons along the bottom, its cards above them (the Mac app's MenuOverlayView) ---------- */
 const openMenu = async () => {
   if (top().menu) return pop();
+  // working: information is still looked for online, as the core says it.
   const under = top(), people = await ask('profiles').catch(() => ({ list: [] })), me = people.list.find(p => p.id === people.active);
+  const working = (await ask('integrations', { at: 'activity' }).catch(() => ({}))).working;
   if (top() !== under || !isPage(under)) return;
-  // working: something Oort does is under way in the activity center, as the core says it.
-  const items = menuOf({ people: people.list.length, abilities }), working = (await ask('integrations', { at: 'activity' }).catch(() => ({}))).working;
+  const items = menuOf({ people: people.list.length, abilities });
   const run = {
     controllers: () => openSettings('controllers'), switch: () => openProfiles(), edit: () => openSettings('account'), theme: () => openSettings('appearance'), add: () => openAdd(), sources: () => openSettings('home'),
     refresh: async () => { await reload(true); refaces(); homeLayer.redraw(); S.play('success'); card(h('strong', {}, t('Library refreshed')), t('%lld games in your library', L.total)); },
@@ -831,9 +833,8 @@ const prepared = async p => {
 
 /* ---------- The first steps: short, never in the way, and there again in Settings ---------- */
 const openGuide = async (at = 'welcome') => {
-  // before: Steam's row of the games page as the core says it before it is read, while it is looked for and without an answer;
-  // question: the online page's, the core's.
-  const { pages, steam: before, online: question } = await ask('guide');
+  // before: Steam's row of the games page as the core says it before it is read, while it is looked for and without an answer.
+  const { pages, steam: before } = await ask('guide'), question = onlineQuestion;
   // steam: Steam's row of the games page, as the core decides it; take: what its switch shows, kept until the player goes on.
   let page = at, steam = null, take = null;
   const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => null))?.entries[0] ?? before.unanswered; take = steam.checked ?? null; };
@@ -891,7 +892,7 @@ const openGuide = async (at = 'welcome') => {
 export const oort = { act, ask, hand, live, dropped, apply, layers, sounds: S, cloud: C, get view() { return V; }, get library() { return L; }, guide: openGuide, pad: s => padding.feed(s), fullscreen: setFullscreen };
 const start = async () => {
   const hello = await ask('hello', { languages: [...navigator.languages] });
-  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; onlineQuestion = hello.guide.online; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
+  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; onlineQuestion = hello.onlineQuestion; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
   apply(hello.view); tab = TABS.includes(hello.view.startingTab) ? hello.view.startingTab : TABS[0];
   if (hello.view.restore && hello.lastGame) selected = hello.lastGame;
   await reload();

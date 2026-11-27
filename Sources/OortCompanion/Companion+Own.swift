@@ -48,7 +48,7 @@ extension Companion {
         let isNew = choices.guideDone != true
         return ["open": .bool(isNew), "page": .string(choices.guide.flatMap { Self.guidePages.contains($0) ? $0 : nil } ?? Self.guidePages[0]),
                 "pages": .list(Self.guidePages), "news": .bool(!isNew && choices.newsFor != Companion.version),
-                "steam": steamBeforeReading(), "online": onlineQuestion()]
+                "steam": steamBeforeReading()]
     }
 
     private func setGuide(_ p: CatalogJSON) throws -> CatalogJSON {
@@ -266,8 +266,11 @@ extension Companion {
 
     private func online() -> CatalogJSON {
         ["on": .bool(choices.online == true), "chosen": .bool(choices.online != nil), "known": .number(records.values.filter(\.found).count),
-         "waiting": .number(games.filter(wantsLook).count)]
+         "waiting": .number(onlineWaitingCount)]
     }
+
+    /// Games whose information is still looked for online: `online`, the activity center and the control center's dot.
+    var onlineWaitingCount: Int { games.filter(wantsLook).count }
 
     func clearOnline() throws -> CatalogJSON {
         lookup = nil

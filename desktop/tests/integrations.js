@@ -15,9 +15,8 @@ let bogus = false, hold = null, cut = false, fake = false;
     if (name === 'core' && args.method === 'integrations' && args.params?.at === 'guide') { if (cut) throw 'core-lost'; await hold; }
     const r = await real(name, args);
     if (name === 'core' && args.method === 'guide' && r?.steam?.looking) r.steam.looking.value = ['Waiting'];
-    // The question asked before information online is on, with a title the page would not choose (guide, hello's guide).
-    const question = name === 'core' && (args.method === 'guide' ? r?.online : args.method === 'hello' ? r?.guide?.online : null);
-    if (question) question.title = ['Information online'];
+    // The question asked before information online is on, with a title the page would not choose (hello).
+    if (name === 'core' && args.method === 'hello' && r?.onlineQuestion) r.onlineQuestion.title = ['Information online'];
     // The activity center as the core could say it: games looked for online, Oort at work.
     if (fake && name === 'core' && args.method === 'integrations' && args.params?.at === 'activity') {
       r.entries = [{ id: 'online', title: ['Information online'], sub: ['Looking…'], value: ['%lld games', 7], icon: 'search', open: 'integrations' }, ...r.entries.filter(e => e.id !== 'online')];
@@ -45,8 +44,9 @@ probe(async P => {
   await P.until(() => step('steam'), 8000, 'the games page');
   P.same([text(step('steam'), '.what'), text(step('steam'), '.value'), step('steam').getAttribute('role')], ['Steam', en['Waiting'], null], 'while Steam is looked for: the core’s words');
   // The page asks the core one thing at a time: nothing is asked of it until Steam's row comes.
+  const waited = asked.length; heard.length = 0;
   step('steam').focus(); await P.press('a'); await P.wait(200);
-  P.same([text(step('steam'), '.value'), step('steam').getAttribute('aria-checked')], [en['Waiting'], null], 'A does nothing while it is looked for');
+  P.same([text(step('steam'), '.value'), step('steam').getAttribute('aria-checked'), asked.length - waited, heard], [en['Waiting'], null, 0, []], 'A does nothing while it is looked for: no change, no question, no sound');
   hold = null; release();
   await P.until(() => step('steam')?.getAttribute('role') === 'switch', 8000, 'then read');
   P.same((await ask('steam')).chosen, false, 'nothing was chosen');
@@ -84,6 +84,9 @@ probe(async P => {
 
   // The activity center: what Steam still downloads, a row that opens Settings › Integrations. The control center's dot
   // and what is looked for online are the core's too.
+  await P.key('k', { ctrlKey: true }); await P.until(() => document.querySelector('.menu [data-id=activity]'), 5000, 'the menu');
+  P.same([(await ask('online')).on, !!document.querySelector('.menu [data-id=activity] .dot')], [false, false], 'nothing looked for online: no dot');
+  await P.key('k', { ctrlKey: true }); await P.until(() => !document.querySelector('.menu'), 5000, 'the menu closes');
   fake = true;
   await P.key('k', { ctrlKey: true }); await P.until(() => document.querySelector('.menu [data-id=activity]'), 5000, 'the menu');
   P.ok(document.querySelector('.menu [data-id=activity] .dot'), 'the control center’s dot is the core’s');
@@ -163,7 +166,7 @@ probe(async P => {
 
   // Asked from a game's page while information online is off: the same question, the core's; No changes nothing.
   P.same((await ask('online')).on, false, 'off');
-  await P.press('lt'); oort.act('right'); await P.wait(500); await P.press('x');
+  await P.press('lt'); oort.act('right'); await P.until(() => oort.library.games.some(g => g.id === document.activeElement?.dataset.id), 5000, 'a game chosen'); await P.press('x');
   await P.until(() => document.querySelector('.detail [data-id=look]'), 5000, 'the game’s options'); document.querySelector('.detail [data-id=look]').click();
   await P.until(() => document.querySelector('.shell [data-id=online]'), 5000, 'its information'); document.querySelector('.shell [data-id=online]').click();
   await P.until(() => document.querySelector('[role=alertdialog]'), 3000, 'asked first');

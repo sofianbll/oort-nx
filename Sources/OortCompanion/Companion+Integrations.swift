@@ -26,7 +26,7 @@ extension Companion {
     }
 
     /// What information online does and sends: under its switch, and in the question asked before it is on.
-    static let onlineAbout = IntegrationWords("Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.")
+    static let onlineAbout: IntegrationWords = .init("Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.")
 
     /// The rows of a place, in the order the page shows them: in Settings, Steam and information online, then programs;
     /// in the activity center, information still looked for online, then what Steam still downloads.
@@ -51,16 +51,15 @@ extension Companion {
     /// Games whose information is still looked for online, while it is on: what the activity center shows and the
     /// control center's dot says. Nothing is asked: it opens Settings › Integrations.
     func onlineWaiting() -> IntegrationEntry? {
-        // The games the library lists (not the hidden ones), as the page counted them before.
-        let listed = LibraryQuery(filter: .all, searchText: "", sort: settings.librarySort).applyRecords(games, history: history)
-        let waiting = listed.filter(wantsLook).count
+        let waiting = onlineWaitingCount
         guard waiting > 0 else { return nil }
         return IntegrationEntry(id: "online", title: .init("Information online"), about: .init("Looking…"), value: .init("%lld games", count: waiting),
                                 icon: "search", control: .open(.integrations), request: nil)
     }
 
     /// The question asked before information online is on, in the first steps and from a game's details: what it does
-    /// and sends, No and Yes. Yes turns it on (online.set); in the first steps, No turns it off.
+    /// and sends, No and Yes. Yes turns it on (online.set); in the first steps, No turns it off. The page has it from
+    /// the start (hello).
     func onlineQuestion() -> CatalogJSON {
         ["title": words(.init("Look for game information online?")), "text": words(Self.onlineAbout), "no": words(.init("No")),
          "yes": words(.init("Yes, look online"))]
@@ -125,8 +124,10 @@ extension Companion {
         let sections = integrationSections(at: place).map { $0.map { json($0, token: place == .guide ? nil : token($0)) } }
         switch place {
         case .settings: return ["sections": .array(sections.map { ["entries": .array($0)] })]
-        // `working`: something Oort does is under way, the control center's dot (what Steam downloads is Steam's).
-        case .activity: return ["entries": .array(sections.flatMap { $0 }), "working": .bool(onlineWaiting() != nil)]
+        // `working`: information is still looked for online, the control center's dot (what Steam downloads is Steam's).
+        case .activity:
+            let entries = sections.flatMap { $0 }
+            return ["entries": .array(entries), "working": .bool(entries.contains { $0["id"]?.stringValue == "online" })]
         case .guide, .add: return ["entries": .array(sections.flatMap { $0 })]
         }
     }

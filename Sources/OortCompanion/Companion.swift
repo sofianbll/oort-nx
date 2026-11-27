@@ -171,6 +171,7 @@ public final class Companion {
     private func hello() -> CatalogJSON {
         ["version": .string(Companion.version), "system": .string(setup.system), "view": view(), "games": .number(games.count),
          "tabs": .list(SettingRow.tabs.map(\.rawValue)), "lastGame": .text(settings.lastSelectedGameID?.uuidString), "guide": guide(),
+         "onlineQuestion": onlineQuestion(),
          "lastHome": .string(settings.startOn == .last ? settings.lastHome.rawValue : settings.startOn.rawValue)]
     }
 
