@@ -517,7 +517,8 @@ extension CloudScreenProbe {
             vm.applyCatalog(catalog) // The harness disables startup services.
             return vm
         }
-        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games",
+                                           executable: URL(fileURLWithPath: "/usr/bin/false")) { _, args, _ in
             precondition(args.contains("--drive-skip-shortcuts"))
             let scope = args.contains("--drive-root-folder-id=\(referenceID)")
             let root = scope ? "fixture:" : "fixture:Games"
@@ -619,7 +620,8 @@ extension CloudScreenProbe {
 
         // Recreate the app model from disk before connecting the unavailable backend.
         vm = try newModel()
-        let offline = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+        let offline = RcloneStorageBackend(remote: "fixture", root: "Games",
+                                           executable: URL(fileURLWithPath: "/usr/bin/false")) { _, _, _ in
             .init(status: 1, stdout: "", stderr: "connection reset")
         }
         vm.cloudLibrary.installScreenArchives(offline)
@@ -1322,15 +1324,17 @@ def isolated_home_env(home):
     return dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home))
 
 
-def build_probe(package):
+def build_probe(package, *, product="NXLibrary", jobs=4, environment=None):
     """Build outside the fixture home: Xcode can mount read-only Metal tools there."""
-    command = ["swift", "build", "--jobs", "4", "--package-path", str(package), "--product", "NXLibrary"]
-    env = dict(os.environ)
+    command = ["swift", "build", "--package-path", str(package), "--product", product]
+    if jobs is not None:
+        command += ["--jobs", str(jobs)]
+    env = dict(os.environ if environment is None else environment)
     if build_home := env.get("OORT_PROBE_BUILD_HOME"):
         env.update(HOME=build_home, CFFIXED_USER_HOME=build_home)
     subprocess.run(command, check=True, env=env)
     products = subprocess.check_output(command + ["--show-bin-path"], env=env, text=True).strip()
-    return Path(products) / "NXLibrary"
+    return Path(products) / product
 
 
 def isolate_cloud_init(model, fixture):

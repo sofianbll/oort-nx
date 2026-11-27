@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
+from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
 
 SCENARIO = r'''
         let fm = FileManager.default
@@ -301,7 +301,7 @@ extension CloudLibraryPanel {
         (app / "CloudScreenProbe.swift").write_text(header + SCENARIO + render)
         fixture_home = package / "profile"
         fixture_home.mkdir()
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
+        subprocess.run([str(build_probe(package)), str(output),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png")], check=True,
                        env=isolated_home_env(fixture_home))

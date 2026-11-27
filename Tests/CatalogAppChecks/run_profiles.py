@@ -6,7 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
-from run_cloud_screens import install_settings_reset_fixture, isolate_startup
+from run_cloud_screens import build_probe, install_settings_reset_fixture, isolate_startup
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -1841,7 +1841,7 @@ extension NextendoSettings {
                     "        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)\n"
                     "        try await checkMacShortcuts(in: out, refs: refs)\n"
                     "        L10n.setContext(fr)")
-        subprocess.run(["swift", "run", "--jobs", "2", "--package-path", str(package), "ProfileScreenProbe", str(out),
+        subprocess.run([str(build_probe(package, product="ProfileScreenProbe", jobs=2)), str(out),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))
 

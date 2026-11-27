@@ -18,7 +18,7 @@ def partition(paths):
     for path in paths:
         # Standalone probes build a temporary package, directly or via the Cloud build helper.
         source = path.read_text(encoding="utf-8")
-        group = standalone if "--package-path" in source or "build_probe(package)" in source else debug
+        group = standalone if "--package-path" in source or "build_probe(" in source else debug
         group.append(path)
     return debug, [standalone[i:i + 2] for i in range(0, len(standalone), 2)]
 

@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
+from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
 
 SCENARIO = r'''
         let store = CloudTransferQueue()
@@ -85,12 +85,13 @@ def main():
         render = HOST[HOST.index("    @MainActor static func render<V: View>"):]
         render = render.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
         (app / "CloudScreenProbe.swift").write_text(header + SCENARIO + render)
+        executable = build_probe(package)
         for paused, phase in enumerate(("avant", "apres")):
             dest = output / phase
             dest.mkdir(parents=True, exist_ok=True)
             profile_home = package / phase
             profile_home.mkdir()
-            subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(dest),
+            subprocess.run([str(executable), str(dest),
                             str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                             str(ROOT / "Resources/AppIcon-Light.png")], check=True,
                            env=dict(isolated_home_env(profile_home), OORT_QUEUE_PAUSED=str(paused)))

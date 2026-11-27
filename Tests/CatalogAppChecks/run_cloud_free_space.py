@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup
+from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup
 
 SCENARIO = r'''
         let fr = AppLocale(language: .french, region: "FR")
@@ -160,8 +160,7 @@ extension CloudLibraryPanel {
         icon = ROOT / "Resources/AppIcon-Light.png"
         home = package / "fixture-home"
         home.mkdir()
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package),
-                        "NXLibrary", str(output), str(font), str(icon)], check=True,
+        subprocess.run([str(build_probe(package)), str(output), str(font), str(icon)], check=True,
                        env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
 
 

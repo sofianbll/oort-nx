@@ -8,7 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, change
+from run_cloud_screens import HOST, ROOT, build_probe, change
 
 SCENARIOS = r'''
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
@@ -139,7 +139,7 @@ extension CloudArtifactStatus {
         (app / "StoreNextStepProbe.swift").write_text(
             HOST.split("        // SCENARIO")[0] + SCENARIOS + render + text_checks)
         shutil.copyfile(Path(__file__).with_name("ProbeRenderedText.swift"), app / "ProbeRenderedText.swift")
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary",
+        subprocess.run([str(build_probe(package)),
                         str(output), str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png")], check=True,
                        env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
