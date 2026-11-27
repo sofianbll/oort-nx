@@ -15,14 +15,16 @@ struct FoundGamesSetupView: View {
     @State var focus: FirstRunSetup.Focus = .initialOnFound
 
     var findings: FirstRunFindings? { reader.findings }
-    var steamCount: Int? { findings?.steamGameCount }
-    var hasSteam: Bool { steamCount != nil || findings?.steamReadFailed == true }
+    /// Steam's row, decided once (NXLibraryCore/Steam/SteamSourceEntries.swift) for the drawing and for A.
+    var steam: IntegrationEntry? {
+        SteamSourceEntries.found(findings, inForce: steamEnabled, waiting: viewModel.firstRunSetup.steamChoice)
+    }
+    var hasSteam: Bool { steam != nil }
     var portedCount: Int { findings?.portedAppCount ?? 0 }
     var isReading: Bool { findings == nil }
-    var steamOn: Bool { viewModel.firstRunSetup.steamChoice ?? steamEnabled }
 
     var body: some View {
-        FoundGamesSetupContent(findings: findings, steamOn: steamOn, focus: focus,
+        FoundGamesSetupContent(findings: findings, steam: steam, focus: focus,
                                move: move, activate: activate)
         .onAppear {
             reader.start(steamRoot: steamRoot, appsFolder: viewModel.gameAppsFolder)
@@ -43,7 +45,7 @@ struct FoundGamesSetupContent: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     let findings: FirstRunFindings?
-    let steamOn: Bool
+    let steam: IntegrationEntry?
     let focus: FirstRunSetup.Focus
     let move: (FirstRunSetup.Focus) -> Void
     let activate: (FirstRunSetup.Focus) -> Void
@@ -74,16 +76,9 @@ struct FoundGamesSetupContent: View {
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
 
                 VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                    if let steamCount = findings?.steamGameCount {
-                        SetupCardRow(title: "Steam",
-                                     detail: L10n.count("%lld installed Mac games", steamCount),
-                                     icon: .store, platform: .steam, trailing: .toggle(steamOn),
-                                     focused: focus == .steamToggle,
-                                     onHover: { move(.steamToggle) }) { activate(.steamToggle) }
-                    } else if findings?.steamReadFailed == true {
-                        SetupCardRow(title: "Steam",
-                                     detail: L10n.text("Steam couldn't be read completely. Try again or continue and check Settings → Sources later."),
-                                     icon: .store, platform: .steam, trailing: .text(L10n.text("Retry")),
+                    if let steam {
+                        SetupCardRow(title: steam.title.key, detail: steam.about.map(words) ?? "",
+                                     icon: .store, platform: steam.icon.flatMap(PlatformKind.init(rawValue:)), trailing: trailing(steam),
                                      focused: focus == .steamToggle,
                                      onHover: { move(.steamToggle) }) { activate(.steamToggle) }
                     }
@@ -119,5 +114,17 @@ struct FoundGamesSetupContent: View {
             }
         }
         .frame(width: canvas.size.width, height: canvas.size.height)
+    }
+
+    private func words(_ words: IntegrationWords) -> String {
+        words.count.map { L10n.count(words.key, $0) } ?? L10n.text(words.key)
+    }
+
+    private func trailing(_ entry: IntegrationEntry) -> SetupCardRow.Trailing {
+        switch entry.control {
+        case .toggle(let checked): .toggle(checked)
+        case .button(let words): .text(L10n.text(words.key))
+        case .value, .row, .open: .none
+        }
     }
 }

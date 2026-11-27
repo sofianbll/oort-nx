@@ -1,12 +1,11 @@
 import NXLibraryCore
 
 public struct IntegrationRow: Identifiable {
-    public enum Emphasis { case neutral, working, attention }
     public let id: IntegrationID
     public let name: String
     public let purpose: String
     public let status: String
-    public let emphasis: Emphasis
+    public let emphasis: IntegrationEmphasis
     public let action: String
     public let reads: String
     public let writes: String
@@ -46,7 +45,7 @@ public struct IntegrationOverview {
     public func row(_ id: IntegrationID) -> IntegrationRow {
         switch id {
         case .switchGames:
-            let state: (String, IntegrationRow.Emphasis) = switch engine {
+            let state: (String, IntegrationEmphasis) = switch engine {
             case .notDetected: ("Engine not detected", .neutral)
             case .checking: ("Checking the build environment…", .working)
             case .detected: ("Engine folder found", .neutral)
@@ -59,17 +58,10 @@ public struct IntegrationOverview {
                          sends: "GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys.",
                          settingID: engine == .blocked ? "engineStatus" : "engineFolder")
         case .steam:
-            let state: (String, IntegrationRow.Emphasis) = switch steam {
-            case .disabled: ("Steam source off", .neutral)
-            case .idle: ("Steam not scanned yet", .neutral)
-            case .scanning: ("Reading Steam libraries…", .working)
-            case .ready: (steamGameCount == 0 ? "No games found" : "Steam library scanned", .neutral)
-            case .partial: ("Steam scan incomplete", .attention)
-            case .cancelled: ("Steam scan cancelled", .attention)
-            case .failed: ("Steam scan failed", .attention)
-            }
+            // The same state as Settings › Sources shows, said for the overview (NXLibraryCore/Steam/SteamSourceEntries.swift).
+            let state = SteamSourceEntries.state(steam, found: steamGameCount)
             return .init(id: id, name: "Steam", purpose: "Find installed Mac games and open them in Steam.",
-                         status: state.0, emphasis: state.1, action: "Open Steam source settings",
+                         status: state.summary.key, emphasis: state.emphasis, action: "Open Steam source settings",
                          reads: "Steam manifests, local play history and achievements.",
                          writes: "Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files.",
                          sends: "Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN.",
@@ -83,7 +75,7 @@ public struct IntegrationOverview {
                          sends: "No app information is sent online.",
                          settingID: "macShortcutAdd")
         case .drive:
-            let state: (String, IntegrationRow.Emphasis) = switch drive {
+            let state: (String, IntegrationEmphasis) = switch drive {
             case .notConfigured: ("Drive not connected", .neutral)
             case .off: ("Cloud library off", .neutral)
             case .unchecked: ("Connection not tested", .neutral)
@@ -107,7 +99,7 @@ public struct IntegrationOverview {
                          sends: "rclone exchanges OAuth credentials and tokens with Google and uploads files to Drive. New connections made here request full Drive access.",
                          settingID: setting)
         case .nextendo:
-            let state: (String, IntegrationRow.Emphasis) = switch nextendo {
+            let state: (String, IntegrationEmphasis) = switch nextendo {
             case .noLocalProfile: ("No local profile for Nextendo", .neutral)
             case .unchecked: ("Nextendo connection not verified", .neutral)
             case .connected: ("Nextendo signed in", .neutral)

@@ -47,8 +47,9 @@ struct IntegrationFixtureView: View {
         ZStack(alignment: .topTrailing) {
             Group {
                 if onboarding {
-                    FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
-                        steamOn: steamOn, focus: setupFocus, move: { setupFocus = $0 }, activate: setup)
+                    let findings = FirstRunFindings(steamGameCount: 2, portedAppCount: 0)
+                    FoundGamesSetupContent(findings: findings, steam: SteamSourceEntries.found(findings, inForce: steamOn, waiting: nil),
+                        focus: setupFocus, move: { setupFocus = $0 }, activate: setup)
                 } else {
                     switch router.route {
                     case .integrations: IntegrationsView(overview: data, router: router)
@@ -232,8 +233,10 @@ struct IntegrationFixtureView: View {
                     router.backFromIntegration()
                 }
                 for enabled in [false, true] {
-                    try render(FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
-                        steamOn: enabled, focus: .openLibrary, move: { _ in }, activate: { _ in }),
+                    let findings = FirstRunFindings(steamGameCount: 2, portedAppCount: 0)
+                    try render(FoundGamesSetupContent(findings: findings,
+                        steam: SteamSourceEntries.found(findings, inForce: enabled, waiting: nil),
+                        focus: .openLibrary, move: { _ in }, activate: { _ in }),
                         as: enabled ? "steam-on" : "steam-off")
                 }
             }
