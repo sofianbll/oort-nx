@@ -84,6 +84,12 @@ def literals(path):
     return re.findall(r'"((?:[^"\\\n]|\\.)*)"', path.read_text(encoding="utf-8"))
 
 
+def integration_words():
+    """The rows about integrations: their words are the core's (Companion+Integrations.swift), drawn by the page."""
+    text = (ROOT / "Sources/OortCompanion/Companion+Integrations.swift").read_text(encoding="utf-8")
+    return [k.replace('\\"', '"') for k in re.findall(r'\.init\("((?:[^"\\]|\\.)*)"', text)]
+
+
 def used():
     """Every text the page or the core can show, by key."""
     keys = []
@@ -100,6 +106,7 @@ def used():
         if row in rows:
             keys += [title, about]
     keys += literals(ROOT / "Sources/OortCompanion/SettingRows.swift")
+    keys += integration_words()
     keys += [f"Settings navigation: {c}" for c in ("general", "appearance", "sound", "controllers", "account", "home", "library", "integrations", "about")]
     keys += ["Settings navigation: Games", "Settings navigation: Profile"]
     return list(dict.fromkeys(keys))
@@ -111,6 +118,8 @@ def strings():
     explicit = set()
     for file in sorted((HERE / "ui").glob("*.js")):
         explicit |= {t for _, t in re.findall(r"\bt\(\s*(['\"])((?:(?!\1)[^\\]|\\.)+)\1", file.read_text(encoding="utf-8"))}
+    # The page shows them as it shows its own: each needs its words, in English and in French.
+    explicit |= set(integration_words())
     out, missing = {lang: {} for lang in LANGUAGES}, []
 
     def leaf(entry, lang):

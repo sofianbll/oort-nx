@@ -17,18 +17,14 @@ extension Companion {
             return .null
         case "steam": return steam()
         case "steam.set":
-            choices.steam = p["on"]?.boolValue ?? false
-            try store.write("choices", choices)
-            scan()
+            try setSteam(p["on"]?.boolValue ?? false)
             return steam()
         case "steam.updating":
             guard case .steam(let one) = try game(p).source else { throw Manifest.Failure(code: "game-missing") }
             return SteamShelf.isUpdating(one).map(CatalogJSON.bool) ?? .null
         case "online": return online()
         case "online.set":
-            choices.online = p["on"]?.boolValue ?? false
-            lookup = nil
-            try store.write("choices", choices)
+            try setOnline(p["on"]?.boolValue ?? false)
             return online()
         case "online.clear": return try clearOnline()
         case "online.none": return try noneOnline(try game(p))
@@ -179,13 +175,24 @@ extension Companion {
     // MARK: - Steam
 
     private func steam() -> CatalogJSON {
-        guard let root = SteamShelf.root(named: steamFolder, home: setup.home, system: setup.system) else {
+        guard let (root, counts) = steamSeen() else {
             return ["found": false, "on": .bool(choices.steam == true), "chosen": .bool(choices.steam != nil), "games": 0]
         }
-        let counts = choices.steam == true ? steamCounts : SteamShelf(root: root).scan()
         return ["found": true, "on": .bool(choices.steam == true), "chosen": .bool(choices.steam != nil), "path": .string(Paths.native(root)),
                 "games": .number(counts.games.count), "downloading": .number(counts.downloading), "others": .number(counts.others),
                 "libraries": .list(counts.libraries.map(Paths.native))]
+    }
+
+    /// Steam on this computer, if it is there: what it has installed, read again unless the source is on.
+    func steamSeen() -> (root: String, counts: SteamShelf.Found)? {
+        guard let root = SteamShelf.root(named: steamFolder, home: setup.home, system: setup.system) else { return nil }
+        return (root, choices.steam == true ? steamCounts : SteamShelf(root: root).scan())
+    }
+
+    func setSteam(_ on: Bool) throws {
+        choices.steam = on
+        try store.write("choices", choices)
+        scan()
     }
 
     func steamPlan(_ game: SteamGame) throws -> CatalogJSON {
@@ -250,12 +257,18 @@ extension Companion {
         return !record.isFresh(now()) || record.language != language.rawValue || record.query != OnlineLookup.plain(game.name)
     }
 
+    func setOnline(_ on: Bool) throws {
+        choices.online = on
+        lookup = nil
+        try store.write("choices", choices)
+    }
+
     private func online() -> CatalogJSON {
         ["on": .bool(choices.online == true), "chosen": .bool(choices.online != nil), "known": .number(records.values.filter(\.found).count),
          "waiting": .number(games.filter(wantsLook).count)]
     }
 
-    private func clearOnline() throws -> CatalogJSON {
+    func clearOnline() throws -> CatalogJSON {
         lookup = nil
         if FileManager.default.fileExists(atPath: onlineFolder) { try FileManager.default.removeItem(atPath: onlineFolder) }
         records = [:]

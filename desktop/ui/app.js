@@ -290,12 +290,11 @@ document.fonts.ready.then(() => document.querySelectorAll('.tabs').forEach(pill)
 const setTab = async x => { tab = x; await reload(); homeLayer.redraw(); };
 const shiftTab = d => { const i = Math.max(0, Math.min(TABS.length - 1, TABS.indexOf(tab) + d)); if (TABS[i] !== tab) { S.play('confirm'); const bar = $('.tabs', homeLayer.el); tab = TABS[i]; [...bar.querySelectorAll('[role=tab]')].forEach((b, k) => b.setAttribute('aria-selected', k === i)); pill(bar); setTimeout(() => setTab(tab), root.hasAttribute('data-still') ? 0 : 160); } else S.play('deny'); };
 
-/* What Steam has on this computer: looked at when a screen offers it. */
-let steamSeen = null;
-const findSteam = async () => { steamSeen = await ask('steam').catch(() => ({ found: false })); return steamSeen; };
-const addSteam = async () => { steamSeen = await ask('steam.set', { on: true }); await reload(true); selected = L.games.find(g => g.kind === 'steam')?.id ?? selected; S.play('success'); };
+/* Steam's row in Add game, as the core decides it when the sheet opens (integrations, at add). */
+let addable = [];
+const added = async r => { if (!r) return; await reload(true); selected = L.games.find(g => g.kind === 'steam')?.id ?? selected; S.play('success'); while (layers.length > 1) pop(); homeLayer.redraw(); };
 const addRows = () => [
-  steamSeen?.found && !steamSeen.on && row(t('Steam'), t('%lld games', steamSeen.games), async () => { await addSteam(); while (layers.length > 1) pop(); homeLayer.redraw(); }, { id: 'steam', ic: 'gamepad', sub: t('Adds the games Steam installed on this computer. Steam’s own files do not change.') }),
+  ...addable.map(e => entryRow(e, added, { at: 'add' })),
   row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
   row(t('A folder of games'), icon('chevron'), () => pickFolder(() => { while (layers.length > 1) pop(); selected = L.games[0]?.id ?? null; homeLayer.redraw(); }), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
 ].filter(Boolean);
@@ -480,6 +479,23 @@ let redone = 0;
 /* A game found while the player is elsewhere: its pictures change in place. */
 const found = ({ id }) => { clearTimeout(redone); redone = setTimeout(async () => { if (playing) return; await reload(); refaces(); const l = layers.find(x => x.id === id && x.refresh); l?.refresh(); }, 900); };
 
+/* ---------- Rows about integrations: each as the core decides it (integrations), sent back as it was shown ---------- */
+/* The pages a row may open, each once. One the core names and this app does not have is refused. */
+const PAGES = { programs: () => openProgram(), integrations: () => openSettings('integrations') };
+/* The core's words, [key, count?, args…]; "%@" alone is shown as it is (a path, a number). */
+const wording = w => w && (w[0] === '%@' ? String(w[1]) : t(...w));
+/* o.at: the place (Settings by default); o.chevron: false where a page opens without one; o.press: A, when the place keeps
+   the choice itself (the first steps). */
+const entryRow = (e, done, o = {}) => row(wording(e.title), [wording(e.value), e.checked != null && h('span', { cls: 'sw' }), e.open && o.chevron !== false && icon('chevron')].filter(Boolean),
+  el => (o.press || askEntry)(e, el, done, o.at), { id: e.id, ic: e.icon, role: e.checked != null ? 'switch' : null, checked: e.checked, sub: wording(e.sub), help: e.help?.map(wording).join('. ') });
+const askEntry = (e, el, done, at) => {
+  if (e.open) return PAGES[e.open] ? PAGES[e.open]() : deny(el, '');
+  if (!e.token) return;
+  // The core does it if the row is still the one shown and was not done since; else the row is drawn again.
+  const run = async () => { if (e.checked != null) S.play('confirm', el); try { done(await ask('integrations.act', { at, id: e.id, token: e.token })); } catch (x) { deny(el, ['stale', 'entry-missing'].includes(x) ? '' : because(x)); done(null); } };
+  return e.confirm ? confirm(wording(e.confirm.title), wording(e.confirm.text), wording(e.confirm.label), run) : run();
+};
+
 /* ---------- Rows that hold a value ---------- */
 const chooser = (label, options, value, set, o = {}) => {
   const i = options.findIndex(x => x[0] === value), at = i < 0 ? 0 : i;
@@ -574,11 +590,11 @@ const waitingOnline = async () => L.online ? (await ask('library', {}).catch(() 
 const openActivity = async () => {
   let now = [], last = [];
   const read = async () => {
-    const [steam, waiting, folders, recent] = [await findSteam(), await waitingOnline(), await ask('folders'), await ask('library', { tab: 'Recently played', sort: 'recent' })];
+    const [steam, waiting, folders, recent] = [(await ask('integrations', { at: 'activity' }).catch(() => ({ entries: [] }))).entries, await waitingOnline(), await ask('folders'), await ask('library', { tab: 'Recently played', sort: 'recent' })];
     now = [
       preparing && row(game(preparing.id)?.name || t('Getting ready…'), `${Math.round(preparing.value * 100)} %`, () => openDetail(preparing?.id ?? now.id), { id: 'preparing', ic: 'build', sub: preparing.text || t('Getting ready…') }),
       waiting > 0 && row(t('Information online'), t('%lld games', waiting), () => openSettings('integrations'), { id: 'online', ic: 'search', sub: t('Looking…') }),
-      steam.on && steam.downloading > 0 && row(t('Steam'), String(steam.downloading), () => openSettings('integrations'), { id: 'steam', ic: 'download', sub: t('%lld still downloading, left out', steam.downloading) }),
+      ...steam.map(e => entryRow(e, null, { chevron: false })),
       ...folders.folders.filter(f => !f.found).map(f => row(f.path, [t('Not found'), dot('bad')], () => openSettings('home'), { id: 'f' + f.key, ic: 'folder' })),
     ].filter(Boolean);
     last = recent.games.slice(0, 5);
@@ -612,7 +628,7 @@ const openSettings = async (start = 'general') => {
   if (typeof start !== 'string') start = 'general';
   const open = layers.find(l => l.settings); if (open) return open === top() ? open.go(start) : S.play('deny');
   const icons = { general: 'settings', appearance: 'palette', sound: 'volume', controllers: 'gamepad', account: 'person', home: 'collections', library: 'image', integrations: 'puzzle', about: 'info' };
-  let steam = await findSteam(), online = await ask('online'), page = await ask('settings'), folders = await ask('folders'), people = await ask('profiles'), cat = start, sub = null;
+  let integrations = await ask('integrations'), online = await ask('online'), page = await ask('settings'), folders = await ask('folders'), people = await ask('profiles'), cat = start, sub = null;
   const layer = { el: h('section'), page: true, settings: true, pending: () => page.pending };
   const take = async (p, redraw = true) => { page = await p; apply(page.view); if (redraw) again(layer, draw); };
   const set = (id, value) => take(ask('settings.set', { id, value })).catch(e => deny(document.activeElement, because(e)));
@@ -630,14 +646,11 @@ const openSettings = async (start = 'general') => {
     account: () => [h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? type(t('Name'), p.name, async name => { people = await ask('profiles.rename', { profile: p.id, name }); again(layer, draw); }) : choose(p), { id: 'p' + p.id, ic: 'person', help: p.id === people.active ? t('Select to rename it.') : t('Select to play as this profile.') })), row(t('New profile'), icon('add'), () => type(t('Name'), '', async name => { people = await ask('profiles.add', { name }); again(layer, draw); }), { id: 'newp' }))],
     general: () => [h('div', { cls: 'rows' }, abilities.includes('fullscreen') && row(t('Fullscreen'), h('span', { cls: 'sw' }), () => { S.play('confirm', document.activeElement); setFullscreen(!full); }, { id: 'full', ic: 'monitor', role: 'switch', checked: full, help: t('Right now. F11 does the same.') }), row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', help: t('Reopen the guided setup without resetting your library.') }), abilities.includes('quit') && row(t('Quit Oort NX'), '', askQuit, { id: 'quit', ic: 'power' }))],
     controllers: () => [h('div', {}, controlsMap(padKind(pad?.name)), h('div', { cls: 'rows' }, row(t('Controls'), icon('chevron'), () => openControls(), { id: 'controls', ic: 'gamepad', help: t('What each button, key and gesture does.') })))],
-    integrations: () => [
-      h('div', { cls: 'rows' },
-        row(t('Steam'), [steam.found ? t('%lld games', steam.games) : t('Not found'), h('span', { cls: 'sw' })], async () => { S.play('confirm', document.activeElement); steam = steamSeen = await ask('steam.set', { on: !steam.on }); await reload(true); again(layer, draw); }, { id: 'steam', ic: 'gamepad', role: 'switch', checked: steam.on, sub: t('Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.'), help: steam.found ? [steam.libraries.join(', '), steam.downloading && t('%lld still downloading, left out', steam.downloading), steam.others && t('%lld tools and extras, left out', steam.others)].filter(Boolean).join('. ') : t('Steam was not found on this computer. It is looked for again each time.') }),
-        row(t('Game information online'), [online.on ? t('%lld games known', online.known) : t('Off'), h('span', { cls: 'sw' })], async () => { S.play('confirm', document.activeElement); online = await ask('online.set', { on: !online.on }); await reload(); again(layer, draw); }, { id: 'online', ic: 'search', role: 'switch', checked: online.on, sub: onlineText() }),
-        online.known > 0 && row(t('Delete what was found online'), t('%lld games', online.known), () => confirm(t('Delete what was found online?'), t('Covers and descriptions found online leave this computer. Your own pictures stay.'), t('Delete'), async () => { online = await ask('online.clear'); await reload(); again(layer, draw); }), { id: 'clear', ic: 'delete' })),
-      h('div', { cls: 'rows' }, row(t('Programs'), [String(folders.programs.length), icon('chevron')], () => openProgram(), { id: 'prog', ic: 'terminal', sub: t('Any program with its arguments, an emulator with a game for example. Sends nothing.') }))],
+    integrations: () => integrations.sections.map(x => h('div', { cls: 'rows' }, x.entries.map(e => entryRow(e, acted)))),
     about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), [version, icon('link')], () => link('https://github.com/sofianbll/oort-nx/releases'), { id: 'version', help: t('Opens the page of versions in your browser. Oort NX does not look by itself.') }), row(t('Logs'), icon('folder'), openLogs, { id: 'logs', help: t('What games said the last time they ran.') }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
+  // What a row asked is done: the core's rows again, then the library (Steam's games come or go) and what About says.
+  const acted = async r => { integrations = r || await ask('integrations'); if (r) { online = await ask('online'); await reload(!!r.rescan); } again(layer, draw); };
   const choose = p => selectProfile(p, async list => { people = list; await take(ask('settings'), false); again(layer, draw); });
   layer.go = to => { cat = to; sub = null; layer.keep = 'c-' + to; again(layer, draw); layer.focus(layer); };
   layer.fullChanged = () => cat === 'general' && again(layer, draw);
@@ -658,7 +671,7 @@ const openSettings = async (start = 'general') => {
   const baseHints = layer.hints;
   layer.hints = () => { const [l, r] = baseHints(); const c = page.categories.find(x => x.id === cat), rows = (sub && c.subjects.find(x => x.id === sub) || c).rows; return [l, [rows.some(r => r.changed) && ['x', t('Reset group'), layer.actions.x], ...r]]; };
   layer.redraw = () => again(layer, draw);
-  layer.back = () => { (async () => { [folders, steam, online] = [await ask('folders'), await findSteam(), await ask('online')]; await take(ask('settings')); })(); };
+  layer.back = () => { (async () => { [folders, integrations, online] = [await ask('folders'), await ask('integrations'), await ask('online')]; await take(ask('settings')); })(); };
   layer.gone = async () => { await reload(); TABS.includes(tab) || (tab = TABS[0]); homeLayer.redraw(); };
   layer.el.append(...draw());
   S.play('open'); push(layer);
@@ -759,7 +772,7 @@ const dropped = async paths => {
 
 /* ---------- Adding ---------- */
 const sheet = (title, draw, more = {}) => { const layer = { el: h('section'), page: true, ...more }; const body = () => h('div', { cls: 'sheet' }, h('h1', {}, title), h('div', { cls: 'list' }, draw(layer)), h('p', { cls: 'help', 'aria-live': 'polite' })); layer.refresh = () => again(layer, body); layer.redraw = layer.refresh; layer.move = layer.move || ((dir, a) => a.step && (dir === 'left' || dir === 'right') ? (a.step(dir === 'left' ? -1 : 1), true) : false); layer.el.append(body()); layer.hints = layer.hints || (() => [[['b', t('Back'), () => act('b')]], [aHint()]]); S.play('open'); return push(layer); };
-const openAdd = async () => { await findSteam(); return sheet(t('Add game'), () => h('div', { cls: 'rows' }, addRows())); };
+const openAdd = async () => { addable = (await ask('integrations', { at: 'add' }).catch(() => ({ entries: [] }))).entries; return sheet(t('Add game'), () => h('div', { cls: 'rows' }, addRows())); };
 const openProgram = async first => {
   if (typeof first !== 'string') first = '';
   const p = { program: first, target: '', args: '', name: '', about: first ? await ask('programs.about', { path: first }).catch(() => null) : null }, base = x => x.split(/[\\/]/).pop(), native = x => system === 'windows' ? x.replaceAll('/', '\\') : x;
@@ -815,16 +828,18 @@ const prepared = async p => {
 /* ---------- The first steps: short, never in the way, and there again in Settings ---------- */
 const openGuide = async (at = 'welcome') => {
   const pages = (await ask('guide')).pages;
-  let page = at, steam = null, take = true;
+  // steam: Steam's row of the games page, as the core decides it; take: what its switch shows, kept until the player goes on.
+  let page = at, steam = null, take = null;
+  const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => ({ entries: [] }))).entries[0] ?? null; take = steam?.checked ?? null; };
   const layer = { el: h('section', { cls: 'veil guide' }), guide: true };
   const set = async (id, value) => { await ask('settings.set', { id, value }); const p = await ask('settings.save'); apply(p.view); layer.refresh(); };
   const turn = async d => {
     const to = pages[pages.indexOf(page) + d];
     if (!to) return end();
-    if (page === 'games' && d > 0 && steam?.found && take !== steam.on) { steam = steamSeen = await ask('steam.set', { on: take }); await reload(true); }
+    if (page === 'games' && d > 0 && take != null && (await ask('integrations.keep', { on: take })).rescan) await reload(true);
     page = to; S.play(d > 0 ? 'confirm' : 'back'); layer.keep = 'continue';
     await ask('guide', { page }).catch(() => {});
-    if (page === 'games') { steam = null; enter(); steam = await findSteam(); take = steam.chosen ? steam.on : steam.found; }
+    if (page === 'games') { steam = null; enter(); await lookSteam(); }
     enter();
   };
   const enter = () => { if (!layers.includes(layer)) return; fill(layer.el, draw()); if (layer === top()) { layer.focus(layer); settle(); } };
@@ -836,7 +851,7 @@ const openGuide = async (at = 'welcome') => {
     welcome: () => ({ title: t('Welcome to Oort NX'), say: t('The games you already have, in one library. No account is needed.'), rows: [pick('appLanguage', 'language')] }),
     controller: () => ({ title: t('Your controller'), say: t('Plug one in or pair it, then press any button. Keyboard and mouse work everywhere too.'), rows: [row(pad ? padName(pad.name) || t('Controller') : plugged[0] || t('No Gamepad Connected'), pad ? [t('Controller recognised'), dot('ok')] : plugged.length ? t('Press any button') : t('Keyboard and mouse are ready'), () => {}, { id: 'pad', ic: 'gamepad' }), pick('buttonNames', 'tune')] }),
     games: () => ({ title: t('Where are your games?'), say: t('Add what you want now, or later with the + tile. Nothing is moved or changed.'), rows: [
-      steam == null ? row(t('Steam'), t('Looking…'), () => {}, { id: 'steam', ic: 'gamepad' }) : steam.found ? row(t('Steam'), [t('%lld games', steam.games), h('span', { cls: 'sw' })], () => { take = !take; S.play('confirm', document.activeElement); layer.refresh(); }, { id: 'steam', ic: 'gamepad', role: 'switch', checked: take, sub: t('Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.') }) : row(t('Steam'), t('Not found'), () => {}, { id: 'steam', ic: 'gamepad', sub: t('Steam was not found on this computer. It is looked for again each time.') }),
+      steam == null ? row(t('Steam'), t('Looking…'), () => {}, { id: 'steam', ic: 'gamepad' }) : entryRow({ ...steam, checked: take ?? undefined }, null, { press: () => { if (take == null) return; take = !take; S.play('confirm', document.activeElement); layer.refresh(); } }),
       row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
       row(t('A folder of games'), icon('chevron'), () => pickFolder(() => layer.refresh()), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
     ], status: L.total ? t('%lld games in your library', L.total) : null }),
@@ -861,7 +876,7 @@ const openGuide = async (at = 'welcome') => {
   layer.actions = { b: () => page === 'welcome' ? null : turn(-1) };
   layer.hints = () => [[page !== 'welcome' && ['b', t('Back'), () => turn(-1)]], [aHint()]];
   layer.settings = await ask('settings');
-  if (page === 'games') { steam = await findSteam(); take = steam.chosen ? steam.on : steam.found; }
+  if (page === 'games') await lookSteam();
   layer.el.append(...shown([draw()]));
   S.play('open'); push(layer);
 };

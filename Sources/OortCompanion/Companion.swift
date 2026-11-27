@@ -38,6 +38,8 @@ public final class Companion {
     var steamKnown = SteamShelf.Known()
     var lookup: (id: UUID, lookup: OnlineLookup)?
     var pickedNow = false
+    /// Settings › Integrations: rows done since the start; a row shown before the last one done is not done again.
+    var integrationTurn = 0
     var wikipediaRest = Date.distantPast
     var triedAt: [UUID: Date] = [:]
     /// Changes with any picture, so the page never shows an old one.
@@ -89,6 +91,7 @@ public final class Companion {
 
     private func run(_ method: String, _ p: CatalogJSON) throws -> CatalogJSON {
         if let answer = try runOwn(method, p) { return answer }
+        if let answer = try runIntegrations(method, p) { return answer }
         switch method {
         case "hello":
             if setup.languages.isEmpty { setup.languages = p["languages"].strings }

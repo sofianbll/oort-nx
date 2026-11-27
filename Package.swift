@@ -63,6 +63,7 @@ let portableSources = [
     "Settings/AppLocale.swift",
     "Settings/AppSettings.swift",
     "Settings/AppSettingsDraft.swift",
+    "Settings/IntegrationEntry.swift",
     "Settings/L10n.swift",
     "Settings/SettingsCatalog.swift",
     "Settings/SettingsCategory.swift",
