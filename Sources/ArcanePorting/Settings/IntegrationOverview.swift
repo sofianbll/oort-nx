@@ -97,7 +97,7 @@ public struct IntegrationOverview {
 
     // Keep the library shortcut's attention priority independent of the catalogue order.
     public var rows: [IntegrationRow] { IntegrationID.allCases.compactMap(row) }
-    public var sections: [IntegrationCatalog.Group<IntegrationRow>] { IntegrationCatalog.sections(offering: row) }
+    public var sections: [IntegrationCatalog.Group<IntegrationRow>] { IntegrationCatalog.sections(on: .mac, offering: row) }
 
     private var engineChecks: [IntegrationWords] {
         // Said plainly; the versions themselves stay in the engine settings (Open engine settings).

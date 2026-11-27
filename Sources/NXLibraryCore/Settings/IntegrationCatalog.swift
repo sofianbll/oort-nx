@@ -1,6 +1,9 @@
 /// The catalogue order, words and detail phases are shared. Each owner supplies only the installed offers and
 /// their observed state; a renderer neither classifies an integration nor invents a missing capability.
 public enum IntegrationCatalog {
+    /// The app that draws the catalogue: what it announces depends on where it would run.
+    public enum Host: Sendable { case mac, pc }
+
     public enum ID: String, CaseIterable, Sendable {
         case switchGames, steam, macApps, drive, nextendo, saves, images, programs = "prog", online
 
@@ -86,12 +89,13 @@ public enum IntegrationCatalog {
             }
         }
 
-        /// Announced, not offered: one quiet line under the section, never a row.
-        public var upcoming: [String] {
-            switch self {
-            case .sources: ["Epic Games", "GOG", "Minecraft", "CrossOver"]
-            case .engines: ["Ryujinx-Nextendo"]
-            case .services: []
+        /// Announced, not offered: one quiet line under the section, never a row. Ryujinx-Nextendo runs on PC only,
+        /// so the Mac does not announce it.
+        public func upcoming(on host: Host) -> [String] {
+            switch (self, host) {
+            case (.sources, _): ["Epic Games", "GOG", "Minecraft", "CrossOver"]
+            case (.engines, .pc): ["Ryujinx-Nextendo"]
+            case (.engines, .mac), (.services, _): []
             }
         }
     }
@@ -99,16 +103,19 @@ public enum IntegrationCatalog {
     public struct Group<Entry>: Identifiable {
         public let id: Section
         public let entries: [Entry]
-        /// « Coming later: … », or nil when nothing is announced in this section.
-        public var upcoming: IntegrationWords? {
-            id.upcoming.isEmpty ? nil : .init("Coming later: %@", args: [id.upcoming.joined(separator: " · ")])
-        }
+        /// « Coming later: … », or nil when nothing is announced in this section on this host.
+        public let upcoming: IntegrationWords?
     }
 
-    /// A section shows its offers and what it announces; one with neither is left out, so none is ever empty.
-    public static func sections<Entry>(offering entry: (ID) -> Entry?) -> [Group<Entry>] {
-        Section.allCases.map { Group(id: $0, entries: $0.order.compactMap(entry)) }
-            .filter { !$0.entries.isEmpty || $0.upcoming != nil }
+    /// A section shows its offers and what it announces on this host; one with neither is left out, so none is ever
+    /// empty.
+    public static func sections<Entry>(on host: Host, offering entry: (ID) -> Entry?) -> [Group<Entry>] {
+        Section.allCases.map { section in
+            let coming = section.upcoming(on: host)
+            return Group(id: section, entries: section.order.compactMap(entry),
+                         upcoming: coming.isEmpty ? nil : .init("Coming later: %@", args: [coming.joined(separator: " · ")]))
+        }
+        .filter { !$0.entries.isEmpty || $0.upcoming != nil }
     }
 
     public static let open = IntegrationWords("Open")

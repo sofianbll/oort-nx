@@ -189,7 +189,8 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(offered.filter { $0.switchOn != nil }.map(\.id), offered.map(\.id).filter { $0.hasSwitch })
         XCTAssertFalse(offered.contains { $0.id.explainsBeforeOn }, "the Mac would have to explain it on its row first")
         XCTAssertEqual(snapshot.sections.map(\.id), [.sources, .engines, .services])
-        XCTAssertEqual(snapshot.sections.map { $0.upcoming?.args }, [["Epic Games · GOG · Minecraft · CrossOver"], ["Ryujinx-Nextendo"], nil])
+        // Ryujinx-Nextendo runs on PC only: the Mac does not announce it, and nxnative keeps Engines filled.
+        XCTAssertEqual(snapshot.sections.map { $0.upcoming?.args }, [["Epic Games · GOG · Minecraft · CrossOver"], nil, nil])
         XCTAssertTrue(snapshot.sections.allSatisfy { $0.entries.count <= 5 })
         func link(_ id: IntegrationID) throws -> String? {
             if case .say(let words)? = try XCTUnwrap(snapshot.row(id)).steps[0].content.first { words.key } else { nil }
