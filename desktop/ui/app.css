@@ -59,7 +59,7 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .integration-summary .value{flex-wrap:wrap;justify-content:flex-end}
 [data-upcoming]{margin-top:var(--space-small)}
 .integration-primary{display:flex;justify-content:flex-start}
-.integration-step{display:grid;gap:var(--space-small);padding:var(--space-large);margin-top:var(--space-medium)}
+.integration-step{display:grid;gap:var(--space-small);padding:var(--space-large)}
 .list .integration-step h2{margin:0;color:var(--quiet);text-shadow:none}
 .integration-step .say{color:var(--ink);text-shadow:none}
 .row .icon{color:var(--mark)}.row.chosen .tick{color:var(--ink)}
@@ -179,7 +179,7 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .padmap ul{padding:0}.padmap li{position:absolute;display:flex;align-items:center;gap:var(--space-small);line-height:1.2;white-space:nowrap}.padmap li.l{left:0;flex-direction:row-reverse;text-align:end}.padmap li.r{right:0}
 .padmap li b{flex:none;font-size:var(--s-badge);font-weight:600;color:var(--on-base-quiet)}.padmap li span{display:grid;min-width:0;font-weight:600}.padmap li small{font-size:var(--s-badge);font-weight:400;color:var(--on-base-quiet)}
 .padmap li.on,.padmap li.on b{color:var(--ring-color)}
-.padmap.narrow ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--space-compact) var(--space-large);margin-top:var(--space-medium)}.padmap.narrow li{position:static;flex-direction:row;text-align:start}.padmap.narrow li b{min-width:4.5em}
+.padmap.narrow ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--space-compact) var(--space-large)}.padmap.narrow li{position:static;flex-direction:row;text-align:start}.padmap.narrow li b{min-width:4.5em}
 
 .boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:var(--space-medium);align-items:start}.box{--on-base:var(--ink);--on-base-quiet:var(--quiet);padding:var(--space-large);scroll-margin:calc(60*var(--u)) 0}.box:focus{box-shadow:0 0 0 var(--ring) var(--ring-color)}.box .facts>div{grid-template-columns:repeat(2,minmax(0,1fr))}
 

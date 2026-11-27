@@ -197,7 +197,7 @@ extension Companion {
     func integrationsPage(at place: IntegrationPlace) -> CatalogJSON {
         switch place {
         case .settings:
-            let sections = IntegrationCatalog.sections { id in settingsIntegration(id).map { settingsJSON(id, $0) } }
+            let sections = IntegrationCatalog.sections(on: .pc) { id in settingsIntegration(id).map { settingsJSON(id, $0) } }
             return ["sections": .array(sections.map {
                 ["id": .string($0.id.rawValue), "title": words($0.id.title), "entries": .array($0.entries),
                  "upcoming": $0.upcoming.map(words) ?? .null]
@@ -242,7 +242,7 @@ extension Companion {
     /// Done by the owner, only if the row is still the one shown and was not done since.
     func actIntegration(_ p: CatalogJSON) throws -> CatalogJSON {
         let place = try place(p)
-        let entries = place == .settings ? IntegrationCatalog.sections(offering: settingsIntegration)
+        let entries = place == .settings ? IntegrationCatalog.sections(on: .pc, offering: settingsIntegration)
             .flatMap(\.entries).flatMap(\.steps).flatMap(\.content).compactMap { item -> IntegrationEntry? in
                 switch item {
                 case .row(let entry), .primary(let entry): return entry
