@@ -146,6 +146,10 @@ probe(async P => {
     await P.until(() => document.querySelector('.shell [data-id=integration-back]'), 5000, `detail ${id}`);
   };
   await detail('steam');
+  // One box per step: title, words, then its controls inside it; none drawn as a card of its own.
+  P.same([...document.querySelectorAll('.shell [data-phase].panel')].map(x => x.dataset.phase), ['link', 'verify', 'next'], 'one box per step');
+  P.ok(!!document.querySelector('[data-phase=next].panel [data-primary]') && !!document.querySelector('[data-phase=link].panel [data-id=steam]'), 'the buttons are in their step');
+  P.same(getComputedStyle(row('steam')).boxShadow, 'none', 'a row in a step is not a box in a box');
   P.same([text(row('steam'), '.what'), text(row('steam'), '.value'), row('steam').dataset.help?.includes('/Steam'), row('steam').dataset.help?.includes('1 still downloading')], [reads, '2 games', true, true], 'Steam: its words, its folders, what still downloads');
 
   // PC_STEAM: off and on are two rows; A asks for the other state, at once; the focus stays.
