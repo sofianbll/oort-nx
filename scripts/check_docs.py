@@ -19,7 +19,7 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-from repo_model import MODEL, read_layout, tracked
+from repo_model import MODEL, read_layout, renamed, tracked
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKERS = "scripts/private-markers.json"
@@ -87,7 +87,8 @@ def check(root, base=None):
             issues.append(f"{MARKERS}: {name} no longer holds {marker!r}; remove the allowance")
     before = read_markers(root, base) if base is not None else None
     if before is not None:
-        old = {(path, m) for path, found in before.get("allowed", {}).items() for m in found}
+        moved = renamed(root, base)
+        old = {(moved.get(path, path), m) for path, found in before.get("allowed", {}).items() for m in found}
         for name, found in allowed.items():
             for marker in sorted(found):
                 if (name, marker) not in old:

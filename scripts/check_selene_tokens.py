@@ -12,6 +12,7 @@ import tarfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import names  # noqa: E402  architecture/names.json
+from repo_model import renamed  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "scripts/selene-token-debt.json"
@@ -157,6 +158,10 @@ def main():
         tracked = subprocess.check_output(["git", "ls-tree", args.base, "--", relative], cwd=ROOT)
         if tracked:
             original = json.loads(subprocess.check_output(["git", "show", f"{args.base}:{relative}"], cwd=ROOT))
+            # A file the base knew under another path keeps its allowances (repo_model.renamed).
+            moved = renamed(ROOT, args.base)
+            if "files" in original:
+                original["files"] = {moved.get(path, path): found for path, found in original["files"].items()}
             for path, allowances in baseline_additions(allowed, base_allowances(args.base, original)).items():
                 for signature, count in sorted(allowances.items()):
                     print(f"{path}: baseline grows by {count} for {signature}", file=sys.stderr)

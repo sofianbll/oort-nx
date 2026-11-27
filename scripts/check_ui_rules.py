@@ -41,6 +41,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import names  # noqa: E402  architecture/names.json
+from repo_model import renamed  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "scripts/ui-rules.json"
@@ -835,6 +836,10 @@ def main():
         shown = subprocess.run(["git", "show", f"{args.base}:scripts/ui-rules.json"], cwd=ROOT, capture_output=True, text=True)
         if shown.returncode == 0:
             before = json.loads(shown.stdout)
+            # A file the base knew under another path keeps its debt (repo_model.renamed).
+            moved = renamed(ROOT, args.base)
+            before["allowed"] = {rule: {moved.get(path, path): found for path, found in paths.items()}
+                                 for rule, paths in before["allowed"].items()}
             script = subprocess.run(["git", "show", f"{args.base}:scripts/check_ui_rules.py"], cwd=ROOT, capture_output=True, text=True)
             known = judged(script.stdout) if script.returncode == 0 else None
             for (rule, path, signature), count in sorted(grown(rules["allowed"], before["allowed"], known).items()):
