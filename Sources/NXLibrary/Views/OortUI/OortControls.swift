@@ -17,12 +17,13 @@ struct OortFormatBadges: View {
 /// Selectable and passive rows share the existing Selene option-row surface.
 struct OortRow: View {
     enum Preset {
-        case navigation(label: String, action: () -> Void)
+        case navigation(label: String, showsLabel: Bool = false, action: () -> Void)
         case info
     }
 
     let title: String
     let platform: PlatformKind?
+    var about: String?
     var status: String?
     var focused = false
     var tone: OortStatus.Tone = .neutral
@@ -30,16 +31,17 @@ struct OortRow: View {
 
     var body: some View {
         switch preset {
-        case .navigation(let label, let action):
+        case .navigation(let label, let showsLabel, let action):
             Button(action: action) {
                 row {
+                    if showsLabel { OortReadout(text: label).fixedSize() }
                     Image(systemName: "chevron.right").seleneFont(.text, .semibold)
                         .foregroundStyle(SeleneTheme.glyph).accessibilityHidden(true)
                 }
             }
             .buttonStyle(.plain)
             .accessibilityLabel(title)
-            .accessibilityValue(status ?? "")
+            .accessibilityValue([status, about].compactMap { $0 }.joined(separator: ". "))
             .accessibilityHint(label)
             .accessibilityAddTraits(focused ? .isSelected : [])
         case .info:
@@ -49,8 +51,8 @@ struct OortRow: View {
     }
 
     private func row<Trailing: View>(@ViewBuilder trailing: @escaping () -> Trailing) -> some View {
-        SeleneOptionRow(icon: nil, title: title, about: nil, focused: focused,
-                        platform: platform) {
+        SeleneOptionRow(icon: nil, title: title, about: about, focused: focused,
+                        platform: platform, aboutIsHelp: false) {
             HStack {
                 if let status {
                     OortStatus(text: status, tone: tone)

@@ -64,6 +64,8 @@ class IntegrationContract(unittest.TestCase):
         catalog = json.loads((ROOT / "Sources/NXLibraryCore/Resources/Localizable.xcstrings").read_text())["strings"]
         sections = re.split(r"^        case \.(\w+):$", source, flags=re.MULTILINE)
         for row, body in zip(sections[1::2], sections[2::2]):
+            if row not in {"switchGames", "steam", "macApps", "drive", "nextendo", "images", "saves"}:
+                continue
             rights = dict(re.findall(r'(reads|writes|sends): "([^"]+)"', body))
             self.assertEqual(set(rights), {"reads", "writes", "sends"}, row)
             for language in ["en", "fr"]:

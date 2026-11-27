@@ -21,8 +21,15 @@ struct IntegrationFixtureView: View {
         var data = IntegrationOverview()
         if index == 0 {
             data.engine = .detected
+            data.engineCommit = "f1c7100f"
+            data.expectedEngineCommit = "f1c7100f"
+            data.keysReady = true
+            data.xcodeVersion = "Xcode 27"
+            data.metalVersion = "33000.1"
+            data.hasSwitchGames = true
             data.steam = .ready
             data.drive = .transferring
+            data.driveCheckDate = Date(timeIntervalSince1970: 1_795_750_800)
             data.nextendo = .unavailable
             data.steamGridDB = true
             data.igdb = true
@@ -227,7 +234,7 @@ struct IntegrationFixtureView: View {
                 try render(page, as: "all-rows", height: max(size.height, canvas.u(2500)))
                 router.integrationFocus = .saves
                 try render(page, as: "page-bottom")
-                for integration in IntegrationID.allCases {
+                for integration in data.rows.map(\.id) {
                     router.showIntegrationDetail(integration)
                     try render(page, as: "detail-\(integration)")
                     router.backFromIntegration()

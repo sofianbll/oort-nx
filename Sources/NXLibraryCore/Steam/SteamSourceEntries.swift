@@ -27,6 +27,14 @@ public extension SteamSourceEntries {
         }
     }
 
+    static func catalogueSummary(_ status: CatalogSourceStatus, found: Int) -> IntegrationWords {
+        switch status {
+        case .disabled: IntegrationCatalog.off
+        case .ready where found > 0: IntegrationCatalog.ready
+        default: state(status, found: found).summary
+        }
+    }
+
     /// The setting and draft change ID. The drawn row has its own identity (`sourceRowID`).
     static let sourceID = "steamSource"
 

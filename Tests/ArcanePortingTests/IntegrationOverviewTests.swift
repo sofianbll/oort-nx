@@ -16,7 +16,7 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Steam scan incomplete")
         snapshot.steam = .ready
         snapshot.steamGameCount = 2
-        XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Steam library scanned")
+        XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Ready here")
     }
 
     func testRoutesUseExistingSettingsAndBackKeepsTheOrigin() {
@@ -49,8 +49,9 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertFalse(snapshot.open(.drive, in: router))
         XCTAssertEqual(router.route, .library)
         XCTAssertFalse(router.integrationBarFocused)
-        XCTAssertEqual(snapshot.rows.filter(\.id.isGameSource).map(\.id), [.switchGames, .steam, .macApps])
-        XCTAssertEqual(snapshot.rows.filter { !$0.id.isGameSource }.map(\.id), [.drive, .nextendo, .saves, .images])
+        XCTAssertEqual(snapshot.sections.map(\.id), [.sources, .engines, .services])
+        XCTAssertEqual(snapshot.sections.map { $0.entries.map(\.id) },
+                       [[.steam, .macApps, .drive], [.switchGames], [.nextendo, .saves, .images]])
         XCTAssertTrue(snapshot.rows.allSatisfy { !$0.reads.isEmpty && !$0.writes.isEmpty && !$0.sends.isEmpty })
         router.openCollection()
         router.openIntegrations()
@@ -93,6 +94,28 @@ final class IntegrationOverviewTests: XCTestCase {
         router.backFromIntegration()
         XCTAssertNil(router.integrationDetail)
         XCTAssertEqual(router.integrationFocus, .macApps)
+    }
+
+    func testDetailOnlyShowsPhasesWithContentAndSwitchBrowseDoesNotOpenSettings() throws {
+        var snapshot = IntegrationOverview()
+        XCTAssertEqual(snapshot.row(.drive)?.steps.map(\.id), [.link, .verify])
+        snapshot.drive = .checked
+        let date = Date(timeIntervalSince1970: 1)
+        snapshot.driveCheckDate = date
+        let drive = try XCTUnwrap(snapshot.row(.drive))
+        XCTAssertEqual(drive.steps.map(\.id), [.verify, .next])
+        XCTAssertTrue(drive.steps[0].content.contains { if case .date(date) = $0 { true } else { false } })
+        snapshot.hasSwitchGames = true
+        snapshot.engine = .blocked
+        XCTAssertEqual(snapshot.row(.switchGames)?.actions, [.settings, .switchGames])
+        let router = AppRouter()
+        router.openIntegrations()
+        router.showIntegrationDetail(.switchGames)
+        router.browseIntegrationLibrary(.nxnative)
+        XCTAssertEqual(router.route, .library)
+        XCTAssertNil(router.settingsRowID)
+        XCTAssertEqual(router.takeIntegrationLibraryPlatform(), .nxnative)
+        XCTAssertNil(router.takeIntegrationLibraryPlatform())
     }
 
     func testTheBarOnlyTakesConfirmAfterExplicitFocusEvenWhenAServiceFails() {

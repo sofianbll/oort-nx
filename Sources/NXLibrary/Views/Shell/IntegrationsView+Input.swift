@@ -1,5 +1,6 @@
 import Foundation
 import NXLibraryCore
+import ArcanePorting
 
 extension Notification.Name {
     static let nxIntegrationsAction = Self("NXIntegrationsAction")
@@ -23,17 +24,22 @@ extension AppRouter {
 
 extension IntegrationsView {
     func handle(_ action: GamepadAction) {
-        if let detail = router.integrationDetail {
+        if let id = router.integrationDetail, let row = overview.row(id) {
             switch action {
-            case .confirm: overview.open(detail, in: router)
+            case .confirm:
+                if let focus = detailFocus(row) { activate(focus, for: row) }
             case .cancel: router.backFromIntegration()
+            case .navigateUp, .navigateDown:
+                let actions = row.actions
+                if let focus = detailFocus(row), let index = actions.firstIndex(of: focus) {
+                    router.integrationAction = actions[min(max(index + (action == .navigateUp ? -1 : 1), 0), actions.count - 1)]
+                }
             default: break
             }
             return
         }
-        let ids = overview.rows.map(\.id)
-        guard let first = ids.first else { return }
-        let id = router.integrationFocus ?? first
+        let ids = overview.sections.flatMap { $0.entries.map(\.id) }
+        guard !ids.isEmpty, let id = catalogueFocus else { return }
         switch action {
         case .navigateUp, .navigateDown:
             let index = ids.firstIndex(of: id) ?? 0
@@ -42,6 +48,18 @@ extension IntegrationsView {
         case .confirm: router.showIntegrationDetail(id)
         case .cancel: router.backFromIntegration()
         default: break
+        }
+    }
+
+    func detailFocus(_ row: IntegrationRow) -> IntegrationDetailAction? {
+        row.actions.first { $0 == router.integrationAction } ?? row.actions.last
+    }
+
+    func activate(_ action: IntegrationDetailAction, for row: IntegrationRow) {
+        switch action {
+        case .settings: overview.open(row.id, in: router)
+        case .switchGames: router.browseIntegrationLibrary(.nxnative)
+        case .steamGames: router.browseIntegrationLibrary(.steam)
         }
     }
 
