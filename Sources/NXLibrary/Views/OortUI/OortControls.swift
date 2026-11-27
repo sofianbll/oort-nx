@@ -26,6 +26,8 @@ struct OortRow: View {
     let title: String
     let platform: PlatformKind?
     var about: String?
+    /// The about line is read as body text (ScreenTree.aboutRole), not discreet.
+    var aboutIsBody = false
     var status: String?
     var focused = false
     var tone: OortStatus.Tone = .neutral
@@ -66,7 +68,7 @@ struct OortRow: View {
 
     private func row<Trailing: View>(@ViewBuilder trailing: @escaping () -> Trailing) -> some View {
         SeleneOptionRow(icon: nil, title: title, about: about, focused: focused,
-                        platform: platform, aboutIsHelp: false) {
+                        platform: platform, aboutIsHelp: false, aboutIsBody: aboutIsBody) {
             HStack {
                 if let status {
                     OortStatus(text: status, tone: tone)

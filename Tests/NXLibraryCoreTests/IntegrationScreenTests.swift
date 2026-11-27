@@ -269,6 +269,7 @@ final class IntegrationScreenTests: XCTestCase {
                     let row = s.pieces.first { $0.piece == .row && $0.text == online }
                     if row?.about != sends { problems.append("\(at): off, information online does not say what it sends") }
                     if !s.texts.contains(where: { $0.text == sends && $0.whole == true }) { problems.append("\(at): what it sends may be truncated") }
+                    if s.texts.contains(where: { $0.text == sends && $0.role != .body }) { problems.append("\(at): what it sends is not read as body text") }
                 }
                 // Deleting what was found online asks a question first: Cancel, with the focus, then the destructive choice.
                 for focus in s.focus where focus.a?.intent == delete {
@@ -330,6 +331,11 @@ final class IntegrationScreenTests: XCTestCase {
                 tree.structure.pieces[index].about = "Jaquettes"
             }
         }.isEmpty, "online off without what it sends")
+        XCTAssertFalse(broken("online-off", list) { tree in
+            for index in tree.structure.texts.indices where tree.structure.texts[index].whole == true {
+                tree.structure.texts[index] = .init(.about, tree.structure.texts[index].text, whole: true)
+            }
+        }.isEmpty, "what it sends, discreet")
         XCTAssertFalse(broken("online-on", onlineDetail) { tree in
             for index in tree.structure.focus.indices { tree.structure.focus[index].question = nil }
         }.isEmpty, "Delete without its question")

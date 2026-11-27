@@ -168,7 +168,7 @@ struct ScreenView: View {
         let isOn = node.x == nil ? nil : node.on.map { on in Binding(get: { on }, set: { _ in press(.x, at: id, clicked: true) }) }
         let preset: OortRow.Preset = node.a.map { a in .navigation(label: say(a.title)) { press(.a, at: id, clicked: true) } } ?? .info
         return AnyView(OortRow(title: say(node.title), platform: node.icon.flatMap(platform), about: node.about.map(say),
-                               status: node.status.map { say($0.text) }, focused: focused == id, tone: Self.tone(node.status?.tone),
+                               aboutIsBody: node.about.map { ScreenTree.aboutRole($0) == .body } ?? false, status: node.status.map { say($0.text) }, focused: focused == id, tone: Self.tone(node.status?.tone),
                                isOn: isOn, preset: preset)
             .id(id)
             .accessibilityFocused($accessibilityFocus, equals: id)
@@ -182,7 +182,8 @@ struct ScreenView: View {
     private func toggle(_ node: Screen.Node) -> AnyView {
         let id = node.id
         let isOn = Binding(get: { node.on ?? false }, set: { _ in press(.a, at: id, clicked: true) })
-        return AnyView(OortRow(title: say(node.title), platform: nil, about: node.about.map(say), focused: focused == id,
+        return AnyView(OortRow(title: say(node.title), platform: nil, about: node.about.map(say),
+                               aboutIsBody: node.about.map { ScreenTree.aboutRole($0) == .body } ?? false, focused: focused == id,
                                isOn: isOn, preset: .toggle(label: say(node.a?.title)))
             .environment(\.oortGroupedRow, true)
             .id(id)

@@ -383,7 +383,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -1236,7 +1236,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -2957,7 +2957,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -3791,7 +3791,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -4211,7 +4211,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -5045,7 +5045,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -5465,7 +5465,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },
@@ -6318,7 +6318,7 @@
             "text" : "Informations en ligne"
           },
           {
-            "role" : "about",
+            "role" : "body",
             "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
             "whole" : true
           },

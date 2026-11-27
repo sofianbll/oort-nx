@@ -24,6 +24,8 @@ struct SeleneOptionRow<Trailing: View>: View {
     var platform: PlatformKind? = nil
     /// False: the line is data (a path, a state), not an explanation, and stays on the row.
     var aboutIsHelp = true
+    /// The line is read as body text (what an entry sends, before it is turned on), not discreet.
+    var aboutIsBody = false
     var formatBadges: [String] = []
     var detail: AnyView? = nil
     @ViewBuilder var trailing: () -> Trailing
@@ -44,7 +46,8 @@ struct SeleneOptionRow<Trailing: View>: View {
         .preference(key: OortRowHelpKey.self, value: grouped && aboutIsHelp && (focused || hovered) ? about : nil)
         .accessibilityHint(grouped && aboutIsHelp ? about ?? "" : "")
         .containerValue(\.oortSettingsRow, true)
-        .screenTrace(trace, [.init(kind: .row, text: title, about: grouped && aboutIsHelp ? nil : about, focused: focused)])
+        .screenTrace(trace, [.init(kind: .row, text: title, about: grouped && aboutIsHelp ? nil : about, focused: focused,
+                                    role: aboutIsBody ? .body : .about)])
     }
 
     private var row: some View {
@@ -77,7 +80,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                         }
                     }
                     .seleneFont(aboutFont)
-                        .foregroundColor(SeleneTheme.ink60)
+                        .foregroundColor(aboutIsBody ? SeleneTheme.ink : SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 OortFormatBadges(labels: formatBadges)

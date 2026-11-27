@@ -86,6 +86,10 @@ public struct ScreenTree: Equatable, Sendable, Codable {
         (self.screen, self.structure, self.hints) = (screen, structure, hints)
     }
 
+    /// A node's second line is read as `about`, discreet; one consent depends on (`whole`: what an entry sends) is read
+    /// as body text, never discreet. Every renderer draws it with this role.
+    public static func aboutRole(_ text: Screen.Text) -> Words.Role { text.whole ? .body : .about }
+
     public static func intent(_ intent: Screen.Intent) -> String {
         switch intent {
         case .open(let id): "open \(id)"
@@ -115,7 +119,7 @@ public struct ScreenTree: Equatable, Sendable, Codable {
                 if let id = node.id { focus[id] = pieces.count }
                 pieces.append(Piece(.row, text: node.title.map(say), about: node.about.map(say)))
                 words(.row, node.title)
-                words(.about, node.about)
+                if let about = node.about { words(Self.aboutRole(about), about) }
                 if let status = node.status {
                     pieces.append(Piece(.dot, text: say(status.text), tone: status.tone))
                     words(.status, status.text)

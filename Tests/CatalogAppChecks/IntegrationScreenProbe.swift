@@ -81,7 +81,7 @@ import ArcanePorting
         let texts = drawn.flatMap { piece -> [ScreenTree.Words] in
             switch piece.kind {
             case .text: [.init(piece.role ?? .body, piece.text ?? "")]
-            case .row: [.init(.row, piece.text ?? "")] + (piece.about.map { [.init(.about, $0)] } ?? [])
+            case .row: [.init(.row, piece.text ?? "")] + (piece.about.map { [.init(piece.role ?? .about, $0)] } ?? [])
             case .dot: [.init(.status, piece.text ?? "")]
             case .pill: [.init(.button, piece.text ?? "")]
             default: []
