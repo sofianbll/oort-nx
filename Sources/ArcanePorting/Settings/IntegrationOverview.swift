@@ -65,7 +65,7 @@ public struct IntegrationOverview {
                          reads: "Steam manifests, local play history and achievements.",
                          writes: "Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files.",
                          sends: "Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN.",
-                         settingID: "steamSource")
+                         settingID: SteamSourceEntries.sourceID)
         case .macApps:
             return .init(id: id, name: "Mac apps", purpose: "Add local Mac apps as library shortcuts.",
                          status: hasMacShortcuts ? "Mac shortcuts added" : "No Mac shortcuts added",

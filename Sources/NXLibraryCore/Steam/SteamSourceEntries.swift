@@ -27,6 +27,9 @@ public extension SteamSourceEntries {
         }
     }
 
+    /// The setting and draft change ID. The drawn row has its own identity (`sourceRowID`).
+    static let sourceID = "steamSource"
+
     /// What turning the source off keeps: under the switch, and again when a changed choice is saved.
     static let keptWhenOff = IntegrationWords("Your Steam files stay where they are. Disabling this source keeps its games and personal choices.")
 
@@ -37,7 +40,7 @@ public extension SteamSourceEntries {
     }
 
     static func mac(applied: Bool, staged: Bool?, status: CatalogSourceStatus, found: Int, root: String) -> MacRows {
-        var source = sourceSwitch(id: "steamSource", inForce: applied, waiting: staged)
+        var source = sourceSwitch(id: sourceID, inForce: applied, waiting: staged)
         source.icon = "Steam"
         source.about = .init("Find installed native Mac games in your Steam libraries.")
         source.info = keptWhenOff

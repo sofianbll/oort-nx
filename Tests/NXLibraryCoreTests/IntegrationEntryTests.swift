@@ -22,6 +22,7 @@ final class IntegrationEntryTests: XCTestCase {
         for status in Self.every {
             let rows = mac(status)
             XCTAssertEqual(rows.map(\.id), ["steamSource", "steamRefresh", "steamFolder"], "\(status)")
+            XCTAssertEqual(rows[0].id, SteamSourceEntries.sourceID, "same destination for the row, draft and overview")
             XCTAssertEqual(rows.map(\.rowID), ["Steam", "Refresh Steam", "Steam folder"], "\(status)")
             XCTAssertEqual(rows[0].about, .init("Find installed native Mac games in your Steam libraries."))
             XCTAssertEqual(rows[0].info, .init("Your Steam files stay where they are. Disabling this source keeps its games and personal choices."))
