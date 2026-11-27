@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 26 novembre 2026. Copertura di **1142 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 27 novembre 2026. Copertura di **1146 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -210,6 +210,9 @@ La [mappa del desktop](../../desktop/README.md) descrive i bersagli di build e l
 |---|---|
 | [app.js](../../desktop/ui/app.js) | Finestra desktop e navigazione; Add game in testa, clic destro sulla tessera premuta e aggiornamento dei preferiti senza rubare il focus. |
 | [Companion.swift](../../Sources/OortCompanion/Companion.swift) | Protocollo Swift per libreria, cartelle, sessioni e link dichiarati da giochi già aggiunti. |
+| [Companion+Integrations.swift](../../Sources/OortCompanion/Companion+Integrations.swift) | Righe sulle integrazioni decise dal core: Settings › Integrations, e Steam nei primi passi, in Add game e nel centro attività; richiesta fatta solo se la riga mostrata non è cambiata né già fatta. |
+| [IntegrationsTests.swift](../../Tests/OortCompanionTests/IntegrationsTests.swift) | Le stesse righe attraverso il protocollo a righe JSON: Steam acceso e spento, informazioni online e cancellazione, primi passi, aggiunta, centro attività, rifiuti. |
+| [integrations.js](../../desktop/tests/integrations.js) | Le stesse righe nella pagina vera con il core vero, senza finestra né suono: righe del core ovunque, un solo ritorno, pagina sconosciuta e seconda pressione rifiutate. |
 | [add.js](../../desktop/tests/add.js) | Focus iniziale, apertura con un controller simulato, aggiunta sintetica e ordine delle tessere. |
 | [alpha2.js](../../desktop/tests/alpha2.js) e [update.js](../../desktop/tests/update.js) | Preparazione della libreria nell'app Windows pubblicata e controllo dopo l'installazione della nuova versione. |
 | [upgrade.py](../../desktop/tests/upgrade.py) | Confronto di cartelle, ID dei giochi, preferiti, sessione sintetica e tema fra il core precedente e quello nuovo. |
@@ -421,6 +424,7 @@ Cartella `Sources/NXLibraryCore/Settings/`. Il catalogo dei testi sta in `Resour
 | [Sources/NXLibraryCore/Settings/AppSettings.swift](../../Sources/NXLibraryCore/Settings/AppSettings.swift) | Impostazioni globali e decodifica compatibile, anche per Inbox, Compilati di recente (attivi per default), Home in gioco e scelta VPN da ZeroTier Automatico. Tiene le chiavi del modulo come JSON e ignora chiavi e card Spotlight sconosciute. |
 | [Sources/NXLibraryCore/Settings/AppSettingsStore.swift](../../Sources/NXLibraryCore/Settings/AppSettingsStore.swift) | Separa bozza, anteprime e valori applicati; salva settings.json con lock, sostituzione atomica e rilettura. Conserva un file illeggibile e scrive l'ultima selezione in background. |
 | [Sources/NXLibraryCore/Settings/AppSettingsDraft.swift](../../Sources/NXLibraryCore/Settings/AppSettingsDraft.swift) | Confronta ogni campo modificabile con l'originale, espone i cambi e unisce le modifiche senza sovrascrivere un conflitto. |
+| [Sources/NXLibraryCore/Settings/IntegrationEntry.swift](../../Sources/NXLibraryCore/Settings/IntegrationEntry.swift) | Riga decisa di un’integrazione: chiavi dei testi, controllo, richiesta tipizzata al proprietario, conferma; regola comune dell’interruttore Steam (scelta in attesa, altrimenti in vigore; A chiede l’altra). Lo stesso file serve l’app Mac. |
 | [Sources/NXLibraryCore/Settings/SettingsRowAction.swift](../../Sources/NXLibraryCore/Settings/SettingsRowAction.swift) | Identifica azioni e righe Settings, mantenendo una sola azione primaria per riga senza accorpare giochi omonimi. |
 | [Sources/NXLibraryCore/Settings/SettingsCatalog.swift](../../Sources/NXLibraryCore/Settings/SettingsCatalog.swift) | Righe fuori da Porting, incluse Play together, Hidden game apps e Home in gioco; ordina, cerca e confronta per identità. |
 | [Sources/NXLibraryCore/Settings/SettingsSection.swift](../../Sources/NXLibraryCore/Settings/SettingsSection.swift) | Titoli e icone della barra: General, Library, Porting (con Game folders e Porting storage) e System. |

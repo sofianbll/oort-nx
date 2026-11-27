@@ -128,6 +128,20 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertEqual(try ask(again, "online")["on"], true)
     }
 
+    /// The numbers a row shows change while the page is open (Steam read again while off, games found online): A on
+    /// it still does what it asked.
+    func testANumberThatChangedSinceTheRowWasShownDoesNotRefuseIt() throws {
+        let c = try companion()
+        _ = try ask(c, "steam.where", ["path": .string(Paths.native(steam(games: ["Drift"])))])
+        let shown = try ask(c, "integrations")
+        XCTAssertEqual(entry(shown, "steam")?["value"], ["%lld games", 1])
+        _ = steam(games: ["Drift", "Ember"])
+        XCTAssertEqual(entry(try ask(c, "integrations"), "steam")?["value"], ["%lld games", 2], "read again: one more game")
+        let on = try act(c, shown, "steam")
+        XCTAssertEqual(entry(on, "steam")?["checked"], true, "what was asked is done")
+        XCTAssertEqual(try ask(c, "library")["total"], 2)
+    }
+
     /// A page to open is not a request, a row the core never showed does not exist, nor does a place it does not know.
     func testOpeningIsNotARequestAndUnknownRowsAreRefused() throws {
         let c = try companion()
@@ -140,7 +154,13 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertEqual(code(c, "integrations.act", ["id": "not-a-real-destination", "token": "x"]), "entry-missing")
         XCTAssertEqual(code(c, "integrations.act", ["id": "steam"]), "stale")
         XCTAssertEqual(code(c, "integrations", ["at": "elsewhere"]), "place-missing")
+        XCTAssertEqual(code(c, "integrations", ["at": 3]), "place-missing")
         XCTAssertEqual(code(c, "integrations.keep", [:]), "on-missing")
+        // The first steps keep their choice until they go on: their row is not done at once, and carries no token.
+        let guide = try XCTUnwrap(entry(try ask(c, "integrations", ["at": "guide"]), "steam"))
+        XCTAssertNil(guide["token"])
+        XCTAssertEqual(code(c, "integrations.act", ["at": "guide", "id": "steam", "token": "0.0"]), "not-a-request")
+        XCTAssertEqual(try ask(c, "steam")["chosen"], false, "nothing written")
     }
 
     /// The first steps: Steam offered on while never chosen, the choice kept only as shown and only if it changes

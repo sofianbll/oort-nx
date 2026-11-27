@@ -67,7 +67,7 @@ fn core(host: State<'_, Arc<Host>>, method: String, params: Value) -> Result<Val
     if own.contains(&method.as_str()) || method.starts_with("session.") {
         return Err("method".into());
     }
-    if ["library.rescan", "steam", "steam.set"].contains(&method.as_str()) {
+    if ["library.rescan", "steam", "steam.set", "integrations", "integrations.act", "integrations.keep"].contains(&method.as_str()) {
         find_steam(&host);
     }
     host.core.ask(&method, params)

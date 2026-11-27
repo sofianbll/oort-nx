@@ -292,7 +292,10 @@ const shiftTab = d => { const i = Math.max(0, Math.min(TABS.length - 1, TABS.ind
 
 /* Steam's row in Add game, as the core decides it when the sheet opens (integrations, at add). */
 let addable = [];
-const added = async r => { if (!r) return; await reload(true); selected = L.games.find(g => g.kind === 'steam')?.id ?? selected; S.play('success'); while (layers.length > 1) pop(); homeLayer.redraw(); };
+const added = async r => {
+  // Refused (changed since the sheet opened): the sheet shows the core's row as it is now.
+  if (!r) { addable = (await ask('integrations', { at: 'add' }).catch(() => ({ entries: [] }))).entries; return top().refresh?.(); }
+  await reload(true); selected = L.games.find(g => g.kind === 'steam')?.id ?? selected; S.play('success'); while (layers.length > 1) pop(); homeLayer.redraw(); };
 const addRows = () => [
   ...addable.map(e => entryRow(e, added, { at: 'add' })),
   row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
@@ -492,7 +495,7 @@ const askEntry = (e, el, done, at) => {
   if (e.open) return PAGES[e.open] ? PAGES[e.open]() : deny(el, '');
   if (!e.token) return;
   // The core does it if the row is still the one shown and was not done since; else the row is drawn again.
-  const run = async () => { if (e.checked != null) S.play('confirm', el); try { done(await ask('integrations.act', { at, id: e.id, token: e.token })); } catch (x) { deny(el, ['stale', 'entry-missing'].includes(x) ? '' : because(x)); done(null); } };
+  const run = async () => { if (e.checked != null) S.play('confirm', document.activeElement); try { done(await ask('integrations.act', { at, id: e.id, token: e.token })); } catch (x) { deny(el, ['stale', 'entry-missing'].includes(x) ? '' : because(x)); done(null); } };
   return e.confirm ? confirm(wording(e.confirm.title), wording(e.confirm.text), wording(e.confirm.label), run) : run();
 };
 
@@ -830,7 +833,8 @@ const openGuide = async (at = 'welcome') => {
   const pages = (await ask('guide')).pages;
   // steam: Steam's row of the games page, as the core decides it; take: what its switch shows, kept until the player goes on.
   let page = at, steam = null, take = null;
-  const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => ({ entries: [] }))).entries[0] ?? null; take = steam?.checked ?? null; };
+  // Without the core's answer, the row says it was not found and does nothing.
+  const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => null))?.entries[0] ?? { id: 'steam', title: ['Steam'], value: ['Not found'], icon: 'gamepad' }; take = steam.checked ?? null; };
   const layer = { el: h('section', { cls: 'veil guide' }), guide: true };
   const set = async (id, value) => { await ask('settings.set', { id, value }); const p = await ask('settings.save'); apply(p.view); layer.refresh(); };
   const turn = async d => {

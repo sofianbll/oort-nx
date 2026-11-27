@@ -38,7 +38,8 @@ public final class Companion {
     var steamKnown = SteamShelf.Known()
     var lookup: (id: UUID, lookup: OnlineLookup)?
     var pickedNow = false
-    /// Settings › Integrations: rows done since the start; a row shown before the last one done is not done again.
+    /// The rows about integrations (Companion+Integrations): requests done since the start, wherever the page shows them;
+    /// a row shown before the last one done is not done again.
     var integrationTurn = 0
     var wikipediaRest = Date.distantPast
     var triedAt: [UUID: Date] = [:]

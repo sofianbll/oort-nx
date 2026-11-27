@@ -20,8 +20,8 @@ extension Companion {
     }
 
     private func place(_ p: CatalogJSON) throws -> IntegrationPlace {
-        guard let name = p["at"]?.stringValue else { return .settings }
-        guard let place = IntegrationPlace(rawValue: name) else { throw Manifest.Failure(code: "place-missing") }
+        guard let at = p["at"] else { return .settings }
+        guard let place = at.stringValue.flatMap(IntegrationPlace.init(rawValue:)) else { throw Manifest.Failure(code: "place-missing") }
         return place
     }
 
@@ -88,7 +88,8 @@ extension Companion {
     }
 
     func integrationsPage(at place: IntegrationPlace) -> CatalogJSON {
-        let sections = integrationSections(at: place).map { $0.map { json($0, token: token($0)) } }
+        // In the first steps A is the steps' own: their switch waits for them to go on (integrations.keep).
+        let sections = integrationSections(at: place).map { $0.map { json($0, token: place == .guide ? nil : token($0)) } }
         return place == .settings ? ["sections": .array(sections.map { ["entries": .array($0)] })] : ["entries": .array(sections.flatMap { $0 })]
     }
 
@@ -96,18 +97,20 @@ extension Companion {
     func actIntegration(_ p: CatalogJSON) throws -> CatalogJSON {
         let place = try place(p)
         guard let entry = integrationSections(at: place).joined().first(where: { $0.id == p["id"]?.stringValue }) else { throw Manifest.Failure(code: "entry-missing") }
-        guard let request = entry.request else { throw Manifest.Failure(code: "not-a-request") }
+        let done: () throws -> Void
+        switch (place, entry.request) {
+        case (.guide, _), (_, nil), (_, .refreshSteam?), (_, .cancelSteamRefresh?), (_, .chooseSteamFolder?), (_, .readSteamAgain?):
+            throw Manifest.Failure(code: "not-a-request")
+        case (_, .steam(let enabled)?): done = { try self.setSteam(enabled) }
+        case (_, .online(let on)?): done = { try self.setOnline(on) }
+        case (_, .clearOnline?): done = { _ = try self.clearOnline() }
+        }
         guard p["token"]?.stringValue == token(entry) else { throw Manifest.Failure(code: "stale") }
         integrationTurn += 1
-        switch request {
-        case .steam(let enabled): try setSteam(enabled)
-        case .online(let on): try setOnline(on)
-        case .clearOnline: _ = try clearOnline()
-        case .refreshSteam, .cancelSteamRefresh, .chooseSteamFolder, .readSteamAgain: throw Manifest.Failure(code: "not-a-request")
-        }
+        try done()
         guard case .object(var page) = integrationsPage(at: place) else { return .null }
         // The library shows Steam's games, or no longer does.
-        if case .steam = request { page["rescan"] = true }
+        if case .steam? = entry.request { page["rescan"] = true }
         return .object(page)
     }
 
@@ -115,13 +118,14 @@ extension Companion {
     /// in force. `rescan` says the library changed.
     func keepSteamChoice(_ p: CatalogJSON) throws -> CatalogJSON {
         guard let shown = p["on"]?.boolValue else { throw Manifest.Failure(code: "on-missing") }
-        guard steamSeen() != nil, shown != (choices.steam == true) else { return ["rescan": false] }
+        let here = SteamShelf.root(named: steamFolder, home: setup.home, system: setup.system) != nil
+        guard here, shown != (choices.steam == true) else { return ["rescan": false] }
         integrationTurn += 1
         try setSteam(shown)
         return ["rescan": true]
     }
 
-    private func json(_ entry: IntegrationEntry, token: String) -> CatalogJSON {
+    private func json(_ entry: IntegrationEntry, token: String?) -> CatalogJSON {
         var out: [String: CatalogJSON] = ["id": .string(entry.id), "title": words(entry.title)]
         out["sub"] = entry.about.map(words)
         out["value"] = entry.value.map(words)
@@ -133,7 +137,7 @@ extension Companion {
         case .row, .button, .value: break
         }
         if let c = entry.confirmation { out["confirm"] = ["title": words(c.title), "text": words(c.message), "label": words(c.confirm)] }
-        if entry.request != nil { out["token"] = .string(token) }
+        if entry.request != nil, let token { out["token"] = .string(token) }
         return .object(out)
     }
 
@@ -142,12 +146,13 @@ extension Companion {
         .array([.string(words.key)] + (words.count.map { [.number($0)] } ?? []) + words.args.map(CatalogJSON.string))
     }
 
-    /// The turn and what the row said and asked (FNV-1a of its JSON): a change of either refuses an old token.
+    /// The turn and what A asks of the row (FNV-1a): its request, its state and its question. Not the numbers it shows,
+    /// which change while the page is open (games found online, Steam read again): a change of what A asks, or a row
+    /// done since, refuses an old token.
     private func token(_ entry: IntegrationEntry) -> String {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let data = (try? encoder.encode(json(entry, token: ""))) ?? Data()
-        let digest = data.reduce(UInt64(0xcbf2_9ce4_8422_2325)) { ($0 ^ UInt64($1)) &* 0x100_0000_01b3 }
+        let asked = [entry.id, entry.request.map { "\($0)" }, entry.checked.map { "\($0)" }, entry.confirmation.map { "\($0)" }]
+        let digest = asked.map { $0 ?? "-" }.joined(separator: "|").utf8
+            .reduce(UInt64(0xcbf2_9ce4_8422_2325)) { ($0 ^ UInt64($1)) &* 0x100_0000_01b3 }
         return "\(integrationTurn)." + String(digest, radix: 16)
     }
 }
