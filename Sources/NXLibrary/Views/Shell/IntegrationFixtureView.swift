@@ -173,7 +173,7 @@ struct IntegrationFixtureView: View {
                     GameControllerService.shared.isGamepadConnected = true
                     for page in FirstRunSetup.Page.tour {
                         try render(OnboardingView(viewModel: model, settings: settings, profiles: profiles, sources: sources,
-                                                  finish: {}, openSettings: { _ in }), as: page.rawValue)
+                                                  finish: {}, openSettings: { _, _ in }), as: page.rawValue)
                         model.moveOnboarding(1)
                     }
                     try render(OnboardingNewsView(onExit: { _ in }), as: "news")

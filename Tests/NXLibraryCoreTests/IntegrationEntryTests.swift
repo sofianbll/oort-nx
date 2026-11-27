@@ -114,6 +114,58 @@ final class IntegrationEntryTests: XCTestCase {
         XCTAssertNil(SteamSourceEntries.found(nil, inForce: true, waiting: nil), "still reading, no row")
     }
 
+    /// Search and Changed list Steam's rows as SettingsCatalog listed them before, word for word, in the same place.
+    func testSearchListsSteamsRowsAsTheyAreDrawn() throws {
+        let before: [(String, String, String)] = [
+            ("steamSource", "Steam", "Find installed native Mac games in your Steam libraries."),
+            ("steamRefresh", "Refresh Steam", "Check enabled Steam libraries without changing your game files."),
+            ("steamFolder", "Steam folder", "Choose the Steam folder containing steamapps."),
+        ]
+        let rows = SteamSourceEntries.searchRows
+        XCTAssertEqual(rows.map(\.id), before.map(\.0))
+        XCTAssertEqual(rows.map(\.title), before.map(\.1))
+        XCTAssertEqual(rows.map(\.about), before.map(\.2))
+        XCTAssertEqual(Set(rows.map(\.group)), [.sources])
+        XCTAssertNil(rows.compactMap(\.copy).first, "actions copy nothing")
+        // Drawn with the same identity and title in every state.
+        for status in Self.every { XCTAssertEqual(mac(status).map(\.id), rows.map(\.id)); XCTAssertEqual(mac(status).map(\.title.key), rows.map(\.title)) }
+        let ids = SettingsCatalog.baseRows.map(\.id)
+        let at = try XCTUnwrap(ids.firstIndex(of: "steamSource"))
+        XCTAssertEqual(Array(ids[(at - 2)...(at + 3)]), ["integrations", "macShortcutAdd", "steamSource", "steamRefresh", "steamFolder", "steamInBackground"])
+        XCTAssertEqual(SettingsCatalog.search("steamapps", in: SettingsCatalog.baseRows).map(\.id), ["steamFolder"])
+        // A Steam choice waiting in the draft marks the switch and the folder (SettingsView.pendingRows).
+        XCTAssertEqual(SteamSourceEntries.draftRows, ["Steam", "Steam folder"])
+    }
+
+    /// The tour's optional services, as OnboardingView said them: words, order, set up or later, and where A goes.
+    func testTheTourSaysEachServiceAsBefore() {
+        let before: [(String, String, String, MaterialIcon, SettingsSection, String?)] = [
+            ("drive", "Google Drive", "Connect your cloud library.", .cloud, .cloudLibrary, nil),
+            ("nextendo", "Nextendo", "Connect an account for online play.", .gamepad, .profileNextendo, nil),
+            ("steam", "Steam", "Read your installed Mac games from Steam.", .store, .sources, "Steam"),
+            ("saves", "Save copies", "Choose if and where to sync ported-game saves.", .sync, .cloudSaves, nil),
+        ]
+        for set in 0..<16 {
+            let on = (0..<4).map { set & (1 << $0) != 0 }
+            let services = OptionalServiceEntries.all(driveConnected: on[0], nextendoSignedIn: on[1], steamInForce: on[2], savesOn: on[3])
+            XCTAssertEqual(services.count, 4)
+            for (index, (service, old)) in zip(services, before).enumerated() {
+                XCTAssertEqual(service.entry.id, old.0)
+                XCTAssertEqual(service.entry.title, .init(old.1))
+                XCTAssertEqual(service.entry.about, .init(old.2))
+                XCTAssertEqual(service.entry.icon.flatMap(MaterialIcon.init(rawValue:)), old.3)
+                XCTAssertEqual(service.entry.value, .init(on[index] ? "Enabled" : "Later"), "\(old.0) \(on[index])")
+                XCTAssertEqual(service.section, old.4)
+                XCTAssertEqual(service.row, old.5, "the tour opened Sources on Steam's switch (AppShellView)")
+                XCTAssertNil(service.entry.request, "nothing is asked of an owner: the tour opens the place")
+            }
+        }
+        // Steam is set up exactly when its source is in force, the switch Settings shows.
+        for inForce in [false, true] {
+            XCTAssertEqual(SteamSourceEntries.tour(inForce: inForce).row, mac(applied: inForce).first?.rowID)
+        }
+    }
+
     /// Every word the Mac rows use is a key of the catalog in its seven languages.
     func testEveryMacWordIsInTheCatalog() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -127,6 +179,8 @@ final class IntegrationEntryTests: XCTestCase {
             entries += mac(status)
             keys.formUnion([0, 3].map { SteamSourceEntries.state(status, found: $0).summary.key })
         }
+        entries += [false, true].flatMap { OptionalServiceEntries.all(driveConnected: $0, nextendoSignedIn: $0, steamInForce: $0, savesOn: $0).map(\.entry) }
+        keys.formUnion(SteamSourceEntries.searchRows.flatMap { [$0.title, $0.about] })
         for entry in entries {
             keys.formUnion([entry.title, entry.about, entry.info, entry.value].compactMap { $0?.key } + entry.help.map(\.key))
             switch entry.control {

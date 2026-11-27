@@ -107,9 +107,12 @@ struct SettingsSourcesSection: View {
         case .readSteamAgain, .online, .clearOnline: break
         }
     }
+    /// The picker and its refusal say what the folder row says.
+    private var folderWords: (title: String, message: String) {
+        (L10n.text(steam.folder.title.key, context: localization), steam.folder.about.map { L10n.text($0.key, context: localization) } ?? "")
+    }
     private func chooseFolder() {
-        OortFilePickerPresentation.open(.folder, title: L10n.text("Steam folder", context: localization),
-                                        message: L10n.text("Choose the Steam folder containing steamapps.", context: localization),
+        OortFilePickerPresentation.open(.folder, title: folderWords.title, message: folderWords.message,
                                         startingAt: root) { urls in
             if let chosen = urls.first { use(chosen) }
         }
@@ -119,7 +122,7 @@ struct SettingsSourcesSection: View {
         let apps = root.appendingPathComponent("steamapps").resolvingSymlinksInPath().standardizedFileURL
         var directory: ObjCBool = false
         guard apps.path.hasPrefix(root.path + "/"), FileManager.default.fileExists(atPath: apps.path, isDirectory: &directory), directory.boolValue else {
-            viewModel.showSettingsNotice(title: L10n.text("Steam folder", context: localization), message: L10n.text("Choose the Steam folder containing steamapps.", context: localization))
+            viewModel.showSettingsNotice(title: folderWords.title, message: folderWords.message)
             return
         }
         stage(enabled: steam.source.checked == true, root: root)

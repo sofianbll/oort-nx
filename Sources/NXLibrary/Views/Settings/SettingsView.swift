@@ -631,8 +631,9 @@ struct SettingsView: View {
     private func pendingRows(in section: SettingsSection) -> [String: AppSettingsDraft.Change] {
         var rows: [String: AppSettingsDraft.Change] = [:]
         for change in settings.draft?.changes ?? [] {
-            rows[SettingsDraftFields.row(change.id, in: section)] = change
-            if change.id == "steamSource", section == .sources { rows["Steam folder"] = change }
+            let marked = change.id == "steamSource" && section == .sources ? SteamSourceEntries.draftRows
+                : [SettingsDraftFields.row(change.id, in: section)]
+            for row in marked { rows[row] = change }
         }
         return rows
     }
