@@ -100,7 +100,7 @@ def used():
     """Every text the page or the core can show, by key."""
     keys = []
     for file in sorted((HERE / "ui").glob("*.js")):
-        for quote, text in re.findall(r"\bt\(\s*(['\"])((?:(?!\1)[^\\]|\\.)+)\1", file.read_text(encoding="utf-8")):
+        for quote, text in re.findall(r"\b(?:t|ct)\(\s*(['\"])((?:(?!\1)[^\\]|\\.)+)\1", file.read_text(encoding="utf-8")):
             keys.append(text.replace("\\'", "'"))
     core = ROOT / "Sources/NXLibraryCore"
     for path in ("Settings/SettingsSection.swift", "Library/LibraryFilter.swift"):
@@ -125,7 +125,8 @@ def strings():
     for file in sorted((HERE / "ui").glob("*.js")):
         explicit |= {t for _, t in re.findall(r"\bt\(\s*(['\"])((?:(?!\1)[^\\]|\\.)+)\1", file.read_text(encoding="utf-8"))}
     # The page shows them as it shows its own: each needs its words, in English and in French.
-    catalogue = set(catalogue_words())
+    app = (HERE / "ui/app.js").read_text(encoding="utf-8")
+    catalogue = set(catalogue_words()) | {k for _, k in re.findall(r"\bct\((['\"])(.+?)\1", app)}
     explicit |= set(integration_words()) | catalogue
     out, missing = {lang: {} for lang in LANGUAGES}, []
 

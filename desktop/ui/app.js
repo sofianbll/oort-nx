@@ -18,11 +18,12 @@ export const ask = (method, params = {}) => method === 'sound' ? invoke('core', 
 
 /* ---------- Texts ---------- */
 let V = {}, language = 'en';
-export const t = (key, ...args) => {
-  let s = (STRINGS[language] || STRINGS.en)[key] ?? STRINGS.en[key] ?? key;
-  if (typeof s === 'object') s = s[new Intl.PluralRules(language).select(args[0])] ?? s.other;
+const translate = (lang, key, ...args) => {
+  let s = (STRINGS[lang] || STRINGS.en)[key] ?? STRINGS.en[key] ?? key;
+  if (typeof s === 'object') s = s[new Intl.PluralRules(lang).select(args[0])] ?? s.other;
   return s.replace(/%(?:\d+\$)?(?:lld|@|d)/g, () => args.shift() ?? '').replace(/ {2,}/g, ' ');
 };
+export const t = (key, ...args) => translate(language, key, ...args);
 /* A name a game's manifest gives one of its settings: in the player's language when it is a known one, else as it is. */
 const word = text => gameWord(GAME_WORDS[language], text);
 const duration = s => {
@@ -76,7 +77,7 @@ const css = n => getComputedStyle(root).getPropertyValue(n).trim();
 
 const apply = v => {
   const before = V;
-  V = v; language = STRINGS[v.language] ? v.language : 'en';
+  V = v; language = ['en', 'fr'].includes(v.language) ? v.language : 'en';
   root.lang = language; root.dataset.palette = v.palette; root.dataset.mode = (PALETTES.find(p => p[0] === v.palette) || [])[2] || 'dark';
   root.style.setProperty('--zoom', v.zoom);
   root.toggleAttribute('data-still', v.reduceMotion || still.matches);
@@ -491,14 +492,18 @@ const PAGES = { programs: () => openProgram(), folder: o => pickFolder(o.after),
 const wording = w => w && (w[0] === '%@' ? String(w[1]) : t(...w));
 /* o.at: the place (Settings by default); o.chevron: false where a page opens without one; o.press: A, when the place keeps
    the choice itself (the first steps); o.game: the match page's arguments; o.after: what the caller does on return. */
-const entryRow = (e, done, o = {}) => row(wording(e.title), [wording(e.value), e.checked != null && h('span', { cls: 'sw' }), e.open && o.chevron !== false && icon('chevron')].filter(Boolean),
-  el => (o.press || askEntry)(e, el, done, o.at, o), { id: e.id, ic: e.icon, role: e.checked != null ? 'switch' : null, checked: e.checked, sub: wording(e.sub), help: e.help?.map(wording).join('. ') });
+const entryRow = (e, done, o = {}) => {
+  const say = o.words || wording;
+  return row(say(e.title), [say(e.value), e.checked != null && h('span', { cls: 'sw' }), e.open && o.chevron !== false && icon('chevron')].filter(Boolean),
+    el => (o.press || askEntry)(e, el, done, o.at, o), { id: e.id, ic: e.icon, role: e.checked != null ? 'switch' : null, checked: e.checked, sub: say(e.sub), help: e.help?.map(say).join('. ') });
+};
 const askEntry = (e, el, done, at, o = {}) => {
   if (e.open) return PAGES[e.open] ? PAGES[e.open](o, el) : deny(el, '');
   if (!e.token) return;
   // The core does it if the row is still the one shown and was not done since; else the row is drawn again.
   const run = async () => { if (e.checked != null) S.play('confirm', document.activeElement); try { done(await ask('integrations.act', { at, id: e.id, token: e.token })); } catch (x) { deny(el, ['stale', 'entry-missing'].includes(x) ? '' : because(x)); done(null); } };
-  return e.confirm ? confirm(wording(e.confirm.title), wording(e.confirm.text), wording(e.confirm.label), run) : run();
+  const say = o.words || wording;
+  return e.confirm ? confirm(say(e.confirm.title), say(e.confirm.text), say(e.confirm.label), run, o.cancel) : run();
 };
 
 /* ---------- Rows that hold a value ---------- */
@@ -516,9 +521,9 @@ const stepper = (label, value, { min, max, step }, set, o = {}) => {
 };
 
 /* ---------- The two-level page: a list at the side, its rows, one line of help ---------- */
-const shellOf = (name, items, title, body, foot) => {
+const shellOf = (name, items, title, body, foot, lang) => {
   let group;
-  return [h('div', { cls: 'shell' }, h('nav', { cls: 'side panel', 'aria-label': name }, name && h('p', {}, name), items.flatMap(x => { const head = x.group !== group && x.group ? h('h3', {}, x.group) : null; group = x.group; return [head, h('button', { 'data-id': x.id, 'aria-current': x.on ? 'page' : null, onclick: e => { if (x.on) { const r = layerRow(); return r && go(r); } e.currentTarget.focus({ preventScroll: true }); x.pick(); } }, x.ic && icon(x.ic), x.title)]; })), h('div', { cls: 'col' }, h('h1', {}, title), h('div', { cls: 'list' }, body), h('p', { cls: 'help', 'aria-live': 'polite' }), foot))];
+  return [h('div', { cls: 'shell' }, h('nav', { cls: 'side panel', 'aria-label': name }, name && h('p', {}, name), items.flatMap(x => { const head = x.group !== group && x.group ? h('h3', {}, x.group) : null; group = x.group; return [head, h('button', { 'data-id': x.id, 'aria-current': x.on ? 'page' : null, onclick: e => { if (x.on) { const r = layerRow(); return r && go(r); } e.currentTarget.focus({ preventScroll: true }); x.pick(); } }, x.ic && icon(x.ic), x.title)]; })), h('div', { cls: 'col', lang }, h('h1', {}, title), h('div', { cls: 'list' }, body), h('p', { cls: 'help', 'aria-live': 'polite' }), foot))];
 };
 const layerRow = () => focusable($('.list', top().el))[0];
 const shellActions = (layer, up) => {
@@ -647,17 +652,20 @@ const openSettings = async (start = 'general') => {
     return chooser(t(r.title), options, r.value, v => set(r.id, v), o);
   };
   const show = (r, v) => r.id === 'noteOctave' ? (v > 0 ? '+' : '') + v : Math.round(v * 100) + ' %';
+  // Only this catalogue ships all seven languages; the rest of desktop keeps its English/French locale.
+  const ct = (key, ...args) => translate(V.language, key, ...args);
+  const cw = w => w && (w[0] === '%@' ? String(w[1]) : ct(...w));
   const extra = {
     home: () => [h('div', {}, h('h2', {}, t('Game folders')), h('div', { cls: 'rows' }, folders.folders.map(f => row(f.path, [f.found ? t('%lld games', f.games) : t('Not found'), dot(f.found ? 'ok' : 'bad')], () => confirm(t('Remove this folder?'), t('%@ leaves the library. Nothing is deleted from the disk.', f.path), t('Remove'), async () => { folders = await ask('folders.remove', { path: f.key }); await reload(); again(layer, draw); }), { id: 'f' + f.key, ic: 'folder', help: t('Select to remove it from the library.') })), row(t('Add a folder'), icon('add'), () => pickFolder(async () => { folders = await ask('folders'); again(layer, draw); }), { id: 'addfolder' }), row(t('Look again'), t('%lld games', L.total), async () => { await reload(true); folders = await ask('folders'); again(layer, draw); }, { id: 'rescan', ic: 'sync', help: t('Reads the game folders again.') })))],
     account: () => [h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? type(t('Name'), p.name, async name => { people = await ask('profiles.rename', { profile: p.id, name }); again(layer, draw); }) : choose(p), { id: 'p' + p.id, ic: 'person', help: p.id === people.active ? t('Select to rename it.') : t('Select to play as this profile.') })), row(t('New profile'), icon('add'), () => type(t('Name'), '', async name => { people = await ask('profiles.add', { name }); again(layer, draw); }), { id: 'newp' }))],
     general: () => [h('div', { cls: 'rows' }, abilities.includes('fullscreen') && row(t('Fullscreen'), h('span', { cls: 'sw' }), () => { S.play('confirm', document.activeElement); setFullscreen(!full); }, { id: 'full', ic: 'monitor', role: 'switch', checked: full, help: t('Right now. F11 does the same.') }), row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', help: t('Reopen the guided setup without resetting your library.') }), abilities.includes('quit') && row(t('Quit Oort NX'), '', askQuit, { id: 'quit', ic: 'power' }))],
     controllers: () => [h('div', {}, controlsMap(padKind(pad?.name)), h('div', { cls: 'rows' }, row(t('Controls'), icon('chevron'), () => openControls(), { id: 'controls', ic: 'gamepad', help: t('What each button, key and gesture does.') })))],
-    integrations: () => integrations.sections.map(group => h('section', { 'data-section': group.id },
-      h('h2', {}, wording(group.title)),
-      group.entries.length ? h('div', { cls: 'rows' }, group.entries.map(e => row(wording(e.title),
-        [h('span', { cls: 'integration-status' }, wording(e.status)), h('span', { cls: 'integration-open' }, wording(e.action))],
-        () => openIntegration(e.id), { id: e.id, ic: e.icon, sub: wording(e.capabilities), cls: 'integration-summary' })))
-        : h('p', { cls: 'say' }, wording(group.empty)))),
+    integrations: () => integrations.sections.map(group => h('section', { 'data-section': group.id, lang: V.language },
+      h('h2', {}, cw(group.title)),
+      group.entries.length ? h('div', { cls: 'rows' }, group.entries.map(e => row(cw(e.title),
+        [h('span', { cls: 'integration-status' }, cw(e.status)), h('span', { cls: 'integration-open' }, cw(e.action))],
+        () => openIntegration(e.id), { id: e.id, ic: e.icon, sub: cw(e.capabilities), cls: 'integration-summary' })))
+        : h('p', { cls: 'say' }, cw(group.empty)))),
     about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), [version, icon('link')], () => link('https://github.com/sofianbll/oort-nx/releases'), { id: 'version', help: t('Opens the page of versions in your browser. Oort NX does not look by itself.') }), row(t('Logs'), icon('folder'), openLogs, { id: 'logs', help: t('What games said the last time they ran.') }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
   // What a row asked is done: the core's rows again, then the library (Steam's games come or go) and what About says.
@@ -673,7 +681,7 @@ const openSettings = async (start = 'general') => {
   };
   const integration = () => integrationID && integrations.sections.flatMap(group => group.entries).find(e => e.id === integrationID);
   const steamLibrary = async () => {
-    if (page.pending) return deny(document.activeElement, t('Save your changes?'));
+    if (page.pending) return deny(document.activeElement, ct('Save or discard your changes before opening the library.'));
     const active = integrationID;
     const games = await ask('library', { tab: TABS[0], sort: V.sort }).catch(e => { if (top() === layer) deny(document.activeElement, because(e)); });
     if (!games || top() !== layer || integrationID !== active) return;
@@ -694,13 +702,13 @@ const openSettings = async (start = 'general') => {
     if (summary) go(summary);
   };
   const integrationDetail = e => [
-    h('p', { cls: 'say' }, h('strong', {}, wording(e.status))),
-    h('p', { cls: 'say' }, wording(e.about)),
-    ...e.steps.map(step => h('section', { 'data-phase': step.id }, h('h2', {}, wording(step.title)),
+    h('p', { cls: 'say', lang: V.language }, h('strong', {}, cw(e.status))),
+    h('p', { cls: 'say', lang: V.language }, cw(e.about)),
+    ...e.steps.map(step => h('section', { 'data-phase': step.id, lang: V.language }, h('h2', {}, cw(step.title)),
       h('div', { cls: 'rows' }, step.items.map(item => {
-        if (!item.row) return h('p', { cls: 'say' }, t(item.label[0], wording(item.text)));
-        if (!item.primary) return entryRow(item.row, acted);
-        const action = key(wording(item.row.title), event => askEntry(item.row, event.currentTarget, acted, undefined, { steamLibrary }), { id: item.row.id });
+        if (!item.row) return h('p', { cls: 'say' }, ct(item.label[0], cw(item.text)));
+        if (!item.primary) return entryRow(item.row, acted, { words: cw, cancel: ct('Cancel') });
+        const action = key(cw(item.row.title), event => askEntry(item.row, event.currentTarget, acted, undefined, { steamLibrary }), { id: item.row.id });
         action.setAttribute('data-primary', '');
         return h('div', { cls: 'integration-primary' }, action);
       })))),
@@ -710,10 +718,10 @@ const openSettings = async (start = 'general') => {
   layer.fullChanged = () => cat === 'general' && again(layer, draw);
   const draw = () => {
     const c = page.categories.find(x => x.id === cat), s = sub && c.subjects.find(x => x.id === sub);
-    const detail = integration(), title = detail ? wording(detail.title) : s ? t(s.title) : section(cat);
+    const detail = integration(), title = detail ? cw(detail.title) : cat === 'integrations' ? ct('Integrations') : s ? t(s.title) : section(cat);
     const own = (s || c).rows, body = detail ? integrationDetail(detail) : [own.length && h('div', { cls: 'rows' }, own.map(draft)), !s && c.subjects.length && h('div', { cls: 'rows' }, c.subjects.map(x => row(t(x.title), icon('chevron'), () => { S.play('open'); sub = x.id; layer.keep = null; again(layer, draw); layerRow()?.focus(); }, { id: 'sub-' + x.id }))), ...(!s && extra[cat] ? extra[cat]() : [])];
-    const foot = detail ? h('div', { cls: 'keys' }, key(t('Back'), backIntegration, { id: 'integration-back' })) : page.pending && h('div', { cls: 'draft panel' }, h('p', {}, t('%lld changes to save', page.changes.length)), key(t('Leave without saving'), async () => { S.play('back'); await take(ask('settings.discard'), false); pop(); }, { id: 'discard' }), key(t('Save'), () => { S.play('success'); take(ask('settings.save')); }, { id: 'save' }));
-    return shellOf(null, page.categories.map(x => ({ id: 'c-' + x.id, title: section(x.id), ic: icons[x.id], group: x.group && t(x.group), on: x.id === cat, pick: () => { cat = x.id; sub = null; integrationID = null; again(layer, draw); } })), title, body, foot);
+    const foot = detail ? h('div', { cls: 'keys', lang: V.language }, key(ct('Back'), backIntegration, { id: 'integration-back' })) : page.pending && h('div', { cls: 'draft panel' }, h('p', {}, t('%lld changes to save', page.changes.length)), key(t('Leave without saving'), async () => { S.play('back'); await take(ask('settings.discard'), false); pop(); }, { id: 'discard' }), key(t('Save'), () => { S.play('success'); take(ask('settings.save')); }, { id: 'save' }));
+    return shellOf(null, page.categories.map(x => ({ id: 'c-' + x.id, title: section(x.id), ic: icons[x.id], group: x.group && t(x.group), on: x.id === cat, pick: () => { cat = x.id; sub = null; integrationID = null; again(layer, draw); } })), title, body, foot, cat === 'integrations' ? V.language : null);
   };
   shellActions(layer, () => {
     if (!page.pending) { S.play('back'); return pop(); }
@@ -812,7 +820,7 @@ const dialog = (title, text, keys) => {
   layer.hints = () => [[['b', t('Back'), () => act('b')]], [['a', t('Select')]]];
   S.play('notification'); push(layer);
 };
-const confirm = (title, text, label, run) => dialog(title, text, [[t('Cancel'), () => {}], [label, run, 'danger']]);
+const confirm = (title, text, label, run, cancel = t('Cancel')) => dialog(title, text, [[cancel, () => {}], [label, run, 'danger']]);
 
 /* ---------- Choosing folders and files, without leaving the app ---------- */
 const pickFile = ({ title, extensions = [], folders = false, files = true, done }) => {
