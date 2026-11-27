@@ -905,10 +905,11 @@ extension CloudScreenProbe {
         try fm.removeItem(at: app)
         try fm.moveItem(at: older, to: app)
         let clock = ContinuousClock(), start = clock.now
-        func tree() -> [String] {
-            let paths = [""] + ((fm.enumerator(atPath: app.path)?.allObjects as? [String]) ?? []).sorted()
+        func tree(_ root: URL? = nil) -> [String] {
+            let root = root ?? app
+            let paths = [""] + ((fm.enumerator(atPath: root.path)?.allObjects as? [String]) ?? []).sorted()
             return paths.map { path in
-                let url = path.isEmpty ? app : app.appendingPathComponent(path)
+                let url = path.isEmpty ? root : root.appendingPathComponent(path)
                 var st = stat()
                 guard lstat(url.path, &st) == 0 else { return "\(path) missing" }
                 let size = listxattr(url.path, nil, 0, XATTR_NOFOLLOW)
@@ -944,7 +945,7 @@ extension CloudScreenProbe {
         RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
         monitor.refresh()
         await vm.refreshCloudLibrary(selected)
-        trees.append(("approved", tree()))
+        trees.append(("approved \(clock.now - start)", tree()))
         L10n.setContext(fr)
         vm.performCloudLibrary(.restore(.app), for: selected)
         guard let refusal = vm.settingsNotice else { preconditionFailure("Download must ask before replacing") }
@@ -963,22 +964,21 @@ extension CloudScreenProbe {
         try await until { vm.cloudLibrary.states[game.id]?.progress?.phase == .readyToInstall }
         let versionDuringPlay = try version()
         precondition(versionDuringPlay == "1.0")
-        trees.append(("waiting", tree()))
+        trees.append(("waiting \(clock.now - start)", tree()))
         RunningGameMonitor.screenRunning.withLock { $0 = nil }
         monitor.refresh()
         await vm.cloudLibrary.active?.task.value
         let applied = try version()
         // Record how the queue ended and what is installed once the game has closed.
         let ended = vm.cloudLibrary.states[game.id]
-        if applied != "2.0" {
-            trees.append(("ended", tree()))
-            var report = ["phases \(phases)", "moved:"] + trees[0].1.map { "  " + $0 }
-            for (previous, next) in zip(trees, trees.dropFirst()) {
-                report.append("\(previous.0) -> \(next.0):")
-                report += next.1.filter { !previous.1.contains($0) }.map { "  " + $0 }
-            }
-            FileHandle.standardError.write(Data((report.joined(separator: "\n") + "\n").utf8))
+        // The installed tree when the swap was refused, else the replaced tree kept as the backup.
+        trees.append(("ended \(clock.now - start)", tree(applied == "2.0" ? ended?.previousApp : nil)))
+        var report = ["phases \(phases)", "moved:"] + trees[0].1.map { "  " + $0 }
+        for (previous, next) in zip(trees, trees.dropFirst()) {
+            report.append("\(previous.0) -> \(next.0):")
+            report += next.1.filter { !previous.1.contains($0) }.map { "  " + $0 }
         }
+        FileHandle.standardError.write(Data(report.map { "DIAGNOSTIC " + $0 + "\n" }.joined().utf8))
         precondition(applied == "2.0", "Reference swap after close: installed \(applied ?? "none"), "
             + "completed \(String(describing: ended?.completedItem)), issue \(String(describing: ended?.issue)), "
             + "failure \(String(describing: ended?.transferFailure)), queue \(vm.cloudLibrary.queue.map(\.action)), "
