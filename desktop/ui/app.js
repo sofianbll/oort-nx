@@ -716,7 +716,8 @@ const openSettings = async (start = 'general') => {
   const integrationDetail = e => [
     h('p', { cls: 'say', lang: V.language }, h('strong', {}, cw(e.status))),
     h('p', { cls: 'say', lang: V.language }, cw(e.about)),
-    ...e.steps.map(step => h('section', { 'data-phase': step.id, lang: V.language }, h('h2', {}, cw(step.title)),
+    // One box per step (IntegrationCatalog.steps): title, sentences, then its buttons under them, aligned.
+    ...e.steps.map(step => h('section', { cls: 'panel integration-step', 'data-phase': step.id, lang: V.language }, h('h2', {}, cw(step.title)),
       h('div', { cls: 'rows' }, step.items.map(item => {
         if (item.say) return h('p', { cls: 'say' }, cw(item.say));
         if (!item.row) return h('p', { cls: 'say' }, ct(item.label[0], cw(item.text)));

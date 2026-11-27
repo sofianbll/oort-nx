@@ -58,7 +58,10 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .row[aria-disabled=true]{opacity:.55}
 .integration-summary .value{flex-wrap:wrap;justify-content:flex-end}
 [data-upcoming]{margin-top:var(--space-small)}
-.integration-primary{display:flex;justify-content:flex-end}
+.integration-primary{display:flex;justify-content:flex-start}
+.integration-step{display:grid;gap:var(--space-small);padding:var(--space-large);margin-top:var(--space-medium)}
+.list .integration-step h2{margin:0;color:var(--quiet);text-shadow:none}
+.integration-step .say{color:var(--ink);text-shadow:none}
 .row .icon{color:var(--mark)}.row.chosen .tick{color:var(--ink)}
 .dot{flex:none;width:calc(9*var(--u));height:calc(9*var(--u));min-width:6px;min-height:6px;border-radius:50%;background:var(--status-untested)}.dot.ok{background:var(--status-status-ok)}.dot.bad{background:var(--status-danger)}.dot.mark{background:var(--mark)}
 .chip{padding:var(--space-hairline) var(--space-medium);border-radius:99px;color:var(--ink);font-weight:600;background:var(--p-raised);box-shadow:0 0 0 1px var(--line-2)}
