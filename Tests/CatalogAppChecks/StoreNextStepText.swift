@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 func checkNextStepText(_ output: URL) throws {
     let cases: [(String, [String], [String])] = [
         ("online-app", ["app dans ton cloud", "telecharger l'app", "temps de jeu", "derniere partie", "plateforme", "aucune description"], []),
