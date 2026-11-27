@@ -53,7 +53,7 @@ public struct IntegrationOverview {
     public var engine: Engine = .notDetected
     public var engineCommit: String?
     public var expectedEngineCommit: String?
-    public var keysReady: Bool?
+    public var keyStatus: LocalKeyStatus?
     public var xcodeVersion: String?
     public var metalVersion: String?
     public var engineGate: String?
@@ -81,8 +81,11 @@ public struct IntegrationOverview {
         if let engineCommit {
             checks.append(.init("Observed engine commit: %@", args: [String(engineCommit.prefix(8))]))
         }
-        if let keysReady {
-            checks.append(.init(keysReady ? "Switch keys selected" : "Switch keys missing or invalid"))
+        switch keyStatus {
+        case .available?: checks.append(.init("Switch keys selected"))
+        case .required?: checks.append(.init("Switch keys missing"))
+        case .invalid(let issue)?: checks.append(.verbatim(issue.message))
+        case nil: break
         }
         if let xcodeVersion { checks.append(.verbatim(xcodeVersion)) }
         if let metalVersion { checks.append(.init("Metal compiler: %@", args: [metalVersion])) }

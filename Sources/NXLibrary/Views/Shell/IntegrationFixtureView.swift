@@ -23,7 +23,7 @@ struct IntegrationFixtureView: View {
             data.engine = .detected
             data.engineCommit = "f1c7100f"
             data.expectedEngineCommit = "f1c7100f"
-            data.keysReady = true
+            data.keyStatus = .available(applicationGenerations: 1)
             data.xcodeVersion = "Xcode 27"
             data.metalVersion = "33000.1"
             data.hasSwitchGames = true

@@ -46,7 +46,7 @@ struct IntegrationSurface: View {
         }
         data.engineCommit = setup.versions.selected.value
         data.expectedEngineCommit = setup.versions.expected
-        data.keysReady = setup.isProdKeysValid
+        data.keyStatus = setup.localKeyStatus
         data.xcodeVersion = setup.environmentStatus?.xcodeVersion
         data.metalVersion = setup.environmentStatus?.metalVersion
         data.engineGate = setup.toolchainGateSummary.flatMap { $0.message ?? ($0.buildHint.isEmpty ? nil : $0.buildHint) }

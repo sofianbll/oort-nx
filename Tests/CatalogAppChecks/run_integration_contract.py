@@ -62,10 +62,9 @@ class IntegrationContract(unittest.TestCase):
     def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
         source = (ROOT / "Sources/ArcanePorting/Settings/IntegrationOverview.swift").read_text()
         catalog = json.loads((ROOT / "Sources/NXLibraryCore/Resources/Localizable.xcstrings").read_text())["strings"]
-        sections = re.split(r"^        case \.(\w+):$", source, flags=re.MULTILINE)
+        sections = re.split(r"^        case \.(\w+):$", source.split("public func row(", 1)[1], flags=re.MULTILINE)
+        self.assertEqual(set(sections[1::2]), {"switchGames", "steam", "macApps", "drive", "nextendo", "images", "saves"})
         for row, body in zip(sections[1::2], sections[2::2]):
-            if row not in {"switchGames", "steam", "macApps", "drive", "nextendo", "images", "saves"}:
-                continue
             rights = dict(re.findall(r'(reads|writes|sends): "([^"]+)"', body))
             self.assertEqual(set(rights), {"reads", "writes", "sends"}, row)
             for language in ["en", "fr"]:
