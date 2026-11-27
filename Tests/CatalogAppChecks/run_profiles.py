@@ -1660,10 +1660,10 @@ extension AppIconModel {
         replace(app / "Services/SteamPlayCoordinator.swift", r"static var steamClientURL: URL\? \{.*?\n    \}",
                 "static var steamClientURL: URL? { nil }")
         replace(app / "Views/Spotlight/SpotlightTopBar.swift", r"Text\(context\.date,", "Text(Date(timeIntervalSince1970: 1_790_000_000),")
-        replace(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
+        replace(package / "core/OortLibrary/App/AppDataProfile.swift",
                 r'public static let profile = [^\n]*',
                 f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
-        replace(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
+        replace(package / "core/OortLibrary/App/AppDataProfile.swift",
                 r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                 'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         replace(app / "Views/Shell/MenuOverlayView.swift", r"var presented = false", "var presented = true")

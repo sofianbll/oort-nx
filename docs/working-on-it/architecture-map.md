@@ -38,7 +38,7 @@ The [LikeC4 MCP server](https://likec4.dev/tooling/ai-tools/#mcp-server) queries
 1. **OortCore imports Foundation only.** A new Apple framework in this module fails the check.
 2. **Layer order.** A module imports only the modules below it. For example, `NXLibraryCore` may not import `NXLibrary`.
 3. **No interface framework in the core.** `OortCore` and `NXLibraryCore` may not import AppKit, SwiftUI, Metal, MetalKit or GameController.
-   - Two files are on the baseline, and the baseline can only shrink: `Sources/NXLibraryCore/Selene/Motion.swift` (SwiftUI) and `Sources/NXLibraryCore/Artwork/ArtworkStore.swift` (AppKit).
+   - Two files are on the baseline, and the baseline can only shrink: `core/OortLibrary/Selene/Motion.swift` (SwiftUI) and `core/OortLibrary/Artwork/ArtworkStore.swift` (AppKit).
    - When one of them stops importing the framework, the check reports the stale entry, and the entry is removed in the same change.
 
 The check compares `swiftModule` declarations with the regular and executable targets returned by `swift package dump-package`. It reads actual source imports, not the build graph.

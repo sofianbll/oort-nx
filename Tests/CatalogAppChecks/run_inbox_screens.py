@@ -370,7 +370,7 @@ def main():
         change(app / "Views/Porting/GameInboxView.swift",
                "            .dropDestination(for: URL.self) { urls, _ in model.accept(urls) } isTargeted: { dropTarget = $0 }\n",
                "")
-        profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
+        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
         change(profile, 'AppDataProfile(isDevelopment: Bundle.main.object(forInfoDictionaryKey: "NXLibraryDevelopmentProfile") as? Bool == true)',
                f'AppDataProfile(home: URL(fileURLWithPath: {json.dumps(str(home))}), isDevelopment: true)')
         change(profile, "public static var preferences: UserDefaults { configuredPreferences() }",

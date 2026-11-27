@@ -103,7 +103,7 @@ def main():
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         isolate_startup(app)
-        profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
+        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
         change(profile, r'public static let profile = [^\n]*',
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r'public static var preferences: UserDefaults \{ [^\n]+ \}',

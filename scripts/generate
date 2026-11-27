@@ -16,9 +16,9 @@ GENERATORS = [
     ("scripts/generate_names.py", "architecture/names.json",
      "the names block of Package.swift and scripts/build_app.sh, architecture/names.c4, the library's GeneratedNames.swift"),
     ("scripts/generate_oort_tokens.py", "design/oort.tokens.json, Resources/Selene/palettes.json",
-     "Sources/NXLibraryCore/Selene/SeleneTokens.swift, design/oort-tokens.css, the default palette"),
+     "core/OortLibrary/Selene/SeleneTokens.swift, design/oort-tokens.css, the default palette"),
     ("scripts/generate_credits.py", "design/credits.json",
-     "the generated block of NOTICE, Sources/NXLibraryCore/Resources/credits.json, and the copies of each app it finds"),
+     "the generated block of NOTICE, core/OortLibrary/Resources/credits.json, and the copies of each app it finds"),
 ]
 
 

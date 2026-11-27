@@ -43,7 +43,7 @@ class CreditsTests(unittest.TestCase):
     def test_historical_support_is_in_the_notice_but_not_the_app(self):
         copies = credits.copies(self.data)
         self.assertIn(b"https://buymeacoffee.com/bium", copies["NOTICE"])
-        app = copies["Sources/NXLibraryCore/Resources/credits.json"]
+        app = copies["core/OortLibrary/Resources/credits.json"]
         self.assertNotIn(b"buymeacoffee.com", app)
         self.assertIn(b"https://github.com/Bium23/NxLibrary", app)
 

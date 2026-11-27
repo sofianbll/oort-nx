@@ -17,7 +17,7 @@ import names  # noqa: E402  architecture/names.json
 
 def prepare(package):
     app = package / "Sources/NXLibrary"
-    core = package / "Sources/NXLibraryCore"
+    core = package / "core/OortLibrary"
     porting = package / "Sources/ArcanePorting"
 
     def replace(file, old, new):

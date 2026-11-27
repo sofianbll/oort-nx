@@ -191,7 +191,7 @@ def dependencies():
             add("dir:Resources/SoundPacks", name)
         if name.startswith("Resources/Brands/Platforms/"):
             add("dir:Resources/Brands/Platforms", name)
-        if "Sources/NXLibraryCore/Resources/crystal-" in name:
+        if "core/OortLibrary/Resources/crystal-" in name:
             add("media:crystal", name)
     for name, entry in json.loads(read(ROOT / "scripts/bundle-licences.json") or "{}").items():
         if isinstance(entry, dict):
@@ -322,7 +322,7 @@ def copies(data):
     out, block = {}, notice_block(data)
     data = display_data(data)
     text = compact(data).encode()
-    for folder, reader in (("Sources/NXLibraryCore/Resources", "Sources/NXLibraryCore/App/Credits+Bundled.swift"),
+    for folder, reader in (("core/OortLibrary/Resources", "core/OortLibrary/App/Credits+Bundled.swift"),
                            ("mobile/Sources/OortMobile/Resources", "mobile"), ("android/app/src/main/assets", "android")):
         if (ROOT / reader).exists():
             out[f"{folder}/credits.json"] = text
@@ -493,7 +493,7 @@ def main(argv=None):
         if shown.returncode or shown.stdout != SOURCE.read_bytes():
             issues.append(f"{ref} does not have the same design/credits.json")
         # What that branch's own apps were given: Mac, iOS, Android, Windows and Linux.
-        for name, text in (("Sources/NXLibraryCore/Resources/credits.json", compact(data)), ("mobile/Sources/OortMobile/Resources/credits.json", compact(data)),
+        for name, text in (("core/OortLibrary/Resources/credits.json", compact(data)), ("mobile/Sources/OortMobile/Resources/credits.json", compact(data)),
                            ("android/app/src/main/assets/credits.json", compact(data)), ("desktop/ui/gen/credits.js", desktop_script(data)),
                            ("desktop/ui/gen/credits.css", sheet(data).decode())):
             if name.endswith(".css") and not CARDS.is_file():

@@ -11,7 +11,7 @@ model {
     libraryModule = swiftModule "NXLibraryCore" {
       metadata {
         layer "1"
-        folder "Sources/NXLibraryCore"
+        folder "core/OortLibrary"
       }
     }
   }

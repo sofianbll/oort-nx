@@ -43,7 +43,7 @@ class AppBundleInfo(unittest.TestCase):
         script = BUILD_APP.with_name("release.sh").read_text()
         start = script.index("fail() {")
         end = script.index('[[ "$VERSION"', start)
-        source = BUILD_APP.parents[1] / "Sources/NXLibraryCore/App/AppUpdate.swift"
+        source = BUILD_APP.parents[1] / "core/OortLibrary/App/AppUpdate.swift"
         probe = script[start:end] + """
         gh() {
             [[ "$*" == "api repos/sofianbll/oort-nx --hostname github.com --jq select(.private == false and .permissions.push == true) | .full_name" ]] || return 2

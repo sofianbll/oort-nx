@@ -784,13 +784,13 @@
    "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
     "saves-actions": 2
    },
-   "Sources/NXLibraryCore/Catalog/CatalogGameOptions.swift": {
+   "core/OortLibrary/Catalog/CatalogGameOptions.swift": {
     "steam-options": 2
    },
-   "Sources/NXLibraryCore/Details/GameOptionsPresentation.swift": {
+   "core/OortLibrary/Details/GameOptionsPresentation.swift": {
     "game-quick-panel": 4
    },
-   "Sources/NXLibraryCore/Selene/SpotlightRow.swift": {
+   "core/OortLibrary/Selene/SpotlightRow.swift": {
     "home-cards": 1
    }
   },
@@ -963,7 +963,7 @@
   },
   {
    "id": "action-bar",
-   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "file": "core/OortLibrary/Selene/ActionBarOrder.swift",
    "scope": "enum ActionBarRole",
    "order": [
     "\\bdestructive\\b",
@@ -975,7 +975,7 @@
   },
   {
    "id": "binary-destructive-order",
-   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "file": "core/OortLibrary/Selene/ActionBarOrder.swift",
    "scope": "static func sorted",
    "order": [
     "items\\.count == 2",
@@ -985,7 +985,7 @@
   },
   {
    "id": "vertical-dialog-order",
-   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "file": "core/OortLibrary/Selene/ActionBarOrder.swift",
    "scope": "static func stacked",
    "order": [
     "\\.primary: 0",

@@ -59,19 +59,19 @@ class Lexer(unittest.TestCase):
 class Menus(Case):
     def test_six_entries_are_refused_and_five_are_not(self):
         rules = {"surfaces": [{"id": "menu", "count": "enum:Kind"}]}
-        self.write("enum Kind: CaseIterable { case a, b, c, d, e }", "Sources/NXLibraryCore/Kind.swift")
+        self.write("enum Kind: CaseIterable { case a, b, c, d, e }", "core/OortLibrary/Kind.swift")
         self.assertEqual(self.found("menu-size", **rules), [])
-        self.write("enum Kind: CaseIterable { case a, b, c, d, e, f, g }", "Sources/NXLibraryCore/Kind.swift")
+        self.write("enum Kind: CaseIterable { case a, b, c, d, e, f, g }", "core/OortLibrary/Kind.swift")
         self.assertEqual(len(self.found("menu-size", **rules)), 2)
 
     def test_each_group_and_the_number_of_groups_are_counted(self):
         rules = {"surfaces": [{"id": "settings", "count": "groups:Category.groups"}]}
         groups = "(nil, [.a, .b, .c, .d, .e, .f]), " + ", ".join('("x", [.a])' for _ in range(5))
-        self.write(f"enum Category {{ static let groups: [(String?, [Self])] = [{groups}] }}", "Sources/NXLibraryCore/Category.swift")
+        self.write(f"enum Category {{ static let groups: [(String?, [Self])] = [{groups}] }}", "core/OortLibrary/Category.swift")
         self.assertEqual([item[2] for item in self.found("menu-size", **rules)], ["settings (groups)", "settings (group 1)"])
 
     def test_a_third_level_is_refused(self):
-        self.write("enum Kind { case a }", "Sources/NXLibraryCore/Kind.swift")
+        self.write("enum Kind { case a }", "core/OortLibrary/Kind.swift")
         rules = {"surfaces": [{"id": "one", "count": "enum:Kind"}, {"id": "two", "count": "enum:Kind", "parent": "one"},
                               {"id": "three", "count": "enum:Kind", "parent": "two"}]}
         self.assertEqual([item[2] for item in self.found("menu-depth", **rules)], ["three"])
@@ -91,12 +91,12 @@ class Menus(Case):
         self.assertEqual(len(self.found("menu-size")), 1)
 
     def test_a_surface_that_left_the_sources_is_refused(self):
-        self.write("enum Other { case a }", "Sources/NXLibraryCore/Other.swift")
+        self.write("enum Other { case a }", "core/OortLibrary/Other.swift")
         self.assertEqual(len(self.found("menu-unregistered", surfaces=[{"id": "gone", "count": "enum:Kind"}])), 1)
         self.assertEqual(self.found("menu-unregistered", surfaces=[{"id": "ios", "count": "enum:Kind", "system": "ios"}]), [])
 
     def test_a_row_that_opens_an_undeclared_list_is_refused(self):
-        self.write("enum Row { case a, b\n var opens: Bool { [.a, .b].contains(self) } }", "Sources/NXLibraryCore/Row.swift")
+        self.write("enum Row { case a, b\n var opens: Bool { [.a, .b].contains(self) } }", "core/OortLibrary/Row.swift")
         opener = {"type": "Row", "member": "opens", "opens": {"a": "declared"}}
         self.assertEqual([item[2] for item in self.found("menu-unregistered", openers=[opener])], ["Row.b"])
 
@@ -123,21 +123,21 @@ class RealMenus(Case):
         return [item[2] for item in found.items if item[0] == "menu-size"]
 
     def test_a_sixth_icon_in_the_control_center(self):
-        self.mutate("Sources/NXLibraryCore/Selene/MenuSelectionModel.swift", "power, activityCenter, settings", "power, activityCenter, settings, extra")
+        self.mutate("core/OortLibrary/Selene/MenuSelectionModel.swift", "power, activityCenter, settings", "power, activityCenter, settings, extra")
         self.assertIn("control-center", self.sizes())
 
     def test_a_sixth_default_tab(self):
-        self.mutate("Sources/NXLibraryCore/Library/LibraryFilter.swift", "[.all, .installed, .cloud, .favorites]",
+        self.mutate("core/OortLibrary/Library/LibraryFilter.swift", "[.all, .installed, .cloud, .favorites]",
                     "[.all, .installed, .cloud, .favorites, .recentlyPlayed, .notPlayed]")
         self.assertIn("library-tabs", self.sizes())
 
     def test_a_sixth_settings_category_in_a_group(self):
-        self.mutate("Sources/NXLibraryCore/Settings/SettingsCategory.swift", "[.home, .library, .switch, .saves, .cloudLibrary]",
+        self.mutate("core/OortLibrary/Settings/SettingsCategory.swift", "[.home, .library, .switch, .saves, .cloudLibrary]",
                     "[.home, .library, .switch, .saves, .cloudLibrary, .logs]")
         self.assertIn("settings (group 3)", self.sizes())
 
     def test_the_library_card_of_the_control_center_grows(self):
-        self.mutate("Sources/NXLibraryCore/Selene/MenuSelectionModel.swift", "[.addGame, .manageSources, .refreshLibrary, .gameInbox]",
+        self.mutate("core/OortLibrary/Selene/MenuSelectionModel.swift", "[.addGame, .manageSources, .refreshLibrary, .gameInbox]",
                     "[.addGame, .manageSources, .refreshLibrary, .gameInbox, .theme, .myProfile]")
         self.assertIn("control-center cards (.library)", self.sizes())
 

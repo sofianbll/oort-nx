@@ -31,8 +31,8 @@ OORT_CORE_ALLOWED = {"Foundation"}
 UI_FRAMEWORKS = {"AppKit", "SwiftUI", "Metal", "MetalKit", "GameController"}
 # Known exceptions, by file (relative to the root). Remove an entry when its import goes away.
 UI_BASELINE = {
-    "Sources/NXLibraryCore/Selene/Motion.swift": {"SwiftUI"},
-    "Sources/NXLibraryCore/Artwork/ArtworkStore.swift": {"AppKit"},
+    "core/OortLibrary/Selene/Motion.swift": {"SwiftUI"},
+    "core/OortLibrary/Artwork/ArtworkStore.swift": {"AppKit"},
 }
 IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
 ENGINE_READ = re.compile(r'"DMCommit"|"rev-parse"\s*,\s*"HEAD"|"--format=%h %s"|\.readStatus\(\)|'
@@ -109,7 +109,7 @@ def check(root):
             violations.append(f"{relative}: native Play opens belong to the adapter")
         if relative.startswith("Sources/NXLibrary/Views/") and re.search(r"\brunningGames\.resume\s*\(", text):
             violations.append(f"{relative}: resume through engine.play")
-        if relative != "Sources/NXLibraryCore/Catalog/PlayEngine.swift" and re.search(r"\.admit\([^\n]*gesture:", text):
+        if relative != "core/OortLibrary/Catalog/PlayEngine.swift" and re.search(r"\.admit\([^\n]*gesture:", text):
             violations.append(f"{relative}: only PlayEngine admits a gesture")
         if relative == "Sources/ArcanePorting/Setup/MacNXNative.swift":
             continue

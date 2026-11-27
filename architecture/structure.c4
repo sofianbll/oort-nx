@@ -18,7 +18,6 @@ model {
     sources = folder "Sources/" {
       summary "Swift modules (Package.swift)"
       metadata { path "Sources" }
-      srcLibraryCore = folder "NXLibraryCore/" { metadata { path "Sources/NXLibraryCore" } }
       srcPorting = folder "ArcanePorting/" { metadata { path "Sources/ArcanePorting" } }
       srcMac = folder "NXLibrary/" { metadata { path "Sources/NXLibrary" } }
     }
@@ -27,6 +26,7 @@ model {
       summary "The core: states, rules and screen descriptions, in Swift"
       metadata { path "core" }
       coreOortCore = folder "OortCore/" { metadata { path "core/OortCore" } }
+      coreLibrary = folder "OortLibrary/" { metadata { path "core/OortLibrary" } }
     }
 
     tests = folder "Tests/" {

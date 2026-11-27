@@ -8,7 +8,7 @@ final class ArcaneNameTests: XCTestCase {
     }
 
     func testCatalogShowsNoOldAppName() throws {
-        let url = repository.appendingPathComponent("Sources/NXLibraryCore/Resources/Localizable.xcstrings")
+        let url = repository.appendingPathComponent("core/OortLibrary/Resources/Localizable.xcstrings")
         let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
         let strings = try XCTUnwrap(catalog?["strings"] as? [String: Any])
         var found: [String] = []

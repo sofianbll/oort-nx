@@ -8,7 +8,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path("design/oort.tokens.json")
-SWIFT = Path("Sources/NXLibraryCore/Selene/SeleneTokens.swift")
+SWIFT = Path("core/OortLibrary/Selene/SeleneTokens.swift")
 PALETTES = Path("Resources/Selene/palettes.json")
 CSS = Path("design/oort-tokens.css")
 # The weights the Swift views name; SwiftUI has no number for them.

@@ -138,7 +138,7 @@ check_release_tree
 if [ "$PUBLISH" = "1" ]; then
   [ -n "$NOTES" ] && [ -f "$NOTES" ] || fail "--publish needs --notes <file> with the release notes"
   command -v gh >/dev/null || fail "--publish needs the GitHub CLI (gh)"
-  REPOSITORY="$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")"
+  REPOSITORY="$(resolve_release_repository "$ROOT/core/OortLibrary/App/AppUpdate.swift")"
   RELEASE_COMMIT="$(git rev-parse --verify HEAD)" || fail "could not resolve the release commit"
   check_publish_target
 fi
@@ -257,7 +257,7 @@ if [ "$PUBLISH" = "1" ]; then
   check_engine_pin "$ENGINE_TARGET" "$ENGINE" \
     || fail "engine commit $ENGINE is no longer verified on a public branch of $ENGINE_TARGET"
   check_release_tree
-  [ "$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")" = "$REPOSITORY" ] \
+  [ "$(resolve_release_repository "$ROOT/core/OortLibrary/App/AppUpdate.swift")" = "$REPOSITORY" ] \
     || fail "the public update repository changed during release preparation"
   check_publish_target
   if [ "$RESUME_TAG" = "0" ]; then

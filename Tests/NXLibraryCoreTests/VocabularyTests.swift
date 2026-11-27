@@ -8,7 +8,7 @@ final class VocabularyTests: XCTestCase {
     }
 
     private func strings(_ language: String) throws -> [String: String] {
-        let data = try Data(contentsOf: root.appendingPathComponent("Sources/NXLibraryCore/Resources/Localizable.xcstrings"))
+        let data = try Data(contentsOf: root.appendingPathComponent("core/OortLibrary/Resources/Localizable.xcstrings"))
         let catalog = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         let all = try XCTUnwrap(catalog["strings"] as? [String: [String: Any]])
         return all.compactMapValues { entry in

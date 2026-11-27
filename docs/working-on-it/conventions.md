@@ -38,7 +38,7 @@ Queste regole integrano le ricette qui sotto. Sono criteri per il lavoro sul for
 
 | Cosa | Dove | Perché |
 |---|---|---|
-| Modelli, regole, parsing, persistenza, rete, processi, decisioni di focus e di layout calcolabili | `Sources/NXLibraryCore` | Si prova con XCTest senza finestre. |
+| Modelli, regole, parsing, persistenza, rete, processi, decisioni di focus e di layout calcolabili | `core/OortLibrary` | Si prova con XCTest senza finestre. |
 | Codice del Core di un'area | La cartella dell'area: `App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam` | Ogni area si trova da un solo posto. |
 | Codice che è Switch (nxnative, chiavi, store Nintendo, RomFS, `env.txt`), senza SwiftUI | il target `ArcanePorting`, `Sources/ArcanePorting/`, e la sottocartella della parte: `Setup`, `Build`, `Launch`, `GameSettings`, `Cheats`, `Store`, `Saves`, `Mods` (con `Mods/GameBanana`), `Catalog`, `Library`, `Details`, `Settings`, `App` | La base non importa il modulo: il compilatore tiene il confine. |
 | Viste SwiftUI, integrazione AppKit, controller, coordinamento degli store | `Sources/NXLibrary` | Dipende dal Core, mai il contrario. |

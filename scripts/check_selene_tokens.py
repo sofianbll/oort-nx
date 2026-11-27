@@ -15,7 +15,7 @@ import names  # noqa: E402  architecture/names.json
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "scripts/selene-token-debt.json"
-TOKENS = {"Sources/NXLibraryCore/Selene/SeleneTokens.swift"}
+TOKENS = {"core/OortLibrary/Selene/SeleneTokens.swift"}
 VIEWS = "Sources/NXLibrary/Views/"
 LIBRARY = VIEWS + "OortUI/"
 VERSION = 3

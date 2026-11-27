@@ -17,7 +17,7 @@ import sys
 # Prefixes end with "/"; other entries are exact file names.
 AREAS = {
     "swift": ("core/", "Sources/", "Tests/", "Resources/", "scripts/", "Package.swift", "runtime.lock", "VERSION"),
-    "desktop": ("desktop/", "core/OortCore/", "Sources/NXLibraryCore/", "scripts/check_portable_core.py", "Package.swift",
+    "desktop": ("desktop/", "core/OortCore/", "core/OortLibrary/", "scripts/check_portable_core.py", "Package.swift",
                 # desktop/scripts/generate.py reads these.
                 "design/", "Resources/Selene/palettes.json", "scripts/generate_oort_tokens.py"),
     "mobile": ("mobile/", "core/OortCore/", "Package.swift"),

@@ -124,9 +124,9 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Views/Shell/ProfileAvatar.swift](../../Sources/NXLibrary/Views/Shell/ProfileAvatar.swift) | Ritaglia artwork locale o file scelti, conserva i tempi dei GIF e mostra l’animazione in un cerchio con ritaglio centrato. |
 | [Sources/NXLibrary/Views/Shell/ProfilePage.swift](../../Sources/NXLibrary/Views/Shell/ProfilePage.swift) | Pagina profilo: arte sfumata, statistiche locali, schede percorse anche con LB/RB e ZL/ZR, pulsante Vedi tutto separato dal titolo e nascosto se la scheda è vuota, progressi e sblocchi, amici con miniature dei giochi riconosciuti. |
 | [Sources/NXLibrary/Views/Shell/ActivityCenterView.swift](../../Sources/NXLibrary/Views/Shell/ActivityCenterView.swift) | Compilazione e Cloud, code, Resume, progressi ed esiti. Nasconde Annulla quando il worker entra in installazione. |
-| [Sources/NXLibraryCore/Selene/ActionBarOrder.swift](../../Sources/NXLibraryCore/Selene/ActionBarOrder.swift) | Ruoli, ordine e focus: Annulla a sinistra nelle coppie, distruttivo separato nelle terne, elenco verticale da quattro risposte. |
-| [Sources/NXLibraryCore/Selene/ActivityCenterFocus.swift](../../Sources/NXLibraryCore/Selene/ActivityCenterFocus.swift) | Identità e navigazione delle righe attive, in coda, concluse e del comando Clear all. |
-| [Sources/NXLibraryCore/NXLibraryCore.swift](../../Sources/NXLibraryCore/NXLibraryCore.swift) | Espone la versione nominale del modulo Core. |
+| [core/OortLibrary/Selene/ActionBarOrder.swift](../../core/OortLibrary/Selene/ActionBarOrder.swift) | Ruoli, ordine e focus: Annulla a sinistra nelle coppie, distruttivo separato nelle terne, elenco verticale da quattro risposte. |
+| [core/OortLibrary/Selene/ActivityCenterFocus.swift](../../core/OortLibrary/Selene/ActivityCenterFocus.swift) | Identità e navigazione delle righe attive, in coda, concluse e del comando Clear all. |
+| [core/OortLibrary/NXLibraryCore.swift](../../core/OortLibrary/NXLibraryCore.swift) | Espone la versione nominale del modulo Core. |
 | [LaunchReveal.swift](../../Sources/NXLibrary/Views/Launch/LaunchReveal.swift) | Rende visibile la finestra al primo frame del moonlight, con dissolvenza e scadenza, poi consente il fullscreen; integra il bootstrap con un NSView non interattivo. |
 | [DevelopmentStartupView.swift](../../Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift) | Avvio asincrono: blocco del profilo, copia prima degli scrittori, avanzamento, recupero e conflitto legacy; segnala i lavori lasciati alla versione precedente. |
 | [DowngradeWarningView.swift](../../Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift) | Avvisi Selene sul ritorno a 0.3.0, gruppi omessi, spazio insufficiente e scelte con mouse, tastiera e controller. |
@@ -232,264 +232,264 @@ Cartella `core/OortCore/`, senza risorse né dipendenze.
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
-Cartella `Sources/NXLibraryCore/App/`.
+Cartella `core/OortLibrary/App/`.
 
 | File | Responsabilità |
 |---|---|
-| [FileBrowser.swift](../../Sources/NXLibraryCore/App/FileBrowser.swift) | Elenco asincrono dei metadati delle cartelle, luoghi, filtri e risalita del selettore. |
-| [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus e richieste Spotlight. Una bozza sospende l’uscita da Settings; i suoi dialoghi bloccano la palette. |
-| [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus e richieste Spotlight. Una bozza di Settings sospende l'azione prima di lasciare la schermata. ShellBackdropCover definisce la priorità degli strati. |
-| [Sources/NXLibraryCore/App/UndoOffers.swift](../../Sources/NXLibraryCore/App/UndoOffers.swift) | L’ultimo gesto reversibile e il modo di annullarlo, una volta: avviso, ⌘Z e centro attività. Un altro profilo lo toglie. |
-| [Sources/NXLibraryCore/App/NoticeFocus.swift](../../Sources/NXLibraryCore/App/NoticeFocus.swift) | I tasti dell’avviso a schermo, raggiunti solo su richiesta; la schermata conserva il proprio focus. |
-| [Sources/NXLibraryCore/App/Tips.swift](../../Sources/NXLibraryCore/App/Tips.swift) | Due suggerimenti, ciascuno una volta su questo Mac, uno per sessione, mai se sono spenti. |
-| [Sources/NXLibraryCore/App/ProfileLayers.swift](../../Sources/NXLibraryCore/App/ProfileLayers.swift) | Strati della schermata profilo (selettore, procedura guidata, domanda di rimozione): solo quella in cima riceve l’input e mostra i suggerimenti; la procedura guidata nasconde il selettore. |
-| [Sources/NXLibraryCore/App/FirstRunSetup.swift](../../Sources/NXLibraryCore/App/FirstRunSetup.swift) | Ordine e ripresa del tour, completamento e riapertura; conserva il percorso legacy e il consumo unico della selezione in Your games. |
-| [Sources/NXLibraryCore/App/FirstRunFindings.swift](../../Sources/NXLibraryCore/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
-| [Sources/NXLibraryCore/App/ArcaneWelcome.swift](../../Sources/NXLibraryCore/App/ArcaneWelcome.swift) | Decide quando compare il benvenuto in Arcane, l'offerta di Steam, il focus e come ogni uscita lo segna visto. |
-| [Sources/NXLibraryCore/App/ReleaseNotesLayout.swift](../../Sources/NXLibraryCore/App/ReleaseNotesLayout.swift) | Divide le note di release in titoli, voci e testo, una riga per volta, per il dialogo degli aggiornamenti. |
-| [PaletteAction.swift](../../Sources/NXLibraryCore/App/PaletteAction.swift) | Azioni di Cerca ovunque in cinque sezioni, scorciatoie e recenti per profilo. |
-| [Sources/NXLibraryCore/App/BoundedCommand.swift](../../Sources/NXLibraryCore/App/BoundedCommand.swift) | Gruppi isolati per i comandi cloud; I/O non bloccante, inattività e vita dei figli limitate, lettura fino a EOF con guardia di sicurezza dopo l’uscita. |
-| [Sources/NXLibraryCore/App/CommandRunner.swift](../../Sources/NXLibraryCore/App/CommandRunner.swift) | Comandi sincroni o streaming senza run loop; per il cloud inoltra input e annullamento all'esecutore con scadenza. |
-| [Sources/NXLibraryCore/App/DiagnosticsReport.swift](../../Sources/NXLibraryCore/App/DiagnosticsReport.swift) | Genera il rapporto diagnostico, con i collegamenti dei workspace che non portano a nulla, e rimuove percorso home e valori riconosciuti come chiavi. |
-| [Sources/NXLibraryCore/App/AppUpdate.swift](../../Sources/NXLibraryCore/App/AppUpdate.swift) | Definisce repository, versioni, pagina condivisa per le prerelease, verifica del download e sostituzione atomica; riconosce App Translocation. |
-| [Sources/NXLibraryCore/App/AppBundleRename.swift](../../Sources/NXLibraryCore/App/AppBundleRename.swift) | Decide se una copia release che si chiama ancora `NX Library.app` diventa `Oort NX.app` alla chiusura, e fa lo spostamento nella stessa cartella. |
-| [Sources/NXLibraryCore/App/AppUpdatePresentation.swift](../../Sources/NXLibraryCore/App/AppUpdatePresentation.swift) | Definisce gli stati dell’updater e il gate di installazione per versione e tipo di copia. |
-| [Sources/NXLibraryCore/App/AppUpdateDownload.swift](../../Sources/NXLibraryCore/App/AppUpdateDownload.swift) | Scarica gli aggiornamenti con limiti di dimensione, redirect HTTPS vincolati a GitHub e gestione del file temporaneo. |
-| [Sources/NXLibraryCore/App/BoundedDownload.swift](../../Sources/NXLibraryCore/App/BoundedDownload.swift) | Lettura HTTP limitata a blocchi e senza redirect, condivisa fra base e modulo per i provider, Steam e Nextendo. |
-| [Sources/NXLibraryCore/App/ConnectivityWatcher.swift](../../Sources/NXLibraryCore/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
-| [Sources/NXLibraryCore/App/DisplayNameCache.swift](../../Sources/NXLibraryCore/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
-| [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagine del progetto e del finanziamento. |
-| [Sources/NXLibraryCore/App/Credits+Bundled.swift](../../Sources/NXLibraryCore/App/Credits+Bundled.swift) | I crediti inclusi nell’app. |
-| [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi e preferenze; separa release, Dev, essai 2 e fixture Debug. |
-| [Sources/NXLibraryCore/App/LibraryMove.swift](../../Sources/NXLibraryCore/App/LibraryMove.swift) | Copia verificata della libreria precedente; conserva il registro di rimozione come documento inattivo. |
-| [Sources/NXLibraryCore/App/LibraryPaths.swift](../../Sources/NXLibraryCore/App/LibraryPaths.swift) | File della libreria con percorsi, nomi dei registri di rimozione e collegamenti morti dei workspace. I percorsi dei log conservano il profilo d'origine. |
-| [Sources/NXLibraryCore/App/LibraryPathRepair.swift](../../Sources/NXLibraryCore/App/LibraryPathRepair.swift) | Riparazione ripetibile di una libreria già copiata: isola il registro ereditato, conserva gli originali e sposta i percorsi verificati. |
-| [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia selettiva senza modificare la sorgente; per l’essai 2 usa un elenco ristretto senza preferenze. Chiude le sessioni copiate all’ultimo heartbeat. |
-| [Sources/NXLibraryCore/App/DowngradeCheckpoint.swift](../../Sources/NXLibraryCore/App/DowngradeCheckpoint.swift) | Copia privata con file essenziali prioritari, SHA-256, gruppi omessi, conferma e rotazione riprendibile senza perdere le due copie precedenti alla pubblicazione. |
-| [Sources/NXLibraryCore/App/DevelopmentOperationStore.swift](../../Sources/NXLibraryCore/App/DevelopmentOperationStore.swift) | Autorizzazioni persistenti per le operazioni richieste nella Dev, distinte da quelle importate. |
-| [Sources/NXLibraryCore/App/BuildInstallIO.swift](../../Sources/NXLibraryCore/App/BuildInstallIO.swift) | Confine sostituibile per la pubblicazione atomica di un bundle (stesso volume, rinomina o scambio) e il suo errore; lo usano installazione dei giochi e aggiornamento di Arcane. |
+| [FileBrowser.swift](../../core/OortLibrary/App/FileBrowser.swift) | Elenco asincrono dei metadati delle cartelle, luoghi, filtri e risalita del selettore. |
+| [core/OortLibrary/App/AppRouter.swift](../../core/OortLibrary/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus e richieste Spotlight. Una bozza sospende l’uscita da Settings; i suoi dialoghi bloccano la palette. |
+| [core/OortLibrary/App/AppRouter.swift](../../core/OortLibrary/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus e richieste Spotlight. Una bozza di Settings sospende l'azione prima di lasciare la schermata. ShellBackdropCover definisce la priorità degli strati. |
+| [core/OortLibrary/App/UndoOffers.swift](../../core/OortLibrary/App/UndoOffers.swift) | L’ultimo gesto reversibile e il modo di annullarlo, una volta: avviso, ⌘Z e centro attività. Un altro profilo lo toglie. |
+| [core/OortLibrary/App/NoticeFocus.swift](../../core/OortLibrary/App/NoticeFocus.swift) | I tasti dell’avviso a schermo, raggiunti solo su richiesta; la schermata conserva il proprio focus. |
+| [core/OortLibrary/App/Tips.swift](../../core/OortLibrary/App/Tips.swift) | Due suggerimenti, ciascuno una volta su questo Mac, uno per sessione, mai se sono spenti. |
+| [core/OortLibrary/App/ProfileLayers.swift](../../core/OortLibrary/App/ProfileLayers.swift) | Strati della schermata profilo (selettore, procedura guidata, domanda di rimozione): solo quella in cima riceve l’input e mostra i suggerimenti; la procedura guidata nasconde il selettore. |
+| [core/OortLibrary/App/FirstRunSetup.swift](../../core/OortLibrary/App/FirstRunSetup.swift) | Ordine e ripresa del tour, completamento e riapertura; conserva il percorso legacy e il consumo unico della selezione in Your games. |
+| [core/OortLibrary/App/FirstRunFindings.swift](../../core/OortLibrary/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
+| [core/OortLibrary/App/ArcaneWelcome.swift](../../core/OortLibrary/App/ArcaneWelcome.swift) | Decide quando compare il benvenuto in Arcane, l'offerta di Steam, il focus e come ogni uscita lo segna visto. |
+| [core/OortLibrary/App/ReleaseNotesLayout.swift](../../core/OortLibrary/App/ReleaseNotesLayout.swift) | Divide le note di release in titoli, voci e testo, una riga per volta, per il dialogo degli aggiornamenti. |
+| [PaletteAction.swift](../../core/OortLibrary/App/PaletteAction.swift) | Azioni di Cerca ovunque in cinque sezioni, scorciatoie e recenti per profilo. |
+| [core/OortLibrary/App/BoundedCommand.swift](../../core/OortLibrary/App/BoundedCommand.swift) | Gruppi isolati per i comandi cloud; I/O non bloccante, inattività e vita dei figli limitate, lettura fino a EOF con guardia di sicurezza dopo l’uscita. |
+| [core/OortLibrary/App/CommandRunner.swift](../../core/OortLibrary/App/CommandRunner.swift) | Comandi sincroni o streaming senza run loop; per il cloud inoltra input e annullamento all'esecutore con scadenza. |
+| [core/OortLibrary/App/DiagnosticsReport.swift](../../core/OortLibrary/App/DiagnosticsReport.swift) | Genera il rapporto diagnostico, con i collegamenti dei workspace che non portano a nulla, e rimuove percorso home e valori riconosciuti come chiavi. |
+| [core/OortLibrary/App/AppUpdate.swift](../../core/OortLibrary/App/AppUpdate.swift) | Definisce repository, versioni, pagina condivisa per le prerelease, verifica del download e sostituzione atomica; riconosce App Translocation. |
+| [core/OortLibrary/App/AppBundleRename.swift](../../core/OortLibrary/App/AppBundleRename.swift) | Decide se una copia release che si chiama ancora `NX Library.app` diventa `Oort NX.app` alla chiusura, e fa lo spostamento nella stessa cartella. |
+| [core/OortLibrary/App/AppUpdatePresentation.swift](../../core/OortLibrary/App/AppUpdatePresentation.swift) | Definisce gli stati dell’updater e il gate di installazione per versione e tipo di copia. |
+| [core/OortLibrary/App/AppUpdateDownload.swift](../../core/OortLibrary/App/AppUpdateDownload.swift) | Scarica gli aggiornamenti con limiti di dimensione, redirect HTTPS vincolati a GitHub e gestione del file temporaneo. |
+| [core/OortLibrary/App/BoundedDownload.swift](../../core/OortLibrary/App/BoundedDownload.swift) | Lettura HTTP limitata a blocchi e senza redirect, condivisa fra base e modulo per i provider, Steam e Nextendo. |
+| [core/OortLibrary/App/ConnectivityWatcher.swift](../../core/OortLibrary/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
+| [core/OortLibrary/App/DisplayNameCache.swift](../../core/OortLibrary/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
+| [core/OortLibrary/App/AppIdentity.swift](../../core/OortLibrary/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagine del progetto e del finanziamento. |
+| [core/OortLibrary/App/Credits+Bundled.swift](../../core/OortLibrary/App/Credits+Bundled.swift) | I crediti inclusi nell’app. |
+| [core/OortLibrary/App/AppDataProfile.swift](../../core/OortLibrary/App/AppDataProfile.swift) | Policy di percorsi e preferenze; separa release, Dev, essai 2 e fixture Debug. |
+| [core/OortLibrary/App/LibraryMove.swift](../../core/OortLibrary/App/LibraryMove.swift) | Copia verificata della libreria precedente; conserva il registro di rimozione come documento inattivo. |
+| [core/OortLibrary/App/LibraryPaths.swift](../../core/OortLibrary/App/LibraryPaths.swift) | File della libreria con percorsi, nomi dei registri di rimozione e collegamenti morti dei workspace. I percorsi dei log conservano il profilo d'origine. |
+| [core/OortLibrary/App/LibraryPathRepair.swift](../../core/OortLibrary/App/LibraryPathRepair.swift) | Riparazione ripetibile di una libreria già copiata: isola il registro ereditato, conserva gli originali e sposta i percorsi verificati. |
+| [core/OortLibrary/App/DevelopmentProfileImporter.swift](../../core/OortLibrary/App/DevelopmentProfileImporter.swift) | Copia selettiva senza modificare la sorgente; per l’essai 2 usa un elenco ristretto senza preferenze. Chiude le sessioni copiate all’ultimo heartbeat. |
+| [core/OortLibrary/App/DowngradeCheckpoint.swift](../../core/OortLibrary/App/DowngradeCheckpoint.swift) | Copia privata con file essenziali prioritari, SHA-256, gruppi omessi, conferma e rotazione riprendibile senza perdere le due copie precedenti alla pubblicazione. |
+| [core/OortLibrary/App/DevelopmentOperationStore.swift](../../core/OortLibrary/App/DevelopmentOperationStore.swift) | Autorizzazioni persistenti per le operazioni richieste nella Dev, distinte da quelle importate. |
+| [core/OortLibrary/App/BuildInstallIO.swift](../../core/OortLibrary/App/BuildInstallIO.swift) | Confine sostituibile per la pubblicazione atomica di un bundle (stesso volume, rinomina o scambio) e il suo errore; lo usano installazione dei giochi e aggiornamento di Arcane. |
 
 ## Core · catalogo comune e fonti
 
-Cartella `Sources/NXLibraryCore/Catalog/`.
+Cartella `core/OortLibrary/Catalog/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Catalog/CatalogGame.swift](../../Sources/NXLibraryCore/Catalog/CatalogGame.swift) | Voce del catalogo attorno al record della sua fonte (`any CatalogSourceRecord`), identità e personalizzazioni con namespace, uguaglianza per tipo e valore; osservazioni delle installazioni Steam; lookup condiviso della prima installazione disponibile, separato dal gate di Play. |
-| [Sources/NXLibraryCore/Catalog/CatalogSourceRecord.swift](../../Sources/NXLibraryCore/Catalog/CatalogSourceRecord.swift) | Contratto del record di una fonte, integrazione aperta come stringa e tipi del lettore (`CatalogRecordKinds`, in `userInfo`); Steam e collegamenti Mac sono nella base. |
-| [Sources/NXLibraryCore/Catalog/SteamCatalogGame+Record.swift](../../Sources/NXLibraryCore/Catalog/SteamCatalogGame+Record.swift) | Record Steam nel contratto: validazione delle installazioni, presenza, gate di Play e termini di ricerca. |
-| [Sources/NXLibraryCore/Catalog/CatalogDocument.swift](../../Sources/NXLibraryCore/Catalog/CatalogDocument.swift) | Schema, revisione, base legacy, fonti e validazione delle identità, inclusa l’unicità dei percorsi dei collegamenti Mac. Conserva intatti i record delle integrazioni sconosciute. |
-| [Sources/NXLibraryCore/Catalog/CatalogJSON.swift](../../Sources/NXLibraryCore/Catalog/CatalogJSON.swift) | Valore JSON tenuto com’è stato letto (numeri `Decimal`), per i record e le fonti che il catalogo non conosce e le impostazioni dei moduli; si converte da e verso un tipo `Codable`. |
-| [Sources/NXLibraryCore/Catalog/CatalogGamePresentation.swift](../../Sources/NXLibraryCore/Catalog/CatalogGamePresentation.swift) | Contratto comune per presentazione, operazioni supportate e target di avvio; nessuna operazione I/O. |
-| [PlayEngine.swift](../../Sources/NXLibraryCore/Catalog/PlayEngine.swift) | Ammette un adapter per fonte, conserva il gesto e riserva la destinazione prima della consegna. |
-| [PlayTarget.swift](../../Sources/NXLibraryCore/Catalog/PlayTarget.swift) | Installazione scelta, disponibilità, profilo e intenzione di sola ripresa della libreria. |
-| [Sources/NXLibraryCore/Catalog/CatalogStore.swift](../../Sources/NXLibraryCore/Catalog/CatalogStore.swift) | Conversione legacy con impronta dei byte originali anche se i percorsi cambiano in memoria, letture limitate, revisioni attese, lock, archiviazione dei conflitti e Cestino del volume. |
-| [Sources/NXLibraryCore/Catalog/CatalogPublication.swift](../../Sources/NXLibraryCore/Catalog/CatalogPublication.swift) | Staging verificato, creazione esclusiva e sostituzione atomica, con confine di errore controllabile. |
-| [Sources/NXLibraryCore/Catalog/CatalogRepository.swift](../../Sources/NXLibraryCore/Catalog/CatalogRepository.swift) | Modifiche tipizzate del catalogo, inclusi i collegamenti Mac; delega la rimozione di file alla transazione dello store. |
-| [Sources/NXLibraryCore/Catalog/CatalogStore+Removal.swift](../../Sources/NXLibraryCore/Catalog/CatalogStore+Removal.swift) | Rifiuta le identità ripetute, conserva i registri ereditati senza ripeterli e recupera soltanto le rimozioni della libreria corrente. |
-| [Sources/NXLibraryCore/Catalog/MacShortcutRecord.swift](../../Sources/NXLibraryCore/Catalog/MacShortcutRecord.swift) | UUID, percorso canonico, bundle ID e verifica in sola lettura di un’app Mac scelta; ricollega solo la stessa identità. |
-| [Sources/NXLibraryCore/Catalog/CatalogRecovery.swift](../../Sources/NXLibraryCore/Catalog/CatalogRecovery.swift) | Offerte di recupero e conflitto legacy con impronte degli input, rivalidate all’accettazione. |
-| [Sources/NXLibraryCore/Catalog/CatalogPersonalizations.swift](../../Sources/NXLibraryCore/Catalog/CatalogPersonalizations.swift) | Lookup personali immutabili per identità. |
-| [Sources/NXLibraryCore/Catalog/CatalogErrorCopy.swift](../../Sources/NXLibraryCore/Catalog/CatalogErrorCopy.swift) | Errori recuperabili del catalogo nelle sei lingue. |
-| [Sources/NXLibraryCore/Catalog/CatalogGameOptions.swift](../../Sources/NXLibraryCore/Catalog/CatalogGameOptions.swift) | Ordine unico delle operazioni comuni della libreria; ciò che una fonte può fare dipende dal suo record (nessuna modifica nxnative su un gioco Steam). |
-| [Sources/NXLibraryCore/Catalog/CatalogSourcesModel.swift](../../Sources/NXLibraryCore/Catalog/CatalogSourcesModel.swift) | Opt-in, worker annullabile e stato Steam; discoveryRoot conserva la cartella scelta anche con fonte spenta; pubblica solo documenti salvati dal repository. |
-| [Sources/NXLibraryCore/Catalog/CatalogLibraryProjection.swift](../../Sources/NXLibraryCore/Catalog/CatalogLibraryProjection.swift) | Visibilità comune per fonti attive e giochi riconosciuti; nessuna scansione. |
-| [Sources/NXLibraryCore/Catalog/SteamCatalogReconciler.swift](../../Sources/NXLibraryCore/Catalog/SteamCatalogReconciler.swift) | Ticket e fusione pura degli snapshot Steam, identità conservate e assenza trattata secondo completezza. |
+| [core/OortLibrary/Catalog/CatalogGame.swift](../../core/OortLibrary/Catalog/CatalogGame.swift) | Voce del catalogo attorno al record della sua fonte (`any CatalogSourceRecord`), identità e personalizzazioni con namespace, uguaglianza per tipo e valore; osservazioni delle installazioni Steam; lookup condiviso della prima installazione disponibile, separato dal gate di Play. |
+| [core/OortLibrary/Catalog/CatalogSourceRecord.swift](../../core/OortLibrary/Catalog/CatalogSourceRecord.swift) | Contratto del record di una fonte, integrazione aperta come stringa e tipi del lettore (`CatalogRecordKinds`, in `userInfo`); Steam e collegamenti Mac sono nella base. |
+| [core/OortLibrary/Catalog/SteamCatalogGame+Record.swift](../../core/OortLibrary/Catalog/SteamCatalogGame+Record.swift) | Record Steam nel contratto: validazione delle installazioni, presenza, gate di Play e termini di ricerca. |
+| [core/OortLibrary/Catalog/CatalogDocument.swift](../../core/OortLibrary/Catalog/CatalogDocument.swift) | Schema, revisione, base legacy, fonti e validazione delle identità, inclusa l’unicità dei percorsi dei collegamenti Mac. Conserva intatti i record delle integrazioni sconosciute. |
+| [core/OortLibrary/Catalog/CatalogJSON.swift](../../core/OortLibrary/Catalog/CatalogJSON.swift) | Valore JSON tenuto com’è stato letto (numeri `Decimal`), per i record e le fonti che il catalogo non conosce e le impostazioni dei moduli; si converte da e verso un tipo `Codable`. |
+| [core/OortLibrary/Catalog/CatalogGamePresentation.swift](../../core/OortLibrary/Catalog/CatalogGamePresentation.swift) | Contratto comune per presentazione, operazioni supportate e target di avvio; nessuna operazione I/O. |
+| [PlayEngine.swift](../../core/OortLibrary/Catalog/PlayEngine.swift) | Ammette un adapter per fonte, conserva il gesto e riserva la destinazione prima della consegna. |
+| [PlayTarget.swift](../../core/OortLibrary/Catalog/PlayTarget.swift) | Installazione scelta, disponibilità, profilo e intenzione di sola ripresa della libreria. |
+| [core/OortLibrary/Catalog/CatalogStore.swift](../../core/OortLibrary/Catalog/CatalogStore.swift) | Conversione legacy con impronta dei byte originali anche se i percorsi cambiano in memoria, letture limitate, revisioni attese, lock, archiviazione dei conflitti e Cestino del volume. |
+| [core/OortLibrary/Catalog/CatalogPublication.swift](../../core/OortLibrary/Catalog/CatalogPublication.swift) | Staging verificato, creazione esclusiva e sostituzione atomica, con confine di errore controllabile. |
+| [core/OortLibrary/Catalog/CatalogRepository.swift](../../core/OortLibrary/Catalog/CatalogRepository.swift) | Modifiche tipizzate del catalogo, inclusi i collegamenti Mac; delega la rimozione di file alla transazione dello store. |
+| [core/OortLibrary/Catalog/CatalogStore+Removal.swift](../../core/OortLibrary/Catalog/CatalogStore+Removal.swift) | Rifiuta le identità ripetute, conserva i registri ereditati senza ripeterli e recupera soltanto le rimozioni della libreria corrente. |
+| [core/OortLibrary/Catalog/MacShortcutRecord.swift](../../core/OortLibrary/Catalog/MacShortcutRecord.swift) | UUID, percorso canonico, bundle ID e verifica in sola lettura di un’app Mac scelta; ricollega solo la stessa identità. |
+| [core/OortLibrary/Catalog/CatalogRecovery.swift](../../core/OortLibrary/Catalog/CatalogRecovery.swift) | Offerte di recupero e conflitto legacy con impronte degli input, rivalidate all’accettazione. |
+| [core/OortLibrary/Catalog/CatalogPersonalizations.swift](../../core/OortLibrary/Catalog/CatalogPersonalizations.swift) | Lookup personali immutabili per identità. |
+| [core/OortLibrary/Catalog/CatalogErrorCopy.swift](../../core/OortLibrary/Catalog/CatalogErrorCopy.swift) | Errori recuperabili del catalogo nelle sei lingue. |
+| [core/OortLibrary/Catalog/CatalogGameOptions.swift](../../core/OortLibrary/Catalog/CatalogGameOptions.swift) | Ordine unico delle operazioni comuni della libreria; ciò che una fonte può fare dipende dal suo record (nessuna modifica nxnative su un gioco Steam). |
+| [core/OortLibrary/Catalog/CatalogSourcesModel.swift](../../core/OortLibrary/Catalog/CatalogSourcesModel.swift) | Opt-in, worker annullabile e stato Steam; discoveryRoot conserva la cartella scelta anche con fonte spenta; pubblica solo documenti salvati dal repository. |
+| [core/OortLibrary/Catalog/CatalogLibraryProjection.swift](../../core/OortLibrary/Catalog/CatalogLibraryProjection.swift) | Visibilità comune per fonti attive e giochi riconosciuti; nessuna scansione. |
+| [core/OortLibrary/Catalog/SteamCatalogReconciler.swift](../../core/OortLibrary/Catalog/SteamCatalogReconciler.swift) | Ticket e fusione pura degli snapshot Steam, identità conservate e assenza trattata secondo completezza. |
 
 ## Core · libreria, sessioni e spazio
 
-Cartella `Sources/NXLibraryCore/Library/`.
+Cartella `core/OortLibrary/Library/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Library/LibraryFilter.swift](../../Sources/NXLibraryCore/Library/LibraryFilter.swift) | Definisce filtri, storico e query condivisa del catalogo misto; Cloud riceve gli ID solo remoti dal chiamante. `LibraryQueryRecord` è il contratto comune con ricerca e Surprise. |
-| [Sources/NXLibraryCore/Library/RecentSearches.swift](../../Sources/NXLibraryCore/Library/RecentSearches.swift) | Le ultime quattro ricerche che hanno portato a un gioco, per profilo e solo su questo Mac; si cancellano. |
-| [Sources/NXLibraryCore/Library/LibrarySelectionState.swift](../../Sources/NXLibraryCore/Library/LibrarySelectionState.swift) | Mantiene selezione e spostamento nel risultato filtrato della Collection. |
-| [Sources/NXLibraryCore/Library/LibraryPresentation.swift](../../Sources/NXLibraryCore/Library/LibraryPresentation.swift) | Formatta metadati e statistiche temporali per le schermate della libreria: i valori pronti e la strada Steam; quella Switch sta in `ArcanePorting/Library/LibraryPresentation+Porting.swift`. |
-| [Sources/NXLibraryCore/Library/PlaySession.swift](../../Sources/NXLibraryCore/Library/PlaySession.swift) | Descrive una sessione persistibile con gioco e riferimenti temporali. |
-| [Sources/NXLibraryCore/Library/ActivitySummary.swift](../../Sources/NXLibraryCore/Library/ActivitySummary.swift) | Aggrega sessioni, giorni e tempi della settimana per la scheda Activity. |
-| [Sources/NXLibraryCore/Library/ProfilePageCards.swift](../../Sources/NXLibraryCore/Library/ProfilePageCards.swift) | Ordine e visibilità per profilo, gruppi dell’attività e geometria della griglia. |
-| [Sources/NXLibraryCore/Library/PlaySessionStore.swift](../../Sources/NXLibraryCore/Library/PlaySessionStore.swift) | Registra avvio, heartbeat e fine; pubblica insieme storico e totali archiviati, importa i file precedenti e unisce i totali Steam con le sessioni successive. |
-| [Sources/NXLibraryCore/Library/LocalProfileStore.swift](../../Sources/NXLibraryCore/Library/LocalProfileStore.swift) | Identità, preferiti, scelta della piattaforma, presenza e visibilità, codice e profilo di avvio; protegge l'originale e include lo storico unico nella copia di migrazione. |
-| [Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift](../../Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift) | Calcola le opzioni supportate, rispetta `env.txt` e limita il nickname a offline e locale. |
-| [PlayerPlan.swift](../../Sources/NXLibraryCore/Players/PlayerPlan.swift) | Posti, profili protetti, tre modalità e giocatore destinatario facoltativo per la fusione. |
-| [PlayerPlanStore.swift](../../Sources/NXLibraryCore/Players/PlayerPlanStore.swift) | Piano JSON v1, formato Codable anche per Settings, lettura dei piani senza destinatario e scrittura atomica del file storico senza perdere i campi sconosciuti. |
-| [PlayerControllerResolution.swift](../../Sources/NXLibraryCore/Players/PlayerControllerResolution.swift) | Distingue la conferma per una connessione da un’identità hardware e conserva i posti non attivi durante la fusione. |
-| [Sources/NXLibraryCore/Library/ProfileKeypad.swift](../../Sources/NXLibraryCore/Library/ProfileKeypad.swift) | Riesporta `OortCore` e applica la lunghezza del PIN di `LocalProfile` alla tastiera portabile. |
-| [Sources/NXLibraryCore/Library/GameFocus.swift](../../Sources/NXLibraryCore/Library/GameFocus.swift) | Quando un gioco che esce riporta Arcane davanti: solo se era l’app in primo piano e nessun altro gioco della libreria è aperto. |
-| [Sources/NXLibraryCore/Library/SessionSummary.swift](../../Sources/NXLibraryCore/Library/SessionSummary.swift) | Cosa dice la card di fine sessione: gioco, durata di questa sessione e totale scritto come nelle info del gioco; niente card sotto i dieci secondi. |
-| [Sources/NXLibraryCore/Library/RunningAppsTracker.swift](../../Sources/NXLibraryCore/Library/RunningAppsTracker.swift) | Snapshot dei bundle ID delle applicazioni in esecuzione e cosa è partito o finito dall’ultima lettura. |
-| [Sources/NXLibraryCore/Library/DirectorySize.swift](../../Sources/NXLibraryCore/Library/DirectorySize.swift) | Misura le cartelle con fts; il modulo Porting può contare anche i file nascosti nelle cartelle cache ignorate. |
-| [Sources/NXLibraryCore/App/FileHandle+Chunks.swift](../../Sources/NXLibraryCore/App/FileHandle+Chunks.swift) | Legge a blocchi, rilasciandoli uno alla volta durante il calcolo delle impronte. |
-| [Sources/NXLibraryCore/Library/StorageBackend.swift](../../Sources/NXLibraryCore/Library/StorageBackend.swift) | Contratto oggetti remoti: chiavi e impronte serializzabili, trasferimenti, avanzamento e lease condiviso. |
-| [Sources/NXLibraryCore/Library/CloudLibraryFailure.swift](../../Sources/NXLibraryCore/Library/CloudLibraryFailure.swift) | Cause e recupero cloud: distingue volume locale pieno, quota Drive e rete; non riporta l'output di rclone. |
-| [Sources/NXLibraryCore/Library/RcloneStorageBackend.swift](../../Sources/NXLibraryCore/Library/RcloneStorageBackend.swift) | Usa il binario risolto, verifica ID e nomi originali, rifiuta percorsi ambigui e limita il riferimento all’ID esatto in sola lettura. Prima di scrivere verifica che i due alberi siano disgiunti. |
-| [Sources/NXLibraryCore/Library/VolumeSpace.swift](../../Sources/NXLibraryCore/Library/VolumeSpace.swift) | Spazio libero di un disco: dove macOS risponde 0 per l’uso importante (exFAT, FAT32) vale la cifra semplice. |
-| [Sources/NXLibraryCore/Library/RcloneDownload.swift](../../Sources/NXLibraryCore/Library/RcloneDownload.swift) | Scarica rclone dopo consenso, verifica origine, dimensione, hash e firma, pubblica la copia con ricevuta e avvia lo snapshot dei byte approvati. |
-| [Sources/NXLibraryCore/Library/CloudSetupAssistant.swift](../../Sources/NXLibraryCore/Library/CloudSetupAssistant.swift) | Bozza dell'assistente: passi, selezione, verifica, formato dell'ID client e client Google facoltativo nel plist. |
-| [Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift](../../Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift) | Bersagli dell’assistente per tastiera e controller, colonna dei passi e Tab; acceso ciò che serve, mai Cancel. |
-| [Sources/NXLibraryCore/Selene/ActionBarOrder.swift](../../Sources/NXLibraryCore/Selene/ActionBarOrder.swift) | Ordine dei tasti di un piede: ritorno a sinistra, azione principale ultima a destra; quale è acceso all’apertura. |
-| [Sources/NXLibraryCore/Library/CloudKeptFolders.swift](../../Sources/NXLibraryCore/Library/CloudKeptFolders.swift) | Le due cartelle usate con un account, proposte di nuovo solo allo stesso account. |
-| [Sources/NXLibraryCore/Library/RcloneConfiguration.swift](../../Sources/NXLibraryCore/Library/RcloneConfiguration.swift) | Ambito Drive con ID approvati e copie private per gli spostamenti. Cifratura con portachiavi, OAuth senza segreto negli argomenti e controllo del client prima della disconnessione. |
-| [Sources/NXLibraryCore/Library/LibraryRefresh.swift](../../Sources/NXLibraryCore/Library/LibraryRefresh.swift) | Esito per parte di un aggiornamento della libreria: letto, non aggiornato con motivo, annullato; una risposta tardiva non cambia nulla. |
-| [Sources/NXLibraryCore/Library/RcloneListing.swift](../../Sources/NXLibraryCore/Library/RcloneListing.swift) | Una lettura di Drive per gli schermi: conto e cartelle provati prima e dopo, cartelle lette per ID, insieme e una sola volta; connessione condivisa finché la configurazione non cambia. |
-| [Sources/NXLibraryCore/Library/RcloneRemoteControl.swift](../../Sources/NXLibraryCore/Library/RcloneRemoteControl.swift) | Gestisce demoni locali su socket Unix; crea e pulisce le loro cartelle sotto un lock comune, attende il socket fino all'uscita o al termine della richiesta; distingue cartelle mancanti da operazioni non supportate e passa l'input sensibile OAuth via stdin. |
-| [Sources/NXLibraryCore/Library/CollectionRow.swift](../../Sources/NXLibraryCore/Library/CollectionRow.swift) | Definisce proporzioni delle copertine e geometria della riga Collection. |
+| [core/OortLibrary/Library/LibraryFilter.swift](../../core/OortLibrary/Library/LibraryFilter.swift) | Definisce filtri, storico e query condivisa del catalogo misto; Cloud riceve gli ID solo remoti dal chiamante. `LibraryQueryRecord` è il contratto comune con ricerca e Surprise. |
+| [core/OortLibrary/Library/RecentSearches.swift](../../core/OortLibrary/Library/RecentSearches.swift) | Le ultime quattro ricerche che hanno portato a un gioco, per profilo e solo su questo Mac; si cancellano. |
+| [core/OortLibrary/Library/LibrarySelectionState.swift](../../core/OortLibrary/Library/LibrarySelectionState.swift) | Mantiene selezione e spostamento nel risultato filtrato della Collection. |
+| [core/OortLibrary/Library/LibraryPresentation.swift](../../core/OortLibrary/Library/LibraryPresentation.swift) | Formatta metadati e statistiche temporali per le schermate della libreria: i valori pronti e la strada Steam; quella Switch sta in `ArcanePorting/Library/LibraryPresentation+Porting.swift`. |
+| [core/OortLibrary/Library/PlaySession.swift](../../core/OortLibrary/Library/PlaySession.swift) | Descrive una sessione persistibile con gioco e riferimenti temporali. |
+| [core/OortLibrary/Library/ActivitySummary.swift](../../core/OortLibrary/Library/ActivitySummary.swift) | Aggrega sessioni, giorni e tempi della settimana per la scheda Activity. |
+| [core/OortLibrary/Library/ProfilePageCards.swift](../../core/OortLibrary/Library/ProfilePageCards.swift) | Ordine e visibilità per profilo, gruppi dell’attività e geometria della griglia. |
+| [core/OortLibrary/Library/PlaySessionStore.swift](../../core/OortLibrary/Library/PlaySessionStore.swift) | Registra avvio, heartbeat e fine; pubblica insieme storico e totali archiviati, importa i file precedenti e unisce i totali Steam con le sessioni successive. |
+| [core/OortLibrary/Library/LocalProfileStore.swift](../../core/OortLibrary/Library/LocalProfileStore.swift) | Identità, preferiti, scelta della piattaforma, presenza e visibilità, codice e profilo di avvio; protegge l'originale e include lo storico unico nella copia di migrazione. |
+| [core/OortLibrary/Players/PlayerLaunchEnvironment.swift](../../core/OortLibrary/Players/PlayerLaunchEnvironment.swift) | Calcola le opzioni supportate, rispetta `env.txt` e limita il nickname a offline e locale. |
+| [PlayerPlan.swift](../../core/OortLibrary/Players/PlayerPlan.swift) | Posti, profili protetti, tre modalità e giocatore destinatario facoltativo per la fusione. |
+| [PlayerPlanStore.swift](../../core/OortLibrary/Players/PlayerPlanStore.swift) | Piano JSON v1, formato Codable anche per Settings, lettura dei piani senza destinatario e scrittura atomica del file storico senza perdere i campi sconosciuti. |
+| [PlayerControllerResolution.swift](../../core/OortLibrary/Players/PlayerControllerResolution.swift) | Distingue la conferma per una connessione da un’identità hardware e conserva i posti non attivi durante la fusione. |
+| [core/OortLibrary/Library/ProfileKeypad.swift](../../core/OortLibrary/Library/ProfileKeypad.swift) | Riesporta `OortCore` e applica la lunghezza del PIN di `LocalProfile` alla tastiera portabile. |
+| [core/OortLibrary/Library/GameFocus.swift](../../core/OortLibrary/Library/GameFocus.swift) | Quando un gioco che esce riporta Arcane davanti: solo se era l’app in primo piano e nessun altro gioco della libreria è aperto. |
+| [core/OortLibrary/Library/SessionSummary.swift](../../core/OortLibrary/Library/SessionSummary.swift) | Cosa dice la card di fine sessione: gioco, durata di questa sessione e totale scritto come nelle info del gioco; niente card sotto i dieci secondi. |
+| [core/OortLibrary/Library/RunningAppsTracker.swift](../../core/OortLibrary/Library/RunningAppsTracker.swift) | Snapshot dei bundle ID delle applicazioni in esecuzione e cosa è partito o finito dall’ultima lettura. |
+| [core/OortLibrary/Library/DirectorySize.swift](../../core/OortLibrary/Library/DirectorySize.swift) | Misura le cartelle con fts; il modulo Porting può contare anche i file nascosti nelle cartelle cache ignorate. |
+| [core/OortLibrary/App/FileHandle+Chunks.swift](../../core/OortLibrary/App/FileHandle+Chunks.swift) | Legge a blocchi, rilasciandoli uno alla volta durante il calcolo delle impronte. |
+| [core/OortLibrary/Library/StorageBackend.swift](../../core/OortLibrary/Library/StorageBackend.swift) | Contratto oggetti remoti: chiavi e impronte serializzabili, trasferimenti, avanzamento e lease condiviso. |
+| [core/OortLibrary/Library/CloudLibraryFailure.swift](../../core/OortLibrary/Library/CloudLibraryFailure.swift) | Cause e recupero cloud: distingue volume locale pieno, quota Drive e rete; non riporta l'output di rclone. |
+| [core/OortLibrary/Library/RcloneStorageBackend.swift](../../core/OortLibrary/Library/RcloneStorageBackend.swift) | Usa il binario risolto, verifica ID e nomi originali, rifiuta percorsi ambigui e limita il riferimento all’ID esatto in sola lettura. Prima di scrivere verifica che i due alberi siano disgiunti. |
+| [core/OortLibrary/Library/VolumeSpace.swift](../../core/OortLibrary/Library/VolumeSpace.swift) | Spazio libero di un disco: dove macOS risponde 0 per l’uso importante (exFAT, FAT32) vale la cifra semplice. |
+| [core/OortLibrary/Library/RcloneDownload.swift](../../core/OortLibrary/Library/RcloneDownload.swift) | Scarica rclone dopo consenso, verifica origine, dimensione, hash e firma, pubblica la copia con ricevuta e avvia lo snapshot dei byte approvati. |
+| [core/OortLibrary/Library/CloudSetupAssistant.swift](../../core/OortLibrary/Library/CloudSetupAssistant.swift) | Bozza dell'assistente: passi, selezione, verifica, formato dell'ID client e client Google facoltativo nel plist. |
+| [core/OortLibrary/Selene/CloudSetupAssistantFocus.swift](../../core/OortLibrary/Selene/CloudSetupAssistantFocus.swift) | Bersagli dell’assistente per tastiera e controller, colonna dei passi e Tab; acceso ciò che serve, mai Cancel. |
+| [core/OortLibrary/Selene/ActionBarOrder.swift](../../core/OortLibrary/Selene/ActionBarOrder.swift) | Ordine dei tasti di un piede: ritorno a sinistra, azione principale ultima a destra; quale è acceso all’apertura. |
+| [core/OortLibrary/Library/CloudKeptFolders.swift](../../core/OortLibrary/Library/CloudKeptFolders.swift) | Le due cartelle usate con un account, proposte di nuovo solo allo stesso account. |
+| [core/OortLibrary/Library/RcloneConfiguration.swift](../../core/OortLibrary/Library/RcloneConfiguration.swift) | Ambito Drive con ID approvati e copie private per gli spostamenti. Cifratura con portachiavi, OAuth senza segreto negli argomenti e controllo del client prima della disconnessione. |
+| [core/OortLibrary/Library/LibraryRefresh.swift](../../core/OortLibrary/Library/LibraryRefresh.swift) | Esito per parte di un aggiornamento della libreria: letto, non aggiornato con motivo, annullato; una risposta tardiva non cambia nulla. |
+| [core/OortLibrary/Library/RcloneListing.swift](../../core/OortLibrary/Library/RcloneListing.swift) | Una lettura di Drive per gli schermi: conto e cartelle provati prima e dopo, cartelle lette per ID, insieme e una sola volta; connessione condivisa finché la configurazione non cambia. |
+| [core/OortLibrary/Library/RcloneRemoteControl.swift](../../core/OortLibrary/Library/RcloneRemoteControl.swift) | Gestisce demoni locali su socket Unix; crea e pulisce le loro cartelle sotto un lock comune, attende il socket fino all'uscita o al termine della richiesta; distingue cartelle mancanti da operazioni non supportate e passa l'input sensibile OAuth via stdin. |
+| [core/OortLibrary/Library/CollectionRow.swift](../../core/OortLibrary/Library/CollectionRow.swift) | Definisce proporzioni delle copertine e geometria della riga Collection. |
 
 ## Core · Selene: Spotlight, focus, temi e sfondi
 
-Cartella `Sources/NXLibraryCore/Selene/`.
+Cartella `core/OortLibrary/Selene/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Selene/BackdropArt.swift](../../Sources/NXLibraryCore/Selene/BackdropArt.swift) | Regola che tiene l’arte del gioco precedente sullo sfondo Spotlight (`BackdropArtRule`) dissolvenza di un layer calcolata sull’orologio (`OpacityFade`) e livelli ormai coperti da togliere (`ArtStack`). |
-| [Sources/NXLibraryCore/Selene/TileMotion.swift](../../Sources/NXLibraryCore/Selene/TileMotion.swift) | Curve e campioni dei loop di ring, bagliore e riflesso della tile selezionata, sull'orologio condiviso. |
-| [Sources/NXLibraryCore/Selene/DownloadCloudMotion.swift](../../Sources/NXLibraryCore/Selene/DownloadCloudMotion.swift) | Traiettoria smorzata del download, onda calma, assestamento, glifo Oort e bande a dissolvenza. |
-| [Sources/NXLibraryCore/Selene/Motion.swift](../../Sources/NXLibraryCore/Selene/Motion.swift) | Curve di focus, rail, schermate, overlay, carte ancorate, toast e progressi con varianti di movimento ridotto. |
-| [Sources/NXLibraryCore/Selene/SeleneTokens.swift](../../Sources/NXLibraryCore/Selene/SeleneTokens.swift) | Ruoli Selene generati: testo, spazi, raggi, effetti, colore, durata e riferimento di distanza. |
-| [Sources/NXLibraryCore/Selene/SeleneOverlayStyle.swift](../../Sources/NXLibraryCore/Selene/SeleneOverlayStyle.swift) | Associa ogni overlay ai ruoli di velo e sfocatura. |
+| [core/OortLibrary/Selene/BackdropArt.swift](../../core/OortLibrary/Selene/BackdropArt.swift) | Regola che tiene l’arte del gioco precedente sullo sfondo Spotlight (`BackdropArtRule`) dissolvenza di un layer calcolata sull’orologio (`OpacityFade`) e livelli ormai coperti da togliere (`ArtStack`). |
+| [core/OortLibrary/Selene/TileMotion.swift](../../core/OortLibrary/Selene/TileMotion.swift) | Curve e campioni dei loop di ring, bagliore e riflesso della tile selezionata, sull'orologio condiviso. |
+| [core/OortLibrary/Selene/DownloadCloudMotion.swift](../../core/OortLibrary/Selene/DownloadCloudMotion.swift) | Traiettoria smorzata del download, onda calma, assestamento, glifo Oort e bande a dissolvenza. |
+| [core/OortLibrary/Selene/Motion.swift](../../core/OortLibrary/Selene/Motion.swift) | Curve di focus, rail, schermate, overlay, carte ancorate, toast e progressi con varianti di movimento ridotto. |
+| [core/OortLibrary/Selene/SeleneTokens.swift](../../core/OortLibrary/Selene/SeleneTokens.swift) | Ruoli Selene generati: testo, spazi, raggi, effetti, colore, durata e riferimento di distanza. |
+| [core/OortLibrary/Selene/SeleneOverlayStyle.swift](../../core/OortLibrary/Selene/SeleneOverlayStyle.swift) | Associa ogni overlay ai ruoli di velo e sfocatura. |
 | [Tests/NXLibraryCoreTests/Selene/MotionTests.swift](../../Tests/NXLibraryCoreTests/Selene/MotionTests.swift) | Verifica che in movimento ridotto restino solo i fonduti previsti. |
-| [Sources/NXLibraryCore/Selene/TextScroll.swift](../../Sources/NXLibraryCore/Selene/TextScroll.swift) | Scorrimento della colonna del pannello della mod: altezza della descrizione dopo Read more, limiti, riga a fuoco mostrata intera e passo Su/Giù che legge prima della riga seguente. |
-| [Sources/NXLibraryCore/Selene/CursorIdleState.swift](../../Sources/NXLibraryCore/Selene/CursorIdleState.swift) | Politica del ritardo di visibilità del puntatore e reset su mouse o perdita di eleggibilità. |
-| [Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift](../../Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift) | Modella sorgenti e risultati e interpreta le risposte dei provider di sfondi fissi e video. |
-| [Sources/NXLibraryCore/Selene/SeleneImporter.swift](../../Sources/NXLibraryCore/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
-| [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti, pubblica solo copie locali confermate e divide le scelte fra le voci della riga e Other. |
-| [Sources/NXLibraryCore/Selene/OortSynth.swift](../../Sources/NXLibraryCore/Selene/OortSynth.swift) | Calcola i suoni delle voci Oort: note, clic, stanza, Sole e sequenze di Compose. |
-| [Sources/NXLibraryCore/Selene/OortAmbiance.swift](../../Sources/NXLibraryCore/Selene/OortAmbiance.swift) | Timbri e stanza degli ambienti Frost, Mist e Nucleus e livello allineato alla voce Oort. |
-| [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni e direzioni, incluse Su/Giù, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
-| [Sources/NXLibraryCore/Selene/InputInHand.swift](../../Sources/NXLibraryCore/Selene/InputInHand.swift) | Decide quale dispositivo è in mano (controller, tastiera o puntatore) senza sfarfallii: stick nella zona morta e piccoli spostamenti non contano. |
-| [Sources/NXLibraryCore/Selene/LaunchExit.swift](../../Sources/NXLibraryCore/Selene/LaunchExit.swift) | Dopo quattro secondi dice come uscire dalla schermata di avvio: B o Esc se Oort riceve i tasti, altrimenti il clic. |
-| [Sources/NXLibraryCore/Selene/RailScroll.swift](../../Sources/NXLibraryCore/Selene/RailScroll.swift) | Traduce rotella e due dita in passi della riga: un riquadro per riquadro di corsa, uno per scatto. |
-| [Sources/NXLibraryCore/Selene/OnScreenKeyboard.swift](../../Sources/NXLibraryCore/Selene/OnScreenKeyboard.swift) | Pagine, tasti, maiuscole e spostamento del focus della tastiera a schermo. |
-| [Sources/NXLibraryCore/Selene/MaterialIcon.swift](../../Sources/NXLibraryCore/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
-| [Sources/NXLibraryCore/Selene/MenuSelectionModel.swift](../../Sources/NXLibraryCore/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
-| [Sources/NXLibraryCore/Selene/MoonlightAppearance.swift](../../Sources/NXLibraryCore/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
-| [Sources/NXLibraryCore/Selene/ScreenshotViewerState.swift](../../Sources/NXLibraryCore/Selene/ScreenshotViewerState.swift) | Mantiene indice e limiti della navigazione nel visualizzatore screenshot. |
-| [Sources/NXLibraryCore/Selene/SeleneCanvas.swift](../../Sources/NXLibraryCore/Selene/SeleneCanvas.swift) | Calcola scala uniforme, stage centrato e conversione delle unità del canvas 1920×1080. |
-| [Sources/NXLibraryCore/Selene/SelenePalette.swift](../../Sources/NXLibraryCore/Selene/SelenePalette.swift) | Decodifica palette e metadato moonlight; ordina Oort per prima, la usa come fallback e distingue l’ID del blu classico. |
-| [Sources/NXLibraryCore/Selene/SpotlightPage.swift](../../Sources/NXLibraryCore/Selene/SpotlightPage.swift) | Calcola estratti delle descrizioni e stati dello scorrimento della pagina Spotlight. |
-| [Sources/NXLibraryCore/Selene/SpotlightRow.swift](../../Sources/NXLibraryCore/Selene/SpotlightRow.swift) | Costruisce la sequenza per UUID e salva riordini conservando giochi/fonti/card temporaneamente nascosti; Surprise sceglie fra i giochi visibili di un pool (installati, mai giocati, tutti). |
-| [Sources/NXLibraryCore/Selene/SpotlightPlatforms.swift](../../Sources/NXLibraryCore/Selene/SpotlightPlatforms.swift) | Piattaforme presenti, conteggi, combinazione con la query, cursore e scelta stabilizzata. |
-| [Sources/NXLibraryCore/Selene/SpotlightRowGeometry.swift](../../Sources/NXLibraryCore/Selene/SpotlightRowGeometry.swift) | Posti delle tessere nella riga, camera unica che la fa scorrere e finestra delle tessere create; posto, scala e camera lungo lo scorrimento dalla posizione continua della selezione. |
-| [Sources/NXLibraryCore/Selene/SpotlightState.swift](../../Sources/NXLibraryCore/Selene/SpotlightState.swift) | Gestisce selezione, focus (anche la card Achievements), azioni e spostamento delle tile su Spotlight. |
-| [Sources/NXLibraryCore/Selene/SpotlightEntrance.swift](../../Sources/NXLibraryCore/Selene/SpotlightEntrance.swift) | Tempi e partenze del volo delle tessere, dissolvenza oltre il bordo, sfondo, informazioni, hint e fasi della prima entrata di Spotlight, compreso quando accetta input. |
-| [Sources/NXLibraryCore/Selene/ThemePicker.swift](../../Sources/NXLibraryCore/Selene/ThemePicker.swift) | Gestisce il focus nella griglia colori, tab Wallpapers/Live e scelta dello sfondo successivo. |
-| [Sources/NXLibraryCore/Selene/WallpaperCatalog.swift](../../Sources/NXLibraryCore/Selene/WallpaperCatalog.swift) | Elenca wallpaper e video, gruppi, nomi e file delle risorse incluse o importate. |
-| [Sources/NXLibraryCore/Selene/WallpaperPlacement.swift](../../Sources/NXLibraryCore/Selene/WallpaperPlacement.swift) | Decide dove applicare uno sfondo scelto fra schermi principali e Settings. |
-| [Sources/NXLibraryCore/Selene/GridListLayout.swift](../../Sources/NXLibraryCore/Selene/GridListLayout.swift) | Geometria di una lista a colonne di righe uguali: altezza, posizione di ogni riga, linee da disegnare, riga da mostrare e riga in vista più vicina. |
+| [core/OortLibrary/Selene/TextScroll.swift](../../core/OortLibrary/Selene/TextScroll.swift) | Scorrimento della colonna del pannello della mod: altezza della descrizione dopo Read more, limiti, riga a fuoco mostrata intera e passo Su/Giù che legge prima della riga seguente. |
+| [core/OortLibrary/Selene/CursorIdleState.swift](../../core/OortLibrary/Selene/CursorIdleState.swift) | Politica del ritardo di visibilità del puntatore e reset su mouse o perdita di eleggibilità. |
+| [core/OortLibrary/Selene/OnlineBackgrounds.swift](../../core/OortLibrary/Selene/OnlineBackgrounds.swift) | Modella sorgenti e risultati e interpreta le risposte dei provider di sfondi fissi e video. |
+| [core/OortLibrary/Selene/SeleneImporter.swift](../../core/OortLibrary/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
+| [core/OortLibrary/Selene/SoundPack.swift](../../core/OortLibrary/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti, pubblica solo copie locali confermate e divide le scelte fra le voci della riga e Other. |
+| [core/OortLibrary/Selene/OortSynth.swift](../../core/OortLibrary/Selene/OortSynth.swift) | Calcola i suoni delle voci Oort: note, clic, stanza, Sole e sequenze di Compose. |
+| [core/OortLibrary/Selene/OortAmbiance.swift](../../core/OortLibrary/Selene/OortAmbiance.swift) | Timbri e stanza degli ambienti Frost, Mist e Nucleus e livello allineato alla voce Oort. |
+| [core/OortLibrary/Selene/ButtonPrompts.swift](../../core/OortLibrary/Selene/ButtonPrompts.swift) | Traduce azioni e direzioni, incluse Su/Giù, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
+| [core/OortLibrary/Selene/InputInHand.swift](../../core/OortLibrary/Selene/InputInHand.swift) | Decide quale dispositivo è in mano (controller, tastiera o puntatore) senza sfarfallii: stick nella zona morta e piccoli spostamenti non contano. |
+| [core/OortLibrary/Selene/LaunchExit.swift](../../core/OortLibrary/Selene/LaunchExit.swift) | Dopo quattro secondi dice come uscire dalla schermata di avvio: B o Esc se Oort riceve i tasti, altrimenti il clic. |
+| [core/OortLibrary/Selene/RailScroll.swift](../../core/OortLibrary/Selene/RailScroll.swift) | Traduce rotella e due dita in passi della riga: un riquadro per riquadro di corsa, uno per scatto. |
+| [core/OortLibrary/Selene/OnScreenKeyboard.swift](../../core/OortLibrary/Selene/OnScreenKeyboard.swift) | Pagine, tasti, maiuscole e spostamento del focus della tastiera a schermo. |
+| [core/OortLibrary/Selene/MaterialIcon.swift](../../core/OortLibrary/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
+| [core/OortLibrary/Selene/MenuSelectionModel.swift](../../core/OortLibrary/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
+| [core/OortLibrary/Selene/MoonlightAppearance.swift](../../core/OortLibrary/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
+| [core/OortLibrary/Selene/ScreenshotViewerState.swift](../../core/OortLibrary/Selene/ScreenshotViewerState.swift) | Mantiene indice e limiti della navigazione nel visualizzatore screenshot. |
+| [core/OortLibrary/Selene/SeleneCanvas.swift](../../core/OortLibrary/Selene/SeleneCanvas.swift) | Calcola scala uniforme, stage centrato e conversione delle unità del canvas 1920×1080. |
+| [core/OortLibrary/Selene/SelenePalette.swift](../../core/OortLibrary/Selene/SelenePalette.swift) | Decodifica palette e metadato moonlight; ordina Oort per prima, la usa come fallback e distingue l’ID del blu classico. |
+| [core/OortLibrary/Selene/SpotlightPage.swift](../../core/OortLibrary/Selene/SpotlightPage.swift) | Calcola estratti delle descrizioni e stati dello scorrimento della pagina Spotlight. |
+| [core/OortLibrary/Selene/SpotlightRow.swift](../../core/OortLibrary/Selene/SpotlightRow.swift) | Costruisce la sequenza per UUID e salva riordini conservando giochi/fonti/card temporaneamente nascosti; Surprise sceglie fra i giochi visibili di un pool (installati, mai giocati, tutti). |
+| [core/OortLibrary/Selene/SpotlightPlatforms.swift](../../core/OortLibrary/Selene/SpotlightPlatforms.swift) | Piattaforme presenti, conteggi, combinazione con la query, cursore e scelta stabilizzata. |
+| [core/OortLibrary/Selene/SpotlightRowGeometry.swift](../../core/OortLibrary/Selene/SpotlightRowGeometry.swift) | Posti delle tessere nella riga, camera unica che la fa scorrere e finestra delle tessere create; posto, scala e camera lungo lo scorrimento dalla posizione continua della selezione. |
+| [core/OortLibrary/Selene/SpotlightState.swift](../../core/OortLibrary/Selene/SpotlightState.swift) | Gestisce selezione, focus (anche la card Achievements), azioni e spostamento delle tile su Spotlight. |
+| [core/OortLibrary/Selene/SpotlightEntrance.swift](../../core/OortLibrary/Selene/SpotlightEntrance.swift) | Tempi e partenze del volo delle tessere, dissolvenza oltre il bordo, sfondo, informazioni, hint e fasi della prima entrata di Spotlight, compreso quando accetta input. |
+| [core/OortLibrary/Selene/ThemePicker.swift](../../core/OortLibrary/Selene/ThemePicker.swift) | Gestisce il focus nella griglia colori, tab Wallpapers/Live e scelta dello sfondo successivo. |
+| [core/OortLibrary/Selene/WallpaperCatalog.swift](../../core/OortLibrary/Selene/WallpaperCatalog.swift) | Elenca wallpaper e video, gruppi, nomi e file delle risorse incluse o importate. |
+| [core/OortLibrary/Selene/WallpaperPlacement.swift](../../core/OortLibrary/Selene/WallpaperPlacement.swift) | Decide dove applicare uno sfondo scelto fra schermi principali e Settings. |
+| [core/OortLibrary/Selene/GridListLayout.swift](../../core/OortLibrary/Selene/GridListLayout.swift) | Geometria di una lista a colonne di righe uguali: altezza, posizione di ogni riga, linee da disegnare, riga da mostrare e riga in vista più vicina. |
 
 ## Core · pagina del gioco
 
-Cartella `Sources/NXLibraryCore/Details/`.
+Cartella `core/OortLibrary/Details/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Details/GameDetailPresentation.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation.swift) | Prepara i dati della pagina Details e compone estratto, testo lungo e crediti per Details e Spotlight; le entrate Steam e Switch sono in estensioni distinte. |
-| [Sources/NXLibraryCore/Details/MoreLikeThis.swift](../../Sources/NXLibraryCore/Details/MoreLikeThis.swift) | Ordina i giochi correlati per generi, sviluppatore ed editore, con precedenza alla stessa fonte e ripiego facoltativo. |
-| [Sources/NXLibraryCore/Details/DetailsFacts.swift](../../Sources/NXLibraryCore/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
-| [Sources/NXLibraryCore/Details/DetailsFocus.swift](../../Sources/NXLibraryCore/Details/DetailsFocus.swift) | Gestisce zone e spostamenti del focus nei link e nelle bande di Details. |
-| [Sources/NXLibraryCore/Details/GameOptionsPresentation.swift](../../Sources/NXLibraryCore/Details/GameOptionsPresentation.swift) | Righe, livelli, focus e titolo Next launch localizzato: Play, rete, azione RomFS in Online e schermo solo per gli host compatibili. |
-| [Sources/NXLibraryCore/Details/GameDetailPresentation+Steam.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation+Steam.swift) | Dati della pagina Steam e generi della testata Spotlight; ignora i dati di altri AppID e dà precedenza ai campi personali. |
+| [core/OortLibrary/Details/GameDetailPresentation.swift](../../core/OortLibrary/Details/GameDetailPresentation.swift) | Prepara i dati della pagina Details e compone estratto, testo lungo e crediti per Details e Spotlight; le entrate Steam e Switch sono in estensioni distinte. |
+| [core/OortLibrary/Details/MoreLikeThis.swift](../../core/OortLibrary/Details/MoreLikeThis.swift) | Ordina i giochi correlati per generi, sviluppatore ed editore, con precedenza alla stessa fonte e ripiego facoltativo. |
+| [core/OortLibrary/Details/DetailsFacts.swift](../../core/OortLibrary/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
+| [core/OortLibrary/Details/DetailsFocus.swift](../../core/OortLibrary/Details/DetailsFocus.swift) | Gestisce zone e spostamenti del focus nei link e nelle bande di Details. |
+| [core/OortLibrary/Details/GameOptionsPresentation.swift](../../core/OortLibrary/Details/GameOptionsPresentation.swift) | Righe, livelli, focus e titolo Next launch localizzato: Play, rete, azione RomFS in Online e schermo solo per gli host compatibili. |
+| [core/OortLibrary/Details/GameDetailPresentation+Steam.swift](../../core/OortLibrary/Details/GameDetailPresentation+Steam.swift) | Dati della pagina Steam e generi della testata Spotlight; ignora i dati di altri AppID e dà precedenza ai campi personali. |
 
 ## Core · artwork e metadati
 
-Cartella `Sources/NXLibraryCore/Artwork/`.
+Cartella `core/OortLibrary/Artwork/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Artwork/AutomaticIconResolver.swift](../../Sources/NXLibraryCore/Artwork/AutomaticIconResolver.swift) | Risolve icone automatiche con cache, abbinamento prudente e rispetto delle restrizioni del provider. |
-| [Sources/NXLibraryCore/Artwork/ArtworkStore.swift](../../Sources/NXLibraryCore/Artwork/ArtworkStore.swift) | Scarica, ridimensiona e conserva immagini e screenshot nella cache per titolo e tipo. |
-| [Sources/NXLibraryCore/Artwork/ArtworkPicker.swift](../../Sources/NXLibraryCore/Artwork/ArtworkPicker.swift) | Aggrega candidati per cover, sfondo, icona e logo (quelli Steam qui, quelli Switch in `ArcanePorting/Store/ArtworkCandidates+Porting.swift`) e conserva le scelte manuali. |
-| [Sources/NXLibraryCore/Artwork/MetadataPicker.swift](../../Sources/NXLibraryCore/Artwork/MetadataPicker.swift) | Campi alternativi e override per campo: `MetadataPicks` scrive atomicamente prima di pubblicare la modifica. |
-| [Sources/NXLibraryCore/Artwork/GameTitleKey.swift](../../Sources/NXLibraryCore/Artwork/GameTitleKey.swift) | Un titolo come parole da confrontare (minuscole, senza ™ ® © né punteggiatura, "&" come "and"), per le ricerche di artwork online e GameTDB. |
-| [Sources/NXLibraryCore/Artwork/HTMLPlainText.swift](../../Sources/NXLibraryCore/Artwork/HTMLPlainText.swift) | Una descrizione HTML (store, Steam, database, mod) come testo semplice: righe ed elenchi tenuti, altri tag tolti, entità decodificate. |
-| [Sources/NXLibraryCore/Artwork/OnlineArtworkSources.swift](../../Sources/NXLibraryCore/Artwork/OnlineArtworkSources.swift) | Ricava artwork Steam e loghi da MediaWiki e Wikimedia Commons. |
-| [Sources/NXLibraryCore/Artwork/MoreArtworkSources.swift](../../Sources/NXLibraryCore/Artwork/MoreArtworkSources.swift) | Matching dei nomi e sorgenti Xbox, GOG, Nintendo Europe, wiki e altri cataloghi; controllo della variante Nintendo più grande prima del primo download. |
-| [Sources/NXLibraryCore/Artwork/ArtworkBrowse.swift](../../Sources/NXLibraryCore/Artwork/ArtworkBrowse.swift) | Sorgenti sfogliabili da Change artwork (LaunchBox, SteamGridDB): nomi cercati e risultati per tutti gli slot. |
-| [Sources/NXLibraryCore/Artwork/LaunchBoxArt.swift](../../Sources/NXLibraryCore/Artwork/LaunchBoxArt.swift) | Legge ricerca e pagina gioco di LaunchBox; dal payload Nuxt ricava anteprime, file pieni, tipo, regione e dimensioni; screenshot Gameplay. |
-| [Sources/NXLibraryCore/Artwork/SteamGridDBArt.swift](../../Sources/NXLibraryCore/Artwork/SteamGridDBArt.swift) | Conserva la chiave SteamGridDB in un file 0600 e interroga l’API v2 per griglie, hero, loghi e icone statiche accreditate. |
-| [Sources/NXLibraryCore/Artwork/LibraryArtworkRole.swift](../../Sources/NXLibraryCore/Artwork/LibraryArtworkRole.swift) | Ruoli di layout delle immagini (copertina, quadrato, sfondo…) separati dal fornitore: un quadrato non chiede né ritaglia mai la copertina verticale. |
-| [Sources/NXLibraryCore/Artwork/CriticRating.swift](../../Sources/NXLibraryCore/Artwork/CriticRating.swift) | Identità pubblica del gioco e console (Mac, Switch, Switch 2), voto originale /100, provenienza e riempimento proporzionale delle cinque stelle. |
-| [Sources/NXLibraryCore/Artwork/WikidataRatings.swift](../../Sources/NXLibraryCore/Artwork/WikidataRatings.swift) | Abbina titoli esatti e ID Steam; seleziona medie della critica documentate, senza confondere piattaforme o raccomandazioni. L'identità del gioco (`entity`) serve anche alle descrizioni di Wikipedia. |
-| [Sources/NXLibraryCore/Artwork/WikipediaDescription.swift](../../Sources/NXLibraryCore/Artwork/WikipediaDescription.swift) | Quando una descrizione non è nella lingua dell'app, sitelink Wikidata e introduzione di Wikipedia in quella lingua (cinese in semplificato); servizio con cache misurabile e svuotabile, host fissi e nessun errore salvato come assenza. |
-| [Sources/NXLibraryCore/Artwork/CriticRatingService.swift](../../Sources/NXLibraryCore/Artwork/CriticRatingService.swift) | Preferenza IGDB personale → Wikidata pubblico, cache Wikidata, ripiego offline e pausa dopo errori. |
-| [Sources/NXLibraryCore/Artwork/IGDBCredentials.swift](../../Sources/NXLibraryCore/Artwork/IGDBCredentials.swift) | Credenziali Twitch personali in file 0600, validazione e messaggi sicuri senza segreti nei log. |
-| [Sources/NXLibraryCore/Artwork/IGDBRatings.swift](../../Sources/NXLibraryCore/Artwork/IGDBRatings.swift) | Abbinamento IGDB esatto o tramite ID Steam, critica preferita e ripiego utenti esplicito, con provenienza distinta da Wikidata. |
-| [Sources/NXLibraryCore/Artwork/IGDBRatingService.swift](../../Sources/NXLibraryCore/Artwork/IGDBRatingService.swift) | Cache dei voti, richieste coalescenti e verifica credenziali tramite il client IGDB condiviso. |
-| [Sources/NXLibraryCore/Artwork/IGDBClient.swift](../../Sources/NXLibraryCore/Artwork/IGDBClient.swift) | Unico accesso Twitch/IGDB per voti e metadati: token in memoria, coda limitata seriale, host vincolati, rinnovo 401 e annullamento. |
-| [Sources/NXLibraryCore/Artwork/IGDBMetadata.swift](../../Sources/NXLibraryCore/Artwork/IGDBMetadata.swift) | Proposte IGDB per campo: identità esatta, ruoli delle aziende e date complete della piattaforma corretta. |
-| [Sources/NXLibraryCore/Artwork/IGDBMetadataService.swift](../../Sources/NXLibraryCore/Artwork/IGDBMetadataService.swift) | Ricerca metadati su richiesta, ID Steam verificato, cache separata e ripiego offline; nessuna scrittura delle scelte personali. |
-| [Sources/NXLibraryCore/Artwork/DatabaseMetadata.swift](../../Sources/NXLibraryCore/Artwork/DatabaseMetadata.swift) | Proposte LaunchBox/TheGamesDB: identità e piattaforma verificate, campi separati, fonte esplicita e date della versione corretta. |
-| [Sources/NXLibraryCore/Artwork/DatabaseMetadataService.swift](../../Sources/NXLibraryCore/Artwork/DatabaseMetadataService.swift) | Letture pubbliche limitate e annullabili, richieste condivise, cache testuale per gioco/piattaforma e recupero offline. |
-| [Sources/NXLibraryCore/Artwork/GameGenre.swift](../../Sources/NXLibraryCore/Artwork/GameGenre.swift) | Generi noti tradotti alla presentazione; dati originali e generi personali conservati. |
+| [core/OortLibrary/Artwork/AutomaticIconResolver.swift](../../core/OortLibrary/Artwork/AutomaticIconResolver.swift) | Risolve icone automatiche con cache, abbinamento prudente e rispetto delle restrizioni del provider. |
+| [core/OortLibrary/Artwork/ArtworkStore.swift](../../core/OortLibrary/Artwork/ArtworkStore.swift) | Scarica, ridimensiona e conserva immagini e screenshot nella cache per titolo e tipo. |
+| [core/OortLibrary/Artwork/ArtworkPicker.swift](../../core/OortLibrary/Artwork/ArtworkPicker.swift) | Aggrega candidati per cover, sfondo, icona e logo (quelli Steam qui, quelli Switch in `ArcanePorting/Store/ArtworkCandidates+Porting.swift`) e conserva le scelte manuali. |
+| [core/OortLibrary/Artwork/MetadataPicker.swift](../../core/OortLibrary/Artwork/MetadataPicker.swift) | Campi alternativi e override per campo: `MetadataPicks` scrive atomicamente prima di pubblicare la modifica. |
+| [core/OortLibrary/Artwork/GameTitleKey.swift](../../core/OortLibrary/Artwork/GameTitleKey.swift) | Un titolo come parole da confrontare (minuscole, senza ™ ® © né punteggiatura, "&" come "and"), per le ricerche di artwork online e GameTDB. |
+| [core/OortLibrary/Artwork/HTMLPlainText.swift](../../core/OortLibrary/Artwork/HTMLPlainText.swift) | Una descrizione HTML (store, Steam, database, mod) come testo semplice: righe ed elenchi tenuti, altri tag tolti, entità decodificate. |
+| [core/OortLibrary/Artwork/OnlineArtworkSources.swift](../../core/OortLibrary/Artwork/OnlineArtworkSources.swift) | Ricava artwork Steam e loghi da MediaWiki e Wikimedia Commons. |
+| [core/OortLibrary/Artwork/MoreArtworkSources.swift](../../core/OortLibrary/Artwork/MoreArtworkSources.swift) | Matching dei nomi e sorgenti Xbox, GOG, Nintendo Europe, wiki e altri cataloghi; controllo della variante Nintendo più grande prima del primo download. |
+| [core/OortLibrary/Artwork/ArtworkBrowse.swift](../../core/OortLibrary/Artwork/ArtworkBrowse.swift) | Sorgenti sfogliabili da Change artwork (LaunchBox, SteamGridDB): nomi cercati e risultati per tutti gli slot. |
+| [core/OortLibrary/Artwork/LaunchBoxArt.swift](../../core/OortLibrary/Artwork/LaunchBoxArt.swift) | Legge ricerca e pagina gioco di LaunchBox; dal payload Nuxt ricava anteprime, file pieni, tipo, regione e dimensioni; screenshot Gameplay. |
+| [core/OortLibrary/Artwork/SteamGridDBArt.swift](../../core/OortLibrary/Artwork/SteamGridDBArt.swift) | Conserva la chiave SteamGridDB in un file 0600 e interroga l’API v2 per griglie, hero, loghi e icone statiche accreditate. |
+| [core/OortLibrary/Artwork/LibraryArtworkRole.swift](../../core/OortLibrary/Artwork/LibraryArtworkRole.swift) | Ruoli di layout delle immagini (copertina, quadrato, sfondo…) separati dal fornitore: un quadrato non chiede né ritaglia mai la copertina verticale. |
+| [core/OortLibrary/Artwork/CriticRating.swift](../../core/OortLibrary/Artwork/CriticRating.swift) | Identità pubblica del gioco e console (Mac, Switch, Switch 2), voto originale /100, provenienza e riempimento proporzionale delle cinque stelle. |
+| [core/OortLibrary/Artwork/WikidataRatings.swift](../../core/OortLibrary/Artwork/WikidataRatings.swift) | Abbina titoli esatti e ID Steam; seleziona medie della critica documentate, senza confondere piattaforme o raccomandazioni. L'identità del gioco (`entity`) serve anche alle descrizioni di Wikipedia. |
+| [core/OortLibrary/Artwork/WikipediaDescription.swift](../../core/OortLibrary/Artwork/WikipediaDescription.swift) | Quando una descrizione non è nella lingua dell'app, sitelink Wikidata e introduzione di Wikipedia in quella lingua (cinese in semplificato); servizio con cache misurabile e svuotabile, host fissi e nessun errore salvato come assenza. |
+| [core/OortLibrary/Artwork/CriticRatingService.swift](../../core/OortLibrary/Artwork/CriticRatingService.swift) | Preferenza IGDB personale → Wikidata pubblico, cache Wikidata, ripiego offline e pausa dopo errori. |
+| [core/OortLibrary/Artwork/IGDBCredentials.swift](../../core/OortLibrary/Artwork/IGDBCredentials.swift) | Credenziali Twitch personali in file 0600, validazione e messaggi sicuri senza segreti nei log. |
+| [core/OortLibrary/Artwork/IGDBRatings.swift](../../core/OortLibrary/Artwork/IGDBRatings.swift) | Abbinamento IGDB esatto o tramite ID Steam, critica preferita e ripiego utenti esplicito, con provenienza distinta da Wikidata. |
+| [core/OortLibrary/Artwork/IGDBRatingService.swift](../../core/OortLibrary/Artwork/IGDBRatingService.swift) | Cache dei voti, richieste coalescenti e verifica credenziali tramite il client IGDB condiviso. |
+| [core/OortLibrary/Artwork/IGDBClient.swift](../../core/OortLibrary/Artwork/IGDBClient.swift) | Unico accesso Twitch/IGDB per voti e metadati: token in memoria, coda limitata seriale, host vincolati, rinnovo 401 e annullamento. |
+| [core/OortLibrary/Artwork/IGDBMetadata.swift](../../core/OortLibrary/Artwork/IGDBMetadata.swift) | Proposte IGDB per campo: identità esatta, ruoli delle aziende e date complete della piattaforma corretta. |
+| [core/OortLibrary/Artwork/IGDBMetadataService.swift](../../core/OortLibrary/Artwork/IGDBMetadataService.swift) | Ricerca metadati su richiesta, ID Steam verificato, cache separata e ripiego offline; nessuna scrittura delle scelte personali. |
+| [core/OortLibrary/Artwork/DatabaseMetadata.swift](../../core/OortLibrary/Artwork/DatabaseMetadata.swift) | Proposte LaunchBox/TheGamesDB: identità e piattaforma verificate, campi separati, fonte esplicita e date della versione corretta. |
+| [core/OortLibrary/Artwork/DatabaseMetadataService.swift](../../core/OortLibrary/Artwork/DatabaseMetadataService.swift) | Letture pubbliche limitate e annullabili, richieste condivise, cache testuale per gioco/piattaforma e recupero offline. |
+| [core/OortLibrary/Artwork/GameGenre.swift](../../core/OortLibrary/Artwork/GameGenre.swift) | Generi noti tradotti alla presentazione; dati originali e generi personali conservati. |
 
 ## Core · achievement
 
-Cartella `Sources/NXLibraryCore/Achievements/`.
+Cartella `core/OortLibrary/Achievements/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Achievements/AchievementSummary.swift](../../Sources/NXLibraryCore/Achievements/AchievementSummary.swift) | Riepilogo puro per la tile e la schermata: conteggi, percentuale, gioco completato (`isComplete`), righe recenti con icona, conteggi per tier, sbloccati di recente, ultimo sblocco, filtri e ordini; maschera i nascosti ancora bloccati. |
-| [Sources/NXLibraryCore/Achievements/AchievementTier.swift](../../Sources/NXLibraryCore/Achievements/AchievementTier.swift) | Tier a cristallo come i trofei PS5: Arcano (viola, al posto del Platino) per il gioco completato, Oro / Argento / Bronzo per rarità Steam (<10%, <30%, il resto); nomi tradotti e PNG nelle risorse del Core; `videoURL` dà il video in loop dell'Arcane (`crystal-arcane.mov`, HEVC con alpha a 384 px). |
-| [Sources/NXLibraryCore/Achievements/AchievementsScreenState.swift](../../Sources/NXLibraryCore/Achievements/AchievementsScreenState.swift) | Filtro e selezione della schermata Achievements: due colonne, bordi fermi, LB/RB che girano i filtri. |
-| [LocalAchievementPack.swift](../../Sources/NXLibraryCore/Achievements/LocalAchievementPack.swift) | Pack locale, metriche e regole; progressi e primi sblocchi persistenti per gioco e profilo. |
+| [core/OortLibrary/Achievements/AchievementSummary.swift](../../core/OortLibrary/Achievements/AchievementSummary.swift) | Riepilogo puro per la tile e la schermata: conteggi, percentuale, gioco completato (`isComplete`), righe recenti con icona, conteggi per tier, sbloccati di recente, ultimo sblocco, filtri e ordini; maschera i nascosti ancora bloccati. |
+| [core/OortLibrary/Achievements/AchievementTier.swift](../../core/OortLibrary/Achievements/AchievementTier.swift) | Tier a cristallo come i trofei PS5: Arcano (viola, al posto del Platino) per il gioco completato, Oro / Argento / Bronzo per rarità Steam (<10%, <30%, il resto); nomi tradotti e PNG nelle risorse del Core; `videoURL` dà il video in loop dell'Arcane (`crystal-arcane.mov`, HEVC con alpha a 384 px). |
+| [core/OortLibrary/Achievements/AchievementsScreenState.swift](../../core/OortLibrary/Achievements/AchievementsScreenState.swift) | Filtro e selezione della schermata Achievements: due colonne, bordi fermi, LB/RB che girano i filtri. |
+| [LocalAchievementPack.swift](../../core/OortLibrary/Achievements/LocalAchievementPack.swift) | Pack locale, metriche e regole; progressi e primi sblocchi persistenti per gioco e profilo. |
 
 ## Core · mod
 
-Cartella `Sources/NXLibraryCore/Mods/`.
+Cartella `core/OortLibrary/Mods/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Mods/ModsBandLayout.swift](../../Sources/NXLibraryCore/Mods/ModsBandLayout.swift) | Ordine delle tessere, Search accanto a Manage e movimento nella griglia (sei per riga). |
-| [Sources/NXLibraryCore/Mods/LocalMod.swift](../../Sources/NXLibraryCore/Mods/LocalMod.swift) | Una mod locale: cartella, stato e radici `romfs` o `exefs`. |
+| [core/OortLibrary/Mods/ModsBandLayout.swift](../../core/OortLibrary/Mods/ModsBandLayout.swift) | Ordine delle tessere, Search accanto a Manage e movimento nella griglia (sei per riga). |
+| [core/OortLibrary/Mods/LocalMod.swift](../../core/OortLibrary/Mods/LocalMod.swift) | Una mod locale: cartella, stato e radici `romfs` o `exefs`. |
 
 ## Core · impostazioni, lingua e testi
 
-Cartella `Sources/NXLibraryCore/Settings/`. Il catalogo dei testi sta in `Resources/`.
+Cartella `core/OortLibrary/Settings/`. Il catalogo dei testi sta in `Resources/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Settings/AppSettings.swift](../../Sources/NXLibraryCore/Settings/AppSettings.swift) | Impostazioni globali e decodifica compatibile, anche per Inbox, Compilati di recente (attivi per default), Home in gioco e scelta VPN da ZeroTier Automatico. Tiene le chiavi del modulo come JSON e ignora chiavi e card Spotlight sconosciute. |
-| [Sources/NXLibraryCore/Settings/AppSettingsStore.swift](../../Sources/NXLibraryCore/Settings/AppSettingsStore.swift) | Separa bozza, anteprime e valori applicati; salva settings.json con lock, sostituzione atomica e rilettura. Conserva un file illeggibile e scrive l'ultima selezione in background. |
-| [Sources/NXLibraryCore/Settings/AppSettingsDraft.swift](../../Sources/NXLibraryCore/Settings/AppSettingsDraft.swift) | Confronta ogni campo modificabile con l'originale, espone i cambi e unisce le modifiche senza sovrascrivere un conflitto. |
-| [Sources/NXLibraryCore/Settings/SettingsRowAction.swift](../../Sources/NXLibraryCore/Settings/SettingsRowAction.swift) | Identifica azioni e righe Settings, mantenendo una sola azione primaria per riga senza accorpare giochi omonimi. |
-| [Sources/NXLibraryCore/Settings/SettingsCatalog.swift](../../Sources/NXLibraryCore/Settings/SettingsCatalog.swift) | Righe fuori da Porting, incluse Play together, Hidden game apps e Home in gioco; ordina, cerca e confronta per identità. |
-| [Sources/NXLibraryCore/Settings/SettingsSection.swift](../../Sources/NXLibraryCore/Settings/SettingsSection.swift) | Titoli e icone della barra: General, Library, Porting (con Game folders e Porting storage) e System. |
-| [Sources/NXLibraryCore/Settings/SettingsCategory.swift](../../Sources/NXLibraryCore/Settings/SettingsCategory.swift) | Rubriche brevi localizzate e associazione con le sezioni storiche, senza cambiare le rotte. |
-| [Sources/NXLibraryCore/Settings/SettingsReset.swift](../../Sources/NXLibraryCore/Settings/SettingsReset.swift) | Reset group per sezione, anche Inbox con Game folders, Compilati di recente con Spotlight, Home in gioco e scelte Play together, non l'ID Nextendo né i percorsi delle cartelle di gioco. |
-| [Sources/NXLibraryCore/Settings/OnlinePlayersDisplay.swift](../../Sources/NXLibraryCore/Settings/OnlinePlayersDisplay.swift) | I quattro interruttori di Nextendo players, la conversione delle scelte precedenti e la condizione per leggere il conteggio. |
-| [Sources/NXLibraryCore/Settings/AppLocale.swift](../../Sources/NXLibraryCore/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
-| [Sources/NXLibraryCore/Settings/AppLocalization.swift](../../Sources/NXLibraryCore/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
-| [Sources/NXLibraryCore/Resources/credits.json](../../Sources/NXLibraryCore/Resources/credits.json) | Copia generata di `design/credits.json`. |
-| [Sources/NXLibraryCore/Resources/Localizable.xcstrings](../../Sources/NXLibraryCore/Resources/Localizable.xcstrings) | Testi in sette lingue, inclusi errori di avvio di Python, avvisi del Cestino, recupero degli spostamenti cloud e accessi di Integrations. |
+| [core/OortLibrary/Settings/AppSettings.swift](../../core/OortLibrary/Settings/AppSettings.swift) | Impostazioni globali e decodifica compatibile, anche per Inbox, Compilati di recente (attivi per default), Home in gioco e scelta VPN da ZeroTier Automatico. Tiene le chiavi del modulo come JSON e ignora chiavi e card Spotlight sconosciute. |
+| [core/OortLibrary/Settings/AppSettingsStore.swift](../../core/OortLibrary/Settings/AppSettingsStore.swift) | Separa bozza, anteprime e valori applicati; salva settings.json con lock, sostituzione atomica e rilettura. Conserva un file illeggibile e scrive l'ultima selezione in background. |
+| [core/OortLibrary/Settings/AppSettingsDraft.swift](../../core/OortLibrary/Settings/AppSettingsDraft.swift) | Confronta ogni campo modificabile con l'originale, espone i cambi e unisce le modifiche senza sovrascrivere un conflitto. |
+| [core/OortLibrary/Settings/SettingsRowAction.swift](../../core/OortLibrary/Settings/SettingsRowAction.swift) | Identifica azioni e righe Settings, mantenendo una sola azione primaria per riga senza accorpare giochi omonimi. |
+| [core/OortLibrary/Settings/SettingsCatalog.swift](../../core/OortLibrary/Settings/SettingsCatalog.swift) | Righe fuori da Porting, incluse Play together, Hidden game apps e Home in gioco; ordina, cerca e confronta per identità. |
+| [core/OortLibrary/Settings/SettingsSection.swift](../../core/OortLibrary/Settings/SettingsSection.swift) | Titoli e icone della barra: General, Library, Porting (con Game folders e Porting storage) e System. |
+| [core/OortLibrary/Settings/SettingsCategory.swift](../../core/OortLibrary/Settings/SettingsCategory.swift) | Rubriche brevi localizzate e associazione con le sezioni storiche, senza cambiare le rotte. |
+| [core/OortLibrary/Settings/SettingsReset.swift](../../core/OortLibrary/Settings/SettingsReset.swift) | Reset group per sezione, anche Inbox con Game folders, Compilati di recente con Spotlight, Home in gioco e scelte Play together, non l'ID Nextendo né i percorsi delle cartelle di gioco. |
+| [core/OortLibrary/Settings/OnlinePlayersDisplay.swift](../../core/OortLibrary/Settings/OnlinePlayersDisplay.swift) | I quattro interruttori di Nextendo players, la conversione delle scelte precedenti e la condizione per leggere il conteggio. |
+| [core/OortLibrary/Settings/AppLocale.swift](../../core/OortLibrary/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
+| [core/OortLibrary/Settings/AppLocalization.swift](../../core/OortLibrary/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
+| [core/OortLibrary/Resources/credits.json](../../core/OortLibrary/Resources/credits.json) | Copia generata di `design/credits.json`. |
+| [core/OortLibrary/Resources/Localizable.xcstrings](../../core/OortLibrary/Resources/Localizable.xcstrings) | Testi in sette lingue, inclusi errori di avvio di Python, avvisi del Cestino, recupero degli spostamenti cloud e accessi di Integrations. |
 
 ## Core · Steam
 
-Cartella `Sources/NXLibraryCore/Steam/`.
+Cartella `core/OortLibrary/Steam/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Steam/SteamBackgroundLaunch.swift](../../Sources/NXLibraryCore/Steam/SteamBackgroundLaunch.swift) | Attesa di un gioco Steam avviato da Play: pazienza (15 s, 45 s se Play avvia Steam), stato della schermata di lancio, regole di «Keep Steam in the background». |
-| [Sources/NXLibraryCore/Steam/SteamKeyValues.swift](../../Sources/NXLibraryCore/Steam/SteamKeyValues.swift) | Parser testuale limitato e lookup condivisi dei lettori: prima chiave, primo valore tipizzato o campo unico, con regole esplicite sui duplicati; nessuna direttiva eseguita. |
-| [Sources/NXLibraryCore/Steam/SteamPlaytimeReader.swift](../../Sources/NXLibraryCore/Steam/SteamPlaytimeReader.swift) | Ore e ultima partita dell’account Steam più recente da `localconfig.vdf`; nient’altro del file esce dal tipo. |
-| [Sources/NXLibraryCore/Steam/SteamPlaytimeBaselines.swift](../../Sources/NXLibraryCore/Steam/SteamPlaytimeBaselines.swift) | Totali Steam con il momento in cui sono stati visti; nuovo valore o account ripartono; mappa ai giochi del catalogo. |
-| [Sources/NXLibraryCore/Steam/SteamReturnFocus.swift](../../Sources/NXLibraryCore/Steam/SteamReturnFocus.swift) | Quando un gioco Steam che esce riporta Arcane davanti: Play premuto qui, gioco in primo piano, nessun altro gioco aperto. |
-| [Sources/NXLibraryCore/Steam/SteamLaunchQuestions.swift](../../Sources/NXLibraryCore/Steam/SteamLaunchQuestions.swift) | Domande con cui Steam ferma un avvio, dalle righe `GameAction` di `logs/console_log.txt`. `ShowInterstitials` è avanzamento; le domande contano dopo 1 s. |
-| [Sources/NXLibraryCore/Steam/SteamPlaytimeSync.swift](../../Sources/NXLibraryCore/Steam/SteamPlaytimeSync.swift) | Una lettura dei file Steam e cosa fa (pubblica, conserva gli ultimi totali buoni dello stesso account o azzera); coda di una lettura alla volta. |
-| [Sources/NXLibraryCore/Steam/InstallationFileSnapshot.swift](../../Sources/NXLibraryCore/Steam/InstallationFileSnapshot.swift) | Letture limitate e non bloccanti di file regolari; verifica dell'identità prima della pubblicazione. |
-| [Sources/NXLibraryCore/Steam/InstallationDirectorySnapshot.swift](../../Sources/NXLibraryCore/Steam/InstallationDirectorySnapshot.swift) | Lettura incrementale delle cartelle, budget anche sulle voci nascoste e annullamento durante l'enumerazione. |
-| [Sources/NXLibraryCore/Steam/NativeMacApplication.swift](../../Sources/NXLibraryCore/Steam/NativeMacApplication.swift) | Evidenze del bundle Mac e degli header eseguibili, architetture e categoria dichiarata, senza avvio. |
-| [Sources/NXLibraryCore/Steam/SteamLibrarySource.swift](../../Sources/NXLibraryCore/Steam/SteamLibrarySource.swift) | Snapshot delle librerie/manifest; omette i percorsi non pubblicabili e segnala una scansione parziale senza modificare il catalogo. |
-| [Sources/NXLibraryCore/Steam/SteamPlayState.swift](../../Sources/NXLibraryCore/Steam/SteamPlayState.swift) | Stato di Play per un gioco Steam: processi osservati con i percorsi risolti, passaggio a Steam, sessione solo quando gira l’app di questa installazione, attese e rifiuti. |
-| [Sources/NXLibraryCore/Steam/SteamBinaryKeyValues.swift](../../Sources/NXLibraryCore/Steam/SteamBinaryKeyValues.swift) | Lettura limitata del formato KeyValues binario di Steam (`appcache/stats`): tipi noti, profondità, voci e dimensione; qualunque altro byte è un errore. |
-| [Sources/NXLibraryCore/Steam/SteamAchievementReader.swift](../../Sources/NXLibraryCore/Steam/SteamAchievementReader.swift) | Achievement di un gioco per l’account corrente: schema (nomi nella lingua dell’app, poi inglese; nascosti; icone) e soli `AchievementTimes` del file delle statistiche; nessun file, account o statistiche: nessun dato. |
-| [Sources/NXLibraryCore/Steam/SteamAchievementRarity.swift](../../Sources/NXLibraryCore/Steam/SteamAchievementRarity.swift) | Rarità pubblica (`GetGlobalAchievementPercentagesForApp`, senza chiave) (una percentuale non numerica, «nan» o «inf», si scarta) e indirizzi delle icone sull’host community-assets del CDN di Steam, solo per nomi di file semplici. |
-| [Sources/NXLibraryCore/Steam/SteamManifestWatcher.swift](../../Sources/NXLibraryCore/Steam/SteamManifestWatcher.swift) | Uno stream FSEvents sulle cartelle `steamapps` delle librerie dell’ultima scansione; segnala solo i manifest `appmanifest_<AppID>.acf` e l’indice `libraryfolders.vdf` della radice, una volta per gruppo di eventi. |
-| [Sources/NXLibraryCore/Steam/SteamMetadata.swift](../../Sources/NXLibraryCore/Steam/SteamMetadata.swift) | Dati store Steam tipizzati, lingua e URL immagini verificati. |
-| [Sources/NXLibraryCore/Steam/SteamMetadataService.swift](../../Sources/NXLibraryCore/Steam/SteamMetadataService.swift) | Fino a sei download coalescenti, cache per lingua, ripiego offline (anche in un'altra lingua) e immagini ridimensionate. Legge i tratti dei giochi correlati solo da cache. |
-| [Sources/NXLibraryCore/Steam/SteamPersonalizationStore.swift](../../Sources/NXLibraryCore/Steam/SteamPersonalizationStore.swift) | Pubblicazione unica di metadati e riferimenti artwork; fallimenti e Automatic conservano le scelte coerenti. |
-| [Sources/NXLibraryCore/Steam/SteamArtworkRequest.swift](../../Sources/NXLibraryCore/Steam/SteamArtworkRequest.swift) | Cosa chiede la tile di un gioco Steam per ogni ruolo: prima la scelta personale, poi per il quadrato l’icona dell’app installata, mai la copertina; gli altri ruoli vanno all’arte dello store. |
-| [Sources/NXLibraryCore/Steam/SteamBackdropChoice.swift](../../Sources/NXLibraryCore/Steam/SteamBackdropChoice.swift) | Sfondo automatico di un gioco Steam: arte 16:9 pulita (Xbox, GOG, TheGamesDB, fan art LaunchBox), poi il primo screenshot, per ultimo il banner della libreria ritagliato. |
+| [core/OortLibrary/Steam/SteamBackgroundLaunch.swift](../../core/OortLibrary/Steam/SteamBackgroundLaunch.swift) | Attesa di un gioco Steam avviato da Play: pazienza (15 s, 45 s se Play avvia Steam), stato della schermata di lancio, regole di «Keep Steam in the background». |
+| [core/OortLibrary/Steam/SteamKeyValues.swift](../../core/OortLibrary/Steam/SteamKeyValues.swift) | Parser testuale limitato e lookup condivisi dei lettori: prima chiave, primo valore tipizzato o campo unico, con regole esplicite sui duplicati; nessuna direttiva eseguita. |
+| [core/OortLibrary/Steam/SteamPlaytimeReader.swift](../../core/OortLibrary/Steam/SteamPlaytimeReader.swift) | Ore e ultima partita dell’account Steam più recente da `localconfig.vdf`; nient’altro del file esce dal tipo. |
+| [core/OortLibrary/Steam/SteamPlaytimeBaselines.swift](../../core/OortLibrary/Steam/SteamPlaytimeBaselines.swift) | Totali Steam con il momento in cui sono stati visti; nuovo valore o account ripartono; mappa ai giochi del catalogo. |
+| [core/OortLibrary/Steam/SteamReturnFocus.swift](../../core/OortLibrary/Steam/SteamReturnFocus.swift) | Quando un gioco Steam che esce riporta Arcane davanti: Play premuto qui, gioco in primo piano, nessun altro gioco aperto. |
+| [core/OortLibrary/Steam/SteamLaunchQuestions.swift](../../core/OortLibrary/Steam/SteamLaunchQuestions.swift) | Domande con cui Steam ferma un avvio, dalle righe `GameAction` di `logs/console_log.txt`. `ShowInterstitials` è avanzamento; le domande contano dopo 1 s. |
+| [core/OortLibrary/Steam/SteamPlaytimeSync.swift](../../core/OortLibrary/Steam/SteamPlaytimeSync.swift) | Una lettura dei file Steam e cosa fa (pubblica, conserva gli ultimi totali buoni dello stesso account o azzera); coda di una lettura alla volta. |
+| [core/OortLibrary/Steam/InstallationFileSnapshot.swift](../../core/OortLibrary/Steam/InstallationFileSnapshot.swift) | Letture limitate e non bloccanti di file regolari; verifica dell'identità prima della pubblicazione. |
+| [core/OortLibrary/Steam/InstallationDirectorySnapshot.swift](../../core/OortLibrary/Steam/InstallationDirectorySnapshot.swift) | Lettura incrementale delle cartelle, budget anche sulle voci nascoste e annullamento durante l'enumerazione. |
+| [core/OortLibrary/Steam/NativeMacApplication.swift](../../core/OortLibrary/Steam/NativeMacApplication.swift) | Evidenze del bundle Mac e degli header eseguibili, architetture e categoria dichiarata, senza avvio. |
+| [core/OortLibrary/Steam/SteamLibrarySource.swift](../../core/OortLibrary/Steam/SteamLibrarySource.swift) | Snapshot delle librerie/manifest; omette i percorsi non pubblicabili e segnala una scansione parziale senza modificare il catalogo. |
+| [core/OortLibrary/Steam/SteamPlayState.swift](../../core/OortLibrary/Steam/SteamPlayState.swift) | Stato di Play per un gioco Steam: processi osservati con i percorsi risolti, passaggio a Steam, sessione solo quando gira l’app di questa installazione, attese e rifiuti. |
+| [core/OortLibrary/Steam/SteamBinaryKeyValues.swift](../../core/OortLibrary/Steam/SteamBinaryKeyValues.swift) | Lettura limitata del formato KeyValues binario di Steam (`appcache/stats`): tipi noti, profondità, voci e dimensione; qualunque altro byte è un errore. |
+| [core/OortLibrary/Steam/SteamAchievementReader.swift](../../core/OortLibrary/Steam/SteamAchievementReader.swift) | Achievement di un gioco per l’account corrente: schema (nomi nella lingua dell’app, poi inglese; nascosti; icone) e soli `AchievementTimes` del file delle statistiche; nessun file, account o statistiche: nessun dato. |
+| [core/OortLibrary/Steam/SteamAchievementRarity.swift](../../core/OortLibrary/Steam/SteamAchievementRarity.swift) | Rarità pubblica (`GetGlobalAchievementPercentagesForApp`, senza chiave) (una percentuale non numerica, «nan» o «inf», si scarta) e indirizzi delle icone sull’host community-assets del CDN di Steam, solo per nomi di file semplici. |
+| [core/OortLibrary/Steam/SteamManifestWatcher.swift](../../core/OortLibrary/Steam/SteamManifestWatcher.swift) | Uno stream FSEvents sulle cartelle `steamapps` delle librerie dell’ultima scansione; segnala solo i manifest `appmanifest_<AppID>.acf` e l’indice `libraryfolders.vdf` della radice, una volta per gruppo di eventi. |
+| [core/OortLibrary/Steam/SteamMetadata.swift](../../core/OortLibrary/Steam/SteamMetadata.swift) | Dati store Steam tipizzati, lingua e URL immagini verificati. |
+| [core/OortLibrary/Steam/SteamMetadataService.swift](../../core/OortLibrary/Steam/SteamMetadataService.swift) | Fino a sei download coalescenti, cache per lingua, ripiego offline (anche in un'altra lingua) e immagini ridimensionate. Legge i tratti dei giochi correlati solo da cache. |
+| [core/OortLibrary/Steam/SteamPersonalizationStore.swift](../../core/OortLibrary/Steam/SteamPersonalizationStore.swift) | Pubblicazione unica di metadati e riferimenti artwork; fallimenti e Automatic conservano le scelte coerenti. |
+| [core/OortLibrary/Steam/SteamArtworkRequest.swift](../../core/OortLibrary/Steam/SteamArtworkRequest.swift) | Cosa chiede la tile di un gioco Steam per ogni ruolo: prima la scelta personale, poi per il quadrato l’icona dell’app installata, mai la copertina; gli altri ruoli vanno all’arte dello store. |
+| [core/OortLibrary/Steam/SteamBackdropChoice.swift](../../core/OortLibrary/Steam/SteamBackdropChoice.swift) | Sfondo automatico di un gioco Steam: arte 16:9 pulita (Xbox, GOG, TheGamesDB, fan art LaunchBox), poi il primo screenshot, per ultimo il banner della libreria ritagliato. |
 
 ## Porting · gioco Switch e libreria nxnative
 
@@ -949,7 +949,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, annullamento a sinistra e conferma a destra con `OortActionBar`, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
 | [Sources/NXLibrary/Views/OortUI/OortActionBar.swift](../../Sources/NXLibrary/Views/OortUI/OortActionBar.swift) | Barra e domanda con Annulla a sinistra, azione principale a destra e azione distruttiva su una riga separata. |
-| [Sources/NXLibraryCore/Selene/ActionBarOrder.swift](../../Sources/NXLibraryCore/Selene/ActionBarOrder.swift), [test](../../Tests/NXLibraryCoreTests/ActionBarOrderTests.swift) | Ordine e focus iniziale delle azioni secondo il ruolo, in comune fra disegno e input. |
+| [core/OortLibrary/Selene/ActionBarOrder.swift](../../core/OortLibrary/Selene/ActionBarOrder.swift), [test](../../Tests/NXLibraryCoreTests/ActionBarOrderTests.swift) | Ordine e focus iniziale delle azioni secondo il ruolo, in comune fra disegno e input. |
 | [Sources/NXLibrary/Views/Components/AppUpdateDialog.swift](../../Sources/NXLibrary/Views/Components/AppUpdateDialog.swift) | Presenta controllo aggiornamenti, note di release, errori e progresso nel dialogo dell’app. |
 | [Sources/NXLibrary/Views/OortUI/SeleneHintsBar.swift](../../Sources/NXLibrary/Views/OortUI/SeleneHintsBar.swift) | Disegna i suggerimenti contestuali: ogni voce ha un glifo o un'etichetta di tasto; ⌘F appare senza manetta. |
 | [Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift](../../Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift) | Rende elementi condivisi della cornice e dei controlli della home Selene; trattiene gli hint durante l’entrata. |
@@ -1484,12 +1484,12 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 |---|---|
 | [Resources/IconArtwork.png](../../Resources/IconArtwork.png) | Master quadrato originale dell’icona (cristallo nella sfera di vetro), fornito dall’utente e creato con AI. |
 | [Resources/IconArtwork.md](../../Resources/IconArtwork.md) | Riproduzione delle icone native e Dock, e provenienza del cristallo originale. |
-| [crystal-arcane.png](../../Sources/NXLibraryCore/Resources/crystal-arcane.png) | Immagine ferma del trofeo Arcane, anche come ripiego del video. |
-| [crystal-arcane.mov](../../Sources/NXLibraryCore/Resources/crystal-arcane.mov) | Animazione con alpha del trofeo Arcane. |
-| [achievements-01006BB00C6F0000.json](../../Sources/NXLibraryCore/Resources/achievements-01006BB00C6F0000.json) | Pack degli obiettivi locali di Link’s Awakening in sette lingue. |
-| [crystal-gold.png](../../Sources/NXLibraryCore/Resources/crystal-gold.png) | Immagine del trofeo Oro. |
-| [crystal-silver.png](../../Sources/NXLibraryCore/Resources/crystal-silver.png) | Immagine del trofeo Argento. |
-| [crystal-bronze.png](../../Sources/NXLibraryCore/Resources/crystal-bronze.png) | Immagine del trofeo Bronzo. |
+| [crystal-arcane.png](../../core/OortLibrary/Resources/crystal-arcane.png) | Immagine ferma del trofeo Arcane, anche come ripiego del video. |
+| [crystal-arcane.mov](../../core/OortLibrary/Resources/crystal-arcane.mov) | Animazione con alpha del trofeo Arcane. |
+| [achievements-01006BB00C6F0000.json](../../core/OortLibrary/Resources/achievements-01006BB00C6F0000.json) | Pack degli obiettivi locali di Link’s Awakening in sette lingue. |
+| [crystal-gold.png](../../core/OortLibrary/Resources/crystal-gold.png) | Immagine del trofeo Oro. |
+| [crystal-silver.png](../../core/OortLibrary/Resources/crystal-silver.png) | Immagine del trofeo Argento. |
+| [crystal-bronze.png](../../core/OortLibrary/Resources/crystal-bronze.png) | Immagine del trofeo Bronzo. |
 
 | File | Responsabilità |
 |---|---|

@@ -72,7 +72,7 @@ def main():
         change(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
         change(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")
         change(activity, r"        LazyVStack\(", "        VStack(")
-        profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
+        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",

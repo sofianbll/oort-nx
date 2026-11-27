@@ -65,7 +65,7 @@ PY
         script = self.app / "scripts/release.sh"
         shutil.copyfile(RELEASE, script)
         self.write(
-            "Sources/NXLibraryCore/App/AppUpdate.swift",
+            "core/OortLibrary/App/AppUpdate.swift",
             f'let defaultRepository: String? = "{PUBLIC}"\n'
             f'let successorRepository: String? = "{OTHER}"\n',
         )

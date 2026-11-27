@@ -45,7 +45,7 @@ import names  # noqa: E402  architecture/names.json
 ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "scripts/ui-rules.json"
 MAX_ENTRIES, MAX_DEPTH = 5, 2
-CATALOG = "Sources/NXLibraryCore/Resources/Localizable.xcstrings"
+CATALOG = "core/OortLibrary/Resources/Localizable.xcstrings"
 VIEWS = "Sources/NXLibrary/Views/"
 APP = "Sources/NXLibrary/"
 LIBRARY = VIEWS + "OortUI/"

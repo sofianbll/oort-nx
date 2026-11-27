@@ -131,9 +131,9 @@ def main():
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         isolate_startup(app)
-        change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift", r'public static let profile = [^\n]*',
+        change(package / "core/OortLibrary/App/AppDataProfile.swift", r'public static let profile = [^\n]*',
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
-        change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift", r'public static var preferences: UserDefaults \{ [^\n]+ \}',
+        change(package / "core/OortLibrary/App/AppDataProfile.swift", r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
         change(cloud, r'var resolvedDriveTool: URL\? \{.*?\n    }', 'var resolvedDriveTool: URL? { nil }')

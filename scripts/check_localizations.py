@@ -115,7 +115,7 @@ def check_app(app):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--catalog', type=Path, default=Path(__file__).resolve().parents[1] / 'Sources/NXLibraryCore/Resources/Localizable.xcstrings')
+    parser.add_argument('--catalog', type=Path, default=Path(__file__).resolve().parents[1] / 'core/OortLibrary/Resources/Localizable.xcstrings')
     parser.add_argument('--app', type=Path)
     parser.add_argument('--sources', type=Path, action='append',
                         help='a folder of Swift sources; default: every module of architecture/names.json')

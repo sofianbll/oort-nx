@@ -113,7 +113,7 @@ final class ThemeStore {
                 if layout == .oort && !hasHome { precondition(options.hold == "Hold: Control center") }
             }
         }
-        let catalogURL = root.appendingPathComponent("Sources/NXLibraryCore/Resources/Localizable.xcstrings")
+        let catalogURL = root.appendingPathComponent("core/OortLibrary/Resources/Localizable.xcstrings")
         let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: catalogURL)) as! [String: Any]
         let strings = catalog["strings"] as! [String: [String: Any]]
         let languages = Set(["en", "fr", "de", "es", "it", "pt-BR", "zh-Hans"])

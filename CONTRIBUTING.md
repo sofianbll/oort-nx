@@ -23,12 +23,12 @@ Keep a first pull request small: one behaviour, one reason. For a change that to
 
 | System | Where the code is | Status |
 |---|---|---|
-| macOS | `main`: `Sources/NXLibrary` (app), `Sources/NXLibraryCore`, `Sources/ArcanePorting`, `core/OortCore` | Main product |
+| macOS | `main`: `Sources/NXLibrary` (app), `core/OortLibrary`, `Sources/ArcanePorting`, `core/OortCore` | Main product |
 | Windows and Linux | `alpha/windows` branch (`desktop/`) | Alpha. Ask in an issue before a pull request |
 | Android | `alpha/android` branch (`android/`) | Alpha. Ask in an issue before a pull request |
 | iPhone and iPad | `alpha/ios` branch (`mobile/`) | Alpha. Ask in an issue before a pull request |
 
-The core rules for every system live in `core/OortCore` (Foundation only) and `Sources/NXLibraryCore`. The allowed dependencies between modules are in the [architecture map](docs/working-on-it/architecture-map.md). Check them with `python3 scripts/check_module_boundaries.py`.
+The core rules for every system live in `core/OortCore` (Foundation only) and `core/OortLibrary`. The allowed dependencies between modules are in the [architecture map](docs/working-on-it/architecture-map.md). Check them with `python3 scripts/check_module_boundaries.py`.
 
 Read before you change code:
 
@@ -85,7 +85,7 @@ Oort NX does not merge or follow Arcane automatically. Start from an Oort NX nee
 
 ## Interface translations
 
-The shared source is `Sources/NXLibraryCore/Resources/Localizable.xcstrings`. It covers en, it, fr, de, es, pt-BR and zh-Hans.
+The shared source is `core/OortLibrary/Resources/Localizable.xcstrings`. It covers en, it, fr, de, es, pt-BR and zh-Hans.
 
 - Keep keys stable and every typed placeholder.
 - Provide quantity variants where the text counts things.

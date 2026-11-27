@@ -102,7 +102,7 @@ def main():
         vm = app / "ViewModels/AppViewModel.swift"
         change(vm, r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         change(vm, r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic", "    }\n\n    // MARK: - Dynamic")
-        profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
+        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
