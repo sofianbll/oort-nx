@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -38,7 +39,9 @@ class ModuleBoundaryTests(unittest.TestCase):
         write(self.root, source("core", "Core.swift"), "import Foundation\n")
         write(self.root, source("library", "Library.swift"), f"import Foundation\nimport {CORE}\n")
         write(self.root, source("nxnative", "Adapter.swift"), f"import AppKit\nimport {LIBRARY}\n")
-        write(self.root, source("mac", "App.swift"), f"import SwiftUI\nimport {NXNATIVE}\n")
+        # The app's entry point may import the engine (ADR 0002).
+        self.entry = names.MODULES["mac"]["entry"]
+        write(self.root, self.entry, f"import SwiftUI\nimport {NXNATIVE}\n")
 
     def declare(self, change):
         data = json.loads(self.names)
@@ -104,6 +107,37 @@ class ModuleBoundaryTests(unittest.TestCase):
     def test_only_the_engine_can_admit_an_adapter(self):
         write(self.root, source("mac", "App.swift"), "adapter.admit(target, profile: profile, gesture: gesture)\n")
         self.assertEqual(len(boundaries.check(self.root)), 1)
+
+
+    def debt(self, *files):
+        write(self.root, boundaries.ENGINE_DEBT, json.dumps({"files": list(files)}))
+
+    def test_only_the_entry_point_imports_an_engine(self):
+        write(self.root, source("mac", "Views/Screen.swift"), f"import SwiftUI\nimport {NXNATIVE}\n")
+        violations = boundaries.check(self.root)
+        self.assertIn(f"{source('mac', 'Views/Screen.swift')}: {APP} imports the engine {NXNATIVE}; "
+                      "only the app's entry point may (ADR 0002)", violations)
+        self.debt(source("mac", "Views/Screen.swift"))
+        self.assertEqual(boundaries.check(self.root), [])
+
+    def test_a_debt_entry_that_no_longer_imports_the_engine_is_reported(self):
+        self.debt(source("mac", "Views/Screen.swift"))
+        write(self.root, source("mac", "Views/Screen.swift"), "import SwiftUI\n")
+        self.assertIn(f"{boundaries.ENGINE_DEBT}: {source('mac', 'Views/Screen.swift')} no longer imports an engine; "
+                      "remove the entry", boundaries.check(self.root))
+
+    def test_the_engine_debt_only_shrinks_against_a_base(self):
+        subprocess.run(["git", "init", "-q", self.root], check=True)
+        self.debt()
+        git = ["git", "-C", self.root, "-c", "user.name=Fixture", "-c", "user.email=fixture@users.noreply.github.com",
+               "-c", "commit.gpgsign=false"]
+        subprocess.run(git + ["add", "-A"], check=True)
+        subprocess.run(git + ["commit", "-qm", "base"], check=True)
+        write(self.root, source("mac", "Views/Screen.swift"), f"import {NXNATIVE}\n")
+        self.debt(source("mac", "Views/Screen.swift"))
+        self.assertEqual(boundaries.check(self.root), [])
+        self.assertIn(f"{boundaries.ENGINE_DEBT}: new entry {source('mac', 'Views/Screen.swift')}; the list only shrinks "
+                      "(ADR 0002)", boundaries.check(self.root, "HEAD"))
 
 
 if __name__ == "__main__":

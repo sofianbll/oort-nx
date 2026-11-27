@@ -37,8 +37,9 @@ RULES = [
     ("structure", "R1", "Every root file and first- and second-level folder is declared in architecture/structure.c4",
      lambda base: [script("check_structure.py")],
      "scripts/tests/RepoChecks/test_structure.py"),
-    ("boundaries", "R2", "Swift modules import only lower layers (architecture/model.c4)",
-     lambda base: [script("check_module_boundaries.py")],
+    ("boundaries", "R2", "Swift modules import only lower layers, and only an app's entry point imports an engine "
+     "(architecture/names.json, ADR 0002); the engine-import debt only shrinks",
+     lambda base: [script("check_module_boundaries.py", *(["--base", base] if base else []))],
      "scripts/tests/ModuleChecks"),
     ("generated", "R4", "Every generated file matches its source (scripts/generate --check)",
      lambda base: [script("generate", "--check")],

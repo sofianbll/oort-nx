@@ -15,6 +15,10 @@ Rules:
    imports the framework is also reported, so the entry gets removed.
 4. Only the engine adapter reads checkout HEAD, bundle stamps or managed key status.
 5. Play adapters can be admitted only through PlayEngine; views cannot resume native apps directly.
+6. In an app, only its entry point (`entry` in names.json) imports a module of kind "engine"
+   (docs/adr/0002-engine-adapters-at-the-entry-point.md). The files that do so today are listed in
+   ENGINE_DEBT; the list can only shrink: a listed file that no longer imports the engine is reported,
+   and with --base a file that the base did not list is refused.
 
 Run from the repository root, or pass --root. Exit status 1 on any violation.
 """
@@ -26,7 +30,10 @@ import re
 import subprocess
 import sys
 
+from repo_model import renamed
+
 NAMES = "architecture/names.json"
+ENGINE_DEBT = "scripts/engine-import-debt.json"
 OORT_CORE_ALLOWED = {"Foundation"}
 UI_FRAMEWORKS = {"AppKit", "SwiftUI", "Metal", "MetalKit", "GameController"}
 # Known exceptions, by file (relative to the root). Remove an entry when its import goes away.
@@ -77,7 +84,19 @@ def scan(root, modules):
                 yield module, relative, name
 
 
-def check(root):
+def engine_debt(root, ref=None):
+    """The files listed in ENGINE_DEBT, in the checkout or in REF (named as they are now); None when REF has none."""
+    if ref is None:
+        path = Path(root) / ENGINE_DEBT
+        return set(json.loads(path.read_text(encoding="utf-8"))["files"]) if path.is_file() else set()
+    shown = subprocess.run(["git", "show", f"{ref}:{ENGINE_DEBT}"], cwd=root, capture_output=True, text=True)
+    if shown.returncode:
+        return None
+    moved = renamed(root, ref)
+    return {moved.get(name, name) for name in json.loads(shown.stdout)["files"]}
+
+
+def check(root, base=None):
     root = Path(root)
     try:
         modules, violations = read_modules(root)
@@ -86,8 +105,15 @@ def check(root):
     if violations:
         return violations
     layers = {name: module["layer"] for name, module in modules.items()}
-    seen_ui = {}
+    debt = engine_debt(root)
+    seen_ui, seen_engine = {}, set()
     for module, relative, name in scan(root, modules):
+        if modules[module]["kind"] == "app" and modules.get(name, {}).get("kind") == "engine" \
+                and relative != modules[module].get("entry"):
+            seen_engine.add(relative)
+            if relative not in debt:
+                violations.append(f"{relative}: {module} imports the engine {name}; only the app's entry point may "
+                                  f"(ADR 0002)")
         if modules[module]["role"] == "core" and name not in OORT_CORE_ALLOWED:
             violations.append(f"{relative}: {module} imports {name}; only Foundation is allowed")
         if name in layers and layers[name] >= layers[module]:
@@ -96,6 +122,13 @@ def check(root):
             seen_ui.setdefault(relative, set()).add(name)
             if name not in UI_BASELINE.get(relative, set()):
                 violations.append(f"{relative}: {module} imports the interface framework {name}")
+    for relative in sorted(debt - seen_engine):
+        violations.append(f"{ENGINE_DEBT}: {relative} no longer imports an engine; remove the entry")
+    if base is not None:
+        before = engine_debt(root, base)
+        if before is not None:
+            for relative in sorted(debt - before):
+                violations.append(f"{ENGINE_DEBT}: new entry {relative}; the list only shrinks (ADR 0002)")
     for relative, names in sorted(UI_BASELINE.items()):
         found = seen_ui.get(relative, set())
         for name in sorted(names - found):
@@ -126,8 +159,9 @@ def check(root):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", default=".", help="repository root")
+    parser.add_argument("--base", help="refuse an engine-import debt entry this Git revision did not have")
     args = parser.parse_args(argv)
-    violations = check(args.root)
+    violations = check(args.root, args.base)
     for line in violations:
         print(line)
     if violations:
