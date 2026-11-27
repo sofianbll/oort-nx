@@ -933,7 +933,13 @@ extension CloudScreenProbe {
         monitor.refresh()
         await vm.cloudLibrary.active?.task.value
         let applied = try version()
-        precondition(applied == "2.0")
+        // Record how the queue ended and what is installed once the game has closed.
+        let ended = vm.cloudLibrary.states[game.id]
+        precondition(applied == "2.0", "Reference swap after close: installed \(applied ?? "none"), "
+            + "completed \(String(describing: ended?.completedItem)), issue \(String(describing: ended?.issue)), "
+            + "failure \(String(describing: ended?.transferFailure)), queue \(vm.cloudLibrary.queue.map(\.action)), "
+            + "active \(String(describing: vm.cloudLibrary.active?.request.action)), "
+            + "notice \(vm.settingsNotice?.message ?? "none"), logs \(vm.logs.suffix(4).map(\.message))")
         let backup = vm.cloudLibrary.states[game.id]!.previousApp!
         let backupPlist = try Data(contentsOf: backup.appendingPathComponent("Contents/Info.plist"))
         let backupInfo = try PropertyListSerialization.propertyList(from: backupPlist, format: nil) as! [String: String]
