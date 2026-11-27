@@ -10,7 +10,8 @@ struct OnboardingView: View {
     @ObservedObject var sources: CatalogSourcesModel
     @ObservedObject private var controller = GameControllerService.shared
     let finish: () -> Void
-    let openSettings: (SettingsSection) -> Void
+    /// A section of Settings, on one of its rows or at its top.
+    let openSettings: (SettingsSection, String?) -> Void
 
     @State private var focus = "continue"
     @State private var inventory: OnboardingInventory?
@@ -142,7 +143,7 @@ struct OnboardingView: View {
                           .gamepad, controller.isGamepadConnected ? .text("✓") : .none)]
         case .profile:
             return [.init("profile", profiles.active?.name ?? L10n.text("Player"), L10n.text("Local profile"),
-                          .person, .text(L10n.text("Edit")), action: { openSettings(.profileIdentity) })]
+                          .person, .text(L10n.text("Edit")), action: { openSettings(.profileIdentity, "Name") })]
         case .localGames: return gameRows
         case .services: return serviceRows
         case .look:
@@ -182,27 +183,15 @@ struct OnboardingView: View {
         } ?? [])
     }
 
+    /// The services, decided once from their owners' facts (NXLibraryCore/App/OptionalServiceEntries.swift).
     private var serviceRows: [OnboardingScreen.Row] {
-        [
-            service("drive", "Google Drive", "Connect your cloud library.", .cloud, .cloudLibrary),
-            service("nextendo", "Nextendo", "Connect an account for online play.", .gamepad, .profileNextendo),
-            service("steam", "Steam", "Read your installed Mac games from Steam.", .store, .sources),
-            service("saves", "Save copies", "Choose if and where to sync ported-game saves.", .sync, .cloudSaves)
-        ]
-    }
-
-    private func service(_ id: String, _ name: String, _ subtitle: String, _ icon: MaterialIcon,
-                         _ section: SettingsSection) -> OnboardingScreen.Row {
-        let enabled: Bool
-        switch section {
-        case .sources: enabled = sources.configuration.isEnabled
-        case .cloudLibrary: enabled = viewModel.cloudLibrary.archive != nil
-        case .profileNextendo: enabled = viewModel.profileNextendo?.status == .signedIn
-        case .cloudSaves: enabled = settings.settings.cloudSaves != .off
-        default: enabled = false
+        OptionalServiceEntries.all(driveConnected: viewModel.cloudLibrary.archive != nil,
+                                   nextendoSignedIn: viewModel.profileNextendo?.status == .signedIn,
+                                   steamInForce: sources.configuration.isEnabled,
+                                   savesOn: settings.settings.cloudSaves != .off).map { service in
+            .init(service.id, L10n.text(service.title.key), L10n.text(service.about.key), service.icon,
+                  .text(L10n.text(service.value.key)), action: { openSettings(service.section, service.row) })
         }
-        return .init(id, L10n.text(name), L10n.text(subtitle), icon, .text(L10n.text(enabled ? "Enabled" : "Later")),
-                     action: { openSettings(section) })
     }
 
     private func changeLanguage(_ delta: Int) {

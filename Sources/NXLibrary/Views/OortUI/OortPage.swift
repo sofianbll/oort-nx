@@ -12,6 +12,8 @@ struct OortPage<ID: Hashable, Content: View>: View {
     var restoreScroll = false
     var back: HintItem?
     var confirm: HintItem?
+    /// A second gesture of the focused row, before A.
+    var extra: HintItem? = nil
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -45,8 +47,8 @@ struct OortPage<ID: Hashable, Content: View>: View {
             }
         }
         .overlay(alignment: .bottom) {
-            if back != nil || confirm != nil {
-                SeleneHintsBar(left: back.map { [$0] } ?? [], right: confirm.map { [$0] } ?? [])
+            if back != nil || confirm != nil || extra != nil {
+                SeleneHintsBar(left: back.map { [$0] } ?? [], right: [extra, confirm].compactMap { $0 })
             }
         }
     }

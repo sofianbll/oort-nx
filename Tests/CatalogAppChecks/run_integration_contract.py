@@ -59,27 +59,35 @@ class IntegrationContract(unittest.TestCase):
         shared = (VIEWS / "OortUI/OortPage.swift").read_text()
         self.assertRegex(shared, r"guard let id, old != id \|\| id != initialFocus \|\| restoreScroll")
 
-    def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
+    def test_access_copy_names_actual_destinations_plainly_in_every_language(self):
         source = (ROOT / "Sources/ArcanePorting/Settings/IntegrationOverview.swift").read_text()
         catalog = json.loads((ROOT / "Sources/NXLibraryCore/Resources/Localizable.xcstrings").read_text())["strings"]
-        sections = re.split(r"^        case \.(\w+):$", source, flags=re.MULTILINE)
+        sections = re.split(r"^        case \.(\w+):$", source.split("public func row(", 1)[1], flags=re.MULTILINE)
+        self.assertEqual(set(sections[1::2]), {"switchGames", "steam", "macApps", "drive", "nextendo", "images", "saves"})
         for row, body in zip(sections[1::2], sections[2::2]):
             rights = dict(re.findall(r'(reads|writes|sends): "([^"]+)"', body))
             self.assertEqual(set(rights), {"reads", "writes", "sends"}, row)
-            for language in ["en", "fr"]:
+            for language in ["en", "it", "fr", "de", "es", "pt-BR", "zh-Hans"]:
                 with self.subTest(row=row, language=language):
                     rendered = {right: catalog[key]["localizations"][language]["stringUnit"]["value"]
                                 for right, key in rights.items()}
                     self.assertTrue(all(value.strip() for value in rendered.values()))
-                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam", "App ID", "CDN"], "macApps": [],
-                                 "drive": ["rclone", "OAuth", "Google"], "nextendo": ["Nextendo", "OAuth"],
-                                 "images": ["SteamGridDB", "IGDB", "Twitch", "Wikidata", "Nlib", "Switch Icon Showdown"],
-                                 "saves": ["iCloud Drive", "Apple"]}[row]:
+                    # The player's words: no format, protocol or tool name stands for what it means.
+                    for value in rendered.values():
+                        for jargon in ["App ID", "CDN", "API", "OAuth", "rclone", "manifests?", "manifestes?", "tokens?", "jetons?",
+                                       "cache", "commit"]:
+                            self.assertNotRegex(value, re.compile(rf"(?<![\w-]){jargon}(?![\w-])", re.IGNORECASE))
+                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam"], "macApps": [],
+                                 "drive": ["Google"], "nextendo": ["Nextendo"],
+                                 "images": ["SteamGridDB", "IGDB", "Twitch", "Nlib", "Nintendo", "LaunchBox", "GameTDB", "Switch Icon Showdown"],
+                                 "saves": ["iCloud", "Apple"]}[row]:
                         self.assertIn(term, rendered["sends"])
-                    if row == "switchGames":
+                    if row == "images" and language in ("en", "fr"):
+                        self.assertIn("Wikidata", rendered["sends"])
+                    if row == "switchGames" and language in ("en", "fr"):
                         self.assertIn("private copy" if language == "en" else "copie privée", rendered["writes"])
-                    if row == "saves":
-                        self.assertIn("preference" if language == "en" else "préférence", rendered["writes"])
+                    if row == "saves" and language in ("en", "fr"):
+                        self.assertIn("choice" if language == "en" else "choix", rendered["writes"])
 
 
 if __name__ == "__main__":

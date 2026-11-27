@@ -1,0 +1,167 @@
+/// The catalogue order, words and detail phases are shared. Each owner supplies only the installed offers and
+/// their observed state; a renderer neither classifies an integration nor invents a missing capability.
+public enum IntegrationCatalog {
+    /// The app that draws the catalogue: what it announces depends on where it would run.
+    public enum Host: Sendable { case mac, pc }
+
+    public enum ID: String, CaseIterable, Sendable {
+        case switchGames, steam, macApps, drive, nextendo, saves, images, programs = "prog", online
+
+        public var title: IntegrationWords {
+            switch self {
+            case .switchGames: .init("nxnative")
+            case .steam: .init("Steam")
+            case .macApps: .init("Mac apps")
+            case .drive: .init("Google Drive")
+            case .nextendo: .init("Nextendo")
+            case .saves: .init("iCloud saves")
+            case .images: .init("Artwork and scores")
+            case .programs: .init("Programs")
+            case .online: .init("Game information online")
+            }
+        }
+
+        public var capabilities: IntegrationWords {
+            switch self {
+            case .switchGames: .init("Build, play and keep saves")
+            case .steam: .init("Installed games, play through Steam")
+            case .macApps: .init("Shortcuts to local apps")
+            case .drive: .init("Games and copies of your files")
+            case .nextendo: .init("Online play and friends")
+            case .saves: .init("Copies of game saves")
+            case .images: .init("Covers, icons and game scores")
+            case .programs: .init("Shortcuts to programs")
+            case .online: .init("Covers and game information")
+            }
+        }
+
+        /// An entry its owner turns on and off shows its switch on the catalogue row, as before the catalogue. A still
+        /// opens the detail; X, or a click on the switch, asks the owner for the other state without leaving the list.
+        /// The same switch is the Link step of the detail.
+        public var hasSwitch: Bool { self == .steam || self == .online }
+
+        /// Turned on from the list, it starts sending at once: while it is off, its row says what it does and sends
+        /// instead of its capabilities, as its question does elsewhere, so X never turns it on unexplained.
+        public var explainsBeforeOn: Bool { self == .online }
+
+        /// The Link step says what the entry is linked to, or how to link it.
+        public func link(_ linked: Bool) -> IntegrationWords {
+            switch (self, linked) {
+            case (.switchGames, true): .init("Linked to the nxnative engine on this computer.")
+            case (.switchGames, false): .init("Choose the engine folder to begin.")
+            case (.steam, true): .init("Linked to Steam on this computer.")
+            case (.steam, false): .init("Turn on Steam to add the games it installed.")
+            case (.macApps, true): .init("Linked to the Mac apps you added.")
+            case (.macApps, false): .init("Add a Mac app to begin.")
+            case (.drive, true): .init("Linked to your Google Drive.")
+            case (.drive, false): .init("Connect your Google Drive to begin.")
+            case (.nextendo, true): .init("Linked to your Nextendo account.")
+            case (.nextendo, false): .init("Sign in to Nextendo to begin.")
+            case (.saves, true): .init("Linked to the save folder you chose.")
+            case (.saves, false): .init("Choose iCloud Drive or a folder to begin.")
+            case (.images, true): .init("Linked with your SteamGridDB or IGDB key.")
+            case (.images, false): .init("Add a SteamGridDB or IGDB key to begin.")
+            case (.programs, true): .init("Linked to the programs you added.")
+            case (.programs, false): .init("Add a program to begin.")
+            case (.online, true): .init("Linked to the Steam store, Wikipedia and Wikidata.")
+            case (.online, false): .init("Turn it on to look for covers and game information.")
+            }
+        }
+    }
+
+    public enum Section: String, CaseIterable, Identifiable, Sendable {
+        case sources, engines, services
+
+        public var id: Self { self }
+        public var title: IntegrationWords {
+            switch self {
+            case .sources: .init("Sources")
+            case .engines: .init("Engines")
+            case .services: .init("Services")
+            }
+        }
+
+        fileprivate var order: [ID] {
+            switch self {
+            case .sources: [.steam, .macApps, .programs, .drive]
+            case .engines: [.switchGames]
+            case .services: [.nextendo, .saves, .images, .online]
+            }
+        }
+
+        /// Announced, not offered: one quiet line under the section, never a row. Ryujinx-Nextendo runs on PC only,
+        /// so the Mac does not announce it.
+        public func upcoming(on host: Host) -> [String] {
+            switch (self, host) {
+            case (.sources, _): ["Epic Games", "GOG", "Minecraft", "CrossOver"]
+            case (.engines, .pc): ["Ryujinx-Nextendo"]
+            case (.engines, .mac), (.services, _): []
+            }
+        }
+    }
+
+    public struct Group<Entry>: Identifiable {
+        public let id: Section
+        public let entries: [Entry]
+        /// « Coming later: … », or nil when nothing is announced in this section on this host.
+        public let upcoming: IntegrationWords?
+    }
+
+    /// A section shows its offers and what it announces on this host; one with neither is left out, so none is ever
+    /// empty.
+    public static func sections<Entry>(on host: Host, offering entry: (ID) -> Entry?) -> [Group<Entry>] {
+        Section.allCases.map { section in
+            let coming = section.upcoming(on: host)
+            return Group(id: section, entries: section.order.compactMap(entry),
+                         upcoming: coming.isEmpty ? nil : .init("Coming later: %@", args: [coming.joined(separator: " · ")]))
+        }
+        .filter { !$0.entries.isEmpty || $0.upcoming != nil }
+    }
+
+    public static let open = IntegrationWords("Open")
+    public static let off = IntegrationWords("Off")
+    public static let ready = IntegrationWords("Ready here")
+    public static let steamGames = IntegrationWords("Open Steam games")
+    public static let notFound = IntegrationWords("Not found")
+    public static let reads = IntegrationWords("Reads: %@")
+    public static let writes = IntegrationWords("Writes: %@")
+    public static let sends = IntegrationWords("Sends: %@")
+    /// Link, when Steam is on but cannot be found or read here.
+    public static let steamMissing = IntegrationWords("Steam was not found on this computer.")
+
+    /// What X does on a row with a switch, said for its current state.
+    public static func toggle(on: Bool) -> IntegrationWords { on ? .init("Turn off") : .init("Turn on") }
+
+    public enum Phase: String, Identifiable, Sendable {
+        case link, verify, next
+
+        public var id: Self { self }
+        public var title: IntegrationWords {
+            switch self {
+            case .link: .init("Link")
+            case .verify: .init("Verify")
+            case .next: .init("Continue")
+            }
+        }
+    }
+
+    public struct Step<Content>: Identifiable {
+        public let id: Phase
+        public let content: [Content]
+    }
+
+    /// The validated template: Link, Verify, Continue, always in this order and always shown, each drawn as one box:
+    /// its title, its sentences, then its actions right under them and aligned with them, never an action set apart.
+    /// The order of the content is the focus order. Link opens on what the
+    /// entry is linked to, or how to link it (`says`, when the owner knows better: Steam on but not found);
+    /// Continue says why there is nothing to do when it has no action. `linked` is the owner's fact, not where the
+    /// settings button goes.
+    public static func steps<Content>(_ id: ID, linked: Bool, says: IntegrationWords? = nil, link: [Content] = [],
+                                      verify: [Content], next: [Content] = [],
+                                      say: (IntegrationWords) -> Content) -> [Step<Content>] {
+        let rest: IntegrationWords = linked ? .init("Nothing else to do here: it works on its own.")
+            : .init("Link it first to continue.")
+        return [Step(id: .link, content: [say(says ?? id.link(linked))] + link), Step(id: .verify, content: verify),
+                Step(id: .next, content: next.isEmpty ? [say(rest)] : next)]
+    }
+}

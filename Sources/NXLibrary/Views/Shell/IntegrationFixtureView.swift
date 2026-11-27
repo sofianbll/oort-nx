@@ -21,8 +21,15 @@ struct IntegrationFixtureView: View {
         var data = IntegrationOverview()
         if index == 0 {
             data.engine = .detected
+            data.engineCommit = "f1c7100f"
+            data.expectedEngineCommit = "f1c7100f"
+            data.keyStatus = .available(applicationGenerations: 1)
+            data.xcodeVersion = "Xcode 27"
+            data.metalVersion = "33000.1"
+            data.hasSwitchGames = true
             data.steam = .ready
             data.drive = .transferring
+            data.driveCheckDate = Date(timeIntervalSince1970: 1_795_750_800)
             data.nextendo = .unavailable
             data.steamGridDB = true
             data.igdb = true
@@ -37,6 +44,7 @@ struct IntegrationFixtureView: View {
             data.igdb = index & 2 != 0
             if index.isMultiple(of: 3) { data.saves = .folder("/fixture/saves") }
         }
+        data.steamEnabled = data.steam != .disabled
         return data
     }
 
@@ -47,8 +55,9 @@ struct IntegrationFixtureView: View {
         ZStack(alignment: .topTrailing) {
             Group {
                 if onboarding {
-                    FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
-                        steamOn: steamOn, focus: setupFocus, move: { setupFocus = $0 }, activate: setup)
+                    let findings = FirstRunFindings(steamGameCount: 2, portedAppCount: 0)
+                    FoundGamesSetupContent(findings: findings, steam: SteamSourceEntries.found(findings, inForce: steamOn, waiting: nil),
+                        focus: setupFocus, move: { setupFocus = $0 }, activate: setup)
                 } else {
                     switch router.route {
                     case .integrations: IntegrationsView(overview: data, router: router)
@@ -172,7 +181,7 @@ struct IntegrationFixtureView: View {
                     GameControllerService.shared.isGamepadConnected = true
                     for page in FirstRunSetup.Page.tour {
                         try render(OnboardingView(viewModel: model, settings: settings, profiles: profiles, sources: sources,
-                                                  finish: {}, openSettings: { _ in }), as: page.rawValue)
+                                                  finish: {}, openSettings: { _, _ in }), as: page.rawValue)
                         model.moveOnboarding(1)
                     }
                     try render(OnboardingNewsView(onExit: { _ in }), as: "news")
@@ -226,14 +235,16 @@ struct IntegrationFixtureView: View {
                 try render(page, as: "all-rows", height: max(size.height, canvas.u(2500)))
                 router.integrationFocus = .saves
                 try render(page, as: "page-bottom")
-                for integration in IntegrationID.allCases {
+                for integration in data.rows.map(\.id) {
                     router.showIntegrationDetail(integration)
                     try render(page, as: "detail-\(integration)")
                     router.backFromIntegration()
                 }
                 for enabled in [false, true] {
-                    try render(FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
-                        steamOn: enabled, focus: .openLibrary, move: { _ in }, activate: { _ in }),
+                    let findings = FirstRunFindings(steamGameCount: 2, portedAppCount: 0)
+                    try render(FoundGamesSetupContent(findings: findings,
+                        steam: SteamSourceEntries.found(findings, inForce: enabled, waiting: nil),
+                        focus: .openLibrary, move: { _ in }, activate: { _ in }),
                         as: enabled ? "steam-on" : "steam-off")
                 }
             }

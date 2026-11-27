@@ -1,194 +1,84 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "Hold: Profile page": {
-      "comment": "ProfilePage.swift",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hold: Profile page"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tieni premuto: pagina del profilo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Maintenir : page du profil"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gedrückt halten: Profilseite"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantén pulsado: página del perfil"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantenha pressionado: página do perfil"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按住：个人资料页"
-          }
-        }
-      }
-    },
-    "Most played game": {
-      "comment": "ProfilePage.swift",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Most played game"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gioco più giocato"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jeu le plus joué"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Meistgespieltes Spiel"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Juego más jugado"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jogo mais jogado"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "玩得最多的游戏"
-          }
-        }
-      }
-    },
-    "No playtime this week.": {
-      "comment": "ProfilePage.swift",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No playtime this week."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessuna partita questa settimana."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucune partie cette semaine."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diese Woche noch nicht gespielt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin partidas esta semana."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nenhuma partida nesta semana."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本周还没有游戏时间。"
-          }
-        }
-      }
-    },
-    "Play a game and it shows up here.": {
-      "comment": "ProfilePage.swift",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play a game and it shows up here."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gioca a un gioco e comparirà qui."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Joue à un jeu : il apparaîtra ici."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spiele ein Spiel, dann erscheint es hier."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Juega a un juego y aparecerá aquí."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jogue um jogo e ele aparecerá aqui."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "玩一款游戏，它就会显示在这里。"
-          }
-        }
-      }
-    },
+    "Account not checked yet: open the Nextendo settings.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Account not checked yet: open the Nextendo settings."}},"fr":{"stringUnit":{"state":"translated","value":"Compte pas encore vérifié : ouvre les réglages Nextendo."}},"de":{"stringUnit":{"state":"translated","value":"Konto noch nicht geprüft: Öffne die Nextendo-Einstellungen."}},"es":{"stringUnit":{"state":"translated","value":"Cuenta aún sin verificar: abre los ajustes de Nextendo."}},"it":{"stringUnit":{"state":"translated","value":"Account non ancora verificato: apri le impostazioni di Nextendo."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Conta ainda não verificada: abra os ajustes do Nextendo."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"账号尚未验证：请打开 Nextendo 设置。"}}}},
+    "Steam was not found on this computer.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Steam was not found on this computer."}},"fr":{"stringUnit":{"state":"translated","value":"Steam n’a pas été trouvé sur cet ordinateur."}},"de":{"stringUnit":{"state":"translated","value":"Steam wurde auf diesem Computer nicht gefunden."}},"es":{"stringUnit":{"state":"translated","value":"No se encontró Steam en este equipo."}},"it":{"stringUnit":{"state":"translated","value":"Steam non è stato trovato su questo computer."}},"pt-BR":{"stringUnit":{"state":"translated","value":"O Steam não foi encontrado neste computador."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在这台电脑上未找到 Steam。"}}}},
+    "Apple tools not the tested version": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Apple tools not the tested version"}},"fr":{"stringUnit":{"state":"translated","value":"Outils Apple différents de ceux testés"}},"de":{"stringUnit":{"state":"translated","value":"Apple-Werkzeuge weichen von der getesteten Version ab"}},"es":{"stringUnit":{"state":"translated","value":"Las herramientas de Apple no son la versión probada"}},"it":{"stringUnit":{"state":"translated","value":"Gli strumenti Apple non sono la versione testata"}},"pt-BR":{"stringUnit":{"state":"translated","value":"As ferramentas da Apple não são a versão testada"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Apple 工具不是已测试的版本"}}}},
+    "Build tools incomplete": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Build tools incomplete"}},"fr":{"stringUnit":{"state":"translated","value":"Outils de compilation incomplets"}},"de":{"stringUnit":{"state":"translated","value":"Build-Werkzeuge unvollständig"}},"es":{"stringUnit":{"state":"translated","value":"Herramientas de compilación incompletas"}},"it":{"stringUnit":{"state":"translated","value":"Strumenti di compilazione incompleti"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ferramentas de compilação incompletas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"构建工具不完整"}}}},
+    "The details are in the engine settings.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The details are in the engine settings."}},"fr":{"stringUnit":{"state":"translated","value":"Le détail est dans les réglages du moteur."}},"de":{"stringUnit":{"state":"translated","value":"Details findest du in den Engine-Einstellungen."}},"es":{"stringUnit":{"state":"translated","value":"Los detalles están en los ajustes del motor."}},"it":{"stringUnit":{"state":"translated","value":"I dettagli sono nelle impostazioni del motore."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os detalhes estão nos ajustes do motor."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"详细信息见引擎设置。"}}}},
+    "Nextendo cannot be reached right now.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Nextendo cannot be reached right now."}},"fr":{"stringUnit":{"state":"translated","value":"Nextendo est injoignable pour le moment."}},"de":{"stringUnit":{"state":"translated","value":"Nextendo ist gerade nicht erreichbar."}},"es":{"stringUnit":{"state":"translated","value":"No se puede conectar con Nextendo ahora."}},"it":{"stringUnit":{"state":"translated","value":"Nextendo non è raggiungibile al momento."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Não é possível acessar o Nextendo agora."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"目前无法连接 Nextendo。"}}}},
+    "Linked to the nxnative engine on this computer.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to the nxnative engine on this computer."}},"fr":{"stringUnit":{"state":"translated","value":"Relié au moteur nxnative de cet ordinateur."}},"de":{"stringUnit":{"state":"translated","value":"Mit der nxnative-Engine auf diesem Computer verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado al motor nxnative de este equipo."}},"it":{"stringUnit":{"state":"translated","value":"Collegato al motore nxnative di questo computer."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado ao motor nxnative deste computador."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到这台电脑上的 nxnative 引擎。"}}}},
+    "Choose the engine folder to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose the engine folder to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis le dossier du moteur pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Wähle den Engine-Ordner, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Elige la carpeta del motor para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Scegli la cartella del motore per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha a pasta do motor para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择引擎文件夹即可开始。"}}}},
+    "Linked to Steam on this computer.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to Steam on this computer."}},"fr":{"stringUnit":{"state":"translated","value":"Relié à Steam sur cet ordinateur."}},"de":{"stringUnit":{"state":"translated","value":"Mit Steam auf diesem Computer verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a Steam en este equipo."}},"it":{"stringUnit":{"state":"translated","value":"Collegato a Steam su questo computer."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado ao Steam neste computador."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到这台电脑上的 Steam。"}}}},
+    "Turn on Steam to add the games it installed.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Turn on Steam to add the games it installed."}},"fr":{"stringUnit":{"state":"translated","value":"Active Steam pour ajouter les jeux qu’il a installés."}},"de":{"stringUnit":{"state":"translated","value":"Schalte Steam ein, um die damit installierten Spiele hinzuzufügen."}},"es":{"stringUnit":{"state":"translated","value":"Activa Steam para añadir los juegos que instaló."}},"it":{"stringUnit":{"state":"translated","value":"Attiva Steam per aggiungere i giochi che ha installato."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ative o Steam para adicionar os jogos que ele instalou."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"开启 Steam 即可添加它安装的游戏。"}}}},
+    "Linked to the Mac apps you added.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to the Mac apps you added."}},"fr":{"stringUnit":{"state":"translated","value":"Relié aux apps Mac que tu as ajoutées."}},"de":{"stringUnit":{"state":"translated","value":"Mit den Mac-Apps verbunden, die du hinzugefügt hast."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a las apps de Mac que añadiste."}},"it":{"stringUnit":{"state":"translated","value":"Collegato alle app Mac che hai aggiunto."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado aos apps de Mac que você adicionou."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到你添加的 Mac 应用。"}}}},
+    "Add a Mac app to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Add a Mac app to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Ajoute une app Mac pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Füge eine Mac-App hinzu, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Añade una app de Mac para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Aggiungi un’app Mac per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Adicione um app de Mac para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"添加一个 Mac 应用即可开始。"}}}},
+    "Linked to your Google Drive.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to your Google Drive."}},"fr":{"stringUnit":{"state":"translated","value":"Relié à ton Google Drive."}},"de":{"stringUnit":{"state":"translated","value":"Mit deinem Google Drive verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a tu Google Drive."}},"it":{"stringUnit":{"state":"translated","value":"Collegato al tuo Google Drive."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado ao seu Google Drive."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到你的 Google Drive。"}}}},
+    "Connect your Google Drive to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Connect your Google Drive to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Connecte ton Google Drive pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Verbinde dein Google Drive, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Conecta tu Google Drive para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Collega il tuo Google Drive per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Conecte seu Google Drive para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"连接你的 Google Drive 即可开始。"}}}},
+    "Linked to your Nextendo account.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to your Nextendo account."}},"fr":{"stringUnit":{"state":"translated","value":"Relié à ton compte Nextendo."}},"de":{"stringUnit":{"state":"translated","value":"Mit deinem Nextendo-Konto verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a tu cuenta de Nextendo."}},"it":{"stringUnit":{"state":"translated","value":"Collegato al tuo account Nextendo."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado à sua conta Nextendo."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到你的 Nextendo 账号。"}}}},
+    "Sign in to Nextendo to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Sign in to Nextendo to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Connecte-toi à Nextendo pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Melde dich bei Nextendo an, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Inicia sesión en Nextendo para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Accedi a Nextendo per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Entre no Nextendo para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"登录 Nextendo 即可开始。"}}}},
+    "Linked to the save folder you chose.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to the save folder you chose."}},"fr":{"stringUnit":{"state":"translated","value":"Relié au dossier de sauvegardes que tu as choisi."}},"de":{"stringUnit":{"state":"translated","value":"Mit dem gewählten Ordner für Spielstände verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a la carpeta de partidas que elegiste."}},"it":{"stringUnit":{"state":"translated","value":"Collegato alla cartella dei salvataggi che hai scelto."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado à pasta de jogos salvos que você escolheu."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到你选择的存档文件夹。"}}}},
+    "Choose iCloud Drive or a folder to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose iCloud Drive or a folder to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis iCloud Drive ou un dossier pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Wähle iCloud Drive oder einen Ordner, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Elige iCloud Drive o una carpeta para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Scegli iCloud Drive o una cartella per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha o iCloud Drive ou uma pasta para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择 iCloud 云盘或一个文件夹即可开始。"}}}},
+    "Linked with your SteamGridDB or IGDB key.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked with your SteamGridDB or IGDB key."}},"fr":{"stringUnit":{"state":"translated","value":"Relié avec ta clé SteamGridDB ou IGDB."}},"de":{"stringUnit":{"state":"translated","value":"Mit deinem SteamGridDB- oder IGDB-Schlüssel verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado con tu clave de SteamGridDB o IGDB."}},"it":{"stringUnit":{"state":"translated","value":"Collegato con la tua chiave SteamGridDB o IGDB."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado com sua chave do SteamGridDB ou IGDB."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已使用你的 SteamGridDB 或 IGDB 密钥连接。"}}}},
+    "Add a SteamGridDB or IGDB key to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Add a SteamGridDB or IGDB key to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Ajoute une clé SteamGridDB ou IGDB pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Füge einen SteamGridDB- oder IGDB-Schlüssel hinzu, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Añade una clave de SteamGridDB o IGDB para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Aggiungi una chiave SteamGridDB o IGDB per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Adicione uma chave do SteamGridDB ou IGDB para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"添加 SteamGridDB 或 IGDB 密钥即可开始。"}}}},
+    "Linked to the programs you added.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to the programs you added."}},"fr":{"stringUnit":{"state":"translated","value":"Relié aux programmes que tu as ajoutés."}},"de":{"stringUnit":{"state":"translated","value":"Mit den Programmen verbunden, die du hinzugefügt hast."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a los programas que añadiste."}},"it":{"stringUnit":{"state":"translated","value":"Collegato ai programmi che hai aggiunto."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado aos programas que você adicionou."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到你添加的程序。"}}}},
+    "Add a program to begin.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Add a program to begin."}},"fr":{"stringUnit":{"state":"translated","value":"Ajoute un programme pour commencer."}},"de":{"stringUnit":{"state":"translated","value":"Füge ein Programm hinzu, um zu beginnen."}},"es":{"stringUnit":{"state":"translated","value":"Añade un programa para empezar."}},"it":{"stringUnit":{"state":"translated","value":"Aggiungi un programma per iniziare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Adicione um programa para começar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"添加一个程序即可开始。"}}}},
+    "Linked to the Steam store, Wikipedia and Wikidata.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Linked to the Steam store, Wikipedia and Wikidata."}},"fr":{"stringUnit":{"state":"translated","value":"Relié au magasin Steam, à Wikipédia et à Wikidata."}},"de":{"stringUnit":{"state":"translated","value":"Mit dem Steam-Shop, Wikipedia und Wikidata verbunden."}},"es":{"stringUnit":{"state":"translated","value":"Vinculado a la tienda de Steam, Wikipedia y Wikidata."}},"it":{"stringUnit":{"state":"translated","value":"Collegato al negozio di Steam, a Wikipedia e a Wikidata."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vinculado à loja Steam, à Wikipédia e ao Wikidata."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已连接到 Steam 商店、维基百科和维基数据。"}}}},
+    "Turn it on to look for covers and game information.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Turn it on to look for covers and game information."}},"fr":{"stringUnit":{"state":"translated","value":"Active-le pour chercher les jaquettes et les infos des jeux."}},"de":{"stringUnit":{"state":"translated","value":"Schalte es ein, um Cover und Spielinfos zu suchen."}},"es":{"stringUnit":{"state":"translated","value":"Actívalo para buscar carátulas e información de juegos."}},"it":{"stringUnit":{"state":"translated","value":"Attivalo per cercare copertine e informazioni sui giochi."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ative para buscar capas e informações dos jogos."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"开启后即可查找封面和游戏信息。"}}}},
+    "Coming later: %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Coming later: %@"}},"fr":{"stringUnit":{"state":"translated","value":"À venir : %@"}},"de":{"stringUnit":{"state":"translated","value":"Demnächst: %@"}},"es":{"stringUnit":{"state":"translated","value":"Próximamente: %@"}},"it":{"stringUnit":{"state":"translated","value":"In arrivo: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Em breve: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"即将推出：%@"}}}},
+    "Nothing else to do here: it works on its own.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Nothing else to do here: it works on its own."}},"fr":{"stringUnit":{"state":"translated","value":"Rien d’autre à faire ici : ça fonctionne tout seul."}},"de":{"stringUnit":{"state":"translated","value":"Hier ist nichts weiter zu tun: Es läuft von selbst."}},"es":{"stringUnit":{"state":"translated","value":"No hay nada más que hacer aquí: funciona solo."}},"it":{"stringUnit":{"state":"translated","value":"Non c’è altro da fare qui: funziona da solo."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nada mais a fazer aqui: funciona sozinho."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"这里无需其他操作：它会自动运行。"}}}},
+    "Link it first to continue.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Link it first to continue."}},"fr":{"stringUnit":{"state":"translated","value":"Relie d’abord pour continuer."}},"de":{"stringUnit":{"state":"translated","value":"Verbinde es zuerst, um fortzufahren."}},"es":{"stringUnit":{"state":"translated","value":"Vincúlalo primero para continuar."}},"it":{"stringUnit":{"state":"translated","value":"Collegalo prima per continuare."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vincule primeiro para continuar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"请先连接再继续。"}}}},
+    "Nothing": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Nothing"}},"fr":{"stringUnit":{"state":"translated","value":"Rien"}},"de":{"stringUnit":{"state":"translated","value":"Nichts"}},"es":{"stringUnit":{"state":"translated","value":"Nada"}},"it":{"stringUnit":{"state":"translated","value":"Nulla"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nada"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"无"}}}},
+    "Engine up to date": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Engine up to date"}},"fr":{"stringUnit":{"state":"translated","value":"Moteur à jour"}},"de":{"stringUnit":{"state":"translated","value":"Engine aktuell"}},"es":{"stringUnit":{"state":"translated","value":"Motor actualizado"}},"it":{"stringUnit":{"state":"translated","value":"Motore aggiornato"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Motor atualizado"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"引擎已是最新"}}}},
+    "Engine not the tested version": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Engine not the tested version"}},"fr":{"stringUnit":{"state":"translated","value":"Moteur différent de la version testée"}},"de":{"stringUnit":{"state":"translated","value":"Engine weicht von der getesteten Version ab"}},"es":{"stringUnit":{"state":"translated","value":"El motor no es la versión probada"}},"it":{"stringUnit":{"state":"translated","value":"Il motore non è la versione testata"}},"pt-BR":{"stringUnit":{"state":"translated","value":"O motor não é a versão testada"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"引擎不是已测试的版本"}}}},
+    "Apple tools ready": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Apple tools ready"}},"fr":{"stringUnit":{"state":"translated","value":"Outils Apple prêts"}},"de":{"stringUnit":{"state":"translated","value":"Apple-Werkzeuge bereit"}},"es":{"stringUnit":{"state":"translated","value":"Herramientas de Apple listas"}},"it":{"stringUnit":{"state":"translated","value":"Strumenti Apple pronti"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ferramentas da Apple prontas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Apple 工具已就绪"}}}},
+    "Apple tools incomplete": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Apple tools incomplete"}},"fr":{"stringUnit":{"state":"translated","value":"Outils Apple incomplets"}},"de":{"stringUnit":{"state":"translated","value":"Apple-Werkzeuge unvollständig"}},"es":{"stringUnit":{"state":"translated","value":"Herramientas de Apple incompletas"}},"it":{"stringUnit":{"state":"translated","value":"Strumenti Apple incompleti"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ferramentas da Apple incompletas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Apple 工具不完整"}}}},
+    "The game files you choose, your Switch keys and the games already built.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The game files you choose, your Switch keys and the games already built."}},"fr":{"stringUnit":{"state":"translated","value":"Les fichiers de jeu que tu choisis, tes clés Switch et les jeux déjà compilés."}},"de":{"stringUnit":{"state":"translated","value":"Die Spieldateien, die du wählst, deine Switch-Schlüssel und die bereits kompilierten Spiele."}},"es":{"stringUnit":{"state":"translated","value":"Los archivos de juego que eliges, tus claves de Switch y los juegos ya compilados."}},"it":{"stringUnit":{"state":"translated","value":"I file di gioco che scegli, le tue chiavi Switch e i giochi già compilati."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os arquivos de jogo que você escolhe, suas chaves de Switch e os jogos já compilados."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你选择的游戏文件、你的 Switch 密钥和已构建的游戏。"}}}},
+    "The games it builds, its working files and a private copy of your keys. The games write their own saves.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The games it builds, its working files and a private copy of your keys. The games write their own saves."}},"fr":{"stringUnit":{"state":"translated","value":"Les jeux qu’il compile, ses fichiers de travail et une copie privée de tes clés. Les jeux écrivent leurs propres sauvegardes."}},"de":{"stringUnit":{"state":"translated","value":"Die Spiele, die es kompiliert, seine Arbeitsdateien und eine private Kopie deiner Schlüssel. Die Spiele schreiben ihre Spielstände selbst."}},"es":{"stringUnit":{"state":"translated","value":"Los juegos que compila, sus archivos de trabajo y una copia privada de tus claves. Los juegos escriben sus propias partidas."}},"it":{"stringUnit":{"state":"translated","value":"I giochi che compila, i suoi file di lavoro e una copia privata delle tue chiavi. I giochi scrivono i propri salvataggi."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os jogos que ele compila, seus arquivos de trabalho e uma cópia privada das suas chaves. Os jogos gravam os próprios jogos salvos."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"它构建的游戏、工作文件和你密钥的私有副本。游戏会自行写入存档。"}}}},
+    "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple."}},"fr":{"stringUnit":{"state":"translated","value":"Jamais tes jeux ni tes clés. Il télécharge seulement ses mises à jour sur GitHub et les outils d’Apple chez Apple."}},"de":{"stringUnit":{"state":"translated","value":"Niemals deine Spiele oder Schlüssel. Es lädt nur seine Updates von GitHub und Apples Werkzeuge von Apple."}},"es":{"stringUnit":{"state":"translated","value":"Nunca tus juegos ni tus claves. Solo descarga sus actualizaciones de GitHub y las herramientas de Apple desde Apple."}},"it":{"stringUnit":{"state":"translated","value":"Mai i tuoi giochi né le tue chiavi. Scarica solo i suoi aggiornamenti da GitHub e gli strumenti di Apple da Apple."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nunca seus jogos nem suas chaves. Ele só baixa as atualizações do GitHub e as ferramentas da Apple na Apple."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"绝不发送你的游戏或密钥。它只从 GitHub 下载自身更新，并从 Apple 下载 Apple 工具。"}}}},
+    "The games Steam installed, your play time and your achievements.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The games Steam installed, your play time and your achievements."}},"fr":{"stringUnit":{"state":"translated","value":"Les jeux installés par Steam, ton temps de jeu et tes succès."}},"de":{"stringUnit":{"state":"translated","value":"Die von Steam installierten Spiele, deine Spielzeit und deine Erfolge."}},"es":{"stringUnit":{"state":"translated","value":"Los juegos que instaló Steam, tu tiempo de juego y tus logros."}},"it":{"stringUnit":{"state":"translated","value":"I giochi installati da Steam, il tuo tempo di gioco e i tuoi obiettivi."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os jogos instalados pelo Steam, seu tempo de jogo e suas conquistas."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Steam 安装的游戏、你的游戏时长和成就。"}}}},
+    "Your Oort NX library and the pictures it keeps; never Steam’s files.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your Oort NX library and the pictures it keeps; never Steam’s files."}},"fr":{"stringUnit":{"state":"translated","value":"Ta bibliothèque Oort NX et les images qu’elle garde ; jamais les fichiers de Steam."}},"de":{"stringUnit":{"state":"translated","value":"Deine Oort-NX-Bibliothek und die darin gespeicherten Bilder; niemals Steam-Dateien."}},"es":{"stringUnit":{"state":"translated","value":"Tu biblioteca de Oort NX y las imágenes que guarda; nunca los archivos de Steam."}},"it":{"stringUnit":{"state":"translated","value":"La tua libreria Oort NX e le immagini che conserva; mai i file di Steam."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Sua biblioteca do Oort NX e as imagens que ela guarda; nunca os arquivos do Steam."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你的 Oort NX 游戏库及其保存的图片；绝不修改 Steam 文件。"}}}},
+    "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements."}},"fr":{"stringUnit":{"state":"translated","value":"Jouer indique à Steam sur cet ordinateur quel jeu lancer. Pendant que tu parcours, Oort envoie à Steam le numéro de chaque jeu et ta langue pour obtenir ses images, ses infos et ses succès."}},"de":{"stringUnit":{"state":"translated","value":"„Spielen“ sagt Steam auf diesem Computer, welches Spiel starten soll. Beim Stöbern sendet Oort Steam die Nummer jedes Spiels und deine Sprache, um Bilder, Infos und Erfolge zu erhalten."}},"es":{"stringUnit":{"state":"translated","value":"Jugar le indica a Steam en este equipo qué juego iniciar. Mientras navegas, Oort envía a Steam el número de cada juego y tu idioma para obtener sus imágenes, información y logros."}},"it":{"stringUnit":{"state":"translated","value":"Gioca indica a Steam su questo computer quale gioco avviare. Mentre sfogli, Oort invia a Steam il numero di ogni gioco e la tua lingua per ottenere immagini, informazioni e obiettivi."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Jogar diz ao Steam neste computador qual jogo iniciar. Enquanto você navega, o Oort envia ao Steam o número de cada jogo e seu idioma para obter imagens, informações e conquistas."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"“开始游戏”会告诉这台电脑上的 Steam 启动哪个游戏。浏览时，Oort 会向 Steam 发送每款游戏的编号和你的语言，以获取图片、信息和成就。"}}}},
+    "The name, place and icon of the app you choose.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The name, place and icon of the app you choose."}},"fr":{"stringUnit":{"state":"translated","value":"Le nom, l’emplacement et l’icône de l’app que tu choisis."}},"de":{"stringUnit":{"state":"translated","value":"Name, Ort und Symbol der App, die du wählst."}},"es":{"stringUnit":{"state":"translated","value":"El nombre, la ubicación y el icono de la app que eliges."}},"it":{"stringUnit":{"state":"translated","value":"Il nome, la posizione e l’icona dell’app che scegli."}},"pt-BR":{"stringUnit":{"state":"translated","value":"O nome, o local e o ícone do app que você escolhe."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你选择的应用的名称、位置和图标。"}}}},
+    "A shortcut in your library; the app itself does not change.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"A shortcut in your library; the app itself does not change."}},"fr":{"stringUnit":{"state":"translated","value":"Un raccourci dans ta bibliothèque ; l’app elle-même ne change pas."}},"de":{"stringUnit":{"state":"translated","value":"Eine Verknüpfung in deiner Bibliothek; die App selbst bleibt unverändert."}},"es":{"stringUnit":{"state":"translated","value":"Un acceso directo en tu biblioteca; la app no cambia."}},"it":{"stringUnit":{"state":"translated","value":"Un collegamento nella tua libreria; l’app non cambia."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Um atalho na sua biblioteca; o app em si não muda."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在你的游戏库中添加快捷方式；应用本身不会改变。"}}}},
+    "Keep copies of your built games and of the game files you choose. Not your saves.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Keep copies of your built games and of the game files you choose. Not your saves."}},"fr":{"stringUnit":{"state":"translated","value":"Garde des copies de tes jeux compilés et des fichiers de jeu que tu choisis. Pas tes sauvegardes."}},"de":{"stringUnit":{"state":"translated","value":"Bewahrt Kopien deiner kompilierten Spiele und der gewählten Spieldateien auf. Nicht deine Spielstände."}},"es":{"stringUnit":{"state":"translated","value":"Guarda copias de tus juegos compilados y de los archivos de juego que elijas. No tus partidas."}},"it":{"stringUnit":{"state":"translated","value":"Conserva copie dei tuoi giochi compilati e dei file di gioco che scegli. Non i tuoi salvataggi."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Guarda cópias dos seus jogos compilados e dos arquivos de jogo que você escolher. Não os seus jogos salvos."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"保留你已构建的游戏和所选游戏文件的副本，不包括存档。"}}}},
+    "The files you choose and your Drive folders. The shared library is only read.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The files you choose and your Drive folders. The shared library is only read."}},"fr":{"stringUnit":{"state":"translated","value":"Les fichiers que tu choisis et tes dossiers Drive. La bibliothèque partagée est seulement lue."}},"de":{"stringUnit":{"state":"translated","value":"Die Dateien, die du wählst, und deine Drive-Ordner. Die geteilte Bibliothek wird nur gelesen."}},"es":{"stringUnit":{"state":"translated","value":"Los archivos que eliges y tus carpetas de Drive. La biblioteca compartida solo se lee."}},"it":{"stringUnit":{"state":"translated","value":"I file che scegli e le tue cartelle Drive. La libreria condivisa viene solo letta."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os arquivos que você escolhe e suas pastas do Drive. A biblioteca compartilhada é apenas lida."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你选择的文件和你的 Drive 文件夹。共享游戏库只读取。"}}}},
+    "Copies on this computer and in your own Drive library, never in the shared one.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Copies on this computer and in your own Drive library, never in the shared one."}},"fr":{"stringUnit":{"state":"translated","value":"Des copies sur cet ordinateur et dans ta propre bibliothèque Drive, jamais dans la bibliothèque partagée."}},"de":{"stringUnit":{"state":"translated","value":"Kopien auf diesem Computer und in deiner eigenen Drive-Bibliothek, niemals in der geteilten."}},"es":{"stringUnit":{"state":"translated","value":"Copias en este equipo y en tu propia biblioteca de Drive, nunca en la compartida."}},"it":{"stringUnit":{"state":"translated","value":"Copie su questo computer e nella tua libreria Drive, mai in quella condivisa."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Cópias neste computador e na sua própria biblioteca do Drive, nunca na compartilhada."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"副本保存在这台电脑和你自己的 Drive 游戏库中，绝不写入共享游戏库。"}}}},
+    "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive."}},"fr":{"stringUnit":{"state":"translated","value":"Tes fichiers vers ton Google Drive, et ta connexion Google. Une nouvelle connexion demande l’accès à tout ton Drive."}},"de":{"stringUnit":{"state":"translated","value":"Deine Dateien an dein Google Drive und deine Google-Anmeldung. Eine neue Verbindung fragt nach Zugriff auf dein ganzes Drive."}},"es":{"stringUnit":{"state":"translated","value":"Tus archivos a tu Google Drive, y tu inicio de sesión de Google. Una conexión nueva pide acceso a todo tu Drive."}},"it":{"stringUnit":{"state":"translated","value":"I tuoi file verso il tuo Google Drive, e il tuo accesso Google. Una nuova connessione chiede l’accesso a tutto il tuo Drive."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Seus arquivos para o seu Google Drive, e seu login do Google. Uma nova conexão pede acesso a todo o seu Drive."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你的文件会上传到你的 Google Drive，并发送你的 Google 登录信息。新的连接会请求访问你的整个 Drive。"}}}},
+    "Your Nextendo account, your friends, their pictures and who is online.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your Nextendo account, your friends, their pictures and who is online."}},"fr":{"stringUnit":{"state":"translated","value":"Ton compte Nextendo, tes amis, leurs photos et qui est en ligne."}},"de":{"stringUnit":{"state":"translated","value":"Dein Nextendo-Konto, deine Freunde, ihre Bilder und wer online ist."}},"es":{"stringUnit":{"state":"translated","value":"Tu cuenta de Nextendo, tus amigos, sus imágenes y quién está en línea."}},"it":{"stringUnit":{"state":"translated","value":"Il tuo account Nextendo, i tuoi amici, le loro immagini e chi è online."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Sua conta Nextendo, seus amigos, as fotos deles e quem está online."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你的 Nextendo 账号、好友、好友头像以及谁在线。"}}}},
+    "Your sign-in on this computer, and the friend changes you ask for.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your sign-in on this computer, and the friend changes you ask for."}},"fr":{"stringUnit":{"state":"translated","value":"Ta connexion sur cet ordinateur, et les changements d’amis que tu demandes."}},"de":{"stringUnit":{"state":"translated","value":"Deine Anmeldung auf diesem Computer und die Freundesänderungen, die du anforderst."}},"es":{"stringUnit":{"state":"translated","value":"Tu inicio de sesión en este equipo y los cambios de amigos que pides."}},"it":{"stringUnit":{"state":"translated","value":"Il tuo accesso su questo computer e le modifiche agli amici che chiedi."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Seu login neste computador e as mudanças de amigos que você pede."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你在这台电脑上的登录信息，以及你请求的好友变更。"}}}},
+    "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings."}},"fr":{"stringUnit":{"state":"translated","value":"À Nextendo : ta connexion, tes demandes d’amis, le fait que tu es en ligne dans l’app et le jeu auquel tu joues en ligne. Ce que voient tes amis dépend de tes réglages."}},"de":{"stringUnit":{"state":"translated","value":"An Nextendo: deine Anmeldung, deine Freundschaftsanfragen, dass du in der App online bist, und das Spiel, das du online spielst. Was deine Freunde sehen, hängt von deinen Einstellungen ab."}},"es":{"stringUnit":{"state":"translated","value":"A Nextendo: tu inicio de sesión, tus solicitudes de amistad, que estás en línea en la app y el juego al que juegas en línea. Lo que ven tus amigos depende de tus ajustes."}},"it":{"stringUnit":{"state":"translated","value":"A Nextendo: il tuo accesso, le tue richieste di amicizia, il fatto che sei online nell’app e il gioco a cui giochi online. Ciò che vedono i tuoi amici dipende dalle tue impostazioni."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Para o Nextendo: seu login, seus pedidos de amizade, que você está online no app e o jogo que você joga online. O que seus amigos veem depende das suas configurações."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"发送给 Nextendo：你的登录信息、好友请求、你在应用中在线的状态，以及你在线玩的游戏。好友能看到什么取决于你的设置。"}}}},
+    "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites."}},"fr":{"stringUnit":{"state":"translated","value":"Ajoute tes clés SteamGridDB et IGDB. Les icônes et les notes viennent aussi de sites publics."}},"de":{"stringUnit":{"state":"translated","value":"Füge deine SteamGridDB- und IGDB-Schlüssel hinzu. Symbole und Bewertungen kommen auch von öffentlichen Websites."}},"es":{"stringUnit":{"state":"translated","value":"Añade tus claves de SteamGridDB e IGDB. Los iconos y las valoraciones también vienen de sitios públicos."}},"it":{"stringUnit":{"state":"translated","value":"Aggiungi le tue chiavi SteamGridDB e IGDB. Icone e valutazioni arrivano anche da siti pubblici."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Adicione suas chaves do SteamGridDB e do IGDB. Ícones e avaliações também vêm de sites públicos."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"添加你的 SteamGridDB 和 IGDB 密钥。图标和评分也来自公开网站。"}}}},
+    "Your game names or numbers and what the sites find.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your game names or numbers and what the sites find."}},"fr":{"stringUnit":{"state":"translated","value":"Les noms ou numéros de tes jeux et ce que les sites trouvent."}},"de":{"stringUnit":{"state":"translated","value":"Deine Spielnamen oder -nummern und was die Websites finden."}},"es":{"stringUnit":{"state":"translated","value":"Los nombres o números de tus juegos y lo que encuentran los sitios."}},"it":{"stringUnit":{"state":"translated","value":"I nomi o i numeri dei tuoi giochi e ciò che trovano i siti."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os nomes ou números dos seus jogos e o que os sites encontram."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你的游戏名称或编号，以及网站找到的内容。"}}}},
+    "Your keys, kept private, your picture choices, and the pictures and scores it keeps.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your keys, kept private, your picture choices, and the pictures and scores it keeps."}},"fr":{"stringUnit":{"state":"translated","value":"Tes clés, gardées privées, tes choix d’images, et les images et notes qu’il garde."}},"de":{"stringUnit":{"state":"translated","value":"Deine Schlüssel, privat aufbewahrt, deine Bildauswahl sowie die gespeicherten Bilder und Bewertungen."}},"es":{"stringUnit":{"state":"translated","value":"Tus claves, guardadas en privado, tus elecciones de imágenes, y las imágenes y valoraciones que guarda."}},"it":{"stringUnit":{"state":"translated","value":"Le tue chiavi, conservate in privato, le tue scelte di immagini, e le immagini e valutazioni che conserva."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Suas chaves, guardadas em privado, suas escolhas de imagens, e as imagens e avaliações que ele guarda."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"你的密钥（私密保存）、你的图片选择，以及它保存的图片和评分。"}}}},
+    "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch).": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch)."}},"fr":{"stringUnit":{"state":"translated","value":"Les noms ou numéros de tes jeux à SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB et Switch Icon Showdown, et tes clés aux sites qui en ont besoin (SteamGridDB, IGDB via Twitch)."}},"de":{"stringUnit":{"state":"translated","value":"Deine Spielnamen oder -nummern an SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB und Switch Icon Showdown, und deine Schlüssel an die Websites, die sie brauchen (SteamGridDB, IGDB über Twitch)."}},"es":{"stringUnit":{"state":"translated","value":"Los nombres o números de tus juegos a SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB y Switch Icon Showdown, y tus claves a los sitios que las necesitan (SteamGridDB, IGDB a través de Twitch)."}},"it":{"stringUnit":{"state":"translated","value":"I nomi o i numeri dei tuoi giochi a SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB e Switch Icon Showdown, e le tue chiavi ai siti che ne hanno bisogno (SteamGridDB, IGDB tramite Twitch)."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os nomes ou números dos seus jogos para SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB e Switch Icon Showdown, e suas chaves para os sites que precisam delas (SteamGridDB, IGDB pelo Twitch)."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将你的游戏名称或编号发送给 SteamGridDB、IGDB、维基数据、Nlib、Nintendo、LaunchBox、GameTDB 和 Switch Icon Showdown，并将密钥发送给需要它的网站（SteamGridDB，以及通过 Twitch 的 IGDB）。"}}}},
+    "The game saves on this computer and their copies in the folder you chose.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The game saves on this computer and their copies in the folder you chose."}},"fr":{"stringUnit":{"state":"translated","value":"Les sauvegardes des jeux sur cet ordinateur et leurs copies dans le dossier que tu as choisi."}},"de":{"stringUnit":{"state":"translated","value":"Die Spielstände auf diesem Computer und ihre Kopien im gewählten Ordner."}},"es":{"stringUnit":{"state":"translated","value":"Las partidas guardadas en este equipo y sus copias en la carpeta que elegiste."}},"it":{"stringUnit":{"state":"translated","value":"I salvataggi dei giochi su questo computer e le loro copie nella cartella che hai scelto."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os jogos salvos neste computador e suas cópias na pasta que você escolheu."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"这台电脑上的游戏存档，以及它们在你所选文件夹中的副本。"}}}},
+    "The folder and each game’s choice; the games write the copies. A game can keep its own choice.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The folder and each game’s choice; the games write the copies. A game can keep its own choice."}},"fr":{"stringUnit":{"state":"translated","value":"Le dossier et le choix de chaque jeu ; les jeux écrivent les copies. Un jeu peut garder son propre choix."}},"de":{"stringUnit":{"state":"translated","value":"Den Ordner und die Wahl jedes Spiels; die Spiele schreiben die Kopien. Ein Spiel kann seine eigene Wahl behalten."}},"es":{"stringUnit":{"state":"translated","value":"La carpeta y la elección de cada juego; los juegos escriben las copias. Un juego puede tener su propia elección."}},"it":{"stringUnit":{"state":"translated","value":"La cartella e la scelta di ogni gioco; i giochi scrivono le copie. Un gioco può mantenere la propria scelta."}},"pt-BR":{"stringUnit":{"state":"translated","value":"A pasta e a escolha de cada jogo; os jogos gravam as cópias. Um jogo pode manter a própria escolha."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"文件夹和每个游戏的选择；副本由游戏写入。单个游戏可以保留自己的选择。"}}}},
+    "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app."}},"fr":{"stringUnit":{"state":"translated","value":"Rien directement. iCloud Drive se synchronise avec Apple ; un autre dossier, avec sa propre app."}},"de":{"stringUnit":{"state":"translated","value":"Nichts direkt. iCloud Drive synchronisiert mit Apple; ein anderer Ordner mit seiner eigenen App."}},"es":{"stringUnit":{"state":"translated","value":"Nada directamente. iCloud Drive se sincroniza con Apple; otra carpeta, con su propia app."}},"it":{"stringUnit":{"state":"translated","value":"Niente direttamente. iCloud Drive si sincronizza con Apple; un’altra cartella, con la sua app."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nada diretamente. O iCloud Drive sincroniza com a Apple; outra pasta, com o próprio app."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"不直接发送。iCloud 云盘与 Apple 同步；其他文件夹由其自身的应用同步。"}}}},
+    "Switch keys missing": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Switch keys missing"}},"fr":{"stringUnit":{"state":"translated","value":"Clés Switch manquantes"}},"de":{"stringUnit":{"state":"translated","value":"Switch-Schlüssel fehlen"}},"es":{"stringUnit":{"state":"translated","value":"Faltan las claves de Switch"}},"it":{"stringUnit":{"state":"translated","value":"Chiavi Switch mancanti"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Chaves de Switch ausentes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"缺少 Switch 密钥"}}}},
+    "Checked: %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Checked: %@"}},"fr":{"stringUnit":{"state":"translated","value":"Vérifié le %@"}},"de":{"stringUnit":{"state":"translated","value":"Geprüft: %@"}},"es":{"stringUnit":{"state":"translated","value":"Verificado: %@"}},"it":{"stringUnit":{"state":"translated","value":"Verificato: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Verificado: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"检查时间：%@"}}}},
+    "Covers, icons and game scores": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Covers, icons and game scores"}},"fr":{"stringUnit":{"state":"translated","value":"Jaquettes, icônes et notes des jeux"}},"de":{"stringUnit":{"state":"translated","value":"Cover, Symbole und Spielbewertungen"}},"es":{"stringUnit":{"state":"translated","value":"Carátulas, iconos y valoraciones de juegos"}},"it":{"stringUnit":{"state":"translated","value":"Copertine, icone e valutazioni dei giochi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Capas, ícones e avaliações dos jogos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏封面、图标和评分"}}}},
+    "Open Steam games": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Open Steam games"}},"fr":{"stringUnit":{"state":"translated","value":"Ouvrir les jeux Steam"}},"de":{"stringUnit":{"state":"translated","value":"Steam-Spiele öffnen"}},"es":{"stringUnit":{"state":"translated","value":"Abrir juegos de Steam"}},"it":{"stringUnit":{"state":"translated","value":"Apri i giochi Steam"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abrir jogos do Steam"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"打开 Steam 游戏"}}}},
+    "nxnative": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"nxnative"}},"fr":{"stringUnit":{"state":"translated","value":"nxnative"}},"de":{"stringUnit":{"state":"translated","value":"nxnative"}},"es":{"stringUnit":{"state":"translated","value":"nxnative"}},"it":{"stringUnit":{"state":"translated","value":"nxnative"}},"pt-BR":{"stringUnit":{"state":"translated","value":"nxnative"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"nxnative"}}}},
+    "Engines": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Engines"}},"fr":{"stringUnit":{"state":"translated","value":"Moteurs"}},"de":{"stringUnit":{"state":"translated","value":"Engines"}},"es":{"stringUnit":{"state":"translated","value":"Motores"}},"it":{"stringUnit":{"state":"translated","value":"Motori"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Motores"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"引擎"}}}},
+    "Services": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Services"}},"fr":{"stringUnit":{"state":"translated","value":"Services"}},"de":{"stringUnit":{"state":"translated","value":"Dienste"}},"es":{"stringUnit":{"state":"translated","value":"Servicios"}},"it":{"stringUnit":{"state":"translated","value":"Servizi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Serviços"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"服务"}}}},
+    "Link": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Link"}},"fr":{"stringUnit":{"state":"translated","value":"Relier"}},"de":{"stringUnit":{"state":"translated","value":"Verbinden"}},"es":{"stringUnit":{"state":"translated","value":"Vincular"}},"it":{"stringUnit":{"state":"translated","value":"Collega"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Vincular"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"连接"}}}},
+    "Ready here": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Ready here"}},"fr":{"stringUnit":{"state":"translated","value":"Prêt ici"}},"de":{"stringUnit":{"state":"translated","value":"Hier bereit"}},"es":{"stringUnit":{"state":"translated","value":"Listo aquí"}},"it":{"stringUnit":{"state":"translated","value":"Pronto qui"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Pronto aqui"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"可在此使用"}}}},
+    "Build, play and keep saves": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Build, play and keep saves"}},"fr":{"stringUnit":{"state":"translated","value":"Compiler, jouer et conserver les sauvegardes"}},"de":{"stringUnit":{"state":"translated","value":"Kompilieren, spielen und Spielstände behalten"}},"es":{"stringUnit":{"state":"translated","value":"Compilar, jugar y conservar partidas"}},"it":{"stringUnit":{"state":"translated","value":"Compila, gioca e conserva i salvataggi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Compilar, jogar e manter os jogos salvos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"构建、游玩和保留存档"}}}},
+    "Installed games, play through Steam": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Installed games, play through Steam"}},"fr":{"stringUnit":{"state":"translated","value":"Jeux installés, jouer via Steam"}},"de":{"stringUnit":{"state":"translated","value":"Installierte Spiele, über Steam spielen"}},"es":{"stringUnit":{"state":"translated","value":"Juegos instalados, jugar con Steam"}},"it":{"stringUnit":{"state":"translated","value":"Giochi installati, gioca tramite Steam"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Jogos instalados, jogar pelo Steam"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已安装的游戏，通过 Steam 游玩"}}}},
+    "Shortcuts to local apps": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Shortcuts to local apps"}},"fr":{"stringUnit":{"state":"translated","value":"Raccourcis vers des apps locales"}},"de":{"stringUnit":{"state":"translated","value":"Verknüpfungen zu lokalen Apps"}},"es":{"stringUnit":{"state":"translated","value":"Accesos directos a apps locales"}},"it":{"stringUnit":{"state":"translated","value":"Collegamenti alle app locali"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Atalhos para apps locais"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"本地应用快捷方式"}}}},
+    "Games and copies of your files": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Games and copies of your files"}},"fr":{"stringUnit":{"state":"translated","value":"Jeux et copies de tes fichiers"}},"de":{"stringUnit":{"state":"translated","value":"Spiele und Kopien deiner Dateien"}},"es":{"stringUnit":{"state":"translated","value":"Juegos y copias de tus archivos"}},"it":{"stringUnit":{"state":"translated","value":"Giochi e copie dei tuoi file"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Jogos e cópias dos seus arquivos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏和文件副本"}}}},
+    "Online play and friends": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Online play and friends"}},"fr":{"stringUnit":{"state":"translated","value":"Jeu en ligne et amis"}},"de":{"stringUnit":{"state":"translated","value":"Onlinespiel und Freunde"}},"es":{"stringUnit":{"state":"translated","value":"Juego en línea y amigos"}},"it":{"stringUnit":{"state":"translated","value":"Gioco online e amici"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Jogo online e amigos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在线游玩和好友"}}}},
+    "Copies of game saves": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Copies of game saves"}},"fr":{"stringUnit":{"state":"translated","value":"Copies des sauvegardes"}},"de":{"stringUnit":{"state":"translated","value":"Kopien von Spielständen"}},"es":{"stringUnit":{"state":"translated","value":"Copias de partidas guardadas"}},"it":{"stringUnit":{"state":"translated","value":"Copie dei salvataggi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Cópias de jogos salvos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏存档副本"}}}},
+    "Shortcuts to programs": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Shortcuts to programs"}},"fr":{"stringUnit":{"state":"translated","value":"Raccourcis vers des programmes"}},"de":{"stringUnit":{"state":"translated","value":"Verknüpfungen zu Programmen"}},"es":{"stringUnit":{"state":"translated","value":"Accesos directos a programas"}},"it":{"stringUnit":{"state":"translated","value":"Collegamenti ai programmi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Atalhos para programas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"程序快捷方式"}}}},
+    "Covers and game information": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Covers and game information"}},"fr":{"stringUnit":{"state":"translated","value":"Jaquettes et infos sur les jeux"}},"de":{"stringUnit":{"state":"translated","value":"Cover und Spielinfos"}},"es":{"stringUnit":{"state":"translated","value":"Carátulas e información de juegos"}},"it":{"stringUnit":{"state":"translated","value":"Copertine e informazioni sui giochi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Capas e informações dos jogos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"封面和游戏信息"}}}},
+    "Programs": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Programs"}},"fr":{"stringUnit":{"state":"translated","value":"Programmes"}},"de":{"stringUnit":{"state":"translated","value":"Programme"}},"es":{"stringUnit":{"state":"translated","value":"Programas"}},"it":{"stringUnit":{"state":"translated","value":"Programmi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Programas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"程序"}}}},
+    "Game information online": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Game information online"}},"fr":{"stringUnit":{"state":"translated","value":"Informations en ligne"}},"de":{"stringUnit":{"state":"translated","value":"Spielinfos aus dem Internet"}},"es":{"stringUnit":{"state":"translated","value":"Información de juegos en línea"}},"it":{"stringUnit":{"state":"translated","value":"Informazioni sui giochi online"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Informações dos jogos online"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在线游戏信息"}}}},
+    "Open Switch games": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Open Switch games"}},"fr":{"stringUnit":{"state":"translated","value":"Ouvrir les jeux Switch"}},"de":{"stringUnit":{"state":"translated","value":"Switch-Spiele öffnen"}},"es":{"stringUnit":{"state":"translated","value":"Abrir juegos de Switch"}},"it":{"stringUnit":{"state":"translated","value":"Apri i giochi Switch"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abrir jogos de Switch"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"打开 Switch 游戏"}}}},
+    "Expected engine commit: %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Expected engine commit: %@"}},"fr":{"stringUnit":{"state":"translated","value":"Commit attendu du moteur : %@"}},"de":{"stringUnit":{"state":"translated","value":"Erwarteter Engine-Commit: %@"}},"es":{"stringUnit":{"state":"translated","value":"Commit esperado del motor: %@"}},"it":{"stringUnit":{"state":"translated","value":"Commit atteso del motore: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Commit esperado do motor: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"预期引擎提交：%@"}}}},
+    "Observed engine commit: %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Observed engine commit: %@"}},"fr":{"stringUnit":{"state":"translated","value":"Commit détecté du moteur : %@"}},"de":{"stringUnit":{"state":"translated","value":"Erkannter Engine-Commit: %@"}},"es":{"stringUnit":{"state":"translated","value":"Commit detectado del motor: %@"}},"it":{"stringUnit":{"state":"translated","value":"Commit rilevato del motore: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Commit detectado do motor: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"检测到的引擎提交：%@"}}}},
+    "Switch keys selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Switch keys selected"}},"fr":{"stringUnit":{"state":"translated","value":"Clés Switch sélectionnées"}},"de":{"stringUnit":{"state":"translated","value":"Switch-Schlüssel ausgewählt"}},"es":{"stringUnit":{"state":"translated","value":"Claves de Switch seleccionadas"}},"it":{"stringUnit":{"state":"translated","value":"Chiavi Switch selezionate"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Chaves de Switch selecionadas"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已选择 Switch 密钥"}}}},
+    "Metal compiler: %@": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Metal compiler: %@"}},"fr":{"stringUnit":{"state":"translated","value":"Compilateur Metal : %@"}},"de":{"stringUnit":{"state":"translated","value":"Metal-Compiler: %@"}},"es":{"stringUnit":{"state":"translated","value":"Compilador de Metal: %@"}},"it":{"stringUnit":{"state":"translated","value":"Compilatore Metal: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Compilador Metal: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"Metal 编译器：%@"}}}},
     "%lld games to compile": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -5311,9 +5201,6 @@
     "Mac app": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Mac app"}}, "fr": {"stringUnit":{"state":"translated","value":"App Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-App"}}, "es": {"stringUnit":{"state":"translated","value":"App de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App do Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
     }},
-    "Mac apps": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Mac apps"}}, "fr": {"stringUnit":{"state":"translated","value":"Apps Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-Apps"}}, "es": {"stringUnit":{"state":"translated","value":"Apps de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Apps para Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
-    }},
     "Reads: %@": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Reads: %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Lit : %@"}}, "it": {"stringUnit":{"state":"translated","value":"Legge: %@"}}, "de": {"stringUnit":{"state":"translated","value":"Liest: %@"}}, "es": {"stringUnit":{"state":"translated","value":"Lee: %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Lê: %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"读取：%@"}}
     }},
@@ -5325,6 +5212,9 @@
     }},
     "Add an app…": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Add an app…"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiungi un’app…"}}, "fr": {"stringUnit":{"state":"translated","value":"Ajouter une app…"}}, "de": {"stringUnit":{"state":"translated","value":"App hinzufügen…"}}, "es": {"stringUnit":{"state":"translated","value":"Añadir una app…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Adicionar um app…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"添加应用…"}}
+    }},
+    "Mac apps": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Mac apps"}}, "fr": {"stringUnit":{"state":"translated","value":"Apps Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-Apps"}}, "es": {"stringUnit":{"state":"translated","value":"Apps de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Apps para Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
     }},
     "Mac app shortcut": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Mac app shortcut"}}, "it": {"stringUnit":{"state":"translated","value":"Collegamento a un’app Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"Raccourci d’app Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-App-Verknüpfung"}}, "es": {"stringUnit":{"state":"translated","value":"Acceso directo a una app de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atalho de app do Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用快捷方式"}}
@@ -44001,7 +43891,7 @@
         }
       }
     },
-"Hold Space": {
+    "Hold Space": {
       "comment": "ControlsView.swift:36",
       "localizations": {
         "en": {
@@ -53730,7 +53620,7 @@
         }
       }
     },
-"Navigation": {
+    "Navigation": {
       "comment": "SettingsSection.swift:16",
       "localizations": {
         "en": {
@@ -99244,7 +99134,195 @@
     "In Details": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In Details"}},"fr":{"stringUnit":{"state":"translated","value":"Dans Détails"}},"it":{"stringUnit":{"state":"translated","value":"Nei dettagli"}},"de":{"stringUnit":{"state":"translated","value":"In den Details"}},"es":{"stringUnit":{"state":"translated","value":"En Detalles"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Em Detalhes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在详情中"}}}},
     "On the game page": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"On the game page"}},"fr":{"stringUnit":{"state":"translated","value":"Sur la fiche du jeu"}},"it":{"stringUnit":{"state":"translated","value":"Nella scheda del gioco"}},"de":{"stringUnit":{"state":"translated","value":"Auf der Spielseite"}},"es":{"stringUnit":{"state":"translated","value":"En la ficha del juego"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Na página do jogo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在游戏页面上"}}}},
     "Choose where to show Nextendo players. Turn off all four to stop the requests.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose where to show Nextendo players. Turn off all four to stop the requests."}},"fr":{"stringUnit":{"state":"translated","value":"Choisis où afficher les joueurs Nextendo. Désactive les quatre options pour arrêter les requêtes."}},"it":{"stringUnit":{"state":"translated","value":"Scegli dove mostrare i giocatori Nextendo. Disattiva tutte e quattro le opzioni per interrompere le richieste."}},"de":{"stringUnit":{"state":"translated","value":"Wähle, wo Nextendo-Spieler angezeigt werden. Schalte alle vier Optionen aus, um die Abfragen zu stoppen."}},"es":{"stringUnit":{"state":"translated","value":"Elige dónde mostrar los jugadores de Nextendo. Desactiva las cuatro opciones para detener las solicitudes."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolha onde mostrar os jogadores do Nextendo. Desative as quatro opções para interromper as consultas."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择在哪里显示 Nextendo 玩家。关闭全部四个选项即可停止请求。"}}}},
-    "%lld Nextendo players": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo player"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo players"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld joueur Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld joueurs Nextendo"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld giocatore Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld giocatori Nextendo"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jugador de Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jugadores de Nextendo"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogador do Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogadores do Nextendo"}}}}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 位 Nextendo 玩家"}}}}
+    "%lld Nextendo players": {"localizations":{"en":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo player"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo players"}}}}},"fr":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld joueur Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld joueurs Nextendo"}}}}},"it":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld giocatore Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld giocatori Nextendo"}}}}},"de":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}},"other":{"stringUnit":{"state":"translated","value":"%lld Nextendo-Spieler"}}}}},"es":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jugador de Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jugadores de Nextendo"}}}}},"pt-BR":{"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogador do Nextendo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogadores do Nextendo"}}}}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%lld 位 Nextendo 玩家"}}}},
+    "Hold: Profile page": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold: Profile page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto: pagina del profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenir : page du profil"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gedrückt halten: Profilseite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado: página del perfil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha pressionado: página do perfil"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住：个人资料页"
+          }
+        }
+      }
+    },
+    "Most played game": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most played game"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioco più giocato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeu le plus joué"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meistgespieltes Spiel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juego más jugado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogo mais jogado"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩得最多的游戏"
+          }
+        }
+      }
+    },
+    "No playtime this week.": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No playtime this week."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna partita questa settimana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune partie cette semaine."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Woche noch nicht gespielt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin partidas esta semana."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma partida nesta semana."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本周还没有游戏时间。"
+          }
+        }
+      }
+    },
+    "Play a game and it shows up here.": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play a game and it shows up here."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioca a un gioco e comparirà qui."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joue à un jeu : il apparaîtra ici."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiele ein Spiel, dann erscheint es hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juega a un juego y aparecerá aquí."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogue um jogo e ele aparecerá aqui."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩一款游戏，它就会显示在这里。"
+          }
+        }
+      }
+    }
   },
   "version": "1.0"
 }

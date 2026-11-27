@@ -15,22 +15,15 @@ struct SettingsSourcesSection: View {
         let choice = settings.settings.launcherChoices.steamSource
         return choice == settings.store.settings.launcherChoices.steamSource ? nil : choice
     }
-    private var enabled: Bool { staged?.enabled ?? sources.configuration.isEnabled }
     private var root: URL { staged?.root ?? sources.discoveryRoot }
+    /// Steam's rows, decided once (NXLibraryCore/Steam/SteamSourceEntries.swift) for the drawing and for the focus.
+    private var steam: SteamSourceEntries.MacRows {
+        SteamSourceEntries.mac(applied: sources.configuration.isEnabled, staged: staged?.enabled, status: sources.status,
+                               found: sources.observedGameCount, root: root.path)
+    }
     private var hidden: [CatalogGame] { viewModel.catalogGames.filter { $0.integration == .steam && $0.isHidden } }
     private var review: [CatalogGame] {
         viewModel.catalogGames.filter { !$0.isHidden && $0.steamGame?.needsReview == true }
-    }
-    private var statusText: String {
-        switch sources.status {
-        case .disabled: return L10n.text("Enable Steam to find its installed Mac games.", context: localization)
-        case .idle: return L10n.text("Ready to check Steam.", context: localization)
-        case .scanning: return L10n.text("Checking Steam libraries…", context: localization)
-        case .ready: return L10n.count("%lld Steam installations found", sources.observedGameCount, context: localization)
-        case .partial: return L10n.text("Some installations could not be checked. Your library has been kept.", context: localization)
-        case .cancelled: return L10n.text("Scan stopped. Refresh when you are ready.", context: localization)
-        case .failed: return L10n.text("Steam could not be refreshed. Your library has been kept.", context: localization)
-        }
     }
     var body: some View {
         OortSettingsGroup {
@@ -42,16 +35,7 @@ struct SettingsSourcesSection: View {
                             platform: .mac,
                             buttonTitle: "Add an app…") { viewModel.macShortcuts.chooseApp() }
                 .disabled(!viewModel.macShortcuts.canEdit)
-            SeleneToggleRow("Steam", subtitle: "Find installed native Mac games in your Steam libraries.",
-                            info: "Your Steam files stay where they are. Disabling this source keeps its games and personal choices.",
-                            platform: .steam,
-                            isOn: Binding(get: { enabled }, set: { stage(enabled: $0, root: root) }))
-            SeleneButtonRow("Refresh Steam", subtitle: statusText,
-                            buttonTitle: sources.status == .scanning ? "Cancel" : "Refresh") {
-                if sources.status == .scanning { sources.cancel() } else { sources.refresh() }
-            }.disabled(!sources.configuration.isEnabled && sources.status != .failed)
-            SeleneValueRow("Steam folder", subtitle: "Choose the Steam folder containing steamapps.",
-                           value: root.path, actionTitle: "Change", action: chooseFolder)
+            ForEach(steam.all, id: \.id, content: row)
             SettingsSubheading("Play")
             SeleneToggleRow("Keep Steam in the background",
                             subtitle: "Steam starts quietly when possible and comes forward if it needs you.",
@@ -90,9 +74,45 @@ struct SettingsSourcesSection: View {
         .onChange(of: sources.configuration) { publishActions() }
         .onChange(of: viewModel.catalogGames) { publishActions() }
     }
+    /// The Selene row of each kind of entry: what it says and what A asks are the entry's.
+    @ViewBuilder private func row(_ entry: IntegrationEntry) -> some View {
+        switch entry.control {
+        case .toggle(let checked):
+            SeleneToggleRow(entry.title.key, subtitle: entry.about?.key, info: entry.info?.key,
+                            platform: entry.icon.flatMap(PlatformKind.init(rawValue:)),
+                            isOn: Binding(get: { checked }, set: { _ in ask(entry) }))
+        case .button(let button):
+            SeleneButtonRow(entry.title.key, subtitle: entry.about.map(words), buttonTitle: button.key) { ask(entry) }
+                .disabled(entry.request == nil)
+        case .value(let value, let button):
+            SeleneValueRow(entry.title.key, subtitle: entry.about?.key, value: value, actionTitle: button.key) { ask(entry) }
+        case .row, .open:
+            EmptyView()  // Steam's Mac rows are a switch, a button and a value (IntegrationEntryTests).
+        }
+    }
+    private func words(_ words: IntegrationWords) -> String {
+        words.count.map { L10n.count(words.key, $0, context: localization) } ?? L10n.text(words.key, context: localization)
+    }
+    /// A asks what the row says when it is pressed, the choice waiting in the draft included.
+    private func ask(_ entry: IntegrationEntry) {
+        if let request = steam.all.first(where: { $0.id == entry.id })?.request { perform(request) }
+    }
+    /// Each request goes to its owner: the draft for the choice, the source for its reading, the picker for the folder.
+    private func perform(_ request: IntegrationRequest) {
+        switch request {
+        case .steam(let enabled): stage(enabled: enabled, root: root)
+        case .refreshSteam: sources.refresh()
+        case .cancelSteamRefresh: sources.cancel()
+        case .chooseSteamFolder: chooseFolder()
+        case .readSteamAgain, .online, .clearOnline: break
+        }
+    }
+    /// The picker and its refusal say what the folder row says.
+    private var folderWords: (title: String, message: String) {
+        (L10n.text(steam.folder.title.key, context: localization), steam.folder.about.map { L10n.text($0.key, context: localization) } ?? "")
+    }
     private func chooseFolder() {
-        OortFilePickerPresentation.open(.folder, title: L10n.text("Steam folder", context: localization),
-                                        message: L10n.text("Choose the Steam folder containing steamapps.", context: localization),
+        OortFilePickerPresentation.open(.folder, title: folderWords.title, message: folderWords.message,
                                         startingAt: root) { urls in
             if let chosen = urls.first { use(chosen) }
         }
@@ -102,10 +122,10 @@ struct SettingsSourcesSection: View {
         let apps = root.appendingPathComponent("steamapps").resolvingSymlinksInPath().standardizedFileURL
         var directory: ObjCBool = false
         guard apps.path.hasPrefix(root.path + "/"), FileManager.default.fileExists(atPath: apps.path, isDirectory: &directory), directory.boolValue else {
-            viewModel.showSettingsNotice(title: L10n.text("Steam folder", context: localization), message: L10n.text("Choose the Steam folder containing steamapps.", context: localization))
+            viewModel.showSettingsNotice(title: folderWords.title, message: folderWords.message)
             return
         }
-        stage(enabled: enabled, root: root)
+        stage(enabled: steam.source.checked == true, root: root)
     }
     private func stage(enabled: Bool, root: URL) {
         if enabled == sources.configuration.isEnabled && root == sources.discoveryRoot {
@@ -125,11 +145,7 @@ struct SettingsSourcesSection: View {
             .init(id: "integrations", title: "All integrations", rowID: "integrations", activate: onOpenIntegrations),
             .init(id: "macShortcutAdd", title: "Add an app…", rowID: "macShortcutAdd",
                   isEnabled: viewModel.macShortcuts.canEdit) { viewModel.macShortcuts.chooseApp() },
-            .init(id: "steamSource", title: "Steam") { stage(enabled: !enabled, root: root) },
-            .init(id: "steamRefresh", title: "Refresh Steam", isEnabled: sources.configuration.isEnabled || sources.status == .failed) {
-                if sources.status == .scanning { sources.cancel() } else { sources.refresh() }
-            },
-            .init(id: "steamFolder", title: "Steam folder", activate: chooseFolder),
+        ] + steam.all.map { SettingsRowAction($0, ask: ask) } + [
             .init(id: "steamInBackground", title: "Keep Steam in the background") { settings.settings.steamInBackground.toggle() }
         ]
         rows += review.map { game in .init(id: "review-\(game.id)", title: game.name, rowID: "review-\(game.id)") { reveal(game) } }
