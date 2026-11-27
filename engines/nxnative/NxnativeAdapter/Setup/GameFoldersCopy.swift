@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 
 /// Shared folder wording for Setup, Settings and their pickers.
 public enum GameFoldersCopy {

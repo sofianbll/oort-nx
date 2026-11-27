@@ -1,6 +1,6 @@
 import XCTest
 import Darwin
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class CommandRunnerTests: XCTestCase {
     func testBoundedCommandPipesAreCloseOnExec() throws {

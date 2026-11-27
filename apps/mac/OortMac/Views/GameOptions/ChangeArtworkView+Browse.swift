@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Browsing a source: opening it, its search, closing it and opening its page.
 extension ChangeArtworkView {

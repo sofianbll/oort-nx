@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The established nxnative scan merge, shared with the legacy store. It only
 /// handles nxnative payloads; other catalog integrations never enter this path.

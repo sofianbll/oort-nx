@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What the folders of a Drive hold, from one bounded listing of names. It opens no file.
 public struct CloudFolderIndex: Equatable, Sendable {

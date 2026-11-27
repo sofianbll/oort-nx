@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The program packed from a NUP, its owning application and its independent DLC numbering base.
 /// Persist it with the sources so a rebuild cannot silently follow a different default program.

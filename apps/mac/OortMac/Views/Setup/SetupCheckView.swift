@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// "Let's get Arcane ready" (Selene's SetupScreen): a card per thing Arcane

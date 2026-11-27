@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The guided pages and What’s New share a single readable Selene layout.
 struct OnboardingScreen: View {

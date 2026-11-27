@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// A band's title (Selene's SeleneBandLabel): 21 SemiBold, 2 above, 14 below.

@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// Keyboard equivalents of the controller gestures, the menu's input and its actions.
 extension AppShellView {

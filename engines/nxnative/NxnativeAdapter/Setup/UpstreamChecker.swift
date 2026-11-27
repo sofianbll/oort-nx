@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 struct UpstreamStatus: Codable, Equatable {
     public var repository: String

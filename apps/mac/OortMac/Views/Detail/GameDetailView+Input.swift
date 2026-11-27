@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Details' controller, keyboard, scroll-wheel and pointer input. The guards

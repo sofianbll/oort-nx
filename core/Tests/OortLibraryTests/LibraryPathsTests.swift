@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Synthetic library folders in a throwaway home: the paths a copy must not leave in the old folder.
 final class LibraryPathsTests: XCTestCase {

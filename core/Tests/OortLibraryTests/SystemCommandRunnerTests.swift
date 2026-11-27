@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// `waitUntilExit` runs the current run loop while it waits: a SwiftUI update that started a command (Game options
 /// reading the engine's ancestry for its Cheats row) re-entered itself and aborted.

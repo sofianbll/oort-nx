@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Session-only outcomes whose file effects happened but whose catalog save did
 /// not. Never choose an older persisted pending app over a retained generation.

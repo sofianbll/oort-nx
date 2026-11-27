@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct LauncherSettingOption: Decodable, Equatable, Identifiable {
     public var value: String

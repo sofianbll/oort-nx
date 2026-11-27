@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The build advertises modes in the same settings contract the game launcher consumes.
 public enum NextendoLaunch {

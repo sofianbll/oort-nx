@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A build that finished while its game was running. Replacing an app under a running game can crash it, so the new
 /// app waits in its temporary folder and replaces the old one once the game quits.

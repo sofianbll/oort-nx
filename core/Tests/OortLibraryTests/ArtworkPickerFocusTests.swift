@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class ArtworkPickerFocusTests: XCTestCase {
     // 8 tiles in rows of 3: 0 1 2 / 3 4 5 / 6 7

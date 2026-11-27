@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Holds the active Selene palette. Palettes ship in the app bundle at Resources/Selene/palettes.json;
 /// when absent (e.g. `swift run`) the built-in Oort palette is used.

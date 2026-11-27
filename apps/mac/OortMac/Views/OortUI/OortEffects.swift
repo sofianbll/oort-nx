@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// What a shadow is for. Screens name the role; the size and strength live here.
 enum OortShadow {

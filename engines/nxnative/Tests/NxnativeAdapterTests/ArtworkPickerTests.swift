@@ -1,7 +1,7 @@
 import XCTest
 import AppKit
 import Synchronization
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class ArtworkPickerTests: XCTestCase {

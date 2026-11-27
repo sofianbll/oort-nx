@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension MoreLikeThis {
     /// Ported games ranked by the Nintendo store's makers and genres.

@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Made-up schemas and stats in Steam's layout; no Valve content.
 final class SteamAchievementReaderTests: XCTestCase {

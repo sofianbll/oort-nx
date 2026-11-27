@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Holds the session card: the latest ended session waits until Arcane is in front, shows 1.8 s later for 8 s,

@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 import AVFoundation
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// The older call-site names, each played as a Selene cue.
 enum SoundEffectType: String, CaseIterable {

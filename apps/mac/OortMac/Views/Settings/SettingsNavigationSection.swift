@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct SettingsNavigationSection: View {
     @ObservedObject var settings: SettingsEditor

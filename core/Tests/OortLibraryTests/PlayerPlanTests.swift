@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import NXLibraryCore
+import OortLibrary
 
 final class PlayerPlanTests: XCTestCase {
     func testPreparedDefaultAndEightNumberedSlotsWithoutRenumbering() throws {

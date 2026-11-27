@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Changes one variable of a game's `env.txt` and leaves every other line as it is: the player's own lines, comments,
 /// their order and line endings. Keys are matched as the Mac launcher reads them (dm/mac/launcher.c `env_file`):

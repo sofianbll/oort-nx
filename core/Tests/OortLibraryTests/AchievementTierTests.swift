@@ -1,7 +1,7 @@
 import XCTest
 import AVFoundation
 import ImageIO
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class AchievementTierTests: XCTestCase {
     private func a(_ api: String, at: TimeInterval? = nil) -> SteamAchievement {

@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// A Steam game's achievements, over the game's art (darker), laid out like Selene's: the logo and the recently
 /// unlocked icons on the left, the progress and the tier crystals on the right, filters between LB and RB, a

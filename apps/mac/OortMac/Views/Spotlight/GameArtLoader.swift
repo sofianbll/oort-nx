@@ -1,7 +1,7 @@
 import AppKit
 import CryptoKit
 import ImageIO
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Loads and caches a game's hero art and logo for Spotlight (and, until it is

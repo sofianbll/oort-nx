@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// One achievement in full, over the Achievements screen (A on a row), as a medallion (maintainer's choice "A",
 /// 16 Nov 2026): on one centred axis the achievement's icon large with its tier crystal as a small badge on the

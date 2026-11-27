@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The folders to propose again when the same account signs in: kept before a connection is left, never read to decide a write.
 extension CloudLibraryModel {

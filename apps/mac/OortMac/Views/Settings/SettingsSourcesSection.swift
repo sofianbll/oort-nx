@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 @MainActor
 struct SettingsSourcesSection: View {

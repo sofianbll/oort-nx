@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The achievements of the Steam games shown, for the page's card and the Achievements screen.
 /// Steam's cache is read off the main thread (`SteamAchievementReader.read`) when a game is selected,

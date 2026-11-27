@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A short status label; its dot is decorative, not the only status cue.
 struct SeleneStatusDot: View {

@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamBackdropChoiceTests: XCTestCase {
     private let shot = URL(string: "https://shared.akamai.steamstatic.com/shot.jpg")!

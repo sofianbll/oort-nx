@@ -10,7 +10,7 @@ final class CloudLibraryActivationTests: XCTestCase {
         XCTAssertEqual(choice.applying(to: different, connection: "old"), different)
     }
 }
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class RcloneConfigurationTests: XCTestCase {
     func testOnlyAnAbandonedPrivateConfigurationIsRemoved() async throws {

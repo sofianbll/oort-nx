@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// What the Porting screens (Add Game and its Porting step) show of a build: the wizard step, the live stages and

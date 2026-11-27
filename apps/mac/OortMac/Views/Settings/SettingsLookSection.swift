@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 struct SettingsLookSection: View {
     @ObservedObject var viewModel: AppViewModel

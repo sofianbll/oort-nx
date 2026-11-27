@@ -1,7 +1,7 @@
 import AppKit
 import CoreHaptics
 import GameController
-import NXLibraryCore
+import OortLibrary
 
 protocol ControllerHomeSettings {
     func observe(_ update: @escaping (ControllerHomeAccess) -> Void) -> () -> Void

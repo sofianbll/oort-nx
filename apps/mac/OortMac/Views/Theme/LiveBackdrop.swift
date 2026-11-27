@@ -1,6 +1,6 @@
 import SwiftUI
 import AVFoundation
-import NXLibraryCore
+import OortLibrary
 
 /// A live background: a video looping silently behind the home, decoded by the
 /// hardware. It plays only while `playing` and its window is visible; otherwise

@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Square tile art: the player's pick first. Then, with `ownIconFirst`, the

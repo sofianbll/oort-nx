@@ -1,6 +1,6 @@
 import ArcanePorting
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// About this game in the player's language, with no step from the player: when the store's text is in another
 /// language (or missing), the page asks `WikipediaDescriptionService` for the game's Wikipedia introduction in the

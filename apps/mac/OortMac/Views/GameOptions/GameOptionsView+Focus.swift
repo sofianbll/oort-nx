@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Focus: setting it, moving it, and entering and leaving Edit details.
 extension GameOptionsView {

@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamArtworkRequestTests: XCTestCase {
     func testSquareUsesOriginalBundleAssetButPortraitNeverUsesIt() throws {

@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Input: tabs, moving the focus, back and close, choosing, the gamepad and the key monitor.
 extension ChangeArtworkView {

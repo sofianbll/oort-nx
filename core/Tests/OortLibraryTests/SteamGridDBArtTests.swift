@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamGridDBArtTests: XCTestCase {
     private final class Client: ArtworkHTTPClient, @unchecked Sendable {

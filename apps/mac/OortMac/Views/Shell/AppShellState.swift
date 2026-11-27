@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Prepared before the shell enters SwiftUI's view graph. Model startup can
 /// update AppKit and shared observable services; it must not run during a view's

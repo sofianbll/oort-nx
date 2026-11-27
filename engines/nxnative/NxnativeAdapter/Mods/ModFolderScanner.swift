@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Reads a game's `mods` folder: which subfolders there are, where each one's RomFS tree is, and the files in it.
 /// A mod's RomFS is what the engine's `DM_ROMFS_OVERLAY` reads before the game's own (dm/host/hle_fs.c).

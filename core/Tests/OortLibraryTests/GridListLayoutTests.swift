@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class GridListLayoutTests: XCTestCase {
     /// Two columns of 100-point rows, 20 apart, 6 above the first and 130 kept free after the last.

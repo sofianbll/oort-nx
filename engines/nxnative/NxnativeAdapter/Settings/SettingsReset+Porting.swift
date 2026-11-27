@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension SettingsReset {
     /// `settings` with the section's values back at their defaults, New games included; everything else unchanged.

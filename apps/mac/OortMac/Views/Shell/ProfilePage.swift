@@ -1,6 +1,6 @@
 import SwiftUI
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 extension Notification.Name {

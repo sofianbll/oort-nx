@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Every palette Oort offers keeps its text and its focus readable.
 final class PaletteContrastTests: XCTestCase {

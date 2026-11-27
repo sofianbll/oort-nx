@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A first-launch card row: icon, title, detail and what sits on the right. Focus draws the outline and glow.
 struct SetupCardRow: View {

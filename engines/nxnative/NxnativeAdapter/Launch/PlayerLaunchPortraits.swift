@@ -1,7 +1,7 @@
 import AppKit
 import Darwin
 import ImageIO
-import NXLibraryCore
+import OortLibrary
 import UniformTypeIdentifiers
 
 /// Only generated derivatives enter this directory. Its lifetime follows the launched application.

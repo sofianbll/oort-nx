@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum LinksAwakeningAchievements {
     // Layout facts: LASRecomp docs/save-format.md (Peiikai, MIT).

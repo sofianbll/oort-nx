@@ -1,6 +1,6 @@
 import CryptoKit
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// The library as a refresh reads it: few requests, the same refusals, and nothing a transfer could use.

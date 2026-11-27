@@ -1,6 +1,6 @@
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// Keeps the phase and the real success event that the cover's numeric look cannot carry.

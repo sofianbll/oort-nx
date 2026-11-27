@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class ThemePickerTests: XCTestCase {
     private func wallpaper(_ id: String) -> Wallpaper {

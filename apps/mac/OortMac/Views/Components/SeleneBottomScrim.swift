@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A soft black fade along the bottom of the window, so the button hints sit on
 /// their own ground instead of on top of the art (and the page reads as going on).

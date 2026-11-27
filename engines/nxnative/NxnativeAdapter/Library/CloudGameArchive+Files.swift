@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension CloudGameArchive {
     nonisolated static func changedFiles(in tree: CloudArtifactFiles.Tree, comparedWith local: [CloudArtifactFiles.Entry])

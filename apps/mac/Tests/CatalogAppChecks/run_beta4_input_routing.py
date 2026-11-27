@@ -30,7 +30,7 @@ if set(modes) - actions.keys():
 run_host(r'''
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 @testable import NXLibrary
 
 @MainActor enum InputMonitor {

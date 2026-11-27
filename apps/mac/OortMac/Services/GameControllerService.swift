@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 import Carbon.HIToolbox
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 final class GameControllerService: ObservableObject {
     static let shared = GameControllerService()

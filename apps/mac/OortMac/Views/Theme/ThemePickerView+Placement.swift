@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Placement: asking how a chosen wallpaper fills the screen and applying the answer.
 extension ThemePickerView {

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// GameBanana's public API: the apiv11 JSON endpoints for games, a game's mods and one mod, and the legacy Core API
 /// for an archive's file list (one file per request: several ids return an empty body). Shapes verified 2026-11-06.

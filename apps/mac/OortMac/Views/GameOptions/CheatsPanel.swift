@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Game options → Cheats: this game's cheat files as the host reads them, switched here while the game is not running.

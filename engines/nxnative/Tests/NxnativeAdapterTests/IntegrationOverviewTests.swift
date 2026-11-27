@@ -1,5 +1,5 @@
 import XCTest
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 final class IntegrationOverviewTests: XCTestCase {

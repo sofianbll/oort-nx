@@ -19,7 +19,7 @@ import Foundation
 import Darwin
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main struct RemovalProbe {

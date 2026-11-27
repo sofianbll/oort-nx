@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum TargetPlatform: String, Codable, CaseIterable, Identifiable, Sendable {
     case macApp = "mac-app"

@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class WallpaperCatalogTests: XCTestCase {
     private var root: URL!

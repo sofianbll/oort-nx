@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// One Switch game in GameTDB (gametdb.com): what Arcane keeps from its
 /// English database for box covers and metadata.

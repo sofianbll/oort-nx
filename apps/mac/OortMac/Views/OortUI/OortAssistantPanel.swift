@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A task in a few steps over the stage: the steps on the left, the current one beside them, its actions and the hints below.
 struct OortAssistantPanel<Content: View>: View {

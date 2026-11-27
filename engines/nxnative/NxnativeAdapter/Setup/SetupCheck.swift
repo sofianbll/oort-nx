@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The Setup check's cards, in screen order: the player's folders first,
 /// then prerequisites for building games.

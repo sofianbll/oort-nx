@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import NXLibraryCore
+import OortLibrary
 
 final class PlayerLaunchEnvironmentTests: XCTestCase {
     private let all = PlayerLaunchCapabilities(pressToJoin: true, merge: true, nickname: true)

@@ -3,7 +3,7 @@ import Combine
 import CoreText
 import SwiftUI
 import Vision
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main enum SettingsConfirmationProbe {

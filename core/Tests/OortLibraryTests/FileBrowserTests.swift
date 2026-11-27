@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class FileBrowserTests: XCTestCase {
     func testPlacesAndParentDoNotEnterProtectedFolders() {

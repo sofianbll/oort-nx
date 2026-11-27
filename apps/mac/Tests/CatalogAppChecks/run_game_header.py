@@ -10,7 +10,7 @@ BIN=ROOT/'.build/debug'
 files=[ROOT/'apps/mac/OortMac/Views/Components/GameLogoArea.swift', ROOT/'apps/mac/OortMac/Views/Components/GamePrimaryActions.swift']
 actual='\n'.join(p.read_text() for p in files)
 host='''import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 struct HeaderCanvas { func u(_ value: CGFloat) -> CGFloat { value } }
 private struct CanvasKey: EnvironmentKey { static let defaultValue = HeaderCanvas() }

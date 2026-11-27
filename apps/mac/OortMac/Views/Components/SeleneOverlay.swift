@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The shared modal frame. Only the backdrop accepts outside clicks. Content keeps its
 /// own stable row IDs and existing keyboard/controller commands, including Back.

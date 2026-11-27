@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// The three house moods, measured on the sound they make. The current Oort voice is the reference.
 final class OortAmbianceTests: XCTestCase {

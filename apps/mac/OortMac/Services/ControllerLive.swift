@@ -1,6 +1,6 @@
 import Combine
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What the active controller's hands are doing now. Apart from `GameControllerService`, so only what draws the pad
 /// follows every stick value.

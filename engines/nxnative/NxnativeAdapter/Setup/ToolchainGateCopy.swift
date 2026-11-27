@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What the compatibility gate says (Settings → Setup and engine, the Rebuild hints). A Metal compiler newer than the certified
 /// one is information, an older one a warning; both still need the untested-toolchain override to build (AGENTS.md).

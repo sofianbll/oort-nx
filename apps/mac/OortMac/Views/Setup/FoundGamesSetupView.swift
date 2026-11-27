@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// The first launch's first page: what is already on the Mac (Steam, ported apps), the Porting card and
 /// Open library. It reads without changing anything; the switches apply only on Open library.

@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Screens that open by themselves: the press meant for what was under them must never commit to anything.
 final class SafeDefaultsTests: XCTestCase {

@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 enum PlatformKind: String, CaseIterable {
     case library = "All"

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// One line of Add game's list, top to bottom. Rows take the focus; headings and
 /// notes only read. Up/Down move between rows, Left/Right change a switch or a

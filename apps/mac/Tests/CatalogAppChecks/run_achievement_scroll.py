@@ -22,7 +22,7 @@ end = source.index('\n/// The trophies,', start)
 host = r'''
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct ProbeCanvas {

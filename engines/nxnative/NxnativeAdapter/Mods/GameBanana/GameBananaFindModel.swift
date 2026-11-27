@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// "Find the game" / "Wrong game?": search GameBanana by name and pick this game's page. Its state lives here so the
 /// page's controller and key handling can drive it.

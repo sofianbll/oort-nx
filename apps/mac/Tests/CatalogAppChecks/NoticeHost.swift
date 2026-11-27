@@ -1,5 +1,5 @@
 import Foundation
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class AppViewModel {

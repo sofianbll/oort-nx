@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The first launch's count of ported apps: the nxnative apps in the Game apps folder.
 extension FirstRunFindings {

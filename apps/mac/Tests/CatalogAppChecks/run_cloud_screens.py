@@ -19,7 +19,7 @@ import Combine
 import CoreText
 import CryptoKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main struct CloudScreenProbe {

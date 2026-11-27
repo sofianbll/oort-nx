@@ -56,7 +56,7 @@ import Foundation
 import AppKit
 import SwiftUI
 import Metal
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @MainActor enum LaunchReveal { static func moonlightShown() {} }

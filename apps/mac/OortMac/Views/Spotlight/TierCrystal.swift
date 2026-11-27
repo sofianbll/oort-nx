@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// A tier's crystal (Arcane, Gold, Silver, Bronze), from the prerendered art in Core's resources. Dimmed:
 /// a tier not earned yet, or a locked achievement's tier — gray and faint, so the lit ones read first.

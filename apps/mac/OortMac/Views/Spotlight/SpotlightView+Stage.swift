@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Spotlight's stage: the row, the game's info, the overlays over them and the hero art behind.

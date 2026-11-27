@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A right click (or Control-click) on a piece, which opens its options like + does; every other event goes
 /// through to the piece. The options stay reachable without it: this only doubles the hint and the button.

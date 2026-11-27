@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Actions: changing a setting or the language, each row's action and Rebuild.

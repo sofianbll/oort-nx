@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// The open command palette: what it lists, what was typed and the row in focus. It runs nothing itself;

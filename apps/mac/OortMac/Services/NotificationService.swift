@@ -1,7 +1,7 @@
 import Foundation
 import UserNotifications
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 import os
 

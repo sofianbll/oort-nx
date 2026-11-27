@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension DetailsFacts {
     /// A ported game: credits, game version, installed engine, size and app folder.

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A sidebar selection is independent of the page currently shown in its detail column.
 struct OortSettingsStack<Page: Equatable> {

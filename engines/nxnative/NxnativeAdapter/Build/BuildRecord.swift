@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct BuildRecord: Codable, Equatable, Sendable {
     public var startedAt: Date

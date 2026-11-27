@@ -1,6 +1,6 @@
 import Foundation
 import OSLog
-import NXLibraryCore
+import OortLibrary
 
 /// Disposable, profile-local cache. Keys are digests, never filesystem paths.
 actor CloudArchiveFingerprintCache {

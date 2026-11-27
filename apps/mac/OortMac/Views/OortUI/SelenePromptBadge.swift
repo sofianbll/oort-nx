@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// One controller button as a prompt, everywhere prompts show: Apple's glyph for
 /// the controller in hand (SF Symbols, filled, ink on the scrim colour) or, when the

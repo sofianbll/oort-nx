@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Shared geometry preserves the established Spotlight and Collection layouts.
 /// Provider loading and settings stay outside this purely visual component.

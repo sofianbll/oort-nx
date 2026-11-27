@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class AchievementSummaryTests: XCTestCase {
     private func a(_ api: String, at: TimeInterval? = nil, hidden: Bool = false) -> SteamAchievement {

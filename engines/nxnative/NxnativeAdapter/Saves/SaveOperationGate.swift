@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// One lease covers a whole save operation or app installation, including duplicate library entries.
 // @unchecked: `lock` guards every lease; `onActivityChange` is set once, before the gate is shared.

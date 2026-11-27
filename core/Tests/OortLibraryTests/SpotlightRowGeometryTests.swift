@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SpotlightRowGeometryTests: XCTestCase {
     private let extra = 174 * 0.3

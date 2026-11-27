@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The shell's dialogs and notices: settings notices, welcome, install failure, Close Game, removal and the update offer.

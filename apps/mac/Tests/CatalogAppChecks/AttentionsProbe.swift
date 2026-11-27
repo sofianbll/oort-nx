@@ -1,6 +1,6 @@
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// Undo, recent searches, one row back, copied settings, tips and empty screens, off screen with synthetic games.

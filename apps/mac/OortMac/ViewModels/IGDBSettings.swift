@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// Optional provider settings, separate from the catalog coordinator. Never publishes credentials.
 @MainActor final class IGDBSettings: ObservableObject {

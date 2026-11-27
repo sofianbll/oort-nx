@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamLaunchQuestionsTests: XCTestCase {
     private func date(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }

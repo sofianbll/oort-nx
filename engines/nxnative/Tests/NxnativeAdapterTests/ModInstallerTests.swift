@@ -1,6 +1,6 @@
 import XCTest
 import CryptoKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// Runs bsdtar for real, except `-x` when told to fail, and can flip "game running" on `-x`.

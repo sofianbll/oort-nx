@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 import os
-import NXLibraryCore
+import OortLibrary
 
 /// One of your games, as the store asks GameBanana about it: the names to match it by, last played first.
 public struct ModStoreGame: Equatable, Sendable {

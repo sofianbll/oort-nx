@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// The Details page backdrop (Selene GameDetails.xaml): the hero art on the
 /// right, then three scrims in the palette's scrim colour, each an opacity

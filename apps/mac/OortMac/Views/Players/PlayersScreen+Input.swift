@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 extension Notification.Name {
     static let playersPIN = Notification.Name("ArcanePlayersPIN")

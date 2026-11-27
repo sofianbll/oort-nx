@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A missing app is different from missing inputs: a working app never needs its source files to Play.
 public enum GameUnavailableReason: Equatable {

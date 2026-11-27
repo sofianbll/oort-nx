@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// "Welcome to Arcane", once, for players who update from NX Library: the new name, what's new, Steam
 /// when it is found and still off (Add / Not now) and Open library. Every exit marks it shown.

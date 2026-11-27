@@ -7,7 +7,7 @@ from audit_probe_host import ROOT, run_host
 HOST = r'''
 import Foundation
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 
 @main struct Check {
     @MainActor static func main() throws {

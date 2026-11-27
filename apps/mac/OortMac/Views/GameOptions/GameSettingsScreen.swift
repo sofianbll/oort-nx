@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 enum GameSettingsCategory: String, CaseIterable, Hashable {
     case general, picture, controls, sound, multiplayer, performance, mods, cheats, saves, details, app, other

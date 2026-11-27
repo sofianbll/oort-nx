@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Where the nxnative checkout is: `~/nxnative`, or the folder the player chose in Settings → Setup and engine while that
 /// folder exists.

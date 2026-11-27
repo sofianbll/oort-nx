@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// A game the launch screen and the session card show: an nxnative build or a Steam game. Both read the same

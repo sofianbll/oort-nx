@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Serves a fixed body in several chunks, or a redirect, without the network.
 private final class ChunkedStub: URLProtocol {

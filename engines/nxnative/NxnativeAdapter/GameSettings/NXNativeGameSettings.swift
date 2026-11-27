@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A game's settings as they apply now: the build's list, each setting's value, and the keys the player's
 /// `env.txt` sets, which win in the engine and so cannot be changed here.

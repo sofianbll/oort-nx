@@ -91,7 +91,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
 | [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
 | [NOTICE](../../NOTICE) | Conserva attribuzioni del motore al pin corrente, di rclone, dei componenti, dei loghi e delle altre risorse riutilizzate. |
-| [Package.swift](../../Package.swift) | Dichiara `OortCore` portabile, `NXLibraryCore`, il modulo `ArcanePorting`, l’app, i tre target di test e il deployment macOS minimo. |
+| [Package.swift](../../Package.swift) | Dichiara `OortCore` portabile, `OortLibrary`, il modulo `ArcanePorting`, l’app, i tre target di test e il deployment macOS minimo. |
 | [README.md](../../README.md) | Presenta Arcane come libreria e launcher Mac, con guide d'uso (anche per la prima connessione cloud), requisiti e crediti. |
 | [engines/nxnative/runtime.lock](../../engines/nxnative/runtime.lock) | Fissa versioni, download e hash del runtime Python e degli strumenti inclusi nel bundle. |
 | [VERSION](../../VERSION) | Versione in sviluppo usata dal packaging e verificata dalla procedura di release. |
@@ -126,7 +126,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [apps/mac/OortMac/Views/Shell/ActivityCenterView.swift](../../apps/mac/OortMac/Views/Shell/ActivityCenterView.swift) | Compilazione e Cloud, code, Resume, progressi ed esiti. Nasconde Annulla quando il worker entra in installazione. |
 | [core/OortLibrary/Selene/ActionBarOrder.swift](../../core/OortLibrary/Selene/ActionBarOrder.swift) | Ruoli, ordine e focus: Annulla a sinistra nelle coppie, distruttivo separato nelle terne, elenco verticale da quattro risposte. |
 | [core/OortLibrary/Selene/ActivityCenterFocus.swift](../../core/OortLibrary/Selene/ActivityCenterFocus.swift) | Identità e navigazione delle righe attive, in coda, concluse e del comando Clear all. |
-| [core/OortLibrary/NXLibraryCore.swift](../../core/OortLibrary/NXLibraryCore.swift) | Espone la versione nominale del modulo Core. |
+| [core/OortLibrary/OortLibrary.swift](../../core/OortLibrary/OortLibrary.swift) | Espone la versione nominale del modulo Core. |
 | [LaunchReveal.swift](../../apps/mac/OortMac/Views/Launch/LaunchReveal.swift) | Rende visibile la finestra al primo frame del moonlight, con dissolvenza e scadenza, poi consente il fullscreen; integra il bootstrap con un NSView non interattivo. |
 | [DevelopmentStartupView.swift](../../apps/mac/OortMac/Views/Launch/DevelopmentStartupView.swift) | Avvio asincrono: blocco del profilo, copia prima degli scrittori, avanzamento, recupero e conflitto legacy; segnala i lavori lasciati alla versione precedente. |
 | [DowngradeWarningView.swift](../../apps/mac/OortMac/Views/Launch/DowngradeWarningView.swift) | Avvisi Selene sul ritorno a 0.3.0, gruppi omessi, spazio insufficiente e scelte con mouse, tastiera e controller. |
@@ -1317,7 +1317,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [SteamLibrarySourceTests.swift](../../core/Tests/OortLibraryTests/SteamLibrarySourceTests.swift) | Più fonti, dischi assenti, identità, manifest/path con campi duplicati o di tipo errato, file cambiati, limiti e assenza di scritture. |
 | [SteamDiscoveryConsistencyTests.swift](../../core/Tests/OortLibraryTests/SteamDiscoveryConsistencyTests.swift) | Mutazioni reali di inventario e app durante scan, indice inizialmente assente, budget e propagazione dell'annullamento. |
 | [SteamTestSupport.swift](../../core/Tests/OortLibraryTests/SteamTestSupport.swift) | Genera solo metadati e header sintetici nelle directory temporanee dei test. |
-| [engines/nxnative/Tests/NxnativeAdapterTests/SteamTestSupport.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/SteamTestSupport.swift) | Collegamento simbolico a `NXLibraryCoreTests/SteamTestSupport.swift`: i test del modulo usano la stessa fixture Steam, da un solo file. |
+| [engines/nxnative/Tests/NxnativeAdapterTests/SteamTestSupport.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/SteamTestSupport.swift) | Collegamento simbolico a `OortLibraryTests/SteamTestSupport.swift`: i test del modulo usano la stessa fixture Steam, da un solo file. |
 | [SteamPlayStateTests.swift](../../core/Tests/OortLibraryTests/SteamPlayStateTests.swift) | Symlink, passaggio senza sessione, Play doppi e risposte tardive, rifiuti e timeout, giochi già aperti, argomenti silenziosi, pazienza di Steam a freddo e schermata di lancio. |
 | [SteamBinaryKeyValuesTests.swift](../../core/Tests/OortLibraryTests/SteamBinaryKeyValuesTests.swift) | Tipi, annidamento, fine dei dati, input troncati, tipi ignoti e limiti del parser binario. |
 | [SteamAchievementReaderTests.swift](../../core/Tests/OortLibraryTests/SteamAchievementReaderTests.swift) | Percorsi, account e file mancanti/non sicuri, lingue con ripiego anche su stringhe vuote duplicate, primo valore tipizzato, nascosti, icone, ordine numerico e file corrotti. |

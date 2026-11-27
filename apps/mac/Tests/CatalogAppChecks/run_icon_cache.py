@@ -17,7 +17,7 @@ BIN = ROOT / '.build/debug'
 
 host = r'''
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main struct Check {

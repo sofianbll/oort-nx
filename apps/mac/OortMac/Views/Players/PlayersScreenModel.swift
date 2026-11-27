@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// Connection IDs have app-session lifetime only. The writer never receives them.
 @MainActor final class PlayersScreenSession {

@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// One filing proposal per physical file, independent of the build catalog's grouping and defaults.
 public enum GameInbox {

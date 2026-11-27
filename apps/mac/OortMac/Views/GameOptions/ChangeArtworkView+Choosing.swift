@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Choosing a tile, a browsed image or a file, and saving it as the player's pick.
 extension ChangeArtworkView {

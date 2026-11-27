@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// One dialog for manual checks, automatic offers and installation progress.
 struct AppUpdateDialog: View {

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Collection's single row of portrait covers (Main.xaml PART_ListGameItems,

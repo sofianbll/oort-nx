@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum SavePresentation {
     public enum ImportAction: Equatable { case chooseFolder, cloudSettings, unavailable }

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Shared from the launcher controls and a built game's options. Each entry owns
 /// its existing parent navigation; this screen only owns its own panels and hints.

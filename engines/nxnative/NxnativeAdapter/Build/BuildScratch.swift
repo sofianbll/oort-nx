@@ -1,6 +1,6 @@
 import Foundation
 import Darwin
-import NXLibraryCore
+import OortLibrary
 
 /// Where a build's working files go: the workspace (links to the sources, the extracted game and the shader cache)
 /// and the staged app, about twice the game's size together. They go on the drive the app goes to, so a game built

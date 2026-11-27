@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum SaveFailure: LocalizedError, Equatable {
     case invalidTitleID, unsafePath, customSavePath, unreadableConfiguration, profilesUnavailable

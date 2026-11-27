@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension AppViewModel {
     /// Checks the key with SteamGridDB, then keeps it on this Mac. Nil when saved, else what to tell the player.

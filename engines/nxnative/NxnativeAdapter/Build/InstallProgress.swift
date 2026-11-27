@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// How far an install has got: a fraction for the card's bar (nil: still going,
 /// no number to show) and a few words for the panel.

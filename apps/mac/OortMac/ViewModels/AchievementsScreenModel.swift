@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The open Achievements screen: its selection and its list's scroll. A reference Spotlight keeps while the
 /// screen is open, so a step or a scroll redraws the screen (or just its list), never the page beneath.

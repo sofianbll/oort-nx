@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Porting's settings in `settings.json`, under the keys every version reads. The base keeps them as JSON
 /// (`AppSettings.moduleValues`); a missing or unreadable value is its default, and an unreadable one stays in the

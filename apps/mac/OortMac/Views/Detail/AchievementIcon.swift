@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// An achievement's icon from Steam's CDN, cached by `SteamMetadataService.achievementIcon`. A neutral square
 /// stands in until it arrives, and stays when it cannot be loaded (offline, unknown file).

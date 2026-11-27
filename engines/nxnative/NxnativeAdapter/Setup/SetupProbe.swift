@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Gathers what the Setup check shows. Every command is cheap, so the screen can
 /// run it every few seconds off the main thread.

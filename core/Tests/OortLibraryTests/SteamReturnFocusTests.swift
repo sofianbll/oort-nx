@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Arcane comes back after a Steam game only when Play came from Arcane, the game was the app in front
 /// and no other library game is still open.

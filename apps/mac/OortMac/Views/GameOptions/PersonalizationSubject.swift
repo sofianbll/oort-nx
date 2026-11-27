@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The game Change artwork and Change metadata personalize, whatever its source. nxnative

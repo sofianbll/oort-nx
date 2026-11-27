@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A list's own scroll offset (`TextScroll`), the way Selene moves every column: the view shifts its rows by
 /// `-state.offset` and draws the lines in view. No scroll view under it, so the wheel and the controller share

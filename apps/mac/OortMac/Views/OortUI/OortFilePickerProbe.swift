@@ -2,7 +2,7 @@
 import AppKit
 import CoreText
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 enum OortFilePickerProbe {
     @MainActor static func capture(to output: URL) throws {

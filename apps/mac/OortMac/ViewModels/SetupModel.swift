@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The Switch Setup's state: the engine (folder, commit, upstream, newest engine), the keys, the environment check

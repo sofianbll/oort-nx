@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension AppDataProfile {
     /// The profile's own temporary folder, plus folders beside Game apps for an unmigrated stable profile.

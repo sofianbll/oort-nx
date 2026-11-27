@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Add game, in Game options' manner: the home stays behind, blurred and lightly
 /// shaded, and a centred column (1040u) holds the step's title and glass rows.

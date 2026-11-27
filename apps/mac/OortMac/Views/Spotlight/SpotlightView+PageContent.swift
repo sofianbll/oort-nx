@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// What the page below the row holds for a Switch or Steam game: About, Details, screenshots and related games.

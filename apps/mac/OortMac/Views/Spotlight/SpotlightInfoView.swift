@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The selected game under the row (Main.xaml SeleneInfoIntro): logo area 195

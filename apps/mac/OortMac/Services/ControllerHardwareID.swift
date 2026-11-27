@@ -1,6 +1,6 @@
 import CryptoKit
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 enum ControllerHardwareID {
     static func make(serial: String?, bluetoothAddress: String?, vendor: Int?, product: Int?,

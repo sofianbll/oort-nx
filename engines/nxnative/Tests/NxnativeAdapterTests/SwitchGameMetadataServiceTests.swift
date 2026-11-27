@@ -1,6 +1,6 @@
 import XCTest
 @testable import ArcanePorting
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SwitchGameMetadataServiceTests: XCTestCase {
     private static let smash = "01006A800016E000"

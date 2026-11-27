@@ -20,7 +20,7 @@ import AppKit
 import ArcanePorting
 import Combine
 import Darwin
-import NXLibraryCore
+import OortLibrary
 @testable import NXLibrary
 import SwiftUI
 

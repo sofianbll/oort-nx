@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// One entry of a cheat file, as nxnative's host sees it.
 public struct CheatEntry: Equatable, Sendable {

@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 
 /// The moonlight's Metal shaders, compiled at launch by the system's runtime
 /// compiler (SwiftPM builds no .metal files, and the app needs no Metal toolchain).

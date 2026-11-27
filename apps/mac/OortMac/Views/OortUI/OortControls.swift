@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct OortFormatBadges: View {
     @Environment(\.seleneCanvas) private var canvas

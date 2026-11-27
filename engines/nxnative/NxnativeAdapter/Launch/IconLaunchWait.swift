@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A Play request that waits for the app's icon to finish signing. It belongs to its visible
 /// preparation notice: cancelling or replacing that notice revokes the request.

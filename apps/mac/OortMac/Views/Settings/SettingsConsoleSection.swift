@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// System → Console: the build and launch logs, to filter, search and copy.
 struct SettingsConsoleSection: View {

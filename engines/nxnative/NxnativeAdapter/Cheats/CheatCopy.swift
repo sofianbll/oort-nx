@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The Cheats panel's words (spec: Installing, Where it shows), kept here so they are tested.
 public enum CheatCopy {

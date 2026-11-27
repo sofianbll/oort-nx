@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Matches the apps that are running against the library: a game is running when
 /// its effective bundle id is one of the running applications' bundle ids.

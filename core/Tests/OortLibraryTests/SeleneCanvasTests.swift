@@ -1,6 +1,6 @@
 import XCTest
 import CoreGraphics
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SeleneCanvasTests: XCTestCase {
     func testScaleIsMinOfAxes() {

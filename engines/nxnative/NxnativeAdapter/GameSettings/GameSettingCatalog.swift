@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Where each engine setting goes on a game's settings page. The build says which settings it has (`launcher.json`)
 /// and what each accepts; this only sorts them. A setting the catalog does not list stays reachable under Other, so

@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 enum ConsoleFilter: String, CaseIterable, Identifiable {
     case all

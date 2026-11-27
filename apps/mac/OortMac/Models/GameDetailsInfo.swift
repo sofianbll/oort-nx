@@ -1,6 +1,6 @@
 import Foundation
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct GameDLCItem: Identifiable, Hashable {

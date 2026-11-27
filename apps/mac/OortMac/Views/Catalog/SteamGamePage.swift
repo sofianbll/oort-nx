@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Steam store facts for the games on screen, one copy shared by Spotlight and Collection,
 /// so the head, the page and the input counts read the same answer. Facts are per AppID

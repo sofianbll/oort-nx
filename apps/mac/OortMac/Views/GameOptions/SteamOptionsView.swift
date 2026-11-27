@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// A Steam game's Options, in Game options' look and input: the same opaque page,
 /// centred column, glass rows and hints. Rows and copy come from `SteamOptionsPresentation`;

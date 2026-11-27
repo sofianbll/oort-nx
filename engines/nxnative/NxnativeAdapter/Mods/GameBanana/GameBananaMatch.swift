@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Finding a game's GameBanana page by name: GameBanana has no Switch title IDs, and lists some games once per
 /// platform with a suffix ("… (Switch)", "… (WiiU)").

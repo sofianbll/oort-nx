@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Categories, subjects and search results share the detail column, not their storage identities.
 enum SettingsPage: Hashable {

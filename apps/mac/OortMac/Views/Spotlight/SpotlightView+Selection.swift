@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Selection: appearing, filter and library changes, and keeping the selected game in the row.
 extension SpotlightView {

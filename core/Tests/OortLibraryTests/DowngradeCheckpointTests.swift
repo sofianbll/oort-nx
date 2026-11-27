@@ -1,7 +1,7 @@
 import Foundation
 import Darwin
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class DowngradeCheckpointTests: XCTestCase {
     private var root: URL!

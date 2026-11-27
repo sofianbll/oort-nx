@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Launching a Switch game: the launch screen, its checks and watching the launch.

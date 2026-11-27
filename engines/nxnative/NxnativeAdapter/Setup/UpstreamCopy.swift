@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Settings → Setup and engine's Upstream row. Newer upstream commits are information: they reach players with Arcane
 /// updates, once tested. The Newest engine row is the only way to use them earlier, by the player's own choice.

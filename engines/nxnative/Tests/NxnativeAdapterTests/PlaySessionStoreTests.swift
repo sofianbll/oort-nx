@@ -1,6 +1,6 @@
 import XCTest
 import Combine
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class PlaySessionStoreTests: XCTestCase {

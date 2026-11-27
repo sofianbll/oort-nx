@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct SettingsSectionContent: View {
     @Environment(\.seleneFocusedRowID) private var focusedRowID

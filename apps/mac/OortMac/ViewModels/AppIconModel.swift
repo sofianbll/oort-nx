@@ -1,6 +1,6 @@
 import AppKit
 import CoreServices
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The Icon chosen in Change artwork can stay only inside Arcane or also appear in Finder and the Dock.

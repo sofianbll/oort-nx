@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A game app's saved choices: `launcher.<env>` strings in its preferences domain, which nxnative's Mac launcher
 /// reads at every start (docs/frontends.md, Saved choices).

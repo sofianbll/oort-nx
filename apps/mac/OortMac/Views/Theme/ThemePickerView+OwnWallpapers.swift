@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// The player's own wallpapers: adding one from a file and removing it after a confirmation.
 extension ThemePickerView {

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The icon is prepared separately from the successful game build. Missing artwork is informational.
 public enum AppIconProgress: Equatable {

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The one search field: a glass, the caller's text field, and a way to empty it. The caller keeps its focus and submit.
 struct OortSearchField<Field: View>: View {

@@ -1,6 +1,6 @@
 import Foundation
 import CryptoKit
-import NXLibraryCore
+import OortLibrary
 
 /// What Arcane remembers about one mod of a game, in the game's records file (list order = overlay order).
 public struct ModRecord: Codable, Equatable, Sendable {

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The library's filter and selection for the Switch games the home lists today (`AppViewModel.libraryGames`).
 extension PortedGame: LibraryQueryRecord {}

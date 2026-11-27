@@ -1,7 +1,7 @@
 import CryptoKit
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// `aa list` is checked before extracting. A separate filesystem fingerprint checks what was actually restored.
 enum CloudArchiveInventory {

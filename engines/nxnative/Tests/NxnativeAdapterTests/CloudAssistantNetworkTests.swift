@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// What the cloud assistant costs on a synthetic Drive that answers in 200 ms.

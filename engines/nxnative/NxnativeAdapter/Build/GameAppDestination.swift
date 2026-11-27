@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Shared by build review, disk checks and installation. Resolving a path never moves an app.
 public enum GameAppDestination {

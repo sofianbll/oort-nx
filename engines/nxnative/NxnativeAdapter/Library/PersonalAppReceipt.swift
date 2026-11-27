@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Proof of a successful personal transfer, kept only in this launcher's profile.
 package struct PersonalAppReceipt: Codable, Equatable, Sendable {

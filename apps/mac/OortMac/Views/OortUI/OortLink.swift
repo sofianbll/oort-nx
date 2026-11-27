@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A link among a dialog's fields: a click, or Tab then Return. Tab goes through the fields and the links in order.
 struct OortLink: View {

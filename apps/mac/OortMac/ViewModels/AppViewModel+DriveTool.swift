@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension AppViewModel {
     @MainActor func offerDriveUpgrade() {

@@ -1,6 +1,6 @@
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// One inventory for change detection, previews, row details and the save summary.

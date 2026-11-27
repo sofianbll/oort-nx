@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The foot of a panel or a question: the way back on the left, the way forward last on the right.
 struct OortActionBar: View {

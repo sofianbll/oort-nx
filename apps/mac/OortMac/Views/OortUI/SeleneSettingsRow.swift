@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 extension EnvironmentValues {
     @Entry var settingsRowChanges: [String: AppSettingsDraft.Change] = [:]

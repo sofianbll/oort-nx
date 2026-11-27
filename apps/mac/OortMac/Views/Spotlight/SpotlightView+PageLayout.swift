@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// The page below the row: its offsets, fades and mask, and what About shows.
 extension SpotlightView {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class AchievementsScreenStateTests: XCTestCase {
     private func ids(_ count: Int) -> [String] { (0..<count).map { "A\($0)" } }

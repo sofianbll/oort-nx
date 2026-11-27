@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum CloudArtifactKind: String, Codable, CaseIterable, Hashable, Sendable {
     case app, cache

@@ -1,7 +1,7 @@
 import AppKit
 import CoreText
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main struct CloudAssistantProbe {

@@ -42,7 +42,7 @@ def declaration(path, signature):
 
 host = r'''
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 typealias CFTimeInterval = Double

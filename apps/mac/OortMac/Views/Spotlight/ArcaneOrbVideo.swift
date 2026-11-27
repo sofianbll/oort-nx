@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import AVFoundation
-import NXLibraryCore
+import OortLibrary
 
 /// The Arcane orb as the maintainer's looping video (`AchievementTier.videoURL`, 16 Nov 2026), for the achievements
 /// card and, always active, the earned Arcane on the Achievements screen. At rest it is the current frame in grey;

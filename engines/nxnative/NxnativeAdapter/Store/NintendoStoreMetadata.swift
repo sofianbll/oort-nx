@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum NintendoStoreError: Error, Equatable, LocalizedError {
     case notFound

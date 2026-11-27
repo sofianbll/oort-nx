@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import os
-import NXLibraryCore
+import OortLibrary
 
 /// Selene's full-bleed backdrop (Main.xaml SeleneHubGameBackground): the backdrop
 /// (base gradient, wallpaper, ambient motion), the selected game's art

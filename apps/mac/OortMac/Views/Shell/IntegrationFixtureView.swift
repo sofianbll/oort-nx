@@ -1,7 +1,7 @@
 #if DEBUG
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// No startup importer, app model, network client or real Play command is mounted in the fixture.

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 extension ContainerValues {
     /// A settings row: neighbours share one card. Anything else (a heading, a note, a panel) stands on its own.

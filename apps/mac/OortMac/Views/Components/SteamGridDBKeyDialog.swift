@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Adds the player's SteamGridDB API key: pasted, checked with SteamGridDB, then kept on this Mac. Shown from
 /// Settings → Online services and from Change artwork. Return saves, Esc cancels; on a controller A chooses the focused pill,

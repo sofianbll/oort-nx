@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// Event sequences shaped like LumenTale's porting log (the engine's `BuildEvent`s).

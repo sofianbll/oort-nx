@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// A tile of the grid: its preview, its caption and whether it is the current art.
 extension ChangeArtworkView {

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct SaveIdentity: Codable, Equatable {
     public var titleID: String

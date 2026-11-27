@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 
 public enum GameStatus: String, Codable, Equatable, Sendable {
     case notBuilt, building, built, builtSourcesMissing

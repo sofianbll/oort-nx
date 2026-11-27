@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 extension AppViewModel {

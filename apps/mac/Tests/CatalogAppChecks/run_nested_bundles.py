@@ -95,7 +95,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-nested-check-') as temporary:
     main.write_text(r'''
 import Foundation
 import CryptoKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 struct CheckFailure: Error {}

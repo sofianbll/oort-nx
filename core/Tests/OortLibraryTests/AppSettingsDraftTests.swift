@@ -1,5 +1,5 @@
 import XCTest
-import NXLibraryCore
+import OortLibrary
 
 final class AppSettingsDraftTests: XCTestCase {
     private let fields: [AppSettingsDraft.Field] = [

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What to do with a cheat file the player adds. File names follow the host's rules (hle_cheats.c name_hex16 /
 /// name_is_build): the first 16 characters a hex build ID in any case, then "." or the end.

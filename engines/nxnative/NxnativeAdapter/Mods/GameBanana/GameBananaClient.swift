@@ -1,6 +1,6 @@
 import Foundation
 import CryptoKit
-import NXLibraryCore
+import OortLibrary
 
 public enum GameBananaError: Error, Equatable {
     /// No network: the store says so; installed mods keep working.

@@ -18,7 +18,7 @@ import ArcanePorting
 import CoreText
 import SwiftUI
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 
 @main struct OnlinePlayersProbe {
     static let output = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!, isDirectory: true)

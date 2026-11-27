@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// One controller's outline and the place of each of its buttons. Half the pad's width is 1 and its middle the
 /// origin, so one drawing and one map serve every kind.

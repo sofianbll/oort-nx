@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct HintItem: Identifiable {
     /// Stable across renders: the button (or glyph) and the label.

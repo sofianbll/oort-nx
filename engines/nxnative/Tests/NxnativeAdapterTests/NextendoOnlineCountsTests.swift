@@ -1,7 +1,7 @@
 import Foundation
 import os
 import XCTest
-import NXLibraryCore
+import OortLibrary
 @testable import ArcanePorting
 
 private final class OnlineCountsStub: URLProtocol {

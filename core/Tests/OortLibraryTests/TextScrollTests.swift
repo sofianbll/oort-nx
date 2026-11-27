@@ -1,6 +1,6 @@
 import CoreGraphics
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// A mod panel's column scrolled inside the panel: Read more opens the whole description, and the wheel, the
 /// trackpad and the controller move the column within its ends.

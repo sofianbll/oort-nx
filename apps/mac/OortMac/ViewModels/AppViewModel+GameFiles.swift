@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// A game's files: removing its sources, deleting it, the file pickers and its porting log.

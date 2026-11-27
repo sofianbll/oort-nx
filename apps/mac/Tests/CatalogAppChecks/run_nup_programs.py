@@ -54,7 +54,7 @@ fixture.write_nup(pathlib.Path(sys.argv[2]),fixture.edition())
     wire.write_text(output)
     host = '''
 import Foundation
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 struct Host {
     // CONVERTERS

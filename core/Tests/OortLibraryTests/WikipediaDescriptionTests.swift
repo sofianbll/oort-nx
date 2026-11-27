@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class WikipediaDescriptionTests: XCTestCase {
     private let english = "Stardew Valley is a farming simulation game where you inherit your grandfather's old farm plot."

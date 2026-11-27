@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// Serves canned bodies by URL (exact string, else by substring), records requests, and can fail or suspend.

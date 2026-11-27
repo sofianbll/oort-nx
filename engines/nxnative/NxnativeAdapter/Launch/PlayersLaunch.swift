@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct PlayersLaunchStatus: Equatable, Sendable {
     public enum PlanState: Equatable, Sendable { case absent, unreadable, active }

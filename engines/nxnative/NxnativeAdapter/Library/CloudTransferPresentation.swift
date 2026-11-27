@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Projection of confirmed cloud events, independent of the screen displaying them.
 public enum CloudTransferPresentation: Equatable {

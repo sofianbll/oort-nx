@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 struct ControllerIdentity: Equatable {
     let id: ObjectIdentifier

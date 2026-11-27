@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 import os
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The Mods card's store: the catalog of your games' mods, the sort, the focus on the page and the mod panel over

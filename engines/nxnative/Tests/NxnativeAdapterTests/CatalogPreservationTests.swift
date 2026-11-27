@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// A catalog written with a source this version does not know (a newer Arcane, or one without the Porting module)

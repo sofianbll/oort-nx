@@ -4,8 +4,8 @@
   "modules": {
     "core": {"name": "OortCore", "kind": "core", "layer": 0, "path": "core/OortCore", "model": "oort",
              "tests": {"name": "OortCoreTests", "path": "core/Tests/OortCoreTests"}},
-    "library": {"name": "NXLibraryCore", "kind": "core", "layer": 1, "path": "core/OortLibrary", "model": "oort",
-                "tests": {"name": "NXLibraryCoreTests", "path": "core/Tests/OortLibraryTests"}},
+    "library": {"name": "OortLibrary", "kind": "core", "layer": 1, "path": "core/OortLibrary", "model": "oort",
+                "tests": {"name": "OortLibraryTests", "path": "core/Tests/OortLibraryTests"}},
     "nxnative": {"name": "ArcanePorting", "kind": "engine", "layer": 2, "path": "engines/nxnative/NxnativeAdapter", "model": "oort.mac",
                  "tests": {"name": "ArcanePortingTests", "path": "engines/nxnative/Tests/NxnativeAdapterTests"}},
     "mac": {"name": "NXLibrary", "kind": "app", "layer": 3, "path": "apps/mac/OortMac", "model": "oort.mac"}

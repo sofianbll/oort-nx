@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension CatalogPersonalizations {
     public func nxnativeKey(for game: PortedGame) -> String {

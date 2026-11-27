@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A Steam game's achievements at the top of the page's right column, above the source's panel and beside
 /// About this game (layout "A", maintainer's choice, 16 Nov 2026): the best crystal earned large on the left, beside it

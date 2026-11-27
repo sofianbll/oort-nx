@@ -1,7 +1,7 @@
 import CryptoKit
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The manifest describes the bytes as stored by rclone (including link sidecars).
 enum CloudArtifactFiles {

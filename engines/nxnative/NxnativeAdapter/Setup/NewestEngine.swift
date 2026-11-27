@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The player's choice to build with nxnative main before Arcane has tested it (Settings → Setup and engine,
 /// Newest engine). Arcane never follows main by itself: the choice is explicit, turns the untested-toolchain

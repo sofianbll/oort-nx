@@ -3,7 +3,7 @@ import AppKit
 import Combine
 import CoreText
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Types into real fields with controller actions only, in a window that is never shown.
 enum OortKeyboardProbe {

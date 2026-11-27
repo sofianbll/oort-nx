@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// A built game's saved choices for its next launch, as Game options and More settings show them: reading, writing,

@@ -1,7 +1,7 @@
 import AppKit
 import ArcanePorting
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// Draws the running build or transfer as a bar on the Dock icon, and nothing when no work runs.
 @MainActor

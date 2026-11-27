@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The store's own categories, grouped from GameBanana's per-game root categories by name.
 public enum ModCategory: String, CaseIterable, Codable, Sendable {

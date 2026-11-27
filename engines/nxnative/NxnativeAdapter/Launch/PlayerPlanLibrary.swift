@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A single writer for the active library. A PIN grant is in memory and valid only for the same plan and profile.
 public actor PlayerPlanLibrary {

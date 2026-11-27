@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Selene's top bar (Main.xaml HubTopBarBackground + HomeNav.RenderFilterTabs):
 /// 110 high, 64 side margins, LB · filter tabs · RB centered, profile avatar and clock on the right.

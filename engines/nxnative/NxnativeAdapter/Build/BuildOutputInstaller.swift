@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 import Darwin
-import NXLibraryCore
+import OortLibrary
 
 public enum BuildOutputInstaller {
     private static let installLock = NSLock()

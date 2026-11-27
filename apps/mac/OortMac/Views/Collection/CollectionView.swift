@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Collection (spec §5.3, Selene Main.xaml SeleneLibrary, `library.png`): the

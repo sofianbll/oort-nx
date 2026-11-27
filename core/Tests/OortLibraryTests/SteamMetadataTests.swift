@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamMetadataTests: XCTestCase {
     private func payload(id: Int = 10) -> Data {

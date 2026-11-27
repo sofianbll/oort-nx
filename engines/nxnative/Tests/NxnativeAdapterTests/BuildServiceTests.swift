@@ -1,6 +1,6 @@
 import XCTest
 import Darwin
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class BuildServiceTests: XCTestCase {

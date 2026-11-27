@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Sizes of built game apps, by path and modification date, kept between launches: measuring an app walks every
 /// file in it (hundreds of thousands for a large game), so a library scan measures only apps that are new or rebuilt.

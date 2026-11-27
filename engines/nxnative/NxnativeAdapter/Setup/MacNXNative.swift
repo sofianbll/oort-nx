@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Presentation of the installed bundle, not the engine expected by its build record.
 extension InstalledVersion.Status {

@@ -3,7 +3,7 @@ import GameController
 import IOKit.hid
 import IOKit.hidsystem
 import OSLog
-import NXLibraryCore
+import OortLibrary
 
 // HID discovery follows NX2Apple's GamepadHID.swift (MIT; see NOTICE).
 final class HIDControllerSource: ControllerSource {

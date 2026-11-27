@@ -1,6 +1,6 @@
 import XCTest
 import os
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class CodeModStoreTests: XCTestCase {

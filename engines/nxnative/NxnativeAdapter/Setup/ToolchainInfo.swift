@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct ToolchainInfo: Codable, Equatable, Sendable {
     public var engineCommit: String?

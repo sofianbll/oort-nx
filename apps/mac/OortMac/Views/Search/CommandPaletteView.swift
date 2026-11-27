@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// The command palette (⌘K, or Y in Find a game): one field over games, actions and settings.

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The stages of a Selene dialog, with the current stage also exposed to VoiceOver.
 struct SeleneStepper: View {

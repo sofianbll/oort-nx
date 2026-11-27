@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// How far something is. Without a known total it moves instead of inventing a share.
 struct OortMeter: View {

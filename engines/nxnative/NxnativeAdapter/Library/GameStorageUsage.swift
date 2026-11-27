@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Missing files occupy no space; an unreadable folder or disconnected drive has an unknown size.
 public enum StorageSize: Equatable {

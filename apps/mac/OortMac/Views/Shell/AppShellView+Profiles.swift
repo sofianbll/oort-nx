@@ -1,7 +1,7 @@
 import AppKit
 import LocalAuthentication
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct ProfileFlow {

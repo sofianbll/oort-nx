@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Observes only the launcher's window; every event keeps its normal destination.
 struct FullscreenCursorView: NSViewRepresentable {

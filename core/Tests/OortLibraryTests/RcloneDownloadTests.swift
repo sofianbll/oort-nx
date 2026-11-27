@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class RcloneDownloadTests: XCTestCase {
     private final class FixtureTransport: URLProtocol {

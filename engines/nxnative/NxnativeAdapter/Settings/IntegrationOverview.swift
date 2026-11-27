@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 
 public struct IntegrationRow: Identifiable {
     public enum Emphasis { case neutral, working, attention }

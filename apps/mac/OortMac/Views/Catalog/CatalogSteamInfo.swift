@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// A Steam game's head in the same Selene layout as an nxnative one: the shared
 /// logo area, the Play/Options/favorite positions, the stats line and (in Collection) the genre

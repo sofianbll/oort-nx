@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 import os
-import NXLibraryCore
+import OortLibrary
 
 /// The GameBanana part of one game's Mods band: which GameBanana game it is, the mods that work, and their installs.
 /// Requests run only between `start` (the page appears) and `stop` (it goes away).

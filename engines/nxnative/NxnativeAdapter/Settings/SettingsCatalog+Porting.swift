@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The rows of the Porting group (Engine, Keys, Library, New games, Cloud saves, Porting storage), and the whole
 /// Settings list: the base rows and these, in screen order.

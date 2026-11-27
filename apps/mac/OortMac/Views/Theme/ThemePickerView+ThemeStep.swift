@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// The theme step: the palettes' swatches, their colour chips and the wallpaper each previews.
 extension ThemePickerView {

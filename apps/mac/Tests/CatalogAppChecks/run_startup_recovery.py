@@ -25,7 +25,7 @@ import Foundation
 import AppKit
 import Combine
 import Darwin
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 import os
 

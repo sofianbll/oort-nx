@@ -1,8 +1,8 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SmokeTests: XCTestCase {
     func testCoreVersion() {
-        XCTAssertEqual(NXLibraryCore.version, "0.1.0")
+        XCTAssertEqual(OortLibrary.version, "0.1.0")
     }
 }

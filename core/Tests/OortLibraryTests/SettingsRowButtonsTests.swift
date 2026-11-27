@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// A row with two buttons (Update and Back to tested): Left and Right move between them, A presses the one in focus.
 final class SettingsRowButtonsTests: XCTestCase {

@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// The background step: its tabs, the background and source tiles, their previews, credits and labels.
 extension ThemePickerView {

@@ -1,6 +1,6 @@
 import Foundation
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// One GameBanana client, image cache and match store for the whole app (caches in

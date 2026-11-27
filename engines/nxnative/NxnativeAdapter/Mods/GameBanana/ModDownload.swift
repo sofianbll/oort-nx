@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Downloads one GameBanana file into the game's mods folder (a hidden `.installing-<UUID>.download` file the caller
 /// passes as `destination` and removes after the install). Follows redirects only to trusted GameBanana hosts, stops

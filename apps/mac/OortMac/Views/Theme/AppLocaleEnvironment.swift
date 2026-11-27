@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 private struct AppLocaleEnvironmentKey: EnvironmentKey {
     static let defaultValue = AppLocale(language: .english, region: "US")

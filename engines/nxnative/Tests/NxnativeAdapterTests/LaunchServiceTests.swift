@@ -1,6 +1,6 @@
 import XCTest
 import Synchronization
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class LaunchServiceTests: XCTestCase {

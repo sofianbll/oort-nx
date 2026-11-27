@@ -19,7 +19,7 @@ import CoreText
 import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main struct ProfileScreenProbe {
@@ -1840,8 +1840,13 @@ extension NextendoSettings {
             cwd=ROOT, text=True, capture_output=True)
         host = HOST
         if before.returncode == 0:
+            # The old view imports the modules by their names of its day; build it against today's.
+            legacy, then = before.stdout, names.layout_at("adad00f")
+            for role in then.modules:
+                legacy = re.sub(rf"^(\s*(?:@testable\s+)?import\s+){then.name(role)}$", rf"\g<1>{names.CURRENT.name(role)}",
+                                legacy, flags=re.M)
             (app / "LegacySpotlightTopBar.swift").write_text(
-                before.stdout.replace("struct SpotlightTopBar:", "struct LegacySpotlightTopBar:"))
+                legacy.replace("struct SpotlightTopBar:", "struct LegacySpotlightTopBar:"))
         else:
             # A shallow checkout still verifies current screens; only the historical panel needs this commit.
             host = re.sub(r'        try render\("12-sort-before"[^\n]+\n', "", host)

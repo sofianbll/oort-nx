@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct SettingsEngineSection: View {

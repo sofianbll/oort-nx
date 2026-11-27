@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The mod store under the Mods card, top to bottom: the sort bar, Featured, the mods across your games, a row per

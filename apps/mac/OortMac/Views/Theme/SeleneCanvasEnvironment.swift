@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 private struct SeleneCanvasKey: EnvironmentKey {
     static let defaultValue = SeleneCanvas(size: SeleneCanvas.design)

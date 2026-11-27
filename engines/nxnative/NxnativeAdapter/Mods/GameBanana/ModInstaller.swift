@@ -1,6 +1,6 @@
 import Foundation
 import CryptoKit
-import NXLibraryCore
+import OortLibrary
 
 public enum ModInstallError: Error, Equatable {
     case notAllowed, download, damaged, unreadable, unsafe, noRomFS, unsupportedLayout, noSpace

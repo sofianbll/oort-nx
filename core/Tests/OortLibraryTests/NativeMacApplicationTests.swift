@@ -1,6 +1,6 @@
 import XCTest
 import Darwin
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class NativeMacApplicationTests: XCTestCase {
     func testIdentifiesArm64GameAndPreservesItsBundleIdentity() throws {

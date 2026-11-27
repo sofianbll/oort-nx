@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Where a game's cheats live and which build they are for, read the way the game's own launcher and host read them
 /// (nxnative dm/mac/launcher.c, dm/host/hle_cheats.c dm_cheats_init), so Arcane and the game see one folder.

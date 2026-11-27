@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Art for a `PlayedGame`: an nxnative game's through the loader's own lookups, a Steam game's through the same

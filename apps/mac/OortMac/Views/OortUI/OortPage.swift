@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct OortPage<ID: Hashable, Content: View>: View {
     enum Preset { case standard, legacyBackdrop }

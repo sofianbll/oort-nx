@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The Setup check's card grid (Selene's SetupScreen): rows as even as possible,
 /// each centred, so a short last row sits in the middle.

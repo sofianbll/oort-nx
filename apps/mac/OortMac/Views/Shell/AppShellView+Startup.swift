@@ -2,7 +2,7 @@ import SwiftUI
 import ArcanePorting
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// What the shell starts when it appears, and the first launch's choices and the last home screen.
 extension AppShellView {

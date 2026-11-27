@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 private final class FakeSource: ControllerSource {
     var onEvent: ((ControllerSourceEvent) -> Void)?

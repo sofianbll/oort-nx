@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class IGDBMetadataTests: XCTestCase {
     private let query = CriticRatingQuery(name: "Fixture™", platform: .switch2)

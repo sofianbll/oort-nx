@@ -1,6 +1,6 @@
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// The command palette's rows and what each one runs. Everything it runs has its own place elsewhere.

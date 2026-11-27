@@ -1,5 +1,5 @@
 import XCTest
-import NXLibraryCore
+import OortLibrary
 @testable import ArcanePorting
 
 final class NextendoAccountServiceTests: XCTestCase {

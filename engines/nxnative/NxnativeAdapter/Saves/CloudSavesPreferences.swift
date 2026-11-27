@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Writes the library's cloud saves folder into each game's preferences domain,
 /// the key nxnative's Mac launcher reads at every start (docs/frontends.md).

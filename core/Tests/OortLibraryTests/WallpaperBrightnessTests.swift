@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class WallpaperBrightnessTests: XCTestCase {
     private let samples = stride(from: 0.0, through: 1.0, by: 0.05).map { $0 }

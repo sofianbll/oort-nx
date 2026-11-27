@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Input: the key monitor, the wheel, the gamepad, navigation, back and activating a row.
 extension GameOptionsView {

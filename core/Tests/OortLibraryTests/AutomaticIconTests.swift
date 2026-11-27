@@ -1,7 +1,7 @@
 import XCTest
 import AppKit
 import Synchronization
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class AutomaticIconTests: XCTestCase {
     private let switch1 = "0100F2C0115B6000"

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The Python and build tools a released Arcane carries in
 /// `Contents/Resources/Runtime` (scripts/bundle_runtime.sh). Read-only: a broken

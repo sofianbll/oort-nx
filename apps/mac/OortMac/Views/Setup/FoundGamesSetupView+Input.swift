@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 extension FoundGamesSetupView {
     /// Controller actions and the mapped keys while `found` is up: Up/Down between the rows, A on the one in focus.

@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// What the backdrop draws, set once on the shell from settings.
 struct SeleneBackdropStyle: Equatable {

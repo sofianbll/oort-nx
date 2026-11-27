@@ -5,7 +5,7 @@ from audit_probe_host import run_host
 HOST = r'''
 import Foundation
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 @main struct Check {

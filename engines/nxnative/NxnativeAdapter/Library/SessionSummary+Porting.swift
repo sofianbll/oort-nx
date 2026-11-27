@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension SessionSummary {
     public init?(session: PlaySession, game: PortedGame, total: TimeInterval) {

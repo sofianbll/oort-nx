@@ -1,6 +1,6 @@
 import XCTest
 import Darwin
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamPlaytimeReaderTests: XCTestCase {
     private static let base: UInt64 = 76_561_197_960_265_728

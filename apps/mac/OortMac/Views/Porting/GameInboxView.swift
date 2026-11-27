@@ -1,5 +1,5 @@
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 struct GameInboxView: View {

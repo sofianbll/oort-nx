@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct NextendoCheckDiagnostic: Equatable, Sendable {
     public let route: String

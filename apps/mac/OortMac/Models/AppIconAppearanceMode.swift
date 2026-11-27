@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 import Foundation
 
 enum AppIconAppearanceMode: String, CaseIterable, Identifiable, Hashable {

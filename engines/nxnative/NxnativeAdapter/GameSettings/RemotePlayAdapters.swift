@@ -1,5 +1,5 @@
 import Darwin
-import NXLibraryCore
+import OortLibrary
 import SystemConfiguration
 
 public struct RemotePlayAdapters: Equatable, Sendable {

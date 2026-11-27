@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class OnlineBackgroundsTests: XCTestCase {
     // Trimmed from real responses: metadata only, no images.

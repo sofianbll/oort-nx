@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// What a failed porting offers: Port anyway, the notification and the failure's actions.

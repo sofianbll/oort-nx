@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 @MainActor final class UndoOffersTests: XCTestCase {
     func testOnlyTheLastGestureIsUndoneAndOnce() {

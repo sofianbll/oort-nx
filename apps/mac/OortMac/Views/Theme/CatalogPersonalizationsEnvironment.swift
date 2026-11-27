@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 private struct CatalogPersonalizationsKey: EnvironmentKey {
     static let defaultValue = CatalogPersonalizations.empty

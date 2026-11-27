@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import NXLibraryCore
+import OortLibrary
 
 final class PlayerPlanStoreTests: XCTestCase {
     func testMissingAndPreparedPlansAreDifferentAndRoundTrip() throws {

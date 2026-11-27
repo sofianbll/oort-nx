@@ -1,7 +1,7 @@
 import AppKit
 import OortCore
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A project Oort NX owes something to: its mark, its name, who makes it under which licence, and what it does here.
 struct OortCreditCard: View {

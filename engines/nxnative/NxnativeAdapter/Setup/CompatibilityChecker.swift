@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum CheckStatus: String, Equatable { case pass, warn, block }
 

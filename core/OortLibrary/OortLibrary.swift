@@ -1,5 +1,5 @@
 import Foundation
 
-public enum NXLibraryCore {
+public enum OortLibrary {
     public static let version = "0.1.0"
 }

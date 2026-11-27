@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A GameBanana mod with at least one installable RomFS or ExeFS archive for this game.
 public struct AvailableMod: Equatable, Identifiable, Sendable {

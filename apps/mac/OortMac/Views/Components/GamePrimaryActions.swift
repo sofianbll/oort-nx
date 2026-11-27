@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Play/Options/favorite visual and input targets are identical across sources.
 struct GamePrimaryActions: View {

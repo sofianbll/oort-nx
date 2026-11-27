@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Two layers must never take the input or draw their hints together: Y opened the wizard on top of a selector
 /// that stayed visible, with two bars of hints.

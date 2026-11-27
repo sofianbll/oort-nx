@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// What Spotlight's page needs below the stats: the game's details,
 /// the Details panel's rows and links, and More like this.

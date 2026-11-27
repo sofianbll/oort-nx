@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What this Arcane is tested with, in one place. An upgrade edits this
 /// table (and `AppViewModel.defaultPinnedEngineCommit`), never the Setup check's code.

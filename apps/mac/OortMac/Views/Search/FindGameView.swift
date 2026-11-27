@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 extension Notification.Name {
     static let nxFindGameGamepadAction = Notification.Name("NXFindGameGamepadAction")

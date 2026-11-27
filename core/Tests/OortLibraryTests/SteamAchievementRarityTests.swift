@@ -1,7 +1,7 @@
 import XCTest
 import ImageIO
 import UniformTypeIdentifiers
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamAchievementRarityTests: XCTestCase {
     private var root: URL!

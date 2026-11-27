@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 private struct ControllerHomeAvailableKey: EnvironmentKey {
     static let defaultValue = true

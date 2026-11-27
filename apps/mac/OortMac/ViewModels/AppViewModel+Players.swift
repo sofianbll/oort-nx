@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 import GameController
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 extension AppViewModel {

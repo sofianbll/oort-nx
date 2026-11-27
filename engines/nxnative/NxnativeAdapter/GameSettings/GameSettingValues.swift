@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension GameSettingsSnapshot {
     public var multiplayerModes: [MultiplayerMode] {

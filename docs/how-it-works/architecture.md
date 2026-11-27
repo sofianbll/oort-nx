@@ -47,19 +47,19 @@ Il [modello LikeC4](../../architecture/model.c4) descrive i sistemi, i confini d
 |---|---|
 | `NXLibrary` | Eseguibile SwiftUI, integrazione AppKit, controller, notifiche, coordinamento e rendering. |
 | `OortCore` | Logica portabile: input, focus, tastiera PIN, particelle, righe e versioni. Solo Swift e Foundation, senza risorse né dipendenze. |
-| `NXLibraryCore` | Modelli, persistenza, gestione file, contratti del motore, processi e logica delle funzionalità. Riesporta `OortCore` per i chiamanti esistenti. |
-| `ArcanePorting` | Il modulo Switch: Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi, mod RomFS e GameBanana, la parte nxnative di catalogo e libreria. Dipende da `NXLibraryCore`. |
-| `NXLibraryCoreTests` | Test XCTest della base, con dati sintetici e dipendenze sostituibili; dipende solo da `NXLibraryCore`, quindi prova che la base compila senza il modulo. |
+| `OortLibrary` | Modelli, persistenza, gestione file, contratti del motore, processi e logica delle funzionalità. Riesporta `OortCore` per i chiamanti esistenti. |
+| `ArcanePorting` | Il modulo Switch: Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi, mod RomFS e GameBanana, la parte nxnative di catalogo e libreria. Dipende da `OortLibrary`. |
+| `OortLibraryTests` | Test XCTest della base, con dati sintetici e dipendenze sostituibili; dipende solo da `OortLibrary`, quindi prova che la base compila senza il modulo. |
 | `ArcanePortingTests` | Test XCTest dei file che usano il modulo, anche le regole della base provate attraverso le sue entrate (`SettingsCatalog.all`, `CatalogStore(directory:)`). |
 | `OortCoreTests` | Test della logica portabile; usano `OortCore` senza gli altri moduli dell’app. |
 
-`scripts/check_oort_core.py` controlla manifest e import, anche nei rami condizionali; può preparare un pacchetto Swift minimo per Linux. Il wrapper `ProfileKeypad` in `NXLibraryCore` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.
+`scripts/check_oort_core.py` controlla manifest e import, anche nei rami condizionali; può preparare un pacchetto Swift minimo per Linux. Il wrapper `ProfileKeypad` in `OortLibrary` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.
 
-Il Core ha una cartella per area: `App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`. Tutto ciò che è Switch (Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi e i loro backup, mod RomFS e GameBanana, la parte nxnative del catalogo e della libreria, lo spazio delle app portate) è il target `ArcanePorting` (`engines/nxnative/NxnativeAdapter/`), con una sottocartella per parte; dipende da `NXLibraryCore`, e l'app li importa entrambi. *Perché:* la base non importa il modulo, così il compilatore ferma ogni uso di un suo tipo o membro.
+Il Core ha una cartella per area: `App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`. Tutto ciò che è Switch (Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi e i loro backup, mod RomFS e GameBanana, la parte nxnative del catalogo e della libreria, lo spazio delle app portate) è il target `ArcanePorting` (`engines/nxnative/NxnativeAdapter/`), con una sottocartella per parte; dipende da `OortLibrary`, e l'app li importa entrambi. *Perché:* la base non importa il modulo, così il compilatore ferma ogni uso di un suo tipo o membro.
 
 Ciò che il modulo usa della base e l'app no è `package` (per esempio `CatalogStore(directory:publication:kinds:legacy:)`, `LibraryPresentation.duration`); un'estensione del modulo che crea un valore della base chiama un init `package` con tutti i valori, perché da un altro modulo non può assegnare proprietà `let` (`GameDetailPresentation(title:…savePath:)`). Dove la base ha bisogno del modulo (righe e reset di Settings, impostazioni del modulo, conteggi del primo avvio, controlli della copia di sviluppo, tipi e import del catalogo) riceve valori o chiusure da un'entrata generica; l'entrata con lo stesso nome di sempre sta in un'estensione dentro `ArcanePorting/` e passa quelli del modulo.
 
-`NXLibrary` dipende da `NXLibraryCore`. Il Core usa anche framework macOS, fra cui Combine, AppKit, ImageIO, CommonCrypto e IOKit. Il package non dichiara dipendenze SwiftPM esterne.
+`NXLibrary` dipende da `OortLibrary`. Il Core usa anche framework macOS, fra cui Combine, AppKit, ImageIO, CommonCrypto e IOKit. Il package non dichiara dipendenze SwiftPM esterne.
 
 ```mermaid
 flowchart TD
@@ -67,7 +67,7 @@ flowchart TD
     Shell --> Router["AppRouter e schermate SwiftUI"]
     Shell --> VM["AppViewModel, modelli Switch e modelli dei pannelli"]
     Shell --> Stores["Settings, sessioni, artwork e monitor dei giochi"]
-    VM --> Core["Servizi e modelli NXLibraryCore"]
+    VM --> Core["Servizi e modelli OortLibrary"]
     Core --> Disk["Application Support, app e log"]
     Core --> Process["BuildService e CommandRunner"]
     Process --> Engine["Checkout nxnative al commit fissato"]
@@ -355,7 +355,7 @@ contenere anche i titoli e i messaggi su più righe.
 - `L10n` tiene al massimo un bundle per ciascuna delle sette lingue. Le risorse iniettate restano isolate, senza memorizzare testi interpolati o dati personali. Cattura il contesto per il lavoro asincrono e legge il catalogo compilato, cercando prima nel bundle installato. Non si usa nessun servizio esterno di posizione o traduzione.
 
 **Testi.**
-- I testi controllati dall'app sono nel catalogo condiviso `NXLibraryCore/Resources/Localizable.xcstrings`, con interpolazioni e plurali.
+- I testi controllati dall'app sono nel catalogo condiviso `OortLibrary/Resources/Localizable.xcstrings`, con interpolazioni e plurali.
 - Restano indipendenti dalla lingua: dati personali, rawValue salvati, regex, eventi dell'engine, variabili `DM_*` e identità dei controlli.
 - I componenti Settings risolvono le etichette alla presentazione e mantengono i rowID originali; le righe con i nomi dei giochi usano i titoli così come sono. Search confronta anche i testi tradotti.
 - I testi upstream noti di `launcher.json` si localizzano solo nella presentazione; valori e note sconosciute tengono il testo upstream. Per i selettori di scelta, `option_notes` associa la nota al valore attuale; se manca, resta la descrizione della build o quella già usata dalla riga.
@@ -529,7 +529,7 @@ I percorsi completi sono in [flows.md](flows.md#3-play-di-un-gioco-switch-nxnati
 
 Quando la schermata di avvio è inattiva e offre la chiusura, `LaunchScreenView` lascia visibile il pulsante di chiusura con il mouse anche senza suggerimenti; Oort non riceve i tasti in quel momento.
 
-`AppViewModel.play` e Resume passano da `engine.play`. Il catalogo sceglie l'installazione; `PlayEngine` in `NXLibraryCore` ammette un solo adapter e conserva il ricevuto del gesto. Gli adapter nxnative, Steam e raccorciatoie Mac conservano i controlli dei rispettivi percorsi. La preparazione, la consegna e l'apertura osservata sono fatti distinti; il timeout della schermata non dimostra la prontezza.
+`AppViewModel.play` e Resume passano da `engine.play`. Il catalogo sceglie l'installazione; `PlayEngine` in `OortLibrary` ammette un solo adapter e conserva il ricevuto del gesto. Gli adapter nxnative, Steam e raccorciatoie Mac conservano i controlli dei rispettivi percorsi. La preparazione, la consegna e l'apertura osservata sono fatti distinti; il timeout della schermata non dimostra la prontezza.
 
 Prima dell'effetto `PlayGesture` registra fuori dal main actor una riserva per il bundle esatto, comune anche per un'app Steam collegata come scorciatoia. Il giornale è in `PlayRequests/` del profilo AppData, una registrazione per richiesta e un'esclusione per destinazione. Il ricevuto e i fatti numerati si rileggono senza un nuovo effetto. Una consegna sospesa senza esito verificato non si ripete; se il processo non c'è più, Play rifiuta con `outcomeUnknown`. Non è lo storico delle partite.
 

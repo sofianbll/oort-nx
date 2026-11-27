@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension GameOptionsBuildSettings {
     /// What a ported build's saved settings decide about the rows.

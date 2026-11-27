@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// The user-facing brand is separate from the upstream network identity.
 final class ArcaneNameTests: XCTestCase {

@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// The selected tile's ring, played by Core Animation: its gradient turns and its glow breathes in the render

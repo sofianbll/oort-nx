@@ -2,7 +2,7 @@ import AppKit
 import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct ProfileEditorView: View {

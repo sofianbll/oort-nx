@@ -3,7 +3,7 @@ import SwiftUI
 import AppKit
 import Combine
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct SettingsNotice: Identifiable {

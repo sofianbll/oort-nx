@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Input: opening, tabs, the gamepad, moving the focus, taps, accepting and going back.
 extension ThemePickerView {

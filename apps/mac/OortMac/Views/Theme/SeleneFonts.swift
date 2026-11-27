@@ -1,6 +1,6 @@
 import SwiftUI
 import CoreText
-import NXLibraryCore
+import OortLibrary
 
 enum SeleneFonts {
     private static var registered = false

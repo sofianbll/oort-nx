@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// What the Nintendo store says about each Switch game (name, description, screenshots, store page), in the app

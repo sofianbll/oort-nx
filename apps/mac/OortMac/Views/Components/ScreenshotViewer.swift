@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Full-screen screenshot viewer (spec §6, Selene captures player): a 0.92
 /// scrim, the image fitted, a "3 / 6" counter and hints. A pure view: the host

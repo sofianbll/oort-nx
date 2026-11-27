@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Drive folders chosen in the assistant, the latest first, for each connection on this Mac.
 enum CloudRecentFolders {

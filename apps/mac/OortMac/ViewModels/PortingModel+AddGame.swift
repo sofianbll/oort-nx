@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Add Game: reading the chosen folder or files, the selection and the wizard's steps.

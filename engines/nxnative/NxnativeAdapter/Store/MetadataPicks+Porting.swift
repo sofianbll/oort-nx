@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The player's picks laid over the Nintendo store's metadata.
 extension MetadataPicks {

@@ -2,7 +2,7 @@
 // Reading the actual defaults accessor catches startup failures hidden by unmarked unit-test hosts.
 // This probe never runs the importer or writes preferences or launcher data.
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 try AppData.validateBuildIdentity(Bundle.main.infoDictionary ?? [:])
 let defaults = AppData.preferences

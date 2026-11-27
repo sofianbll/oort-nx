@@ -1,7 +1,7 @@
 import XCTest
 import AppKit
 import Synchronization
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class ArtworkStoreTests: XCTestCase {
     @dynamicMemberLookup private final class FakeClient: ArtworkHTTPClient {

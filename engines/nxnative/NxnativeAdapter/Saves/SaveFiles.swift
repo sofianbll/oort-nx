@@ -1,6 +1,6 @@
 import Foundation
 import Darwin
-import NXLibraryCore
+import OortLibrary
 
 /// Filesystem checks shared by saves; lstat never follows a substituted link.
 internal enum SaveFiles {

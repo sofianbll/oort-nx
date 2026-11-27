@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class OnlineLiveSourcesTests: XCTestCase {
     private func query(_ url: URL?) -> [String: String] {

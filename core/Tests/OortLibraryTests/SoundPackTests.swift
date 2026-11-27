@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 import zlib
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SoundPackTests: XCTestCase {
     func testMissingEventsAndImportSnapshot() throws {

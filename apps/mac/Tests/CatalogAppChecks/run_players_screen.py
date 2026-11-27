@@ -14,7 +14,7 @@ import ArcanePorting
 import CoreText
 import SwiftUI
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 
 final class PlayersFixtureSource: ControllerSource {
     var onEvent: ((ControllerSourceEvent) -> Void)?

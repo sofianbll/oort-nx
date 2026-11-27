@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Copy diagnostics: what an issue needs, scrubbed by `DiagnosticsReport` (no key values, no

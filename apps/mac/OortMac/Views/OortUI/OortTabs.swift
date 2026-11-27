@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// One pill glides from tab to tab. LB and RB move it, a click chooses; the caller owns what is chosen.
 struct OortTabs<ID: Hashable>: View {

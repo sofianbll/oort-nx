@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Selection is by content; workspace links and disk usage are by physical input.
 public enum SourceSelection {

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension CriticRatingQuery {
     /// Use the same console identity as the game's Details, including Switch 2 titles.

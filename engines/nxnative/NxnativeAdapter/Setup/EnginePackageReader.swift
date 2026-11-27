@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct PackageContent: Equatable, Sendable {
     public var kind: SourceKind

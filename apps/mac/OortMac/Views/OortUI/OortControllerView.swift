@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The pad in the player's hands, in the cloud's dots: what is pressed lights up, the sticks lean.
 struct OortControllerView: View {

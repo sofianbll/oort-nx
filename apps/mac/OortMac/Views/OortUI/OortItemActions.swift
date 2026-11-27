@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// What the hints offer besides A and B, drawn on the screen too: hints can be hidden, these keys stay for the mouse.
 /// The same items feed both, so a name never differs. What deletes is last, apart.

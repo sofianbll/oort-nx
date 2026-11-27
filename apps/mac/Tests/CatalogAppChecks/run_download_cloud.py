@@ -14,7 +14,7 @@ import AppKit
 import ArcanePorting
 import CoreText
 import Metal
-import NXLibraryCore
+import OortLibrary
 @testable import NXLibrary
 import SwiftUI
 

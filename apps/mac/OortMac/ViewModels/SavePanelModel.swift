@@ -1,6 +1,6 @@
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// One panel's state; filesystem work runs on the library's serial save queue.

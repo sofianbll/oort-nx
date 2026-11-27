@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// The launch screen of a game Play started here, nxnative or Steam.
 struct LaunchOverlayState: Equatable {

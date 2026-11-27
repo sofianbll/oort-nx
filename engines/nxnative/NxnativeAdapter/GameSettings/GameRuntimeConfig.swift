@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct GameRuntimeConfig: Codable, Equatable, Sendable {
     public var enable60FPS: Bool

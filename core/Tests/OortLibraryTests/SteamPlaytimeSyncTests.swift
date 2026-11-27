@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SteamPlaytimeSyncTests: XCTestCase {
     private static let base: UInt64 = 76_561_197_960_265_728

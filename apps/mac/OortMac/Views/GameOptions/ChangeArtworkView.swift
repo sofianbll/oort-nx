@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Game options → Edit details → Change artwork, after Playnite's artwork picker.

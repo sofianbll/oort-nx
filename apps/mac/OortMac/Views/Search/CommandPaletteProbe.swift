@@ -1,7 +1,7 @@
 #if DEBUG
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// Presses every key and button of the palette, then draws each state without opening a window.

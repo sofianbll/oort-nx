@@ -1,6 +1,6 @@
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Arcane's own updates: the check against GitHub, the download, the checks of `AppUpdate`,

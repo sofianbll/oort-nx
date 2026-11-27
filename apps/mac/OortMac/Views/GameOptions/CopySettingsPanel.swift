@@ -1,6 +1,6 @@
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// The other games these settings can go to, each with how many would change. A shows what changes before anything

@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Installed builds can differ from the selected checkout. Read their packer's DMCommit and use the checkout
 /// only as a Git object database. Cache the answers on this actor, off SwiftUI's main actor.

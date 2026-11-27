@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct SettingsStorageSection: View {
     @ObservedObject var viewModel: AppViewModel

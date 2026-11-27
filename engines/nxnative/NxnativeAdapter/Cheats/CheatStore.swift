@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A game's cheats as they are on disk now, read the way the host loads them.
 public struct CheatState: Equatable, Sendable {

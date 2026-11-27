@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// The parser mirrors nxnative's dm/host/hle_cheats.c (parse_file, ins_dec, meta_load, pairs_link) at the pin; the

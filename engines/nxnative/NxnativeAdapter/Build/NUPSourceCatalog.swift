@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// A Switch 2 game in one NUP container (a `.nup` file, https://github.com/a55uka/nup): its base game, updates and
 /// DLC, read by upstream's own scripts/pack_nup.py so the checks are the engine's. Reads metadata only; the file is

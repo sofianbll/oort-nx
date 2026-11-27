@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Same source-qualified personal picks as metadata; downloaded art never writes
 /// into Steam or its app bundles. Task identity includes locale-independent URL.

@@ -5,7 +5,7 @@ This guide covers building Oort NX itself. For app setup, game preparation and d
 ## Development prerequisites
 
 - An Apple-silicon Mac running macOS 26 or later.
-- Full Xcode selected for the build. The current game toolchain requires Xcode 27.2 or later and the Metal compiler certified for the pinned engine. `Package.swift` declares Swift tools 6.0 (`OortCore`, `NXLibraryCore` and `ArcanePorting` build in the Swift 6 language mode, the app and the tests in Swift 5; in Swift 6 a block written inside a main-actor method stops the app when another queue runs it, so write such a block in a `nonisolated` helper) and macOS 26 as package minimums; those values do not certify an engine/compiler combination.
+- Full Xcode selected for the build. The current game toolchain requires Xcode 27.2 or later and the Metal compiler certified for the pinned engine. `Package.swift` declares Swift tools 6.0 (`OortCore`, `OortLibrary` and `ArcanePorting` build in the Swift 6 language mode, the app and the tests in Swift 5; in Swift 6 a block written inside a main-actor method stops the app when another queue runs it, so write such a block in a `nonisolated` helper) and macOS 26 as package minimums; those values do not certify an engine/compiler combination.
 - Git and the command-line tools supplied with Xcode.
 - Python 3 for the publication checks and packaging helpers.
 - Homebrew's `zstd` and `glslang`, at the versions recorded in [engines/nxnative/runtime.lock](../../engines/nxnative/runtime.lock), when preparing the bundled runtime. The script checks installed versions; it does not install or silently upgrade them.
@@ -263,9 +263,9 @@ These are distribution decisions. Do not bypass the dirty-tree check, change the
 | Path | Responsibility |
 |---|---|
 | `core/OortLibrary/` | Models, rules and services without SwiftUI, one folder per area (`App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`); nothing Switch. |
-| `engines/nxnative/NxnativeAdapter/` | The `ArcanePorting` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `NXLibraryCore`. |
+| `engines/nxnative/NxnativeAdapter/` | The `ArcanePorting` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `OortLibrary`. |
 | `apps/mac/OortMac/` | App entry, coordination, SwiftUI screens, theme and macOS integration. |
-| `core/Tests/OortLibraryTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `NXLibraryCore`. |
+| `core/Tests/OortLibraryTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `OortLibrary`. |
 | `engines/nxnative/Tests/NxnativeAdapterTests/` | Automated regressions of every file that uses the `ArcanePorting` module. |
 | `scripts/tests/PublicationChecks/` | Publication-guard regressions. |
 | `design/` | Tokens, vocabulary and credits; the app icon sources (`Icons/`), fonts and interface media (`Selene/`, `SoundPacks/`, `Brands/`), third-party licence texts, and their notices. |

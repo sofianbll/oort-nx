@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Confirmation: the overlay, its copy, asking, dismissing and running the confirmed action.
 extension GameOptionsView {

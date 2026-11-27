@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct SettingsProfileIdentitySection: View {
     @ObservedObject var profiles: LocalProfileStore

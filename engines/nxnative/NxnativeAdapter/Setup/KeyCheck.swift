@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 
 // Adapted from NX2Apple's KeyCheck.swift (https://github.com/LNPANDY/NX2Apple), MIT License,
 // Copyright (c) 2026 LNPANDY and NX2Apple contributors. See NOTICE.

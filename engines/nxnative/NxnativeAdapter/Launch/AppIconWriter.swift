@@ -2,7 +2,7 @@ import Foundation
 import CoreGraphics
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Writes the player's icon into a game app Arcane built, and puts the game's own icon back.
 ///

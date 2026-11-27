@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 @testable import ArcanePorting
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class PersonalAppReceiptTests: XCTestCase {
     private let title = "0100000000001000"

@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// One GameBanana mod over the game's page: its images, author, version beside the game's, likes and downloads, the

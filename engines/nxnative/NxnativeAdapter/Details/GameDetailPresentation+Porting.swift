@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension GameDetailPresentation {
     /// A ported game's page: Nintendo store facts, build toolchain, sources and save folder.

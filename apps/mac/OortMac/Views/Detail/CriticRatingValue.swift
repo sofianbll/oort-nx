@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A read-only value in Details, not a new card or a personal-vote control.
 struct CriticRatingValue: View {

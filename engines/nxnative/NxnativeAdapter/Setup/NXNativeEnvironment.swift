@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct ToolStatus: Identifiable, Equatable {
     public var id: String

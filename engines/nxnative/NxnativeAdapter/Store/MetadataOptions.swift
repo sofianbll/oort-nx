@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The values a Switch game's Change metadata offers, from the Nintendo store, Title DB and GameTDB.
 public enum MetadataOptions {

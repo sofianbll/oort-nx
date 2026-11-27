@@ -1,7 +1,7 @@
 import AppKit
 import ObjectiveC
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 private let env = ProcessInfo.processInfo.environment

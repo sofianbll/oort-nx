@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum SourceLayout: String, Codable, Equatable, Sendable {
     /// An NSP / XCI / NSZ / XCZ package; `extracted` a dump folder; `container` one package of a `.nup` file,

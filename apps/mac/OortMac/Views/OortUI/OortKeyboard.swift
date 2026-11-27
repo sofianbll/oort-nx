@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The keys themselves: drawn here, typed by whoever shows them.
 struct OortKeyboard: View {

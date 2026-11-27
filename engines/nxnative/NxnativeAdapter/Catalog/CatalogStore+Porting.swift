@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The app's catalog store reads every kind it knows (`CatalogRecordKinds.standard`) and converts a first catalog from
 /// nxnative's `library.json`.

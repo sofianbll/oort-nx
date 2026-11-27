@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// Only the player's Save action sends their own application credentials to Twitch/IGDB.
 struct IGDBCredentialsDialog: View {

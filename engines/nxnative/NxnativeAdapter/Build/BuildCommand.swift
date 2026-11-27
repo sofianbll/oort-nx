@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct BuildCommand: Equatable {
     public var executable: URL

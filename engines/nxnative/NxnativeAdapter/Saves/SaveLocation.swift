@@ -1,6 +1,6 @@
 import Foundation
 import Darwin
-import NXLibraryCore
+import OortLibrary
 
 public enum SaveSlot: String, Codable, CaseIterable, Hashable, Sendable {
     case account, device, user2, user3, user4, user5, user6, user7, user8, users

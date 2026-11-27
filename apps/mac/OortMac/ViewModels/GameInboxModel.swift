@@ -1,6 +1,6 @@
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 
 @MainActor
 final class GameInboxModel: ObservableObject {

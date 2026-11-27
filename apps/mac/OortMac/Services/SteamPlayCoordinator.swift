@@ -1,7 +1,7 @@
 import AppKit
 import ArcanePorting
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// Play for Steam games and their real sessions (`SteamPlayState`). Play sends `steam://run/<AppID>`
 /// to the registered Steam client only; it never opens the game's app itself. The process list is

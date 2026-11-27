@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// A page in the browser. From a controller it asks first: nothing there brings the player back to Oort.
 @MainActor func openWebPage(_ url: URL, viewModel: AppViewModel) {

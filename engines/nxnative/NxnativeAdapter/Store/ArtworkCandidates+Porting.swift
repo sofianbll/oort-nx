@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The images a Switch game's picker offers: GameTDB, Title DB and the Nintendo store, then everything found online.
 extension ArtworkCandidates {

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// One stat in the row: a label over a value, or the platform (icon and name).
 struct SeleneStat: Identifiable {

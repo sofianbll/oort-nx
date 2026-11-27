@@ -1,6 +1,6 @@
 import SwiftUI
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// One game page's Mods band (Spotlight's page and Details share it, so they behave the same): the installed mods,

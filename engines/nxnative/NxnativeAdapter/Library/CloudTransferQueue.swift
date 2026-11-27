@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum CloudLibraryItem: String, Codable, CaseIterable, Hashable, Sendable {
     case app, cache, sources

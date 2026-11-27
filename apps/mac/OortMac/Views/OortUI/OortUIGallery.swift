@@ -1,7 +1,7 @@
 #if DEBUG
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct OortUIGallery: View {
     enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys, pieces, pads, padGuide }

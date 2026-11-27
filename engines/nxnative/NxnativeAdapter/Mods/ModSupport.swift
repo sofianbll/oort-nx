@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// One RomFS tree, one ExeFS patch tree, or both side by side.
 public enum ModSupport {

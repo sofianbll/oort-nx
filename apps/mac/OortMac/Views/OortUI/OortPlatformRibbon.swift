@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A column of square cards behind one focus frame: the cursor's card sits in the frame, the next ones hang below it,
 /// and a move slides the whole column, as the game rail does sideways. Closed, only the chosen card shows.

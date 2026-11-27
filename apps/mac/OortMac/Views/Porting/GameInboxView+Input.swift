@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 extension Notification.Name {

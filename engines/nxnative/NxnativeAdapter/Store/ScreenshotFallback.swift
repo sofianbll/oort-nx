@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Screenshots from LaunchBox for a game Title DB has none for (every Switch 2 game, for now), looked up once when
 /// the player opens the game's Details and kept on this Mac, an empty answer included, for 30 days. Nothing is asked

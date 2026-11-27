@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 public struct GameDisplay: Equatable {
     public static let key = "DM_SCREEN"

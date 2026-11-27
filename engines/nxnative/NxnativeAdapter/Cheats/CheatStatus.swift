@@ -1,6 +1,6 @@
 import Foundation
 import os
-import NXLibraryCore
+import OortLibrary
 
 /// Whether a game's installed app can use cheats, and the short words the UI shows for them.
 public enum CheatStatus: Equatable, Sendable {

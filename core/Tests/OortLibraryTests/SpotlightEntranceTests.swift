@@ -1,6 +1,6 @@
 import CoreGraphics
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SpotlightEntranceTests: XCTestCase {
     private let row: CGFloat = 1760

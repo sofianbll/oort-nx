@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What a finished build says about a stage that ended with the engine's warning (`stage_end` with `warn`): the game
 /// was built and plays, but without something that stage makes.

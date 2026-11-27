@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension Notification.Name {
     static let nxIntegrationsAction = Self("NXIntegrationsAction")

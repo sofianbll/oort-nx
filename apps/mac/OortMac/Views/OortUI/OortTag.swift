@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// A short written fact: a genre, a version, a state. `art` sits on an image, `tone` carries a state's colour with its word.
 struct OortTag: View {

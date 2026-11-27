@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct ImportedApp: Identifiable, Equatable, Sendable {
     public var id: String { titleId ?? bundleId ?? appURL.path }

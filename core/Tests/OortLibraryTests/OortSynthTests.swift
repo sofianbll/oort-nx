@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class OortSynthTests: XCTestCase {
     private func samples(_ data: Data) -> [Int16] {

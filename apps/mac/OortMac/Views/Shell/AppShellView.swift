@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 struct AppShellView: View {

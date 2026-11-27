@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension LibraryPresentation {
     /// A ported game, with the Nintendo store's facts when Arcane has them.

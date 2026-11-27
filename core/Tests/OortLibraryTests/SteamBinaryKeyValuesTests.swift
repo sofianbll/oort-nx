@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// Writes Steam's binary KeyValues for tests: a `[(key, value)]` array is a subtree, a String is type 1, an Int32
 /// type 2, a Float type 3, a UInt64 type 7.

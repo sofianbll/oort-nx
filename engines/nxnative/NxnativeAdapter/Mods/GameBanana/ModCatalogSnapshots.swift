@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Each game's mods that work, as last found, so the store opens from disk at once
 /// (`~/Library/Caches/Oort NX/gamebanana/store/<title ID>.json`). Links are checked again on the way in: only

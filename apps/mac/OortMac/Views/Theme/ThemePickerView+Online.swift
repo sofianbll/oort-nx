@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Online backgrounds: opening a source, its input, categories, search and using a chosen image.
 extension ThemePickerView {

@@ -1,7 +1,7 @@
 import AppKit
 import ArcanePorting
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct OnboardingView: View {
     @ObservedObject var viewModel: AppViewModel

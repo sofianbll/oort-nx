@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum EngineAction: Equatable {
     case clone, checkout, none

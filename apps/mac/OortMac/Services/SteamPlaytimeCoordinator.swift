@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Steam's own playtime for the catalog's Steam games, handed to `PlaySessionStore` as external totals.
 /// Steam's file is read off the main thread (`SteamPlaytimeReading.take`) when the catalog or its sources

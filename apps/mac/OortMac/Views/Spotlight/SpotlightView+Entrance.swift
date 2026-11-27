@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Spotlight's entrance, the app's opening: the first time the home shows after launch (`SpotlightEntrance`,
 /// Selene's flight at a calmer pace). While the welcome or Setup covers the screen, the row, the bar,

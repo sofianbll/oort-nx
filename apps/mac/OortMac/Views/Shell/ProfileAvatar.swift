@@ -3,7 +3,7 @@ import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
 import Vision
-import NXLibraryCore
+import OortLibrary
 
 enum ProfileAvatar {
     struct Crop: Equatable {

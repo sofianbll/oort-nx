@@ -1,6 +1,6 @@
 import AppKit
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 import OSLog
 
 final class AppDelegate: NSObject, NSApplicationDelegate {

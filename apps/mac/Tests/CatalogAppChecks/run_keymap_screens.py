@@ -16,7 +16,7 @@ HOST = r'''
 import AppKit
 import CoreText
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 final class AppViewModel {
     var isGameOptionsOpen = false

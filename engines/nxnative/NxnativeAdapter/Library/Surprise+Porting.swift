@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension Surprise {
     /// Hidden games are never picked; "installed" means playable on this Mac. If excluding `excluding` would empty a

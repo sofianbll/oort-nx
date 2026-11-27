@@ -42,7 +42,7 @@ Queste regole integrano le ricette qui sotto. Sono criteri per il lavoro sul for
 | Codice del Core di un'area | La cartella dell'area: `App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam` | Ogni area si trova da un solo posto. |
 | Codice che è Switch (nxnative, chiavi, store Nintendo, RomFS, `env.txt`), senza SwiftUI | il target `ArcanePorting`, `engines/nxnative/NxnativeAdapter/`, e la sottocartella della parte: `Setup`, `Build`, `Launch`, `GameSettings`, `Cheats`, `Store`, `Saves`, `Mods` (con `Mods/GameBanana`), `Catalog`, `Library`, `Details`, `Settings`, `App` | La base non importa il modulo: il compilatore tiene il confine. |
 | Viste SwiftUI, integrazione AppKit, controller, coordinamento degli store | `apps/mac/OortMac` | Dipende dal Core, mai il contrario. |
-| Testi mostrati all'utente | `NXLibraryCore/Resources/Localizable.xcstrings` | Un solo catalogo per le sette lingue. |
+| Testi mostrati all'utente | `OortLibrary/Resources/Localizable.xcstrings` | Un solo catalogo per le sette lingue. |
 | Test | `core/Tests/OortLibraryTests` per un file che compila con la sola base, altrimenti `engines/nxnative/Tests/NxnativeAdapterTests`, il file intero; la fixture Steam è un solo file, collegato nel secondo; prove senza finestre dei corpi reali delle viste in `apps/mac/Tests/CatalogAppChecks`; controlli del pacchetto in `scripts/tests/PublicationChecks` | — |
 
 Regole:
@@ -52,7 +52,7 @@ Regole:
   - la geometria di una riga: `SpotlightRowGeometry`, `GridListLayout`.
 
   La vista disegna e traduce l'input.
-- **La base non usa un tipo né un membro del modulo.** `NXLibraryCore` non importa `ArcanePorting`, quindi un uso non compila. Quando la base ha bisogno del modulo riceve un valore o una chiusura con un parametro obbligatorio. Esempio: `DevelopmentProfileImporter(fileManager:checks:)`, con `DevelopmentProfileImporter()` in `ArcanePorting/App/`.
+- **La base non usa un tipo né un membro del modulo.** `OortLibrary` non importa `ArcanePorting`, quindi un uso non compila. Quando la base ha bisogno del modulo riceve un valore o una chiusura con un parametro obbligatorio. Esempio: `DevelopmentProfileImporter(fileManager:checks:)`, con `DevelopmentProfileImporter()` in `ArcanePorting/App/`.
 - **Un'entrata della base per un tipo di `ArcanePorting/` sta in un'estensione dentro `ArcanePorting/`** (`Tipo+Porting.swift`, o `Tipo+Catalog.swift` per la conformità di un tipo del modulo) e chiama l'entrata generica della base. Esempio: `ArcanePorting/Catalog/CatalogStore+Porting.swift` dà `CatalogStore(directory:)` con tutti i tipi noti e l'import di `library.json` sopra `CatalogStore(directory:kinds:legacy:)`.
 - **Un file oltre circa 800 righe si divide per compito** in estensioni `Tipo+Compito.swift` nella stessa cartella. Esempi: `PortingModel+Build.swift`, `SpotlightView+Input.swift`. Le proprietà memorizzate restano nel file del tipo; un membro `private` che serve da un altro file diventa interno, mai `public`. Un controllo senza finestre che legge il sorgente di un tipo legge tutti i suoi file (`PortingModel*.swift`).
 - **`public` nel Core e nel modulo**, per ciò che l'app usa; **`package`** per ciò della base che usa solo il modulo, membro per membro, come chiede il compilatore. Un'estensione del modulo che crea un valore della base chiama un init `package` con tutti i valori (`GameDetailPresentation(title:…savePath:)`). Il target app è un eseguibile che nessuno importa: i suoi tipi restano interni.

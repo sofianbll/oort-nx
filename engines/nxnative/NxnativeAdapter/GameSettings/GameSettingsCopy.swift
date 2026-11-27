@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// What copying one game's settings to another would change: only what both builds offer, the other build takes and
 /// its env.txt leaves free. Network play stays each game's own choice.

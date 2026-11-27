@@ -14,7 +14,7 @@ BIN = ROOT / ".build/debug"
 HOST = r'''
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 enum SeleneConfirmButton { case confirm, cancel }
 enum AppDelegate { @MainActor static var relaunchScheduled = false }

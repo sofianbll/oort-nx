@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public enum NintendoMetadataOrigin: String, Codable, Sendable {
     case europe = "Nintendo Europe"

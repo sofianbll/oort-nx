@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// General, optional connections; moving them here leaves stored credentials and provider behaviour intact.

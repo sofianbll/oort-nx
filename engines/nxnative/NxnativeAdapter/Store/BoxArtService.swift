@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Finds each game's Switch box cover on GameTDB and caches it as `.boxart`.
 /// GameTDB has no title IDs, so a cover is found by exact normalised name: the

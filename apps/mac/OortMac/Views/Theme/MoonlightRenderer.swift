@@ -2,7 +2,7 @@ import SwiftUI
 import Metal
 import QuartzCore
 import CoreVideo
-import NXLibraryCore
+import OortLibrary
 import os
 
 /// The shaders' uniforms, seven float4s (see `MoonlightShaders`).

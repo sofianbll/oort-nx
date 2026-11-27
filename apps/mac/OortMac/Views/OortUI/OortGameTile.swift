@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 struct OortGameTile<Artwork: View>: View {
     enum Preset { case spotlight, collection }

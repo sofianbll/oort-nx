@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 public struct PortedGame: Identifiable, Codable, Equatable, Sendable {
     public var id: UUID

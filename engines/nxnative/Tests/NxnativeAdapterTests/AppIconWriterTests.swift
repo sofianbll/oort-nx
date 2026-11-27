@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class AppIconWriterTests: XCTestCase {

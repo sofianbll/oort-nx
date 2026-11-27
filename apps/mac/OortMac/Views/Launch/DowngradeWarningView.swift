@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 struct DowngradeWarningView: View {

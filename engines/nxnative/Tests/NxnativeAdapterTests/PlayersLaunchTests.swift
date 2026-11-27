@@ -1,6 +1,6 @@
 import XCTest
 import ImageIO
-import NXLibraryCore
+import OortLibrary
 @testable import ArcanePorting
 
 final class PlayersLaunchTests: XCTestCase {

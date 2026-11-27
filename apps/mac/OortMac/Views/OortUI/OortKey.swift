@@ -1,6 +1,6 @@
 import Combine
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// The halftone of the Oort mark, rising under a focused key.
 struct OortDots: View, Animatable {

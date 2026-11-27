@@ -1,6 +1,6 @@
 import AppKit
 import CryptoKit
-import NXLibraryCore
+import OortLibrary
 
 /// Online backgrounds: listings (cached for the session), the chosen file
 /// (downloaded with progress into Wallpapers/online or live, with its credit),

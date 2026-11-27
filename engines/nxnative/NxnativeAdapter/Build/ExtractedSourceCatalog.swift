@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The exact folder layout accepted by upstream pack_dump.py. This service reads
 /// metadata only; it neither packs nor modifies the supplied files.

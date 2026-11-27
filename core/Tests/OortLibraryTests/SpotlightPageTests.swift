@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class SpotlightPageTests: XCTestCase {
     // MARK: - Description excerpt

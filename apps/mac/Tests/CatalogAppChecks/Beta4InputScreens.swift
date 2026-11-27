@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 
 @main struct Beta4InputScreens {
     private final class HiddenWindow: NSWindow {

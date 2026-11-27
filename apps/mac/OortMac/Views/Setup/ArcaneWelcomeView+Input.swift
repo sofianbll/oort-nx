@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 extension ArcaneWelcomeView {
     /// Controller actions and the mapped keys while the welcome is up: arrows between Add, Not now and

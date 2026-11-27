@@ -1,6 +1,6 @@
 import Foundation
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 public protocol AppLaunching {
     func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,

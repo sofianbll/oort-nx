@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Selene's control center (MenuScreen.cs): the screen dimmed at 0.55, one row of
 /// icon buttons along the bottom, the focused item's name above a white ring.

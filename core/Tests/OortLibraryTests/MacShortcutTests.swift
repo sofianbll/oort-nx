@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class MacShortcutTests: XCTestCase {
     func testChosenAppIsLocalAndAliasDoesNotCreateAnotherTile() throws {

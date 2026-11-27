@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class DetailsFocusTests: XCTestCase {
     private let all = DetailsFocus.Bands(screenshots: 3, actions: 5, more: 2)

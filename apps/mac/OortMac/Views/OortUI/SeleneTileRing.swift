@@ -1,4 +1,4 @@
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 /// Selene's active tile ring: a 3u ring with a rotating highlight and a pulsing glow.

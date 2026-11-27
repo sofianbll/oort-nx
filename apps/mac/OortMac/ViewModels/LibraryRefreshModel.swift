@@ -1,6 +1,6 @@
 import Combine
 import Foundation
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The one refresh behind every « Library refresh »: the game apps, the enabled sources and the cloud, at the same time.

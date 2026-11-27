@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// The Details top block (Selene GameDetails `SeleneDetailsTop`): the logo (or

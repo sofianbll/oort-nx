@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Selene's pill: glass at rest, solid focus colour with glow when focused.
 struct SelenePillButton: View {

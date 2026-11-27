@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 /// Synthetic responses shaped like GameBanana's apiv11 and legacy Core API (verified 2026-11-06).

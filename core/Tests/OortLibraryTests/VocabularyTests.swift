@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// The experience contract's words, in the catalog every screen reads.
 final class VocabularyTests: XCTestCase {

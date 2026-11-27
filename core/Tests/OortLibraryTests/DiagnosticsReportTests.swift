@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class DiagnosticsReportTests: XCTestCase {
     private func inputs() -> DiagnosticsReport.Inputs {

@@ -1,5 +1,5 @@
 import AppKit
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Mods: the game's RomFS and ExeFS folders, their order and on/off state, and the RomFS overlay the game reads.

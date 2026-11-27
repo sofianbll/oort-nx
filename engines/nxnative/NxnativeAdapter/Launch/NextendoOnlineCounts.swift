@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// The public count per title, not the total for a group of titles in `jeux`.
 public actor NextendoOnlineCounts {

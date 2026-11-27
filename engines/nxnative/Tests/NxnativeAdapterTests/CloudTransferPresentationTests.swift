@@ -1,6 +1,6 @@
 import XCTest
 import ArcanePorting
-import NXLibraryCore
+import OortLibrary
 
 final class CloudTransferPresentationTests: XCTestCase {
     func testTransferLifecycleAndActions() {

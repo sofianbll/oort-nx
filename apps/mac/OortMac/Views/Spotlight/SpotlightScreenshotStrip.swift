@@ -1,6 +1,6 @@
 import SwiftUI
 import AppKit
-import NXLibraryCore
+import OortLibrary
 
 /// The selected game's screenshots (Main.xaml HubBottomCards): up to six tiles
 /// on glassSolid, the focused one with a 3u ring 4 outside it and a grow. The

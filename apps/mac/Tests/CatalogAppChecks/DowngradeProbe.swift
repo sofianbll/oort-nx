@@ -2,7 +2,7 @@ import AppKit
 import ArcanePorting
 import Foundation
 @testable import NXLibrary
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 @main struct DowngradeProbe {

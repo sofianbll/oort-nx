@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 /// A Steam game with no app has no icon of its own: LaunchBox's Square for its PC entry, else nothing.
 final class SteamAutomaticIconTests: XCTestCase {

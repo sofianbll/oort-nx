@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class CriticRatingTests: XCTestCase {
     private let query = CriticRatingQuery(name: "Fixture", platform: .mac, steamAppID: 42)

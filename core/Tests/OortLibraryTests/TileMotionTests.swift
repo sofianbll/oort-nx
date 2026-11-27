@@ -1,6 +1,6 @@
 import CoreGraphics
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 
 final class TileMotionTests: XCTestCase {
     func testGlowPulsesBetweenItsLowAndHighOver3Point6Seconds() {

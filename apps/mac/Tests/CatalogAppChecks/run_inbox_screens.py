@@ -17,7 +17,7 @@ HOST = r'''
 import AppKit
 import ArcanePorting
 import CoreText
-import NXLibraryCore
+import OortLibrary
 import SwiftUI
 
 @main struct InboxProbe {

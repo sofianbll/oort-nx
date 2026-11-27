@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 /// Mod images from GameBanana's CDN, kept on disk by URL. Only trusted GameBanana URLs are fetched; at most 4 at once.
 public actor GameBananaImageCache {

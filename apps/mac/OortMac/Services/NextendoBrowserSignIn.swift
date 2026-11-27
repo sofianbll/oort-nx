@@ -1,6 +1,6 @@
 import AppKit
 import Network
-import NXLibraryCore
+import OortLibrary
 import ArcanePorting
 
 /// Nextendo redirects to an HTTP loopback URL, not an app scheme. Use the default browser.

@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 enum SeleneTheme {
     private static var palette: SelenePalette { ThemeStore.shared.palette }

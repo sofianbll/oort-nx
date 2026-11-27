@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 import XCTest
-@testable import NXLibraryCore
+@testable import OortLibrary
 @testable import ArcanePorting
 
 final class CloudDriveFoldersTests: XCTestCase {

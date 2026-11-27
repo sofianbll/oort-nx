@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
-import NXLibraryCore
+import OortLibrary
 
 /// The shell's screen: its layers, overlays and modifiers, split from `body` for the type checker.
 extension AppShellView {

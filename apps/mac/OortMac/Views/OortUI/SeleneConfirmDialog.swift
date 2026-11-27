@@ -1,5 +1,5 @@
 import SwiftUI
-import NXLibraryCore
+import OortLibrary
 
 /// Which pill of a confirmation dialog has focus.
 enum SeleneConfirmButton: Hashable {

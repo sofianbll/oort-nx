@@ -1,7 +1,7 @@
 import Foundation
 import Darwin
 import IOKit.pwr_mgt
-import NXLibraryCore
+import OortLibrary
 
 public struct BuildResult: Equatable {
     public var success: Bool

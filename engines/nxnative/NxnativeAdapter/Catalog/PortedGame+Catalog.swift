@@ -1,5 +1,5 @@
 import Foundation
-import NXLibraryCore
+import OortLibrary
 
 extension CatalogIntegration {
     /// nxnative's ported games, the first records the catalog had.

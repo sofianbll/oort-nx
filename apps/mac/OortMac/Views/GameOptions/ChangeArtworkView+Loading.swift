@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import ImageIO
 import UniformTypeIdentifiers
-import NXLibraryCore
+import OortLibrary
 
 /// Loading: the slot's candidates and their previews, a source's browse results, the pick and the automatic icon.
 extension ChangeArtworkView {
