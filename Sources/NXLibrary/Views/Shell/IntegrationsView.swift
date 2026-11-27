@@ -156,6 +156,7 @@ struct IntegrationBar: View {
 
 struct IntegrationsView: View {
     @Environment(\.nxAppLocale) private var locale
+    @Environment(\.seleneCanvas) private var canvas
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: IntegrationID?
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityAction: IntegrationDetailAction?
     let overview: IntegrationOverview
@@ -251,10 +252,14 @@ struct IntegrationsView: View {
                                 date.formatted(.dateTime.year().month().day().hour().minute().locale(locale.formatLocale))
                             ], context: locale), preset: .quiet)
                         case .access:
-                            ForEach([(IntegrationCatalog.reads, row.reads), (IntegrationCatalog.writes, row.writes),
-                                     (IntegrationCatalog.sends, row.sends)], id: \.0.key) { label, value in
-                                OortReadout(text: L10n.format(label.key, [text(value)], context: locale))
+                            // Reads/Writes/Sends stay together, set apart from the checks by a token gap, not a box.
+                            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                                ForEach([(IntegrationCatalog.reads, row.reads), (IntegrationCatalog.writes, row.writes),
+                                         (IntegrationCatalog.sends, row.sends)], id: \.0.key) { label, value in
+                                    OortReadout(text: L10n.format(label.key, [text(value)], context: locale))
+                                }
                             }
+                            .padding(.top, canvas.u(SeleneTokens.Space.small))
                         case .action(let choice):
                             OortButton(title: row.title(of: choice), focused: choice == action, preset: .compact) {
                                 activate(choice, for: row)
