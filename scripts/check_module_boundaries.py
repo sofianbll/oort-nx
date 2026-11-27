@@ -41,7 +41,8 @@ UI_BASELINE = {
     "core/OortLibrary/Selene/Motion.swift": {"SwiftUI"},
     "core/OortLibrary/Artwork/ArtworkStore.swift": {"AppKit"},
 }
-IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
+IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+(?:(?:struct|class|enum|protocol|typealias|func|let|var)\s+)?"
+                    r"([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
 ENGINE_READ = re.compile(r'"DMCommit"|"rev-parse"\s*,\s*"HEAD"|"--format=%h %s"|\.readStatus\(\)|'
                          r'fileExists\(atPath:[^\n]*(?:managedKeysURL|keyURL)\.path')
 GIT_STATUS = re.compile(r'"status"\s*,\s*"--porcelain"')

@@ -6,7 +6,7 @@
 
 [ADR 0001](0001-oort-independant-du-moteur.md) puts every engine behind one interface, in the core module (`OortCore`), with two adapters: nxnative and Ryujinx. It does not say who may import an adapter.
 
-Today the nxnative module (`NxnativeAdapter`, in `engines/nxnative/`) holds the adapter **and** domains that are not about the engine yet: library, store, catalog, launch, cheats, game settings, saves, mods. 141 files of the Mac app import it. While any file of an app can import an adapter, nothing stops a screen from depending on one engine, and adding a second engine means touching those screens.
+Today the Mac's entry point does not import the adapter yet; the nxnative module (`NxnativeAdapter`, in `engines/nxnative/`) holds the adapter **and** domains that are not about the engine yet: library, store, catalog, launch, cheats, game settings, saves, mods. 141 files of the Mac app import it. While any file of an app can import an adapter, nothing stops a screen from depending on one engine, and adding a second engine means touching those screens.
 
 ## Decision
 

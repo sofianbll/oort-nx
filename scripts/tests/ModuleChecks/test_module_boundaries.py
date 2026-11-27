@@ -120,6 +120,10 @@ class ModuleBoundaryTests(unittest.TestCase):
         self.debt(source("mac", "Views/Screen.swift"))
         self.assertEqual(boundaries.check(self.root), [])
 
+    def test_importing_one_declaration_of_the_engine_counts_as_importing_it(self):
+        write(self.root, source("mac", "Views/Screen.swift"), f"import struct {NXNATIVE}.Thing\n")
+        self.assertTrue(any("only the app's entry point may" in line for line in boundaries.check(self.root)))
+
     def test_a_debt_entry_that_no_longer_imports_the_engine_is_reported(self):
         self.debt(source("mac", "Views/Screen.swift"))
         write(self.root, source("mac", "Views/Screen.swift"), "import SwiftUI\n")

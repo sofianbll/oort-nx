@@ -44,6 +44,9 @@ class ChangedAreasTests(unittest.TestCase):
             "design/Selene/palettes.json": {"swift", "desktop"},
             "scripts/generate_oort_tokens.py": {"swift", "desktop"},
             "design/Icons/AppIcon.icon/Assets/glyph.svg": {"swift", "android"},
+            # Folders that came from Resources/ reach the Mac only, as they did there.
+            "design/SoundPacks/oort.oortsound/back.wav": {"swift"},
+            "design/Brands/Credits/arcane.png": {"swift"},
         }
         with checkout(*ALL_FOLDERS) as root:
             for path, expected in cases.items():
