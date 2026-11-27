@@ -460,6 +460,7 @@ Cartella `core/OortLibrary/Settings/`. Il catalogo dei testi sta in `Resources/`
 | [core/OortLibrary/Settings/OnlinePlayersDisplay.swift](../../core/OortLibrary/Settings/OnlinePlayersDisplay.swift) | I quattro interruttori di Nextendo players, la conversione delle scelte precedenti e la condizione per leggere il conteggio. |
 | [core/OortLibrary/Settings/AppLocale.swift](../../core/OortLibrary/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
 | [core/OortLibrary/Settings/AppLocalization.swift](../../core/OortLibrary/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
+| [core/OortLibrary/Settings/GeneratedNames.swift](../../core/OortLibrary/Settings/GeneratedNames.swift) | Nome del bundle di risorse compilato, generato da `architecture/names.json`. |
 | [core/OortLibrary/Resources/credits.json](../../core/OortLibrary/Resources/credits.json) | Copia generata di `design/credits.json`. |
 | [core/OortLibrary/Resources/Localizable.xcstrings](../../core/OortLibrary/Resources/Localizable.xcstrings) | Testi in sette lingue, inclusi errori di avvio di Python, avvisi del Cestino, recupero degli spostamenti cloud e accessi di Integrations. |
 
@@ -1046,10 +1047,16 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/check_probes.py](../../scripts/check_probes.py) | R13: una sonda che legge il testo reso deve provarne la visibilità con `assertVisible`. |
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
-| [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge i livelli dal modello LikeC4, li confronta con SwiftPM e verifica gli import. |
+| [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge moduli, tipi e livelli da `architecture/names.json`, li confronta con SwiftPM e verifica gli import; solo il punto d'ingresso di un'app importa un motore (ADR 0002). |
+| [scripts/engine-import-debt.json](../../scripts/engine-import-debt.json) | Debito dell'ADR 0002: i file del Mac che importano ancora l'adattatore nxnative; la lista può solo scendere. |
+| [scripts/check_names.py](../../scripts/check_names.py) | Rifiuta un nome tecnico scritto a mano fuori da `architecture/names.json` e verifica i valori congelati dei giocatori. |
+| [scripts/names.py](../../scripts/names.py) | Legge `architecture/names.json` per gli script e le sonde; `stage()` prepara il pacchetto temporaneo di una sonda. |
+| [scripts/generate_names.py](../../scripts/generate_names.py) | Scrive le copie dei nomi: blocchi di `Package.swift` e `build_app.sh`, `architecture/names.c4`, `GeneratedNames.swift`. |
 | [architecture/likec4.config.json](../../architecture/likec4.config.json) | Configurazione del progetto LikeC4. |
 | [architecture/spec.c4](../../architecture/spec.c4) | Tipi di elementi del modello. |
-| [architecture/model.c4](../../architecture/model.c4) | Sistemi, livelli Swift e responsabilità dei domini. |
+| [architecture/model.c4](../../architecture/model.c4) | Sistemi e responsabilità dei domini. |
+| [architecture/names.json](../../architecture/names.json) | Unica fonte dei nomi tecnici: pacchetto, moduli con tipo, livello e cartella, target di test, punto d'ingresso; valori congelati dei giocatori. |
+| [architecture/names.c4](../../architecture/names.c4) | Moduli Swift del modello, generati da `names.json`. |
 | [architecture/structure.c4](../../architecture/structure.c4) | Cartelle e file della radice del repository, e dove può stare la documentazione; letto da `scripts/check`. |
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
 | [scripts/tests/CIChecks/test_changed_areas.py](../../scripts/tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |

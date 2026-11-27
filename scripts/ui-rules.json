@@ -215,7 +215,7 @@
   "apps/mac/OortMac/Views/Settings/SettingsGamesSection.swift::Picker": "The languages an engine offers, a list of values.",
   "Integrations page": "Seven rows in two groups, three game sources and four services: counted by hand on bf0c3410.",
   "View menu": "Four commands added to the system's own menu: counted by hand on bf0c3410.",
-  "desktop/": "The Windows and Linux page draws the lists OortCore sends; only their Swift source is counted."
+  "desktop/": "The Windows and Linux page draws the lists the core module sends; only their Swift source is counted."
  },
  "allowed": {
   "a11y-tap": {
