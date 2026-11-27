@@ -21,7 +21,7 @@ final class EngineRuntimeRequirementsTests: XCTestCase {
             throw XCTSkip("no ~/nxnative checkout")
         }
         let root = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let viewModel = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"),
                                    encoding: .utf8)
         guard let match = viewModel.range(of: #"defaultPinnedEngineCommit = "[0-9a-f]{40}""#, options: .regularExpression) else {

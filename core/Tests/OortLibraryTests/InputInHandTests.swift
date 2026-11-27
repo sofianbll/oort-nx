@@ -61,7 +61,7 @@ final class InputInHandTests: XCTestCase {
 
     /// A hover that takes the focus goes through `seleneHover` or `SeleneHoverFocus`; a bare `onHover` only lights.
     func testNoScreenTakesTheFocusFromABareHover() throws {
-        let views = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let views = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Sources/NXLibrary/Views")
         let files = FileManager.default.enumerator(at: views, includingPropertiesForKeys: nil)!.compactMap { $0 as? URL }
             .filter { $0.pathExtension == "swift" }

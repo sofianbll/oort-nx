@@ -4,7 +4,7 @@ import XCTest
 /// The experience contract's words, in the catalog every screen reads.
 final class VocabularyTests: XCTestCase {
     private var root: URL {
-        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
     }
 
     private func strings(_ language: String) throws -> [String: String] {

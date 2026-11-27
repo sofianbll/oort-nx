@@ -5,7 +5,7 @@ import XCTest
 /// underneath: a game starts instead of the overlay's button.
 final class ShellOverlayInputTests: XCTestCase {
     private var views: URL {
-        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Sources/NXLibrary/Views")
     }
 
@@ -29,7 +29,7 @@ final class ShellOverlayInputTests: XCTestCase {
 final class PaletteInputTests: XCTestCase {
     private func source(_ path: String) throws -> String {
         try String(contentsOf: URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().appendingPathComponent("Sources/NXLibrary/\(path)"), encoding: .utf8)
+            .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Sources/NXLibrary/\(path)"), encoding: .utf8)
     }
 
     func testScreensYieldToThePalette() throws {
@@ -62,7 +62,7 @@ final class PaletteInputTests: XCTestCase {
 /// full-page layer (screen, Add game, console) covered, and every `SeleneHintsBar` honours the mark.
 final class ShellOverlayHintsTests: XCTestCase {
     private var views: URL {
-        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Sources/NXLibrary/Views")
     }
 

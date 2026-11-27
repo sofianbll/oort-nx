@@ -11,7 +11,7 @@ final class LaunchExitTests: XCTestCase {
 
     /// Every key under the launch screen stops at it, and the controller reaches it before anything else.
     func testTheShellHandsBackToTheLaunchScreen() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         func source(_ path: String) throws -> String {
             try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/" + path), encoding: .utf8)
         }

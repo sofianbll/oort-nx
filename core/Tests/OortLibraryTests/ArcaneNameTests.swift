@@ -4,7 +4,7 @@ import XCTest
 /// The user-facing brand is separate from the upstream network identity.
 final class ArcaneNameTests: XCTestCase {
     private var repository: URL {
-        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
     }
 
     func testCatalogShowsNoOldAppName() throws {

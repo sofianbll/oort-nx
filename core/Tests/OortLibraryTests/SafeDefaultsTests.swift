@@ -4,7 +4,7 @@ import XCTest
 /// Screens that open by themselves: the press meant for what was under them must never commit to anything.
 final class SafeDefaultsTests: XCTestCase {
     private func source(_ path: String) throws -> String {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         return try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/" + path), encoding: .utf8)
     }
 

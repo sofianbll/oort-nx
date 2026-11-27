@@ -77,7 +77,7 @@ final class SoundPackTests: XCTestCase {
 
     func testBundledOriginalsValidateWithoutChangingTheDefault() throws {
         let sources = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-            .deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         try withFolder { root in
             let library = SoundPackLibrary(root: root, bundled: sources.appendingPathComponent("Resources/SoundPacks"))
             XCTAssertEqual(library.choices().map(\.name), ["Oort", "Frost", "Mist", "Nucleus", "Selene", "Pollen", "Umbra", "Impulsion"])
@@ -105,7 +105,7 @@ final class SoundPackTests: XCTestCase {
 
     func testEarlierAndImportedChoicesStayActiveUnderOther() throws {
         let sources = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-            .deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         try withFolder { root in
             let incoming = root.appendingPathComponent("incoming")
             try FileManager.default.createDirectory(at: incoming, withIntermediateDirectories: false)

@@ -554,7 +554,7 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
 
     /// The power pill only asks; NoticeHost exercises the safe default and the choice itself.
     func testQuitAndRestartOnlyRunFromTheirConfirmation() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let shell = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/Views/Shell/AppShellView+Input.swift"), encoding: .utf8)
         let run = try XCTUnwrap(shell.components(separatedBy: "func runPower(").last?.components(separatedBy: "\n    }").first)
         XCTAssertFalse(run.contains("terminate"))

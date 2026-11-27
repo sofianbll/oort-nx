@@ -33,7 +33,6 @@ model {
     tests = folder "Tests/" {
       summary "Swift tests, app probes, Python checks"
       metadata { path "Tests" }
-      testLibraryCore = folder "NXLibraryCoreTests/" { metadata { path "Tests/NXLibraryCoreTests" } }
       testPorting = folder "ArcanePortingTests/" { metadata { path "Tests/ArcanePortingTests" } }
       testProbes = folder "CatalogAppChecks/" { metadata { path "Tests/CatalogAppChecks" } }
       testCI = folder "CIChecks/" { metadata { path "Tests/CIChecks" } }

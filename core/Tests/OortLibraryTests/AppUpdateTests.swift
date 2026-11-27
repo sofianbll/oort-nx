@@ -50,7 +50,7 @@ final class AppUpdateTests: XCTestCase {
 
     /// The development version is the one in progress, and a release never ships under another number.
     func testVersionFileIsTheVersionInProgress() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let version = try String(contentsOf: root.appendingPathComponent("VERSION"), encoding: .utf8)
             .trimmingCharacters(in: .whitespacesAndNewlines)
         XCTAssertNotNil(version.range(of: #"^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}(-(alpha|beta|rc)\.[1-9][0-9]*)?$"#, options: .regularExpression))
@@ -324,7 +324,7 @@ final class AppUpdateTests: XCTestCase {
 
     /// scripts/release.sh reads these two values from the sources with sed; a reformat must not break it.
     func testReleaseScriptCanReadTheRequirements() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let requirements = try String(contentsOf: root.appendingPathComponent("Sources/ArcanePorting/Setup/ToolchainRequirements.swift"), encoding: .utf8)
         XCTAssertNotNil(requirements.range(of: #"minimumXcode: "[0-9.]+""#, options: .regularExpression))
         let viewModel = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"), encoding: .utf8)

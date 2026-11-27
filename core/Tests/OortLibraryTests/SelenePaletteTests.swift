@@ -4,7 +4,7 @@ import XCTest
 final class SelenePaletteTests: XCTestCase {
     private var paletteURL: URL {
         URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Resources/Selene/palettes.json")
     }
 

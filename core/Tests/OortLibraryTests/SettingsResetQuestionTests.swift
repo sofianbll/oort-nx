@@ -15,7 +15,7 @@ final class SettingsResetQuestionTests: XCTestCase {
 
     /// X and the hint only ask; the reset is reachable only through the question.
     func testNothingResetsWithoutTheQuestion() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let view = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/Views/Settings/SettingsView.swift"), encoding: .utf8)
         XCTAssertEqual(view.components(separatedBy: "resetSection(").count - 1, 3, "Its definition and the two ways through askToReset")
     }
