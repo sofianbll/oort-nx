@@ -3,6 +3,9 @@
     "site": "oortnx",
     "public": "public",
     "ignore": ["**/.*"],
-    "trailingSlash": true
+    "trailingSlash": true,
+    "headers": [
+      {"source": "**/*.woff2", "headers": [{"key": "Access-Control-Allow-Origin", "value": "*"}]}
+    ]
   }
 }
