@@ -68,6 +68,10 @@ def layout_at(ref, root=ROOT):
     return Layout(DATA["former"][-1])
 
 
+def _former(ref, root):
+    return subprocess.run(["git", "-C", str(root), "cat-file", "-e", f"{ref}:{SOURCE}"], capture_output=True).returncode != 0
+
+
 def stage(package, ref=None, root=ROOT):
     """Copy Package.swift and every module into package (from the checkout, or from ref), with an empty file in
     each test target so that the manifest resolves. Return the staged Layout."""
@@ -78,8 +82,9 @@ def stage(package, ref=None, root=ROOT):
         for relative in (module["path"] for module in layout.modules.values()):
             shutil.copytree(Path(root) / relative, package / relative)
     else:
-        archived = subprocess.check_output(["git", "-C", str(root), "archive", ref, "Package.swift",
-                                            *(module["path"] for module in layout.modules.values())])
+        # A revision from before names.json may hold other modules than the last former layout: take Sources/ whole.
+        folders = ["Sources"] if _former(ref, root) else [module["path"] for module in layout.modules.values()]
+        archived = subprocess.check_output(["git", "-C", str(root), "archive", ref, "Package.swift", *folders])
         with tarfile.open(fileobj=io.BytesIO(archived)) as archive:
             archive.extractall(package, filter="data")
     for test in layout.tests.values():
