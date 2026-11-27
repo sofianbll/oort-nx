@@ -28,7 +28,7 @@ def script(name, *args):
 
 
 def python_tests(_base):
-    folders = sorted({path.parent for path in ROOT.glob("Tests/*/test_*.py")})
+    folders = sorted({path.parent for pattern in ("Tests/*/test_*.py", "scripts/tests/*/test_*.py") for path in ROOT.glob(pattern)})
     return [[PY, "-m", "unittest", "discover", "-s", folder.relative_to(ROOT).as_posix()] for folder in folders]
 
 

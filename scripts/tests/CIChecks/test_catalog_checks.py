@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "apps/mac/Tests/CatalogAppChecks"))
 

@@ -1052,8 +1052,8 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [architecture/model.c4](../../architecture/model.c4) | Sistemi, livelli Swift e responsabilità dei domini. |
 | [architecture/structure.c4](../../architecture/structure.c4) | Cartelle e file della radice del repository, e dove può stare la documentazione; letto da `scripts/check`. |
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
-| [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
-| [Tests/CIChecks/test_catalog_checks.py](../../Tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
+| [scripts/tests/CIChecks/test_changed_areas.py](../../scripts/tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
+| [scripts/tests/CIChecks/test_catalog_checks.py](../../scripts/tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
 | [Tests/RepoChecks/support.py](../../Tests/RepoChecks/support.py) | Repository Git usa e getta per i controlli del repository. |

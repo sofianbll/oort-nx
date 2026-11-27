@@ -39,7 +39,6 @@ model {
     tests = folder "Tests/" {
       summary "Swift tests, app probes, Python checks"
       metadata { path "Tests" }
-      testCI = folder "CIChecks/" { metadata { path "Tests/CIChecks" } }
       testModules = folder "ModuleChecks/" { metadata { path "Tests/ModuleChecks" } }
       testPublication = folder "PublicationChecks/" { metadata { path "Tests/PublicationChecks" } }
       testRepo = folder "RepoChecks/" { metadata { path "Tests/RepoChecks" } }
@@ -88,6 +87,7 @@ model {
     scripts = folder "scripts/" {
       summary "check, generate and the scripts they run"
       metadata { path "scripts" }
+      scriptTests = folder "tests/" { metadata { path "scripts/tests" } }
     }
 
     github = folder ".github/" {
