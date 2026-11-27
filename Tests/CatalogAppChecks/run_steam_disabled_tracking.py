@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Exercise Steam's real process matching with synthetic process observations."""
+import re
+
 from audit_probe_host import ROOT, run_host
 
 HOST = r'''
@@ -54,4 +56,6 @@ if __name__ == "__main__":
     end = coordinator.index("        let now = Date()", start)
     coordinator = coordinator[:start] + "        let processes = fixtureProcesses\n" + coordinator[end:]
     coordinator = coordinator.replace("    func refresh(heartbeat:", "    var fixtureProcesses: [NativeProcessObservation] = []\n\n    func refresh(heartbeat:")
-    run_host(HOST, coordinator)
+    # The copied coordinator reaches package-level Play types, as its own module does.
+    package_name = re.search(r'"SWIFT_PACKAGE_NAME"\s*:\s*"([^"]+)"', (ROOT / ".build/manifest.pif").read_text())[1]
+    run_host(HOST, coordinator, package_name=package_name)

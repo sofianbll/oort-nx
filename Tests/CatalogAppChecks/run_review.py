@@ -123,7 +123,12 @@ struct SpotlightPageModel { var links = [1]; var more: [Int] = [] }
     var currentFocusedCatalogGame: CatalogGame?
     var currentFocusedGame: PortedGame? { currentFocusedCatalogGame?.nxnativeGame }
     var launches: [UUID] = []
-    func launchGame(_ game: PortedGame) { launches.append(game.id) }
+    var resumeRunning: ((PortedGame) -> Void)?
+    // Play brings a running game forward through its monitor and never starts it again.
+    func launchGame(_ game: PortedGame, resumeOnly: Bool = false) {
+        if resumeOnly { resumeRunning?(game); return }
+        launches.append(game.id)
+    }
     func portingPills(_ game: PortedGame) -> PortingPills { .normal }
     func canCheckCloudSources(for game: PortedGame) -> Bool { false }
 }
@@ -220,7 +225,7 @@ final class ApplicationState {
     func yieldActivation(toApplicationWithBundleIdentifier id: String) {}
 }
 let NSApp = ApplicationState()
-struct NSRunningApplication {
+struct NSRunningApplication: Equatable {
     let processIdentifier: Int32
     static var hiddenPID: Int32?
     var isHidden: Bool { processIdentifier == Self.hiddenPID }
@@ -250,7 +255,12 @@ enum GameResourceState {
     let viewModel = ViewModel()
     struct Model { let presentation = (canPlay: true, canRebuild: false) }
     let currentModel = Model()
-    init(game: PortedGame) { self.game = game }
+    init(game: PortedGame) {
+        self.game = game
+        viewModel.resumeRunning = { [runningGames] in
+            runningGames.resume($0, application: RunningGameMonitor.runningApplication(for: $0))
+        }
+    }
     func rebuild() {}
     // ACTUAL_PRIMARY_ACTION
 }

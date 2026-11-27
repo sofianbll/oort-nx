@@ -3,6 +3,9 @@ import NXLibraryCore
 import ArcanePorting
 
 extension SpotlightView {
+    /// What the platform preview waits on. A probe counts only the time its screen runs, not the time it spends capturing.
+    @MainActor static var platformSettleClock: any Clock<Duration> = ContinuousClock()
+
     func platforms(in games: [CatalogGame]) -> SpotlightPlatforms {
         SpotlightPlatforms(listedGames: games, preferredOrder: [.nxnative, .steam, .macShortcut])
     }
@@ -63,7 +66,7 @@ extension SpotlightView {
     /// Coalesce rapid presses before mounting the next set of game tiles and artwork.
     func settlePlatformPreview(_ cursor: SpotlightPlatforms.Card?) async {
         guard let cursor, platformPicker?.settled != cursor.integration else { return }
-        try? await Task.sleep(for: .milliseconds(240))
+        try? await Self.platformSettleClock.sleep(for: .milliseconds(240))
         guard !Task.isCancelled, !viewModel.profileOwnsInput,
               let picker = platformPicker, picker.cursor == cursor.integration else { return }
         platformPicker?.settle()

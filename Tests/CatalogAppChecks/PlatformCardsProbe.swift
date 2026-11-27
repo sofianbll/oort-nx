@@ -11,6 +11,7 @@ import ArcanePorting
     static func main() throws {
         assertFixtureHome()
         suppressProbeNotifications()
+        SpotlightView.platformSettleClock = Screen.clock
         AppData.preferences.register(defaults: [AppViewModel.StorageKeys.setupCompleted: true])
         L10n.setContext(locale)
         SeleneFonts.register()
@@ -176,13 +177,22 @@ import ArcanePorting
             if settle > 0 { advance(settle) }
         }
 
+        /// The preview's settle delay counts this time exactly, never the time a capture takes on a busy Mac.
+        static let clock = ProbeClock()
+
         func advance(_ seconds: TimeInterval = 0.38) {
             let end = Date().addingTimeInterval(seconds)
+            var counted: TimeInterval = 0
             repeat {
                 _ = host.fittingSize
                 host.layoutSubtreeIfNeeded()
+                let start = Date()
                 RunLoop.main.run(until: min(end, .now.addingTimeInterval(0.01)))
+                let step = min(Date().timeIntervalSince(start), seconds - counted)
+                counted += step
+                Self.clock.advance(by: .seconds(step))
             } while Date() < end
+            Self.clock.advance(by: .seconds(seconds - counted))
         }
 
         func bitmap() throws -> NSBitmapImageRep {
@@ -239,5 +249,43 @@ import ArcanePorting
     static func png(_ image: NSBitmapImageRep) throws -> Data {
         guard let data = image.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
         return data
+    }
+}
+
+/// Time that passes only inside `Screen.advance`.
+final class ProbeClock: Clock, @unchecked Sendable {
+    struct Instant: InstantProtocol {
+        let offset: Duration
+        func advanced(by duration: Duration) -> Self { .init(offset: offset + duration) }
+        func duration(to other: Self) -> Duration { other.offset - offset }
+        static func < (a: Self, b: Self) -> Bool { a.offset < b.offset }
+    }
+
+    private let lock = NSLock()
+    private var current = Instant(offset: .zero)
+    private var sleepers: [(deadline: Instant, wake: CheckedContinuation<Void, Never>)] = []
+    var now: Instant { lock.withLock { current } }
+    var minimumResolution: Duration { .zero }
+
+    func sleep(until deadline: Instant, tolerance: Duration? = nil) async throws {
+        await withCheckedContinuation { wake in
+            let due = lock.withLock {
+                if deadline <= current { return true }
+                sleepers.append((deadline, wake))
+                return false
+            }
+            if due { wake.resume() }
+        }
+        try Task.checkCancellation()
+    }
+
+    func advance(by duration: Duration) {
+        let due = lock.withLock {
+            current = current.advanced(by: duration)
+            let due = sleepers.filter { $0.deadline <= current }
+            sleepers.removeAll { $0.deadline <= current }
+            return due
+        }
+        due.forEach { $0.wake.resume() }
     }
 }
