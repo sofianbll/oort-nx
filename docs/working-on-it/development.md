@@ -112,19 +112,16 @@ build without this flag would open the app, so build first.
 ## Verification
 
 ~~~sh
-python3 scripts/check_publication.py
-python3 scripts/check_localizations.py
-python3 scripts/generate_oort_tokens.py --check
-python3 scripts/generate_credits.py --check
-python3 -m unittest discover -s Tests/PublicationChecks
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
-for check in Tests/CatalogAppChecks/run_*.py; do DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer python3 "$check" || break; done
+scripts/check
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+scripts/check swift
+scripts/check app-build && scripts/check app-probes debug   # then each batch of: python3 scripts/ci_catalog_checks.py matrix
 bash scripts/build_app.sh
 codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 ~~~
 
-Edit `design/oort.tokens.json`, then run `python3 scripts/generate_oort_tokens.py`
-and commit the three generated outputs (Swift, CSS, palettes). The generator checks contrast on opaque
+`scripts/check --list` names every rule and its tests. Edit `design/oort.tokens.json`, then run `scripts/generate`
+and commit the generated outputs (Swift, CSS, palettes). The generator checks contrast on opaque
 default Oort surfaces, not artwork or other palettes. The 26 px distance
 reference is rendered glyph height at 1080p, not a 26-point SwiftUI font.
 
@@ -156,11 +153,11 @@ For manual setup checks on an existing account, use **Settings → Start-up → 
 
 ### Continuous integration
 
-The [Checks workflow](../../.github/workflows/ci.yml) uses GitHub-hosted `xcode-27` for both `main` pushes and pull requests, including forks. It checks publication inputs, localization and Selene and runs the Python suites. For Swift changes, **Mac / Swift tests** requires the Swift unit suite, shared application probes, every standalone probe batch, and the Release build to pass. The shared probes reuse one Debug app build, independently of the unit-test job. CI runs at most two standalone package builds per runner. The common build helper uses the runner home for Xcode mounts, then the probe binary runs with its isolated fixture home. Every `run_*.py` still runs and reports its timing.
+The [Checks workflow](../../.github/workflows/ci.yml) uses GitHub-hosted `xcode-27` for both `main` pushes and pull requests, including forks. Its **Mac / checks** job runs `scripts/check`. For Swift changes, **Mac / Swift tests** requires the Swift unit suite, shared application probes, every standalone probe batch, and the Release build to pass. The shared probes reuse one Debug app build, independently of the unit-test job. CI runs at most two standalone package builds per runner. The common build helper uses the runner home for Xcode mounts, then the probe binary runs with its isolated fixture home. Every `run_*.py` still runs and reports its timing.
 
 Checkout is pinned and does not retain credentials. Permissions are read-only; the workflow needs no secrets, self-hosted runners, packaging or publishing. It does not run the UI or games or certify the engine. See the [runner measurements](../history/reviews/2026-11-26-mac-ci.md).
 
-Standalone probes use a SHA-256-verified rclone release for the synthetic local transport. SwiftUI-only text checks read a companion PDF from the same offscreen renderer; the AppKit settings probe still reads its screenshots and uses CPU-only Tesseract in CI for the hidden windows. The OCR package lock and language files are test dependencies, not application dependencies (Tesseract and its language data: Apache-2.0; see the [npm wrapper](https://github.com/naptha/tesseract.js)). `workflow_dispatch` can exercise all jobs on an authorized fix branch without changing `main`.
+Standalone probes use a SHA-256-verified rclone release for the synthetic local transport. SwiftUI-only text checks read a companion PDF from the same offscreen renderer and prove each expected text visible from its pixels (`assertVisible`); the AppKit settings probe still reads its screenshots and uses CPU-only Tesseract in CI for the hidden windows. The OCR package lock and language files are test dependencies, not application dependencies (Tesseract and its language data: Apache-2.0; see the [npm wrapper](https://github.com/naptha/tesseract.js)). `workflow_dispatch` can exercise all jobs on an authorized fix branch without changing `main`.
 
 ### Manual checks
 

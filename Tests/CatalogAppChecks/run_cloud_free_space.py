@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from probe_visible import install, text_render
 from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup
 
 SCENARIO = r'''
@@ -67,6 +68,7 @@ SCENARIO = r'''
             if !text.contains(includes) || excludes.map(text.contains) == true {
                 failures.append("\(name): expected \(includes), excluding \(excludes ?? "nothing"); saw \(text)")
             }
+            failures += assertVisible(output, name: name, [includes])
         }
         for label in ["wide", "narrow"] {
             try check("free-both-\(label)", "150 mo")
@@ -150,12 +152,8 @@ extension CloudLibraryPanel {
         preamble = HOST.split("        // SCENARIO", 1)[0]
         renderer = HOST[HOST.index("    @MainActor static func render<V: View>"):]
         renderer = renderer.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
-        renderer = renderer.replace("try png.write(to: output.appendingPathComponent(name + \".png\"))",
-                                    'let imageURL = output.appendingPathComponent(name + ".png")\n'
-                                    '        try png.write(to: imageURL)\n'
-                                    '        try saveProbeText(renderer, beside: imageURL)')
-        (app / "CloudScreenProbe.swift").write_text(preamble + SCENARIO + renderer)
-        shutil.copyfile(Path(__file__).with_name("ProbeRenderedText.swift"), app / "ProbeRenderedText.swift")
+        (app / "CloudScreenProbe.swift").write_text(preamble + SCENARIO + text_render(renderer))
+        install(app)
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
         icon = ROOT / "Resources/AppIcon-Light.png"
         home = package / "fixture-home"

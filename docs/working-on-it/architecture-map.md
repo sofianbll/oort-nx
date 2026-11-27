@@ -1,6 +1,6 @@
 # Architecture map
 
-The [LikeC4 model](../../architecture/model.c4) describes the systems, modules and domain ownership. Its [views](../../architecture/views.c4) show three scales of the same model and one short Play sequence. Swift import layers come from its `layer` metadata.
+The [LikeC4 model](../../architecture/model.c4) describes the systems, modules and domain ownership. Its [views](../../architecture/views.c4) show three scales of the same model and one short Play sequence; [structure.c4](../../architecture/structure.c4) shows the repository's folders. Swift import layers come from its `layer` metadata.
 
 For how each area behaves, read [architecture](../how-it-works/architecture.md). For the recipe to add a kind of code, read [conventions](conventions.md).
 
@@ -65,13 +65,7 @@ The portable rules are the reason for `OortCore`. Before a shared rule is added 
 
 ## Checks that keep the map true
 
-| Check | Command | Where it runs |
-|---|---|---|
-| Module boundaries | `python3 scripts/check_module_boundaries.py` | CI, always, on macOS |
-| Boundary tests | `python3 -m unittest discover -s Tests/ModuleChecks` | CI, always |
-| Which CI areas run | `python3 -m unittest discover -s Tests/CIChecks` | CI, always |
-| Public skills | `python3 -m unittest discover -s Tests/SkillChecks` | CI, always |
-| Portable core imports (Windows and Linux) | `python3 scripts/check_portable_core.py` | `alpha/windows` |
+`architecture/structure.c4` declares every root file and first- and second-level folder, and which folders may hold documentation; `scripts/check` refuses anything undeclared (`structure`, `docs`) and holds Swift imports to `architecture/model.c4` (`boundaries`). `scripts/check --list` names the tests of each rule. On `alpha/windows`, `scripts/check_portable_core.py` also keeps the portable core free of Apple imports, until that app joins `main`.
 
 Update `architecture/model.c4` in the same change as a changed system, module or domain boundary. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against it and does not need Node. Check navigability and labels in the live preview when a view changes.
 

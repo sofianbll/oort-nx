@@ -45,40 +45,14 @@ Read before you change code:
 
 ## Test before you open a pull request
 
-Start any change with the [oort-change](.agents/skills/oort-change/SKILL.md) list: it picks the [criteria](docs/working-on-it/change-criteria.md) that apply. Then run the same checks as CI:
+Start any change with the [oort-change](.agents/skills/oort-change/SKILL.md) list: it picks the [criteria](docs/working-on-it/change-criteria.md) that apply. Then run what CI runs:
 
 ~~~sh
-python3 scripts/check_publication.py
-python3 scripts/check_localizations.py
-python3 scripts/generate_oort_tokens.py --check
-python3 scripts/check_selene_tokens.py --base main
-python3 scripts/check_module_boundaries.py
-python3 scripts/check_ui_rules.py --base main
-python3 scripts/check_vocabulary.py
-python3 scripts/check_guides.py
-python3 -m unittest discover -s Tests/PublicationChecks
-python3 -m unittest discover -s Tests/ModuleChecks
-python3 -m unittest discover -s Tests/SkillChecks
-python3 -m unittest discover -s Tests/CIChecks
-python3 -m unittest discover -s Tests/UIRulesChecks
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --jobs 6
+scripts/check               # every rule; add --base main on a branch: debt lists only shrink
+scripts/check swift         # every Swift test
 ~~~
 
-Durations below come from the GitHub Actions history of 25 November 2026. They are not a guarantee.
-
-| Check | Where it runs | Duration seen |
-|---|---|---|
-| Mac: checks and Swift tests | `Mac / checks` and `Mac / Swift tests` jobs, `xcode-27` | About 22 min (one run) |
-| Windows and Linux: core and packages | `Desktop` workflow, alpha branch | About 20 min (median of 8) |
-| Android: checks, unit tests, APK | `Android` workflow, alpha branch | About 32 min (median of 7) |
-| iPhone and iPad: tests, simulators | `iPhone and iPad` workflow, alpha branch | About 42 min (median of 6) |
-
-| Script | What it holds | Its tests |
-|---|---|---|
-| `check_module_boundaries.py` | The order of the modules | `Tests/ModuleChecks` |
-| `check_ui_rules.py` | Interface rules a script can measure; the debt in `scripts/ui-rules.json` only shrinks | `Tests/UIRulesChecks` |
-| `check_vocabulary.py` | The same words on every system; the debt in `design/vocabulary-debt.json` only shrinks | `Tests/PublicationChecks` |
-| `check_guides.py` | Player guides and the feature matrix | `Tests/PublicationChecks` |
+`scripts/check --list` shows each rule, the commands behind it and the tests that make it fail on purpose.
 
 Passing checks prove the code builds and that the automated rules hold. They do not replace a manual check of the app, a controller or a real game. Say which checks you ran and which manual check is still needed.
 
@@ -97,7 +71,7 @@ Use synthetic fixtures in tests. Never commit a game, a key, a save, an extracte
 - Keep the notices in [NOTICE](NOTICE) and each licence of the code you reuse.
 - Credit [Arcane by Bium23](https://github.com/Bium23/NxLibrary) for work it contains, and [Selene by Matthew Silva](https://github.com/mattxslv/Selene) for the design system. Credit [Josef Nemec and Playnite](https://github.com/JosefNemec/Playnite) for any picker work taken from Playnite.
 - A licence on code is not permission to use branding or other assets.
-- Every project, service, font or symbol in use has its entry in [design/credits.json](design/credits.json), the only list: run `python3 scripts/generate_credits.py` after editing it.
+- Every project, service, font or symbol in use has its entry in [design/credits.json](design/credits.json), the only list: run `scripts/generate` after editing it.
 - A new dependency needs a compatible licence, an entry in `design/credits.json` and `NOTICE` and, for the engine runtime, an entry in `runtime.lock`.
 
 ### Importing from Arcane
@@ -118,7 +92,7 @@ The shared source is `Sources/NXLibraryCore/Resources/Localizable.xcstrings`. It
 - Leave product names, technical identifiers and user content unchanged.
 - Record the language in the pull request and whether a fluent speaker reviewed it.
 
-Run `python3 scripts/check_localizations.py` after any edit.
+Run `scripts/check strings` after any edit.
 
 ## What we refuse
 

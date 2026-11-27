@@ -36,5 +36,5 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `oortPanel`, `oortWell`, `oortRing` | Superficie, incavo e anello di focus condivisi | Sollevato, fluttuante; contrasto aumentato | Nessuna forma disegnata a mano in una schermata. |
 
 Per verificare una composizione usare la [galleria Debug](development.md#debug-configuration)
-e `python3 scripts/check_selene_tokens.py --base HEAD`. Le voci esistenti del
+e `scripts/check --base HEAD interface`. Le voci esistenti del
 debito possono essere rimosse con `--prune`, mai aumentate.

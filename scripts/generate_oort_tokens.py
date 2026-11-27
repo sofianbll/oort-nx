@@ -74,6 +74,12 @@ def tokens(data):
     return {key: resolve(key) for key in raw}
 
 
+# Minimum contrast of each foreground on its surface. Text is `ink`; screen probes hold rendered text to it.
+CONTRAST = (("ink", "glass", 4.5), ("ink", "scrim", 4.5), ("on-focus", "focus", 4.5), ("focus", "glass", 3),
+            ("glyph", "glass", 3))
+TEXT_CONTRAST = CONTRAST[0][2]
+
+
 def verify_contrast(resolved):
     def luminance(role):
         kind, color = resolved[f"color.{role}"]
@@ -84,9 +90,7 @@ def verify_contrast(resolved):
         return sum(a * b for a, b in zip(linear, (0.2126, 0.7152, 0.0722)))
 
     ratios = []
-    for fg, bg, threshold in (("ink", "glass", 4.5), ("ink", "scrim", 4.5),
-                              ("on-focus", "focus", 4.5), ("focus", "glass", 3),
-                              ("glyph", "glass", 3)):
+    for fg, bg, threshold in CONTRAST:
         low, high = sorted((luminance(fg), luminance(bg)))
         ratio = (high + 0.05) / (low + 0.05)
         if ratio < threshold:

@@ -1,0 +1,43 @@
+{
+  "_": "Markers that a public .md file must not carry. `allowed` records the files that already did; it only shrinks (scripts/check_docs.py).",
+  "markers": [
+    "/Users/",
+    "~/Games",
+    "/private/tmp",
+    "/private/var",
+    ".scratch/",
+    "docs/private/",
+    "Sofian"
+  ],
+  "allowed": {
+    "AGENTS.md": [
+      "docs/private/",
+      "Sofian"
+    ],
+    "docs/adr/0001-oort-independant-du-moteur.md": [
+      "Sofian"
+    ],
+    "docs/history/engine-upgrades/2026-11-02-2716f78-163a9905-review.md": [
+      "/private/tmp"
+    ],
+    "docs/history/reviews/2026-11-17-dock-rename-probe.md": [
+      "/Users/"
+    ],
+    "docs/how-it-works/architecture.md": [
+      "~/Games"
+    ],
+    "docs/how-it-works/flows.md": [
+      "Sofian"
+    ],
+    "docs/working-on-it/conventions.md": [
+      "Sofian"
+    ],
+    "docs/working-on-it/development.md": [
+      "~/Games",
+      "Sofian"
+    ],
+    "docs/working-on-it/validation.md": [
+      "Sofian"
+    ]
+  }
+}

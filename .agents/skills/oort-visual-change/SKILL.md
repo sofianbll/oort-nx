@@ -23,8 +23,7 @@ description: Apply the visual criteria of Oort NX to anything a player sees, hea
 
 ## Proof
 
-- `python3 scripts/check_ui_rules.py --report` and `check_selene_tokens.py --base <base>`, before and after.
-- `python3 scripts/check_localizations.py`.
+- `scripts/check` before, `scripts/check --base <base>` after; `python3 scripts/check_ui_rules.py --report` lists every known gap.
 - The table of entries and levels from step 1.
 - Captures before and after with their paths, and one line on what each shows.
 - What needs a hand: a real pad, VoiceOver, touch, sound.
