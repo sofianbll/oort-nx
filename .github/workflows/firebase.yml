@@ -1,0 +1,20 @@
+# Publie gh-pages sur Firebase Hosting (oortnx.web.app) à chaque push sur gh-pages.
+name: Firebase Hosting
+on:
+  push:
+    branches: [gh-pages]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fichiers du site
+        run: rsync -a --exclude .git --exclude .github --exclude firebase.json --exclude public ./ public/
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OORT_NX }}
+          projectId: oort-nx
+          channelId: live
