@@ -186,6 +186,7 @@ struct ScreenView: View {
                                aboutIsBody: node.about.map { ScreenTree.aboutRole($0) == .body } ?? false, focused: focused == id,
                                isOn: isOn, preset: .toggle(label: say(node.a?.title)))
             .environment(\.oortGroupedRow, true)
+            .environment(\.oortFlushRow, true)
             .id(id)
             .accessibilityFocused($accessibilityFocus, equals: id))
     }

@@ -95,13 +95,15 @@ struct SeleneOptionRow<Trailing: View>: View {
 struct SeleneOptionRowSurface: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.oortGroupedRow) private var grouped
+    @Environment(\.oortFlushRow) private var flush
     let focused: Bool
 
     func body(content: Content) -> some View {
         let radius = canvas.u(SeleneTokens.Radius.card)
+        let outset = flush ? canvas.u(SeleneTokens.Space.compact) : 0
         content
-            .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
-            .padding(.trailing, canvas.u(SeleneTokens.Space.large))
+            .padding(.leading, flush ? outset : canvas.u(SeleneTokens.Space.rowLeading))
+            .padding(.trailing, flush ? outset : canvas.u(SeleneTokens.Space.large))
             .padding(.vertical, canvas.u(grouped ? SeleneTokens.Space.line : SeleneTokens.Space.control))
             .background { if !grouped { Color.clear.oortPanel(radius: radius) } }
             .background {
@@ -112,5 +114,6 @@ struct SeleneOptionRowSurface: ViewModifier {
             }
             .seleneRowFocus(focused, radius: radius)
             .oortPadPress(focused)
+            .padding(.horizontal, -outset)
     }
 }
