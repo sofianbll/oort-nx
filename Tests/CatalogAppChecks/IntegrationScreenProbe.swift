@@ -228,7 +228,8 @@ func words(_ text: String) -> String { text.split(whereSeparator: \.isWhitespace
         let output = AppData.profile.home.appendingPathComponent("captures")
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         L10n.setContext(AppLocale(language: .french, region: "FR"))
-        let folder = URL(fileURLWithPath: "Tests/NXLibraryCoreTests/Screens")
+        // A copy outside the home, which the probe sandbox does not read (CI checks out under it).
+        let folder = URL(fileURLWithPath: ProcessInfo.processInfo.environment["OORT_SCREENS_DIR"] ?? "Tests/NXLibraryCoreTests/Screens")
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let screens = try decoder.decode([String: [Screen]].self, from: Data(contentsOf: folder.appendingPathComponent("integrations.screens.json")))

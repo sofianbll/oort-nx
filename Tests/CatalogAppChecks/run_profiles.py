@@ -1522,7 +1522,7 @@ extension SettingsView {
     @MainActor static func checkIntegrationJump(viewModel: AppViewModel, settings: AppSettingsStore, artwork: ArtworkStore) {
         let router = AppRouter()
         router.openIntegrations()
-        precondition(IntegrationOverview().open(.steam, in: router))
+        precondition(IntegrationOverview.open(.steam, IntegrationOverview.mac, in: router))
         let sources = CatalogSourcesModel(repository: viewModel.catalogRepository,
             initialConfiguration: .init(integration: .steam), onCommit: { _ in preconditionFailure("Unexpected Steam change") })
         let view = Self(initialSection: .sources, viewModel: viewModel, settings: settings, router: router, artwork: artwork)

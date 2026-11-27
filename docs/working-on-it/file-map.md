@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 27 novembre 2026. Il repository versiona **1682 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 27 novembre 2026. Il repository versiona **1683 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -930,7 +930,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Components/ScreenshotViewer.swift](../../Sources/NXLibrary/Views/Components/ScreenshotViewer.swift) | Mostra screenshot a schermo pieno e navigazione fra le immagini. |
 | [Sources/NXLibrary/Views/Components/SeleneBottomScrim.swift](../../Sources/NXLibrary/Views/Components/SeleneBottomScrim.swift) | Definisce sfumatura inferiore, posizione condivisa dei comandi (32 unità dal fondo) e fascia libera dai contenuti. |
 | [Sources/NXLibrary/Views/OortUI/OortPage.swift](../../Sources/NXLibrary/Views/OortUI/OortPage.swift) | Pagina con sfondo opaco o Selene storico, scroll e focus, intestazione di sezione e stato vuoto; una sonda la disegna intera senza scroll (`oortPageUnscrolled`). |
-| [Sources/NXLibrary/Views/OortUI/ScreenView.swift](../../Sources/NXLibrary/Views/OortUI/ScreenView.swift) | Rende uno `Screen` del core con i pezzi Selene, muove il focus nell’ordine pubblicato, fa i gesti (domanda compresa) con la tabella di effetti dell’host; traccia emessa dai pezzi per la parità. |
+| [Sources/NXLibrary/Views/OortUI/ScreenView.swift](../../Sources/NXLibrary/Views/OortUI/ScreenView.swift) | Rende uno `Screen` del core con i pezzi Selene, muove il focus nell’ordine pubblicato, fa i gesti (domanda compresa) con la tabella di effetti dell’host. |
+| [Sources/NXLibrary/Views/OortUI/ScreenTrace.swift](../../Sources/NXLibrary/Views/OortUI/ScreenTrace.swift) | Traccia emessa dai pezzi Selene (righe, punti, interruttori, pulsanti, testi con ruolo, barra, domanda) quando una sonda la legge; spenta nell’app. |
 | [OortFilePicker.swift](../../Sources/NXLibrary/Views/OortUI/OortFilePicker.swift) | Selettore in-app, navigazione e passaggio facoltativo al selettore di macOS. |
 | [OortFilePickerProbe.swift](../../Sources/NXLibrary/Views/OortUI/OortFilePickerProbe.swift) | Catture Debug larghe e strette in francese, con cartelle sintetiche. |
 | [Sources/NXLibrary/Views/OortUI/OortActionBar.swift](../../Sources/NXLibrary/Views/OortUI/OortActionBar.swift) | Piede comune di pannelli e domande: ritorno a sinistra, principale ultima a destra, distruttivo staccato; la colonna segue il focus se non entra. |

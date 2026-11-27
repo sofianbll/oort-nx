@@ -234,7 +234,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
         "Theme/AppLocaleEnvironment.swift", "Theme/SeleneCanvasEnvironment.swift",
         "Theme/SeleneFonts.swift", "Theme/SeleneTheme.swift",
         "Components/SeleneBottomScrim.swift", "Components/SeleneHomeChrome.swift",
-        "OortUI/SeleneHintsBar.swift", "OortUI/SelenePromptBadge.swift", "OortUI/OortSecondaryClick.swift",
+        "OortUI/SeleneHintsBar.swift", "OortUI/ScreenTrace.swift", "OortUI/SelenePromptBadge.swift", "OortUI/OortSecondaryClick.swift",
     ]
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-I", BIN, swift,
                     ROOT / "Sources/NXLibrary/Models/GamepadType.swift",

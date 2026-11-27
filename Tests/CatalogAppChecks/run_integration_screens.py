@@ -6,6 +6,7 @@ sound plays (OORT_HEADLESS_INPUT), no real data is read. Exit 1 on any differenc
 """
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 
@@ -20,9 +21,13 @@ def main():
     helper = (HERE / "ProbeRenderedText.swift").read_text()
     helper += f"\nlet probeMinimumContrast = {TEXT_CONTRAST} // scripts/generate_oort_tokens.py TEXT_CONTRAST\n"
     with tempfile.TemporaryDirectory(prefix="oort-integration-screens-") as output:
+        # The sandbox denies the home, where CI checks the repository out: the frozen screens go beside the output.
+        screens = Path(output) / "screens"
+        shutil.copytree(HERE.parent / "NXLibraryCoreTests/Screens", screens)
         # OORT_SCREENS_OUTPUT keeps the PNG and PDF of each screen, for a reader.
         keep = os.environ.get("OORT_SCREENS_OUTPUT")
-        run_host((HERE / "IntegrationScreenProbe.swift").read_text(), helper, save_model=True, capture=Path(keep or output))
+        run_host((HERE / "IntegrationScreenProbe.swift").read_text(), helper, save_model=True, capture=Path(keep or output),
+                 environment={"OORT_SCREENS_DIR": str(screens)})
 
 
 if __name__ == "__main__":
