@@ -10,8 +10,29 @@ permissions:
   contents: read
 
 jobs:
+  fs:
+    name: Bundle ctime (${{ matrix.copy }})
+    runs-on: xcode-27
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        copy: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Which fixture step changes the bundle later
+        run: |
+          csrutil status || true
+          spctl --status || true
+          systemextensionsctl list || true
+          python3 -I .github/diag/fs_touch.py
+          python3 -I .github/diag/fs_touch.py separate swap
+
   probe:
     name: Cloud Screens (${{ matrix.copy }})
+    if: ${{ false }}
     runs-on: xcode-27
     timeout-minutes: 25
     env:
