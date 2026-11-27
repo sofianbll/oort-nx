@@ -24,7 +24,7 @@ public enum L10n {
     public static func resources(in app: URL? = nil) -> Bundle? {
         let root = app ?? Bundle.main.bundleURL
         for folder in [root.appendingPathComponent("Contents/Resources"), root] {
-            if let bundle = Bundle(url: folder.appendingPathComponent("NXLibrary_NXLibraryCore.bundle")) { return bundle }
+            if let bundle = Bundle(url: folder.appendingPathComponent(GeneratedNames.resourceBundle)) { return bundle }
         }
         return app == nil ? Bundle.module : nil
     }

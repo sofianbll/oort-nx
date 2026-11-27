@@ -7,6 +7,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / ".build/debug"
 HOST = r'''
 import AppKit
@@ -80,6 +83,6 @@ with tempfile.TemporaryDirectory(prefix="oort-update-wait-") as path:
                                 'URL(fileURLWithPath: CommandLine.arguments[1]).appendingPathComponent("Update")'))
     env = dict(os.environ, HOME=str(scratch), CFFIXED_USER_HOME=str(scratch), PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN))
     subprocess.run(["xcrun", "swiftc", "-j", "1", "-parse-as-library", "-I", str(BIN),
-                    str(main), str(updater), str(BIN / "NXLibraryCore.o"), str(BIN / "ArcanePorting.o"), str(BIN / "OortCore.o"),
+                    str(main), str(updater), *map(str, names.objects(BIN)),
                     "-o", str(executable)], cwd=ROOT, env=env, check=True)
     subprocess.run([str(executable), str(scratch)], cwd=scratch, env=env, check=True, timeout=30)

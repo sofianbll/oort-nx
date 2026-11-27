@@ -11,6 +11,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 source = (ROOT / 'Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift').read_text()
 start = source.index('private struct AchievementsList: View')
@@ -175,7 +178,7 @@ with tempfile.TemporaryDirectory(prefix='achievement-scroll-check-') as folder:
                     str(ROOT / 'Sources/NXLibrary/ViewModels/AchievementsScreenModel.swift'),
                     str(ROOT / 'Sources/NXLibrary/ViewModels/ListScroll.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Components/GlideGroup.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

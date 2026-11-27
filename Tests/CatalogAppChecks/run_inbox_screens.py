@@ -10,6 +10,8 @@ import tempfile
 from run_cloud_screens import build_probe, install_settings_reset_fixture, isolate_startup
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 HOST = r'''
 import AppKit
@@ -282,12 +284,7 @@ def main():
         home.mkdir()
         output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "work/screens-inbox"
         output.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        shutil.copytree(ROOT / "Sources", package / "Sources")
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            stub = package / "Tests" / target / "Empty.swift"
-            stub.parent.mkdir(parents=True)
-            stub.touch()
+        names.stage(package)
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", "@main\nstruct", "struct")
         model = app / "ViewModels/AppViewModel.swift"

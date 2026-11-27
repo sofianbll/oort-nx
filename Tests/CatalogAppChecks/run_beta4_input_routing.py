@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 
 from audit_probe_host import ROOT, run_host
+import names  # noqa: E402  architecture/names.json (on sys.path from audit_probe_host)
 
 
 def member(name, signature):
@@ -146,7 +147,7 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
     func repeatKeys() -> Bool {
         installGestureKeyMonitor()
         GameControllerService.shared.onAction = { self.actions.append($0) }
-        let monitor = NXLibrary.GameControllerService(gcSource: NoHardware(), hidSource: NoHardware())
+        let monitor = APP_MODULE.GameControllerService(gcSource: NoHardware(), hidSource: NoHardware())
         func deliver(_ event: NSEvent) -> NSEvent? { monitor.monitorHand(event).flatMap(InputMonitor.handler) }
         router.isMenuPresented = true
         var power: [PowerAction] = []
@@ -233,4 +234,5 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
 }
 '''.replace("// GESTURE", gesture).replace("// RESTART", restart).replace("// PALETTE", palette)
     .replace("// NOTICE_KEY", notice_key).replace("// NOTICE_ROOM", notice_room)
+    .replace("APP_MODULE.", f"{names.APP}.")
     .replace("// CHECKS", "\n        ".join(f"if !ShellProbe().{actions[mode]}() {{ ok = false }}" for mode in modes)))

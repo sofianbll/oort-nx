@@ -6,6 +6,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 VIEWS = ROOT / 'Sources/NXLibrary/Views'
 
@@ -204,7 +207,7 @@ with tempfile.TemporaryDirectory(prefix='mods-band-scroll-check-') as folder:
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
                     str(VIEWS / 'Theme/SeleneCanvasEnvironment.swift'),
                     str(VIEWS / 'Components/SeleneBottomScrim.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

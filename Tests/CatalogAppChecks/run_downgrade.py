@@ -12,6 +12,8 @@ import sys
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 EXTRACTOR = ROOT / "scripts/extract_downgrade_checkpoint.py"
 PROBE = Path(__file__).with_name("DowngradeProbe.swift")
 
@@ -19,8 +21,8 @@ PROBE = Path(__file__).with_name("DowngradeProbe.swift")
 def compile_probe(tree, binary, legacy):
     build = tree / ".build"
     products = build / "out/Products/Debug"
-    targets = build / "out/Intermediates.noindex/NXLibrary.build/Debug/NXLibrary-p.build/Objects-normal"
-    [linkfile] = targets.glob("*/NXLibrary.LinkFileList")
+    targets = build / f"out/Intermediates.noindex/{names.PACKAGE}.build/Debug/{names.APP}-p.build/Objects-normal"
+    [linkfile] = targets.glob(f"*/{names.APP}.LinkFileList")
 
     def package_names(node):
         if isinstance(node, dict):
@@ -35,7 +37,7 @@ def compile_probe(tree, binary, legacy):
     [name] = sorted(set(package_names(json.loads((build / "manifest.pif").read_text()))))
     bundle_parent = binary.parent
     bundle_parent.mkdir()
-    shutil.copytree(products / "NXLibrary_NXLibraryCore.bundle", bundle_parent / "NXLibrary_NXLibraryCore.bundle")
+    shutil.copytree(products / names.RESOURCE_BUNDLE, bundle_parent / names.RESOURCE_BUNDLE)
     subprocess.run(["xcrun", "swiftc", "-j", "4", "-parse-as-library", "-package-name", name,
                     "-Xfrontend", "-entry-point-function-name", "-Xfrontend", "downgradeProbeMain",
                     "-Xlinker", "-e", "-Xlinker", "_downgradeProbeMain",

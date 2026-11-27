@@ -10,6 +10,8 @@ from run_cloud_screens import build_probe, install_settings_reset_fixture, isola
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 HOST = r'''
 import AppKit
@@ -1609,13 +1611,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="profile-screens-", dir=work) as temp:
         package = Path(temp)
-        shutil.copytree(ROOT / "Sources", package / "Sources")
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        replace(package / "Package.swift", r'\.executable\(name: "NXLibrary",', '.executable(name: "ProfileScreenProbe",')
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            stub = package / "Tests" / target
-            stub.mkdir(parents=True)
-            (stub / "Empty.swift").touch()
+        names.stage(package)
+        replace(package / "Package.swift", r'\.executable\(name: mac\.name,', '.executable(name: "ProfileScreenProbe",')
         app = package / "Sources/NXLibrary"
         cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
         replace(cloud, r"(                    let own = try await archive.latest\(titleID: target.titleID\))",

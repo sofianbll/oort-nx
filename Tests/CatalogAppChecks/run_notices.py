@@ -10,6 +10,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 
 def method(source, signature):
@@ -41,7 +44,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-notice-check-') as scratch:
     command = ['xcrun', 'swiftc', '-I', str(BIN), str(main),
                str(ROOT / 'Sources/NXLibrary/Models/LogEntry.swift'),
                str(ROOT / 'Sources/NXLibrary/ViewModels/AppViewModel+Catalog.swift'),
-               str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'), '-o', str(executable)]
+               *map(str, names.objects(BIN)), '-o', str(executable)]
     subprocess.run(command, cwd=ROOT, check=True)
     env = dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN))
     subprocess.run([str(executable)], env=env, check=True)

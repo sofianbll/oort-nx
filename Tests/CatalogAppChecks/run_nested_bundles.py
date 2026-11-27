@@ -16,6 +16,9 @@ import tempfile
 import zlib
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 
 
@@ -220,6 +223,6 @@ try verify(destination)
 print("Deep verification rejects changed nested payloads: PASS")
 ''')
     host = scratch / 'check'
-    run('xcrun', 'swiftc', '-I', BIN, main, BIN / 'NXLibraryCore.o', BIN / 'ArcanePorting.o', BIN / 'OortCore.o', '-o', host)
+    run('xcrun', 'swiftc', '-I', BIN, main, *names.objects(BIN), '-o', host)
     result = run(host, scratch)
     print(result.stdout, end='')

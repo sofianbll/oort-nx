@@ -8,8 +8,10 @@ import plistlib
 import re
 from xml.parsers.expat import ExpatError
 
+import names  # architecture/names.json
+
 LANGUAGES = ('en', 'it', 'fr', 'de', 'es', 'pt-BR', 'zh-Hans')
-BUNDLE = 'NXLibrary_NXLibraryCore.bundle'
+BUNDLE = names.RESOURCE_BUNDLE
 PLACEHOLDER = re.compile(r'%(?:(\d+)\$)?(lld|ld|d|@|(?:\.\d+)?f)')
 # SF Symbol names are identifiers: translated, they name no symbol and the icon disappears.
 TRANSLATED_SYMBOL = re.compile(r'\b(?:systemImage|systemName|systemSymbolName)\s*:\s*L10n\.')

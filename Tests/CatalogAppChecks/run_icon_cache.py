@@ -10,6 +10,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 
 host = r'''
@@ -67,6 +70,6 @@ with tempfile.TemporaryDirectory(prefix='icon-cache-check-') as folder:
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
                     str(ROOT / 'Sources/NXLibrary/Views/Components/GameIconProvider.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)), check=True)

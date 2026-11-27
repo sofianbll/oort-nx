@@ -13,6 +13,9 @@ import tempfile
 import re
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 
 
@@ -838,7 +841,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-review-check-') as folder:
                     str(ROOT / 'Sources/NXLibrary/Services/SteamAchievementsStore.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift'),
                     str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch)], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

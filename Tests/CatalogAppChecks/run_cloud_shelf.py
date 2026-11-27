@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 
 from run_cloud_screens import ROOT, HOST, build_probe, capture_destination, change, isolate_startup
+import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
 
 
 SCENARIOS = r'''
@@ -125,16 +126,7 @@ def main():
         package = Path(temp)
         home = package / "home"
         home.mkdir()
-        if "--before" in sys.argv:
-            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", "e432ed20", "Sources", "Package.swift"])
-            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
-        else:
-            shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-            shutil.copytree(ROOT / "Sources", package / "Sources")
-        for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            folder = package / "Tests" / name
-            folder.mkdir(parents=True)
-            (folder / "Empty.swift").touch()
+        names.stage(package, "e432ed20" if "--before" in sys.argv else None)
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")

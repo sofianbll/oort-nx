@@ -19,6 +19,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = sys.executable
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 
 def script(name, *args):
@@ -68,11 +70,11 @@ def heavy(name, arg):
         home = tempfile.mkdtemp(prefix="oort-home-")
         return [["swift", "test", "--jobs", "6"]], {"HOME": home, "CFFIXED_USER_HOME": home}
     if name == "app-build":
-        return [["swift", "build", "--jobs", "6", "--product", "NXLibrary"]], {}
+        return [["swift", "build", "--jobs", "6", "--product", names.APP]], {}
     if name == "app-probes" and arg:
         return [script("ci_catalog_checks.py", arg)], {}
     if name == "release-build":
-        return [["swift", "build", "-c", "release", "--product", "NXLibrary"]], {}
+        return [["swift", "build", "-c", "release", "--product", names.APP]], {}
     return None
 
 

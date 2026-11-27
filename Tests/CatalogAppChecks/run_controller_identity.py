@@ -9,17 +9,19 @@ import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(root / "scripts"))
+import names  # noqa: E402  architecture/names.json
 build = root / ".build"
 products = build / "debug"
 services = root / "Sources/NXLibrary/Services"
 files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "ControllerLive", "GameControllerService",
          "GCControllerSource", "HIDControllerSource"]
-intermediates = build / "out/Intermediates.noindex/NXLibrary.build/Debug"
+intermediates = build / f"out/Intermediates.noindex/{names.PACKAGE}.build/Debug"
 link_lists = [
     list((intermediates / f"{target}-t.build/Objects-normal").glob(f"*/{target}.LinkFileList"))
-    for target in ("NXLibraryCore", "OortCore")
+    for target in (names.LIBRARY, names.CORE)
 ]
-archive = products / "libNXLibraryCore.a"
+archive = products / f"lib{names.LIBRARY}.a"
 if all(len(matches) == 1 for matches in link_lists):
     modules = build / "out/Products/Debug"
     core = [obj for matches in link_lists for obj in shlex.split(matches[0].read_text())]
@@ -27,7 +29,7 @@ elif archive.is_file():
     modules, core = products, [archive]
 else:
     modules = products / "Modules"
-    core = [p for target in ("NXLibraryCore", "OortCore") for p in sorted((products / f"{target}.build").glob("*.swift.o"))]
+    core = [p for target in (names.LIBRARY, names.CORE) for p in sorted((products / f"{target}.build").glob("*.swift.o"))]
 if not core:
     raise SystemExit("Run a debug swift build --jobs 4 first")
 

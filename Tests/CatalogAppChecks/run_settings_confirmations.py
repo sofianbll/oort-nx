@@ -11,6 +11,8 @@ from pathlib import Path
 from run_cloud_screens import build_probe
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 
 def prepare(package):
@@ -195,12 +197,7 @@ def main():
         package = Path(temp)
         home = package / "home"
         home.mkdir()
-        shutil.copytree(ROOT / "Sources", package / "Sources")
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            folder = package / "Tests" / target
-            folder.mkdir(parents=True)
-            (folder / "Empty.swift").touch()
+        names.stage(package)
         prepare(package)
         env = {key: value for key, value in os.environ.items() if not key.startswith(("GIT_", "RCLONE_"))}
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"),

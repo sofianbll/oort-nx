@@ -10,6 +10,8 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 HOST = r'''
 import AppKit
@@ -1333,7 +1335,7 @@ def isolated_home_env(home):
     return dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home))
 
 
-def build_probe(package, *, product="NXLibrary", jobs=4, environment=None):
+def build_probe(package, *, product=names.APP, jobs=4, environment=None):
     """Build outside the fixture home: Xcode can mount read-only Metal tools there."""
     command = ["swift", "build", "--package-path", str(package), "--product", product]
     if jobs is not None:
@@ -1407,19 +1409,7 @@ def main():
                        env=dict(os.environ, ARCANE_CLOUD_SCREEN_BASE="5047557"))
     with tempfile.TemporaryDirectory(prefix="cloud-screen-", dir=output.parent) as temp:
         package = Path(temp)
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        if before:
-            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", "528f4fb", "Sources", "Package.swift"])
-            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
-        elif baseline:
-            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", baseline, "Sources", "Package.swift"])
-            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
-        else:
-            shutil.copytree(ROOT / "Sources", package / "Sources")
-        for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            folder = package / "Tests" / name
-            folder.mkdir(parents=True)
-            (folder / "Empty.swift").touch()
+        names.stage(package, "528f4fb" if before else baseline or None)
         app = package / "Sources/NXLibrary"
         if not before and not baseline:
             queue_file = package / "Sources/ArcanePorting/Library/ActivityQueueFile.swift"

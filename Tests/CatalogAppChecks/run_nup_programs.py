@@ -11,6 +11,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 parser = argparse.ArgumentParser()
 parser.add_argument('--engine-snapshot', type=Path)
 parser.add_argument('--python', default='python3')
@@ -88,6 +91,6 @@ print("NUP probe → real UI converters → persisted sources → rebuild progra
     executable = scratch / 'nup-check'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
                     str(ROOT / 'Sources/NXLibrary/Models/SelectableGame.swift'),
-                    str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), str(library / 'OortCore.o'),
+                    *map(str, names.objects(library)),
                     '-o', str(executable)], check=True)
     subprocess.run([str(executable), str(scratch)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

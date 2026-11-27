@@ -21,13 +21,13 @@ views {
     '''
     include oort.mac with { title "Oort sur Mac"; summary "Intégré"; color givre }
     include oort.desktop with { title "Oort sur PC"; summary "Intégration Windows prévue"; color givre }
-    include oort.OortCore.engineInterface with { summary "Lecture de l’état sur Mac"; color amber; navigateTo domains }
+    include oort.coreModule.engineInterface with { summary "Lecture de l’état sur Mac"; color amber; navigateTo domains }
     include nxnative with { summary "Moteur Switch sur Mac" }
     include ryujinx with { title "Ryujinx (prévu)"; summary "Moteur Switch visé sur PC" }
-    oort.mac -> oort.OortCore.engineInterface "Demande"
-    oort.OortCore.engineInterface -> nxnative "Lit l’état" { technology "via l’adaptateur nxnative" }
-    oort.desktop -[prevu]-> oort.OortCore.engineInterface "Demande"
-    oort.OortCore.engineInterface -[prevu]-> ryujinx "Lance"
+    oort.mac -> oort.coreModule.engineInterface "Demande"
+    oort.coreModule.engineInterface -> nxnative "Lit l’état" { technology "via l’adaptateur nxnative" }
+    oort.desktop -[prevu]-> oort.coreModule.engineInterface "Demande"
+    oort.coreModule.engineInterface -[prevu]-> ryujinx "Lance"
     autoLayout LeftRight 75 35
   }
 
@@ -37,14 +37,14 @@ views {
       Givre : Oort · Or : interface et cœur moteur · Gris : moteurs externes · Pointillés : prévu.
       [[view:applications|Qui parle au moteur ?]]
     '''
-    include oort.NXLibraryCore with { title "Lanceur Oort"; color givre }
-    include oort.NXLibraryCore.* where kind is domain with { color givre }
-    include oort.OortCore.engine with { title "Cœur moteur"; color amber }
-    include oort.mac.ArcanePorting.saves with { title "Sauvegardes Switch"; summary "Copie et restauration · ArcanePorting"; color givre }
+    include oort.libraryModule with { title "Lanceur Oort"; color givre }
+    include oort.libraryModule.* where kind is domain with { color givre }
+    include oort.coreModule.engine with { title "Cœur moteur"; color amber }
+    include oort.mac.nxnativeModule.saves with { title "Sauvegardes Switch"; summary "Copie et restauration · adaptateur nxnative"; color givre }
     exclude * -> *
-    include oort.NXLibraryCore.cloud -> oort.NXLibraryCore.library with { title "Alimente" }
-    include oort.NXLibraryCore.play -> oort.NXLibraryCore.library with { title "Associe les parties" }
-    exclude oort, oort.OortCore, oort.mac, oort.mac.ArcanePorting
+    include oort.libraryModule.cloud -> oort.libraryModule.library with { title "Alimente" }
+    include oort.libraryModule.play -> oort.libraryModule.library with { title "Associe les parties" }
+    exclude oort, oort.coreModule, oort.mac, oort.mac.nxnativeModule
     autoLayout LeftRight 40 25
   }
 
@@ -55,8 +55,8 @@ views {
       Jeu Switch déjà préparé. La remise du jeu ne prouve pas qu’une partie a été observée.
       [[view:domains|Domaines]]
     '''
-    oort.mac.NXLibrary -> oort.mac.ArcanePorting.nxAdapter "Demande de jouer"
-    oort.mac.NXLibrary <- oort.mac.ArcanePorting.nxAdapter "Résultat de la remise" { line dashed }
-    oort.mac.NXLibrary -> oort.NXLibraryCore.play "Si observée : enregistre la partie"
+    oort.mac.macModule -> oort.mac.nxnativeModule.nxAdapter "Demande de jouer"
+    oort.mac.macModule <- oort.mac.nxnativeModule.nxAdapter "Résultat de la remise" { line dashed }
+    oort.mac.macModule -> oort.libraryModule.play "Si observée : enregistre la partie"
   }
 }

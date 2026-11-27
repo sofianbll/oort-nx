@@ -3,6 +3,9 @@
 from pathlib import Path
 import subprocess,tempfile,os
 ROOT=Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN=ROOT/'.build/debug'
 files=[ROOT/'Sources/NXLibrary/Views/Components/GameLogoArea.swift', ROOT/'Sources/NXLibrary/Views/Components/GamePrimaryActions.swift']
 actual='\n'.join(p.read_text() for p in files)
@@ -44,5 +47,5 @@ struct SelenePillButton: View {
 '''
 with tempfile.TemporaryDirectory(prefix='game-header-check-') as folder:
  folder=Path(folder);swift=folder/'check.swift';swift.write_text(host);binary=folder/'check'
- subprocess.run(['xcrun','swiftc','-parse-as-library','-I',str(BIN),str(swift),str(BIN/'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'),str(BIN / 'OortCore.o'),'-o',str(binary)],check=True)
+ subprocess.run(['xcrun','swiftc','-parse-as-library','-I',str(BIN),str(swift),*map(str, names.objects(BIN)),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True,env=dict(os.environ,PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

@@ -7,7 +7,9 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 with tempfile.TemporaryDirectory(prefix="kb-", dir="/private/tmp") as scratch:
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(scratch) / "screens"
-    subprocess.run([ROOT / ".build/debug/NXLibrary", "--render-keyboard", output], cwd=ROOT, check=True, timeout=300,
+    subprocess.run([ROOT / ".build/debug" / names.APP, "--render-keyboard", output], cwd=ROOT, check=True, timeout=300,
                    env=dict(os.environ, HOME=scratch, CFFIXED_USER_HOME=scratch, TMPDIR=scratch))

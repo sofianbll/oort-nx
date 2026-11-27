@@ -1,37 +1,49 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
+// The names and folders below come from architecture/names.json; change them there and run scripts/generate.
+// BEGIN GENERATED NAMES (architecture/names.json, scripts/generate_names.py)
+let packageName = "NXLibrary"
+let core = (name: "OortCore", path: "Sources/OortCore")
+let library = (name: "NXLibraryCore", path: "Sources/NXLibraryCore")
+let nxnative = (name: "ArcanePorting", path: "Sources/ArcanePorting")
+let mac = (name: "NXLibrary", path: "Sources/NXLibrary")
+let coreTests = (name: "OortCoreTests", path: "Tests/OortCoreTests")
+let libraryTests = (name: "NXLibraryCoreTests", path: "Tests/NXLibraryCoreTests")
+let nxnativeTests = (name: "ArcanePortingTests", path: "Tests/ArcanePortingTests")
+// END GENERATED NAMES
+
 let package = Package(
-    name: "NXLibrary",
+    name: packageName,
     defaultLocalization: "en",
     platforms: [.macOS("26.0")],
     products: [
-        .library(name: "NXLibraryCore", targets: ["NXLibraryCore"]),
-        .library(name: "ArcanePorting", targets: ["ArcanePorting"]),
-        .executable(name: "NXLibrary", targets: ["NXLibrary"]),
+        .library(name: library.name, targets: [library.name]),
+        .library(name: nxnative.name, targets: [nxnative.name]),
+        .executable(name: mac.name, targets: [mac.name]),
     ],
     targets: [
-        .target(name: "OortCore", swiftSettings: [.swiftLanguageMode(.v6)]),
-        .target(name: "NXLibraryCore", dependencies: ["OortCore"], path: "Sources/NXLibraryCore",
+        .target(name: core.name, path: core.path, swiftSettings: [.swiftLanguageMode(.v6)]),
+        .target(name: library.name, dependencies: [.byName(name: core.name)], path: library.path,
                 resources: [.process("Resources")], swiftSettings: [.swiftLanguageMode(.v6)]),
-        .target(name: "ArcanePorting", dependencies: ["NXLibraryCore"], path: "Sources/ArcanePorting",
+        .target(name: nxnative.name, dependencies: [.byName(name: library.name)], path: nxnative.path,
                 swiftSettings: [.swiftLanguageMode(.v6)]),
         .executableTarget(
-            name: "NXLibrary",
-            dependencies: ["NXLibraryCore", "ArcanePorting"],
-            path: "Sources/NXLibrary"
+            name: mac.name,
+            dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
+            path: mac.path
         ),
         .testTarget(
-            name: "NXLibraryCoreTests",
-            dependencies: ["NXLibraryCore"],
-            path: "Tests/NXLibraryCoreTests"
+            name: libraryTests.name,
+            dependencies: [.byName(name: library.name)],
+            path: libraryTests.path
         ),
         .testTarget(
-            name: "ArcanePortingTests",
-            dependencies: ["NXLibraryCore", "ArcanePorting"],
-            path: "Tests/ArcanePortingTests"
+            name: nxnativeTests.name,
+            dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
+            path: nxnativeTests.path
         ),
-        .testTarget(name: "OortCoreTests", dependencies: ["OortCore"]),
+        .testTarget(name: coreTests.name, dependencies: [.byName(name: core.name)], path: coreTests.path),
     ],
     swiftLanguageModes: [.v5]
 )

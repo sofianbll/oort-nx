@@ -13,6 +13,8 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 source = ''.join(p.read_text() for p in sorted((ROOT / 'Sources/NXLibrary/ViewModels').glob('AppViewModel*.swift')))
 
 
@@ -299,7 +301,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-onboarding-check-') as scratch:
     binary = scratch / 'onboarding'
     library = ROOT / '.build/debug'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
-                    str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), str(library / 'OortCore.o'),
+                    *map(str, names.objects(library)),
                     '-o', str(binary)], check=True)
     subprocess.run([str(binary), str(scratch / 'test-preferences')],
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)
@@ -308,9 +310,9 @@ if len(sys.argv) > 1:
         bundle = Path(scratch) / 'Onboarding Probe.app' / 'Contents'
         resources = bundle / 'Resources' / 'Selene'
         resources.mkdir(parents=True)
-        executable = bundle / 'MacOS' / 'NXLibrary'
+        executable = bundle / 'MacOS' / names.APP
         executable.parent.mkdir()
-        shutil.copy2(library / 'NXLibrary', executable)
+        shutil.copy2(library / names.APP, executable)
         shutil.copytree(ROOT / 'Resources/Selene/Fonts', resources / 'Fonts')
         shutil.copy2(ROOT / 'Resources/Selene/palettes.json', resources)
         (bundle / 'Info.plist').write_bytes(plistlib.dumps({

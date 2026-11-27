@@ -7,6 +7,7 @@ import tempfile
 from pathlib import Path
 
 from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup
+import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
 
 SCENARIO = r'''
         let fm = FileManager.default
@@ -255,12 +256,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="personal-update-") as temporary:
         package = Path(temporary)
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        shutil.copytree(ROOT / "Sources", package / "Sources")
-        for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            folder = package / "Tests" / name
-            folder.mkdir(parents=True)
-            (folder / "Empty.swift").touch()
+        names.stage(package)
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         vm = app / "ViewModels/AppViewModel.swift"

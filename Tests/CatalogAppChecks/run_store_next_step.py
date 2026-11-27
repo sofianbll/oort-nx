@@ -10,6 +10,7 @@ from pathlib import Path
 
 from probe_visible import install, text_render
 from run_cloud_screens import HOST, ROOT, build_probe, change
+import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
 
 SCENARIOS = r'''
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
@@ -95,12 +96,7 @@ def main():
         package = Path(temp)
         home = package / "home"
         (home / "Library/Preferences").mkdir(parents=True)
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        shutil.copytree(ROOT / "Sources", package / "Sources")
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            folder = package / "Tests" / target
-            folder.mkdir(parents=True)
-            (folder / "Empty.swift").touch()
+        names.stage(package)
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         vm = app / "ViewModels/AppViewModel.swift"

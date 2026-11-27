@@ -7,6 +7,8 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / ".build/debug"
 VIEWS = ROOT / "Sources/NXLibrary/Views"
 
@@ -238,7 +240,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
     ]
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-I", BIN, swift,
                     ROOT / "Sources/NXLibrary/Models/GamepadType.swift",
-                    *(VIEWS / p for p in paths), BIN / "NXLibraryCore.o", BIN / "OortCore.o", "-o", binary], check=True)
+                    *(VIEWS / p for p in paths), *names.objects(BIN, ("library", "core")), "-o", binary], check=True)
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else scratch / "screens"
     subprocess.run([binary, ROOT, output], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

@@ -10,6 +10,9 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 LIBRARY = ROOT / '.build/debug'
 SLOTS = ['account', 'device', *[f'user{i}' for i in range(2, 9)], 'users']
 CRASH = 86
@@ -133,15 +136,14 @@ def backup_bytes(fixture):
 
 
 def main():
-    if not (LIBRARY / 'NXLibraryCore.o').is_file():
+    if not names.objects(LIBRARY, ('library',))[0].is_file():
         raise SystemExit('Core is not ready: build it with testing enabled before running this harness.')
     with tempfile.TemporaryDirectory(prefix='arcane-save-restart-') as scratch:
         scratch = Path(scratch)
         source, binary = scratch / 'main.swift', scratch / 'save-restart'
         source.write_text(HOST)
         subprocess.run(['xcrun', 'swiftc', '-I', str(LIBRARY), str(source),
-                        str(LIBRARY / 'NXLibraryCore.o'), str(LIBRARY / 'ArcanePorting.o'),
-                        str(LIBRARY / 'OortCore.o'), '-o', str(binary)],
+                        *map(str, names.objects(LIBRARY)), '-o', str(binary)],
                        cwd=ROOT, check=True, timeout=60)
         env = dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(LIBRARY))
 

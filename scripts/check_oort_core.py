@@ -8,19 +8,22 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import names  # architecture/names.json
+
 ROOT = Path(__file__).resolve().parents[1]
+CORE, CORE_TESTS = names.CORE, names.TESTS["core"]["name"]
 CONDITIONAL = re.compile(r"^[ \t]*#(?:if|elseif|else|endif)\b[^\n]*", re.MULTILINE)
 IMPORT = re.compile(r'^\s*\(import_decl .*? module="([^"]+)"', re.MULTILINE)
 ALLOWED = {"Foundation", "Swift"}
 
-LINUX_MANIFEST = """// swift-tools-version: 6.0
+LINUX_MANIFEST = f"""// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
-    name: "OortCoreChecks",
+    name: "{CORE}Checks",
     targets: [
-        .target(name: "OortCore", swiftSettings: [.swiftLanguageMode(.v6)]),
-        .testTarget(name: "OortCoreTests", dependencies: ["OortCore"]),
+        .target(name: "{CORE}", swiftSettings: [.swiftLanguageMode(.v6)]),
+        .testTarget(name: "{CORE_TESTS}", dependencies: ["{CORE}"]),
     ],
     swiftLanguageModes: [.v5]
 )
@@ -52,25 +55,26 @@ def main():
     manifest = json.loads(subprocess.check_output(
         ["swift", "package", "--disable-sandbox", "dump-package"], cwd=ROOT
     ))
-    core = next((target for target in manifest["targets"] if target["name"] == "OortCore"), None)
+    core = next((target for target in manifest["targets"] if target["name"] == CORE), None)
     if (core is None or core["type"] != "regular"
-            or core.get("path") not in (None, "Sources/OortCore")
+            or core.get("path") != names.path("core")
             or any(core.get(key) for key in ("dependencies", "resources", "sources", "exclude"))
             or [setting["kind"] for setting in core.get("settings", [])] != [{"swiftLanguageMode": {"_0": "6"}}]):
-        raise SystemExit("OortCore must have no dependencies or resources, and only the Swift 6 language mode as a setting.")
+        raise SystemExit(f"{CORE} must have no dependencies or resources, and only the Swift 6 language mode as a setting.")
 
-    source_dir = ROOT / "Sources/OortCore"
+    source_dir = ROOT / names.path("core")
     sources = sorted(source_dir.rglob("*.swift"))
     if not sources:
-        raise SystemExit("No OortCore Swift sources.")
+        raise SystemExit(f"No {CORE} Swift sources.")
     check_imports(sources)
-    print(f"OortCore: {len(sources)} Swift sources, Foundation/Swift only, no target dependencies or resources.")
+    print(f"{CORE}: {len(sources)} Swift sources, Foundation/Swift only, no target dependencies or resources.")
 
     if args.linux_package:
         stage = args.linux_package
         stage.mkdir()
-        shutil.copytree(source_dir, stage / "Sources/OortCore")
-        shutil.copytree(ROOT / "Tests/OortCoreTests", stage / "Tests/OortCoreTests")
+        # The minimal package keeps SwiftPM's default folders: Sources/<target>, Tests/<target>.
+        shutil.copytree(source_dir, stage / "Sources" / CORE)
+        shutil.copytree(ROOT / names.test_path("core"), stage / "Tests" / CORE_TESTS)
         (stage / "Package.swift").write_text(LINUX_MANIFEST, encoding="utf-8")
 
 

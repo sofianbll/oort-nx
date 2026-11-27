@@ -6,9 +6,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from shutil import copyfile, copytree
 
 from run_cloud_screens import ROOT, HOST, build_probe, capture_destination, change, cloud_settings_fixture, isolate_startup
+import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
 
 SCENARIO = r'''
         let fr = AppLocale(language: .french, region: "FR")
@@ -98,16 +98,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="reference-probe-", dir=output.parent) as temp:
         package = Path(temp)
-        copyfile(ROOT / "Package.swift", package / "Package.swift")
-        if baseline:
-            sources = subprocess.check_output(["git", "-C", str(ROOT), "archive", baseline, "Sources"])
-            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=sources, check=True)
-        else:
-            copytree(ROOT / "Sources", package / "Sources")
-        for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-            folder = package / "Tests" / name
-            folder.mkdir(parents=True)
-            (folder / "Empty.swift").touch()
+        names.stage(package, baseline)
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")

@@ -12,6 +12,8 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 source = (ROOT / 'Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift').read_text()
 start = source.index('@MainActor\nfinal class DevelopmentStartup:')
@@ -228,7 +230,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-startup-recovery-') as folder:
     executable = scratch / 'check'
     package_name = re.search(r'"SWIFT_PACKAGE_NAME"\s*:\s*"([^"]+)"', (ROOT / '.build/manifest.pif').read_text())[1]
     subprocess.run(['xcrun', 'swiftc', '-j', '4', '-parse-as-library', '-package-name', package_name, '-I', str(BIN), str(swift),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     home = scratch / 'home'
     home.mkdir()

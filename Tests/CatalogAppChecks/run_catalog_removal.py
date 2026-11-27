@@ -11,6 +11,8 @@ from collections import Counter
 from run_cloud_screens import build_probe
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 HOST = r'''
 import Foundation
@@ -325,15 +327,9 @@ def replace(file, old, new):
 
 with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
     package = Path(temp)
-    shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-    shutil.copytree(ROOT / "Sources", package / "Sources")
-    for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
-        folder = package / "Tests" / name
-        folder.mkdir(parents=True)
-        (folder / "Empty.swift").touch()
-    sources = package / "Sources"
-    app = sources / "NXLibrary"
-    core = sources / "NXLibraryCore"
+    names.stage(package)
+    app = package / names.path("mac")
+    core = package / names.path("library")
     replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
     replace(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
     replace(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",

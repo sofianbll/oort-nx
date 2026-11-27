@@ -15,6 +15,9 @@ import zlib
 import argparse
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 BIN = ROOT / '.build/debug'
 parser = argparse.ArgumentParser()
 parser.add_argument('--source-root', type=Path, default=ROOT,
@@ -203,7 +206,7 @@ extension EnvironmentValues {
                     str(scratch / 'Native.swift'), str(scratch / 'Steam.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Theme/CatalogPersonalizationsEnvironment.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(executable)], check=True)
     view_result = subprocess.run([str(executable), str(scratch)],
                                  env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
@@ -377,7 +380,7 @@ enum CoverReadGate {
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(mods),
                     str(controlled_host),
                     str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    *map(str, names.objects(BIN)),
                     '-o', str(mods_executable)], check=True)
     mods_result = subprocess.run([str(mods_executable), str(scratch)],
                                  env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
