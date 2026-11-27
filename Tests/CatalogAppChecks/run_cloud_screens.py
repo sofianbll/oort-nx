@@ -1333,6 +1333,17 @@ def isolated_home_env(home):
     return dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home))
 
 
+# What Swift Build precompiles from the SDK does not depend on the package. CI keeps one copy per runner image
+# (OORT_PROBE_MODULE_SEED): each package starts from it, and the first build fills it when it is empty.
+SDK_MODULES = ("SDKExplicitPrecompiledModules", "ModuleCache.noindex")
+
+
+def copy_sdk_modules(source, destination):
+    for name in SDK_MODULES:
+        if (source / name).is_dir() and not (destination / name).exists():
+            shutil.copytree(source / name, destination / name, symlinks=True)
+
+
 def build_probe(package, *, product="NXLibrary", jobs=4, environment=None):
     """Build outside the fixture home: Xcode can mount read-only Metal tools there."""
     command = ["swift", "build", "--package-path", str(package), "--product", product]
@@ -1341,7 +1352,12 @@ def build_probe(package, *, product="NXLibrary", jobs=4, environment=None):
     env = dict(os.environ if environment is None else environment)
     if build_home := env.get("OORT_PROBE_BUILD_HOME"):
         env.update(HOME=build_home, CFFIXED_USER_HOME=build_home)
+    seed, out = env.get("OORT_PROBE_MODULE_SEED"), Path(package) / ".build/out"
+    if seed:
+        copy_sdk_modules(Path(seed), out)
     subprocess.run(command, check=True, env=env)
+    if seed:
+        copy_sdk_modules(out, Path(seed))
     products = subprocess.check_output(command + ["--show-bin-path"], env=env, text=True).strip()
     return Path(products) / product
 
