@@ -7,7 +7,9 @@
    `import` line (Swift cannot read a variable; the names were rewritten there once), and a name that is a folder
    in a path (module folders are declared in names.json and architecture/structure.c4).
 2. Every frozen value of names.json (players' data and settings: bundle identifiers, data folders, Info.plist and
-   preferences keys, the app's name) is still written in each file names.json lists for it.
+   preferences keys, the app's name) is still written in each file names.json lists for it. With --base REF, no
+   frozen value or place of REF may leave the list (a file REF knew under another path counts as moved).
+   The check reads text: it proves a value is still written, not how the code uses it.
 
 Run from the repository root, or pass --root. Exit status 1 on any finding.
 """
@@ -17,6 +19,9 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_model import renamed  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = "architecture/names.json"
@@ -86,16 +91,32 @@ def frozen(root, data):
     return findings
 
 
-def check(root):
+def kept(root, data, base):
+    """Frozen values and places of BASE missing from the list now."""
+    shown = subprocess.run(["git", "show", f"{base}:{SOURCE}"], cwd=root, capture_output=True, text=True)
+    if shown.returncode:
+        return []
+    moved = renamed(root, base)
+    now = data.get("frozen", {}).get("values", {})
+    findings = []
+    for value, files in json.loads(shown.stdout).get("frozen", {}).get("values", {}).items():
+        for name in files:
+            if moved.get(name, name) not in now.get(value, []):
+                findings.append(f"{SOURCE}: frozen value {value!r} left the list for {name}; frozen values never leave it")
+    return findings
+
+
+def check(root, base=None):
     data = json.loads((Path(root) / SOURCE).read_text(encoding="utf-8"))
-    return hand_written(root, data) + frozen(root, data)
+    return hand_written(root, data) + frozen(root, data) + (kept(root, data, base) if base else [])
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", default=str(ROOT))
+    parser.add_argument("--base", help="refuse a frozen value or place that this Git revision had")
     args = parser.parse_args(argv)
-    findings = check(args.root)
+    findings = check(args.root, args.base)
     for line in findings:
         print(line)
     if not findings:

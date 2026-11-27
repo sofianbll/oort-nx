@@ -47,6 +47,16 @@ class NamesTests(unittest.TestCase):
         self.fixture.track("docs/modules.md", "LibMod holds the library.\n")
         self.assertEqual(self.findings(), [])
 
+    def test_a_frozen_value_never_leaves_the_list(self):
+        base = self.fixture.commit()
+        data = json.loads(json.dumps(NAMES))
+        data["frozen"]["values"] = {}
+        self.fixture.track("architecture/names.json", json.dumps(data))
+        self.assertEqual(self.findings(), [])
+        self.assertEqual(check_names.check(self.fixture.root, base),
+                         ["architecture/names.json: frozen value 'identifier = \"com.example.app\"' left the list for "
+                          "core/CoreMod/App.swift; frozen values never leave it"])
+
     def test_a_frozen_value_that_changed_fails(self):
         self.fixture.track("core/CoreMod/App.swift", 'let identifier = "com.example.other"\n')
         self.assertEqual(self.findings(), ["core/CoreMod/App.swift: frozen value 'identifier = \"com.example.app\"' is "
