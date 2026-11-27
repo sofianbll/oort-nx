@@ -77,13 +77,13 @@ class PublicationChecks(unittest.TestCase):
     def test_nintendo_exception_pins_paths_and_bytes_even_if_manifest_is_changed(self):
         project = SCRIPT.parent.parent
         name = "Brands/Platforms/Marks/Nintendo Switch 2.svg"
-        original = (project / "Resources" / name).read_text()
+        original = (project / "design" / name).read_text()
         entry = json.loads((SCRIPT.parent / "bundle-licences.json").read_text())[name]
-        self.track("Resources/" + name, original)
+        self.track("design/" + name, original)
         self.track("scripts/bundle-licences.json", json.dumps({name: entry}))
         self.assertEqual(self.scan().returncode, 0)
         modified = original + "\n"
-        self.track("Resources/" + name, modified)
+        self.track("design/" + name, modified)
         self.assertIn("Unreviewed or changed brand resource", self.scan().stdout)
         entry["sha256"] = hashlib.sha256(modified.encode()).hexdigest()
         self.track("scripts/bundle-licences.json", json.dumps({name: entry}))

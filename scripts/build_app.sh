@@ -99,7 +99,7 @@ cp -R "$ROOT/Resources/ThirdPartyLicenses" "$APP/Contents/Resources/"
 cp "$ROOT/scripts/validate_update.py" "$APP/Contents/Resources/validate_update.py"
 [ -d "$ROOT/Resources/Selene" ] && cp -R "$ROOT/Resources/Selene" "$APP/Contents/Resources/Selene"
 cp -R "$ROOT/Resources/SoundPacks" "$APP/Contents/Resources/SoundPacks"
-[ -d "$ROOT/Resources/Brands" ] && cp -R "$ROOT/Resources/Brands" "$APP/Contents/Resources/Brands"
+[ -d "$ROOT/design/Brands" ] && cp -R "$ROOT/design/Brands" "$APP/Contents/Resources/Brands"
 # Python and build tools from scripts/bundle_runtime.sh. Without it, a developer
 # build falls back to ~/nxnative/.venv and the PATH tools.
 if [ -d "$ROOT/work/Runtime" ]; then

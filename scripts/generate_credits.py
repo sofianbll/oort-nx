@@ -20,7 +20,7 @@ import names as package_names  # noqa: E402  architecture/names.json
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "design/credits.json"
-ART = "Resources/Brands/Credits"
+ART = "design/Brands/Credits"
 CARDS = ROOT / "design/credits.css"
 TOKENS = ROOT / "design/oort-tokens.css"
 # The views that draw the cards; what each may not write itself is in style().
@@ -189,8 +189,8 @@ def dependencies():
             add("dir:Resources/Selene", name)
         if name.startswith("Resources/SoundPacks/"):
             add("dir:Resources/SoundPacks", name)
-        if name.startswith("Resources/Brands/Platforms/"):
-            add("dir:Resources/Brands/Platforms", name)
+        if name.startswith("design/Brands/Platforms/"):
+            add("dir:design/Brands/Platforms", name)
         if "core/OortLibrary/Resources/crystal-" in name:
             add("media:crystal", name)
     for name, entry in json.loads(read(ROOT / "scripts/bundle-licences.json") or "{}").items():
@@ -350,7 +350,7 @@ def manifest(data):
     if not path.is_file():
         return None
     listed = json.loads(path.read_text(encoding="utf-8"))
-    listed.update({f"{ART.removeprefix('Resources/')}/{n}.png": hashlib.sha256((ROOT / ART / f"{n}.png").read_bytes()).hexdigest() for n in arts(data)})
+    listed.update({f"{ART.removeprefix('design/')}/{n}.png": hashlib.sha256((ROOT / ART / f"{n}.png").read_bytes()).hexdigest() for n in arts(data)})
     return json.dumps(dict(sorted(listed.items())), indent=2, ensure_ascii=False) + "\n"
 
 

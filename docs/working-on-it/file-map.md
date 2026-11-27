@@ -1507,31 +1507,31 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `ArcanePorting/Mods/GameBana
 | [Resources/Selene/Fonts/MaterialIcons-Regular.ttf](../../Resources/Selene/Fonts/MaterialIcons-Regular.ttf) | Font dei glifi Material Icons disegnati dalla UI. |
 | [Resources/Selene/Fonts/MaterialIcons-LICENSE.txt](../../Resources/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
 | [Resources/Selene/NOTICE.txt](../../Resources/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
-| [Resources/Brands/Platforms/LICENSE-Lucide.txt](../../Resources/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
-| [Resources/Brands/Credits/arcane.png](../../Resources/Brands/Credits/arcane.png) | Icona di Arcane, dal suo deposito MIT, solo per il credito. |
-| [Resources/Brands/Credits/playnite.png](../../Resources/Brands/Credits/playnite.png) | Icona di Playnite, dal suo deposito MIT, solo per il credito. |
-| [Resources/Brands/Credits/selene.png](../../Resources/Brands/Credits/selene.png) | Icona di Selene, dal suo deposito MIT, solo per il credito. |
-| [Buy Me a Coffee.svg](../../Resources/Brands/Platforms/Marks/Buy%20Me%20a%20Coffee.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [CrossOver.svg](../../Resources/Brands/Platforms/Marks/CrossOver.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [Epic Games.svg](../../Resources/Brands/Platforms/Marks/Epic%20Games.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [GOG.svg](../../Resources/Brands/Platforms/Marks/GOG.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [Google Drive.svg](../../Resources/Brands/Platforms/Marks/Google%20Drive.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [Nintendo Switch 2.svg](../../Resources/Brands/Platforms/Marks/Nintendo%20Switch%202.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [Nintendo Switch.svg](../../Resources/Brands/Platforms/Marks/Nintendo%20Switch.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [Steam.svg](../../Resources/Brands/Platforms/Marks/Steam.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
-| [Resources/Brands/Platforms/NOTICE.txt](../../Resources/Brands/Platforms/NOTICE.txt) | Provenienza e nota sui marchi. |
-| [Resources/Brands/Platforms/arrow-left-right.svg](../../Resources/Brands/Platforms/arrow-left-right.svg) | Simbolo generico CrossOver. |
-| [Resources/Brands/Platforms/boxes.svg](../../Resources/Brands/Platforms/boxes.svg) | Simbolo generico Minecraft. |
-| [Resources/Brands/Platforms/cloud.svg](../../Resources/Brands/Platforms/cloud.svg) | Simbolo Lucide per i salvataggi iCloud. |
-| [Resources/Brands/Platforms/image.svg](../../Resources/Brands/Platforms/image.svg) | Simbolo Lucide per immagini e valutazioni. |
-| [Resources/Brands/Platforms/network.svg](../../Resources/Brands/Platforms/network.svg) | Simbolo Lucide per Nextendo. |
-| [Resources/Brands/Platforms/coffee.svg](../../Resources/Brands/Platforms/coffee.svg) | Tazza generica per il collegamento di sostegno. |
-| [Resources/Brands/Platforms/disc-3.svg](../../Resources/Brands/Platforms/disc-3.svg) | Simbolo generico Steam. |
-| [Resources/Brands/Platforms/gamepad-2.svg](../../Resources/Brands/Platforms/gamepad-2.svg) | Simbolo generico Switch e base del segno Switch 2. |
-| [Resources/Brands/Platforms/hard-drive.svg](../../Resources/Brands/Platforms/hard-drive.svg) | Simbolo generico Google Drive. |
-| [Resources/Brands/Platforms/laptop.svg](../../Resources/Brands/Platforms/laptop.svg) | Simbolo generico dei collegamenti alle app Mac. |
-| [Resources/Brands/Platforms/package.svg](../../Resources/Brands/Platforms/package.svg) | Simbolo generico GOG. |
-| [Resources/Brands/Platforms/shield.svg](../../Resources/Brands/Platforms/shield.svg) | Simbolo generico Epic Games. |
+| [design/Brands/Platforms/LICENSE-Lucide.txt](../../design/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
+| [design/Brands/Credits/arcane.png](../../design/Brands/Credits/arcane.png) | Icona di Arcane, dal suo deposito MIT, solo per il credito. |
+| [design/Brands/Credits/playnite.png](../../design/Brands/Credits/playnite.png) | Icona di Playnite, dal suo deposito MIT, solo per il credito. |
+| [design/Brands/Credits/selene.png](../../design/Brands/Credits/selene.png) | Icona di Selene, dal suo deposito MIT, solo per il credito. |
+| [Buy Me a Coffee.svg](../../design/Brands/Platforms/Marks/Buy%20Me%20a%20Coffee.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [CrossOver.svg](../../design/Brands/Platforms/Marks/CrossOver.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Epic Games.svg](../../design/Brands/Platforms/Marks/Epic%20Games.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [GOG.svg](../../design/Brands/Platforms/Marks/GOG.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Google Drive.svg](../../design/Brands/Platforms/Marks/Google%20Drive.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Nintendo Switch 2.svg](../../design/Brands/Platforms/Marks/Nintendo%20Switch%202.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Nintendo Switch.svg](../../design/Brands/Platforms/Marks/Nintendo%20Switch.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Steam.svg](../../design/Brands/Platforms/Marks/Steam.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [design/Brands/Platforms/NOTICE.txt](../../design/Brands/Platforms/NOTICE.txt) | Provenienza e nota sui marchi. |
+| [design/Brands/Platforms/arrow-left-right.svg](../../design/Brands/Platforms/arrow-left-right.svg) | Simbolo generico CrossOver. |
+| [design/Brands/Platforms/boxes.svg](../../design/Brands/Platforms/boxes.svg) | Simbolo generico Minecraft. |
+| [design/Brands/Platforms/cloud.svg](../../design/Brands/Platforms/cloud.svg) | Simbolo Lucide per i salvataggi iCloud. |
+| [design/Brands/Platforms/image.svg](../../design/Brands/Platforms/image.svg) | Simbolo Lucide per immagini e valutazioni. |
+| [design/Brands/Platforms/network.svg](../../design/Brands/Platforms/network.svg) | Simbolo Lucide per Nextendo. |
+| [design/Brands/Platforms/coffee.svg](../../design/Brands/Platforms/coffee.svg) | Tazza generica per il collegamento di sostegno. |
+| [design/Brands/Platforms/disc-3.svg](../../design/Brands/Platforms/disc-3.svg) | Simbolo generico Steam. |
+| [design/Brands/Platforms/gamepad-2.svg](../../design/Brands/Platforms/gamepad-2.svg) | Simbolo generico Switch e base del segno Switch 2. |
+| [design/Brands/Platforms/hard-drive.svg](../../design/Brands/Platforms/hard-drive.svg) | Simbolo generico Google Drive. |
+| [design/Brands/Platforms/laptop.svg](../../design/Brands/Platforms/laptop.svg) | Simbolo generico dei collegamenti alle app Mac. |
+| [design/Brands/Platforms/package.svg](../../design/Brands/Platforms/package.svg) | Simbolo generico GOG. |
+| [design/Brands/Platforms/shield.svg](../../design/Brands/Platforms/shield.svg) | Simbolo generico Epic Games. |
 | [Resources/Selene/NOTICE-palettes.txt](../../Resources/Selene/NOTICE-palettes.txt) | Attribuzioni delle palette incluse con esse. |
 | [Resources/ThirdPartyLicenses/omarchy-LICENSE.txt](../../Resources/ThirdPartyLicenses/omarchy-LICENSE.txt) | Testo MIT di Omarchy per le palette derivate. |
 | [Resources/ThirdPartyLicenses/python-LICENSES.txt](../../Resources/ThirdPartyLicenses/python-LICENSES.txt) | Licenze delle dipendenze native di CPython, Tcl/Tk e delle estensioni. |

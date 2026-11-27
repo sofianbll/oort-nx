@@ -52,7 +52,7 @@ def brand_digests(manifest):
 def check_files(root):
     names = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).decode().split("\0")
     issues = []
-    resources = root / "Resources"
+    resources = root / "design"
     manifest = root / "scripts/bundle-licences.json"
     try:
         expected = brand_digests(json.loads(manifest.read_text())) if manifest.is_file() else {}
@@ -68,7 +68,7 @@ def check_files(root):
             issues.append("Private or game content path: " + name)
             continue
         file = root / relative
-        if relative.parts[:2] == ("Resources", "Brands"):
+        if relative.parts[:2] == ("design", "Brands"):
             resource = Path(*relative.parts[1:]).as_posix()
             if (file.is_symlink() or not file.is_file()
                     or not file.resolve().is_relative_to(resources.resolve())

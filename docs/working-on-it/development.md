@@ -201,7 +201,7 @@ The script builds a release-marked app, verifies its version and signature, and 
 
 To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/NXLibrary.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
 
-Platform SVGs, generic Lucide fallbacks and notices live in `Resources/Brands/Platforms`.
+Platform SVGs, generic Lucide fallbacks and notices live in `design/Brands/Platforms`.
 Publication checks verify reviewed hashes and reject extra brand files. Only the two Switch platform symbols are an exception to the Nintendo artwork rule.
 
 Publishing requires an explicit maintainer decision and the script's `--publish --notes <file>` options. Prepare reviewed notes from [CHANGELOG.md](../../CHANGELOG.md), then date the version when it is actually published. The script adds engine/Xcode requirement metadata to release notes for the updater. Never publish automatically as part of an agent's verification.

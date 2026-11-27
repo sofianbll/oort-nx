@@ -45,15 +45,15 @@ model {
       }
       resIcon = folder "AppIcon.icon/" { metadata { path "Resources/AppIcon.icon" } }
       resIconParticles = folder "AppIconParticles.icon/" { metadata { path "Resources/AppIconParticles.icon" } }
-      resBrands = folder "Brands/" { metadata { path "Resources/Brands" } }
       resSelene = folder "Selene/" { metadata { path "Resources/Selene" } }
       resSounds = folder "SoundPacks/" { metadata { path "Resources/SoundPacks" } }
       resLicences = folder "ThirdPartyLicenses/" { metadata { path "Resources/ThirdPartyLicenses" } }
     }
 
     design = folder "design/" {
-      summary "Tokens, vocabulary, credits"
+      summary "Shared design sources: tokens, vocabulary, credits, brands, Selene media, sounds, icons, licences"
       metadata { path "design" }
+      designBrands = folder "Brands/" { metadata { path "design/Brands" } }
     }
 
     docs = folder "docs/" {
