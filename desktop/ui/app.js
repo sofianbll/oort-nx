@@ -830,11 +830,11 @@ const prepared = async p => {
 
 /* ---------- The first steps: short, never in the way, and there again in Settings ---------- */
 const openGuide = async (at = 'welcome') => {
-  const pages = (await ask('guide')).pages;
+  // before: Steam's row of the games page as the core says it before it is read, while it is looked for and without an answer.
+  const { pages, steam: before } = await ask('guide');
   // steam: Steam's row of the games page, as the core decides it; take: what its switch shows, kept until the player goes on.
   let page = at, steam = null, take = null;
-  // Without the core's answer, the row says it was not found and does nothing.
-  const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => null))?.entries[0] ?? { id: 'steam', title: ['Steam'], value: ['Not found'], icon: 'gamepad' }; take = steam.checked ?? null; };
+  const lookSteam = async () => { steam = null; take = null; steam = (await ask('integrations', { at: 'guide' }).catch(() => null))?.entries[0] ?? before.unanswered; take = steam.checked ?? null; };
   const layer = { el: h('section', { cls: 'veil guide' }), guide: true };
   const set = async (id, value) => { await ask('settings.set', { id, value }); const p = await ask('settings.save'); apply(p.view); layer.refresh(); };
   const turn = async d => {
@@ -855,7 +855,7 @@ const openGuide = async (at = 'welcome') => {
     welcome: () => ({ title: t('Welcome to Oort NX'), say: t('The games you already have, in one library. No account is needed.'), rows: [pick('appLanguage', 'language')] }),
     controller: () => ({ title: t('Your controller'), say: t('Plug one in or pair it, then press any button. Keyboard and mouse work everywhere too.'), rows: [row(pad ? padName(pad.name) || t('Controller') : plugged[0] || t('No Gamepad Connected'), pad ? [t('Controller recognised'), dot('ok')] : plugged.length ? t('Press any button') : t('Keyboard and mouse are ready'), () => {}, { id: 'pad', ic: 'gamepad' }), pick('buttonNames', 'tune')] }),
     games: () => ({ title: t('Where are your games?'), say: t('Add what you want now, or later with the + tile. Nothing is moved or changed.'), rows: [
-      steam == null ? row(t('Steam'), t('Looking…'), () => {}, { id: 'steam', ic: 'gamepad' }) : entryRow({ ...steam, checked: take ?? undefined }, null, { press: () => { if (take == null) return; take = !take; S.play('confirm', document.activeElement); layer.refresh(); } }),
+      entryRow(steam ? { ...steam, checked: take ?? undefined } : before.looking, null, { press: () => { if (take == null) return; take = !take; S.play('confirm', document.activeElement); layer.refresh(); } }),
       row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
       row(t('A folder of games'), icon('chevron'), () => pickFolder(() => layer.refresh()), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
     ], status: L.total ? t('%lld games in your library', L.total) : null }),

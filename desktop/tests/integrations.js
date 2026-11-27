@@ -5,13 +5,16 @@
    online (data=), in English. GUIDE=true keeps the first steps open. */
 window.GUIDE = true;
 const asked = [], heard = [];
-let bogus = false;
+let bogus = false, hold = null, cut = false;
 (() => {
   const core = window.__TAURI__.core, real = core.invoke;
-  // The transport is the real one; this only listens, and once puts a page the core never sends in its reply.
+  // The transport is the real one; this only listens, once puts a page the core never sends in its reply, gives the
+  // steps' row while Steam is looked for a word the page would not choose, and holds or cuts the steps' Steam row.
   core.invoke = async (name, args) => {
     if (name === 'core') asked.push(args.method + (args.params?.at ? '@' + args.params.at : ''));
+    if (name === 'core' && args.method === 'integrations' && args.params?.at === 'guide') { if (cut) throw 'core-lost'; await hold; }
     const r = await real(name, args);
+    if (name === 'core' && args.method === 'guide' && r?.steam?.looking) r.steam.looking.value = ['Waiting'];
     if (bogus && name === 'core' && args.method === 'integrations' && !args.params?.at) r.sections.at(-1).entries[0].open = 'not-a-real-destination';
     return r;
   };
@@ -25,8 +28,26 @@ probe(async P => {
   const text = (el, part) => el?.querySelector(part)?.textContent.replace(/[-]/g, '').trim() ?? null;  // without the icons' glyphs
   const reads = 'Steam' + en['Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.'];
 
-  // The first steps, games page: the core's row, the switch kept by the steps until they go on.
-  for (const want of ['2 / 5', '3 / 5']) { document.querySelector('.steps [data-id=continue]').click(); await P.until(() => P.text('.steps .count') === want, 8000, want); }
+  // The first steps, games page: before Steam is read, the row is the core's too (guide), while it is looked for and
+  // if the core does not answer; A does nothing there.
+  const go = async want => { document.querySelector('.steps [data-id=continue]').click(); await P.until(() => P.text('.steps .count') === want, 8000, want); };
+  let release; hold = new Promise(r => { release = r; });
+  for (const want of ['2 / 5', '3 / 5']) await go(want);
+  await P.until(() => step('steam'), 8000, 'the games page');
+  P.same([text(step('steam'), '.what'), text(step('steam'), '.value'), step('steam').getAttribute('role')], ['Steam', en['Waiting'], null], 'while Steam is looked for: the core’s words');
+  // The page asks the core one thing at a time: nothing is asked of it until Steam's row comes.
+  step('steam').focus(); await P.press('a'); await P.wait(200);
+  P.same([text(step('steam'), '.value'), step('steam').getAttribute('aria-checked')], [en['Waiting'], null], 'A does nothing while it is looked for');
+  hold = null; release();
+  await P.until(() => step('steam')?.getAttribute('role') === 'switch', 8000, 'then read');
+  P.same((await ask('steam')).chosen, false, 'nothing was chosen');
+  cut = true; await P.press('b'); await P.until(() => P.text('.steps .count') === '2 / 5', 8000, 'back');
+  await go('3 / 5');
+  await P.until(() => text(step('steam'), '.value') === en['Not found'], 8000, 'no answer');
+  P.same([text(step('steam'), '.what'), step('steam').getAttribute('role')], ['Steam' + en['Steam was not found on this computer. It is looked for again each time.'], null], 'without an answer: Steam not found, with its sentence, as before the core said it');
+  cut = false; await P.press('b'); await P.until(() => P.text('.steps .count') === '2 / 5', 8000, 'back again');
+  await go('3 / 5');
+  // The core's row, the switch kept by the steps until they go on.
   await P.until(() => step('steam')?.getAttribute('role') === 'switch', 8000, 'Steam read in the first steps');
   P.ok(asked.includes('integrations@guide'), 'the first steps’ Steam row is the core’s');
   P.same([text(step('steam'), '.what'), text(step('steam'), '.value'), step('steam').getAttribute('aria-checked')], [reads, '2 games', 'true'], 'never chosen: offered on');

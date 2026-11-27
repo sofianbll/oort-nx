@@ -46,8 +46,17 @@ extension Companion {
     }
 
     /// Steam on this computer, as each place says it.
-    func steamEntry(at place: IntegrationPlace) -> IntegrationEntry? {
-        let counts = steamSeen()?.counts, on = choices.steam == true
+    func steamEntry(at place: IntegrationPlace) -> IntegrationEntry? { steamEntry(at: place, counts: steamSeen()?.counts) }
+
+    /// Steam's row of the first steps before it is read: while it is looked for, and if the core does not answer, as
+    /// where Steam is not found. Sent with the steps (guide), which the page has before it asks for the row.
+    func steamBeforeReading() -> CatalogJSON {
+        let looking = IntegrationEntry(id: "steam", title: .init("Steam"), value: .init("Looking…"), icon: "gamepad", control: .row, request: nil)
+        return ["looking": json(looking, token: nil), "unanswered": steamEntry(at: .guide, counts: nil).map { json($0, token: nil) } ?? .null]
+    }
+
+    private func steamEntry(at place: IntegrationPlace, counts: SteamShelf.Found?) -> IntegrationEntry? {
+        let on = choices.steam == true
         let reads: IntegrationWords = .init("Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.")
         let missing: IntegrationWords = .init("Steam was not found on this computer. It is looked for again each time.")
         switch place {

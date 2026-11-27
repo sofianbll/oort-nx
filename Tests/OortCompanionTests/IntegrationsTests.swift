@@ -194,6 +194,22 @@ final class IntegrationsTests: XCTestCase {
         XCTAssertEqual(entry(try ask(c, "integrations", ["at": "guide"]), "steam")?["checked"], false)
     }
 
+    /// The steps know Steam's row before it is read: while it is looked for, and without an answer, the row of a Steam
+    /// not found, as the page drew them before (`Looking…` alone; `Not found` with its sentence). Neither asks anything.
+    func testTheFirstStepsKnowSteamsRowBeforeItIsRead() throws {
+        let none = try companion(), c = try companion()
+        _ = try ask(c, "steam.where", ["path": .string(Paths.native(steam(games: ["Drift"])))])
+        for one in [none, c] {
+            let before = try ask(one, "guide")["steam"]
+            XCTAssertEqual(before?["looking"], ["id": "steam", "title": ["Steam"], "value": ["Looking…"], "icon": "gamepad"])
+            XCTAssertEqual(before?["unanswered"], ["id": "steam", "title": ["Steam"], "value": ["Not found"], "icon": "gamepad",
+                                                   "sub": ["Steam was not found on this computer. It is looked for again each time."]])
+            XCTAssertEqual(try ask(one, "guide", ["page": "games"])["steam"], before, "the same rows after a turn of the steps")
+        }
+        XCTAssertEqual(try ask(none, "guide")["steam"]?["unanswered"], entry(try ask(none, "integrations", ["at": "guide"]), "steam"),
+                       "without an answer, the row the core gives where Steam is not found")
+    }
+
     /// Add game offers Steam while it is here and off, and A turns it on; the activity center shows what still downloads.
     func testAddGameAndTheActivityCenterShowSteamOnlyWhenItHasSomethingToSay() throws {
         let c = try companion()
@@ -237,6 +253,8 @@ final class IntegrationsTests: XCTestCase {
         var pages = try ["settings", "guide", "add"].map { try ask(c, "integrations", ["at": .string($0)]) }
         _ = try ask(c, "steam.set", ["on": true])
         pages += [try ask(c, "integrations", ["at": "activity"]), try ask(try companion(), "integrations"), try ask(try companion(), "integrations", ["at": "guide"])]
+        let before = try ask(c, "guide")["steam"]
+        pages.append(["entries": .array([before?["looking"] ?? .null, before?["unanswered"] ?? .null])])
         var keys = Set<String>()
         for page in pages {
             for e in entries(page) {

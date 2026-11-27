@@ -47,7 +47,8 @@ extension Companion {
     func guide() -> CatalogJSON {
         let isNew = choices.guideDone != true
         return ["open": .bool(isNew), "page": .string(choices.guide.flatMap { Self.guidePages.contains($0) ? $0 : nil } ?? Self.guidePages[0]),
-                "pages": .list(Self.guidePages), "news": .bool(!isNew && choices.newsFor != Companion.version)]
+                "pages": .list(Self.guidePages), "news": .bool(!isNew && choices.newsFor != Companion.version),
+                "steam": steamBeforeReading()]
     }
 
     private func setGuide(_ p: CatalogJSON) throws -> CatalogJSON {
