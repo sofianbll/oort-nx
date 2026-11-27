@@ -904,6 +904,29 @@ extension CloudScreenProbe {
         _ = try await CloudGameArchive(backend: referenceWrite).upload(.init(titleID: title, locations: [.app: app]), kinds: [.app])
         try fm.removeItem(at: app)
         try fm.moveItem(at: older, to: app)
+        let clock = ContinuousClock(), start = clock.now
+        func tree() -> [String] {
+            let paths = [""] + ((fm.enumerator(atPath: app.path)?.allObjects as? [String]) ?? []).sorted()
+            return paths.map { path in
+                let url = path.isEmpty ? app : app.appendingPathComponent(path)
+                var st = stat()
+                guard lstat(url.path, &st) == 0 else { return "\(path) missing" }
+                let size = listxattr(url.path, nil, 0, XATTR_NOFOLLOW)
+                var names = [CChar](repeating: 0, count: max(size, 0) + 1)
+                if size > 0 { _ = listxattr(url.path, &names, size, XATTR_NOFOLLOW) }
+                let attributes = names.split(separator: 0).map { String(cString: Array($0) + [0]) }
+                return "\(path.isEmpty ? "." : path) ino \(st.st_ino) ctime \(st.st_ctimespec.tv_sec).\(st.st_ctimespec.tv_nsec)"
+                    + " mtime \(st.st_mtimespec.tv_sec).\(st.st_mtimespec.tv_nsec) mode \(String(st.st_mode, radix: 8))"
+                    + " xattr \(attributes)"
+            }
+        }
+        var trees: [(String, [String])] = [("moved", tree())]
+        var phases: [String] = []
+        let phaseWatch = vm.cloudLibrary.$states.sink { states in
+            let phase = states[game.id]?.progress.map { "\($0.phase)" } ?? "none"
+            if phases.last?.hasSuffix(" " + phase) != true { phases.append("\(clock.now - start) \(phase)") }
+        }
+        defer { phaseWatch.cancel() }
         vm.cloudLibrary.setReferenceFolder("1-fixture")
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenReference(referenceRead)
@@ -911,6 +934,7 @@ extension CloudScreenProbe {
         RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
         monitor.refresh()
         await vm.refreshCloudLibrary(selected)
+        trees.append(("approved", tree()))
         L10n.setContext(fr)
         vm.performCloudLibrary(.restore(.app), for: selected)
         guard let refusal = vm.settingsNotice else { preconditionFailure("Download must ask before replacing") }
@@ -929,12 +953,22 @@ extension CloudScreenProbe {
         try await until { vm.cloudLibrary.states[game.id]?.progress?.phase == .readyToInstall }
         let versionDuringPlay = try version()
         precondition(versionDuringPlay == "1.0")
+        trees.append(("waiting", tree()))
         RunningGameMonitor.screenRunning.withLock { $0 = nil }
         monitor.refresh()
         await vm.cloudLibrary.active?.task.value
         let applied = try version()
         // Record how the queue ended and what is installed once the game has closed.
         let ended = vm.cloudLibrary.states[game.id]
+        if applied != "2.0" {
+            trees.append(("ended", tree()))
+            var report = ["phases \(phases)", "moved:"] + trees[0].1.map { "  " + $0 }
+            for (previous, next) in zip(trees, trees.dropFirst()) {
+                report.append("\(previous.0) -> \(next.0):")
+                report += next.1.filter { !previous.1.contains($0) }.map { "  " + $0 }
+            }
+            FileHandle.standardError.write(Data((report.joined(separator: "\n") + "\n").utf8))
+        }
         precondition(applied == "2.0", "Reference swap after close: installed \(applied ?? "none"), "
             + "completed \(String(describing: ended?.completedItem)), issue \(String(describing: ended?.issue)), "
             + "failure \(String(describing: ended?.transferFailure)), queue \(vm.cloudLibrary.queue.map(\.action)), "
@@ -1419,6 +1453,13 @@ def main():
             (folder / "Empty.swift").touch()
         app = package / "Sources/NXLibrary"
         if not before and not baseline:
+            # DIAGNOSTIC: name the check that rejects a change.
+            for name in ("ArcanePorting/Library/CloudGameArchive.swift", "NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift"):
+                source = package / "Sources" / name
+                source.write_text(source.read_text().replace(
+                    "throw CloudArchiveError.localChanged",
+                    'throw { FileHandle.standardError.write(Data("localChanged at %s:\\(#line)\\n".utf8)); '
+                    'return CloudArchiveError.localChanged }()' % Path(name).name))
             queue_file = package / "Sources/ArcanePorting/Library/ActivityQueueFile.swift"
             write = 'try JSONEncoder().encode(WriteSnapshot(entries: entries)).write(to: self.file, options: .atomic)'
             change(queue_file, re.escape(write),
