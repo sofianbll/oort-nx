@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from run_cloud_screens import build_probe
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -73,7 +74,6 @@ def prepare(package):
             r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)', lambda m: m[1])
     library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     replace(library_model, r'RcloneStorageBackend\.findExecutable\(\)', 'SettingsConfirmationProbe.availableDriveTool')
-    replace(library_model, r'private var scopeTask:', 'private(set) var scopeTask:')
     replace(library_model,
             r'let backend = RcloneStorageBackend\(remote: remote, root: root, executable: tool\)',
             'let backend = SettingsConfirmationProbe.scopeBackend(remote: remote, root: root, tool: tool)')
@@ -207,7 +207,7 @@ def main():
                    RCLONE_CONFIG_PASS="fixture-only", RCLONE_PASSWORD_COMMAND="/usr/bin/false",
                    GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", temp, "NXLibrary", str(output), str(font)],
+        subprocess.run([str(build_probe(package)), str(output), str(font)],
                        env=env, check=True)
 
 

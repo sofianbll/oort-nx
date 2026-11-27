@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 from shutil import copyfile, copytree
 
-from run_cloud_screens import ROOT, HOST, capture_destination, change, cloud_settings_fixture, isolate_startup
+from run_cloud_screens import ROOT, HOST, build_probe, capture_destination, change, cloud_settings_fixture, isolate_startup
 
 SCENARIO = r'''
         let fr = AppLocale(language: .french, region: "FR")
@@ -141,7 +141,7 @@ def main():
             "/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
         host = HOST.split("        // SCENARIO")[0] + SCENARIO + helper
         (app / "ReferenceProbe.swift").write_text(cloud_settings_fixture(app, host))
-        subprocess.run(["swift", "build", "--jobs", "4", "--package-path", str(package)], check=True)
+        executable = build_probe(package)
         home = package / "home"
         (home / "Library" / "Preferences").mkdir(parents=True)
         sandbox = ('(version 1) (allow default) (deny network*) '
@@ -149,7 +149,7 @@ def main():
                    '(deny file-write* (subpath "/Applications"))')
         real_library = Path(pwd.getpwuid(os.getuid()).pw_dir) / "Library"
         result = subprocess.run(["sandbox-exec", "-D", f"REAL_LIBRARY={real_library}", "-p", sandbox,
-                                 str(package / ".build/debug/NXLibrary"), str(output),
+                                 str(executable), str(output),
                                  str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                                  str(ROOT / "Resources/AppIcon-Light.png")],
                                 env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))

@@ -7,7 +7,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import ROOT, HOST, capture_destination, change, isolate_startup
+from run_cloud_screens import ROOT, HOST, build_probe, capture_destination, change, isolate_startup
 
 
 SCENARIOS = r'''
@@ -202,7 +202,7 @@ extension CloudSetupAssistant {
             "SeleneCanvas(size: .init(width: 1920, height: 1080))",
             "SeleneCanvas(size: size)")
         (app / "CloudShelfProbe.swift").write_text(host)
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
+        subprocess.run([str(build_probe(package)), str(output),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png"), *sys.argv[2:]],
                        check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))

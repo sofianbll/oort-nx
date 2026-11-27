@@ -362,6 +362,46 @@ final class RcloneStorageBackendTests: XCTestCase {
         } catch { XCTAssertEqual(error as? CloudLibraryFailure, .folderMissing) }
     }
 
+    /// Under load the real rclone 1.75.2 took 3.5 to 9.5 s to bind its socket (0.06 s idle). A live daemon
+    /// that is still starting is not a failed one: falling back multiplies rclone processes on a busy Mac.
+    func testRemoteControlWaitsForADaemonThatIsStillStarting() async throws {
+        let fixture = try Fixture(recordCommands: true, daemonStartDelay: 2.5)
+        let backend = fixture.backend
+        defer { backend.stopRemoteControl() }
+        let objects = try await backend.list()
+        XCTAssertEqual(objects, [])
+        XCTAssertNotNil(backend.control.processID)
+        XCTAssertEqual(try fixture.commands(), ["rcd"])
+    }
+
+    /// The sweep of another launch (this process or another) runs while a daemon's folder is being created.
+    /// It must never take that folder for an orphan: the daemon would lose it and Oort would back off for 30 s.
+    func testOrphanSweepNeverTakesAFolderBeingCreated() throws {
+        let fm = FileManager.default
+        let temporary = fm.temporaryDirectory.appendingPathComponent("rc-sweep-\(UUID().uuidString.prefix(8))", isDirectory: true)
+        try fm.createDirectory(at: temporary, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        defer { try? fm.removeItem(at: temporary) }
+        final class Flag: @unchecked Sendable {
+            private let lock = NSLock(); private var value = false
+            var isSet: Bool { lock.withLock { value } }
+            func set() { lock.withLock { value = true } }
+        }
+        let stop = Flag(), sweeping = DispatchGroup()
+        DispatchQueue.global().async(group: sweeping) {
+            while !stop.isSet { RcloneRemoteControl.reapOrphans(in: temporary) }
+        }
+        var lost = 0
+        for _ in 0..<2_000 {
+            guard let (folder, lease) = RcloneRemoteControl.sessionDirectory(in: temporary) else { lost += 1; continue }
+            if !fm.fileExists(atPath: folder.path) { lost += 1 }
+            _ = rmdir(folder.path)
+            close(lease)
+        }
+        stop.set()
+        sweeping.wait()
+        XCTAssertEqual(lost, 0)
+    }
+
     func testCancellingRemoteControlReadKeepsDaemonReusable() async throws {
         let fixture = try Fixture(recordCommands: true)
         let backend = fixture.backend
@@ -567,7 +607,7 @@ final class RcloneStorageBackendTests: XCTestCase {
         let object = StorageObject(key: StorageObjectKey("title/artifact with spaces.aar"), size: 4,
                                    hashes: ["sha256": "edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb"])
 
-        init(recordCommands: Bool = false, failDaemon: Bool = false) throws {
+        init(recordCommands: Bool = false, failDaemon: Bool = false, daemonStartDelay: Double? = nil) throws {
             guard let binary = RcloneStorageBackend.findExecutable() else {
                 throw XCTSkip("rclone absent from /opt/homebrew/bin and PATH; local integration test skipped")
             }
@@ -589,6 +629,7 @@ final class RcloneStorageBackendTests: XCTestCase {
                     #!/bin/sh
                     printf '%s\\n' "$1" >> \(quote(commandLog.path))
                     \(failDaemon ? "if [ \"$1\" = rcd ]; then exit 1; fi" : "")
+                    \(daemonStartDelay.map { "if [ \"$1\" = rcd ]; then /bin/sleep \($0); fi" } ?? "")
                     exec \(quote(binary.path)) "$@"
                     """
                 try Data(script.utf8).write(to: executable)

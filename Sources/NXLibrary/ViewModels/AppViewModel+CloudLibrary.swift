@@ -443,7 +443,7 @@ final class CloudLibraryModel: ObservableObject {
     /// The connection before a scope is approved. Every check and reading of it shares one rclone.
     private var unscoped: (key: [String], backend: RcloneStorageBackend)?
     private(set) var driveScope: CloudDriveScope?
-    private var scopeTask: Task<Void, Never>?
+    private(set) var scopeTask: Task<Void, Never>?
     var reads: [UUID: (token: UUID, task: Task<Void, Never>)] = [:]
     var queue: [Request] = []
     @Published var queuePause: CloudLibraryFailure?

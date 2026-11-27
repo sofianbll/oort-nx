@@ -334,7 +334,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/Library/RcloneConfiguration.swift](../../Sources/NXLibraryCore/Library/RcloneConfiguration.swift) | Ambito Drive con ID approvati e copie private per gli spostamenti. Cifratura con portachiavi, OAuth senza segreto negli argomenti e controllo del client prima della disconnessione. |
 | [Sources/NXLibraryCore/Library/LibraryRefresh.swift](../../Sources/NXLibraryCore/Library/LibraryRefresh.swift) | Esito per parte di un aggiornamento della libreria: letto, non aggiornato con motivo, annullato; una risposta tardiva non cambia nulla. |
 | [Sources/NXLibraryCore/Library/RcloneListing.swift](../../Sources/NXLibraryCore/Library/RcloneListing.swift) | Una lettura di Drive per gli schermi: conto e cartelle provati prima e dopo, cartelle lette per ID, insieme e una sola volta; connessione condivisa finché la configurazione non cambia. |
-| [Sources/NXLibraryCore/Library/RcloneRemoteControl.swift](../../Sources/NXLibraryCore/Library/RcloneRemoteControl.swift) | Gestisce demoni locali su socket Unix; distingue cartelle mancanti da operazioni non supportate e passa l'input sensibile OAuth via stdin. |
+| [Sources/NXLibraryCore/Library/RcloneRemoteControl.swift](../../Sources/NXLibraryCore/Library/RcloneRemoteControl.swift) | Gestisce demoni locali su socket Unix; crea e pulisce le loro cartelle sotto un lock comune, attende il socket fino all'uscita o al termine della richiesta; distingue cartelle mancanti da operazioni non supportate e passa l'input sensibile OAuth via stdin. |
 | [Sources/NXLibraryCore/Library/CollectionRow.swift](../../Sources/NXLibraryCore/Library/CollectionRow.swift) | Definisce proporzioni delle copertine e geometria della riga Collection. |
 
 ## Core · Selene: Spotlight, focus, temi e sfondi
@@ -1110,7 +1110,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/CommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/CommandRunnerTests.swift) | Verifica stdout e stderr tardivi, guardia dopo l’uscita, attesa senza run loop, protezione delle pipe da exec estranei, annullamento, scadenze e progresso reale. |
 | [Tests/NXLibraryCoreTests/RcloneListingTests.swift](../../Tests/NXLibraryCoreTests/RcloneListingTests.swift) | Letture raggruppate e uniche, ambito prima e dopo, ambiguità, annullamento, rclone meno recenti, rifiuto di ogni scrittura. |
 | [Tests/NXLibraryCoreTests/LibraryRefreshTests.swift](../../Tests/NXLibraryCoreTests/LibraryRefreshTests.swift) | Esiti, parti non aggiornate, risposte tardive e posizione della riga. |
-| [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Binario, oggetti, impronte, avanzamento e annullamento; prefissi assenti o vuoti; Drive configurato e ID esatto per il riferimento in sola lettura. |
+| [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Binario, oggetti, impronte, avanzamento e annullamento; prefissi assenti o vuoti; Drive configurato e ID esatto per il riferimento in sola lettura; demone lento ad avviarsi e pulizia concorrente alla creazione. |
 | [VolumeSpaceTests.swift](../../Tests/NXLibraryCoreTests/VolumeSpaceTests.swift) | Ripiego per lo zero di exFAT, cartella non ancora creata e disco reale facoltativo. |
 | [Tests/NXLibraryCoreTests/RcloneDownloadTests.swift](../../Tests/NXLibraryCoreTests/RcloneDownloadTests.swift) | Trasporto locale e archivi sintetici: rifiuti, annullamento, firma, pubblicazione atomica e protezione delle copie altrui. |
 | [Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift](../../Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift) | Preferenze, comandi OAuth, cifratura e recuperi tipizzati con runner finto; prova stdin su una configurazione rclone temporanea; senza configurazione o portachiavi reali. |
@@ -1339,7 +1339,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_onscreen_keyboard.py](../../Tests/CatalogAppChecks/run_onscreen_keyboard.py) | Avvia la prova della tastiera a schermo su una home isolata. |
 | [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
-| [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug; home temporanea, sandbox salvo la fixture locale di LaunchServices. |
+| [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug; home temporanea, dominio delle preferenze proprio a ogni sonda e rimosso dopo, sandbox salvo la fixture locale di LaunchServices. |
 | [run_native_play.py](../../Tests/CatalogAppChecks/run_native_play.py) | Costruisce un'app accessoria muta e prova il riaggancio in concorrenza nel percorso Play reale. |
 | [NativePlayFixture.swift](../../Tests/CatalogAppChecks/NativePlayFixture.swift) | Témoin AppKit senza finestre o dati di gioco. |
 | [NativePlayRace.swift](../../Tests/CatalogAppChecks/NativePlayRace.swift) | Intercala la fixture esterna prima della consegna e verifica zero storico e durata. |
@@ -1364,7 +1364,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_reference.py](../../Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
 | [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. Identifica il PNG se Vision non riesce a leggerlo. |
 | [run_store_next_step.py](../../Tests/CatalogAppChecks/run_store_next_step.py) | Rende le prossime azioni e gli stati passivi di Details in francese su dati sintetici. |
-| [StoreNextStepOCR.swift](../../Tests/CatalogAppChecks/StoreNextStepOCR.swift) | Legge i PNG della sonda Details e verifica testi, origine e assenza di misure ripetute. |
+| [StoreNextStepText.swift](../../Tests/CatalogAppChecks/StoreNextStepText.swift) | Legge il testo del PDF della sonda Details e verifica testi, origine e assenza di misure ripetute. |
+| [ProbeRenderedText.swift](../../Tests/CatalogAppChecks/ProbeRenderedText.swift) | Legge il testo disegnato dal renderer SwiftUI in un PDF accanto al PNG, senza Vision. |
+| [ocr/read.cjs](../../Tests/CatalogAppChecks/ocr/read.cjs) | Legge i PNG delle finestre AppKit nascoste con OCR su CPU e modelli locali. |
+| [ocr/package.json](../../Tests/CatalogAppChecks/ocr/package.json), [ocr/package-lock.json](../../Tests/CatalogAppChecks/ocr/package-lock.json) | Dipendenze e integrità dei soli strumenti OCR di test. |
 | [run_cloud_personal_update.py](../../Tests/CatalogAppChecks/run_cloud_personal_update.py) | Esercita l’offerta personale, la conferma e le copie sostituite o conservate tramite un cloud e bundle sintetici. |
 | [run_settings_confirmations.py](../../Tests/CatalogAppChecks/run_settings_confirmations.py) | Lancia la sonda di Settings con dati, selettore rclone e preferenze sintetici. |
 | [SettingsConfirmationProbe.swift](../../Tests/CatalogAppChecks/SettingsConfirmationProbe.swift) | Prova bozza, conferme, collegamento rclone, blocco di ⌘K e avvisi di avvio fuori schermo. |
@@ -1609,6 +1612,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [docs/history/reviews/2026-11-24-profile-focus.md](../history/reviews/2026-11-24-profile-focus.md) | Sonda dell'alone profili, misure dei bordi negli altri viewport e diagnosi del banding. |
 | [docs/history/reviews/2026-11-25-cloud-assistant.md](../history/reviews/2026-11-25-cloud-assistant.md) | Processi, richieste e tempi prima e dopo, su Drive sintetico. |
 | [docs/history/reviews/2026-11-26-cloud-command-drain.md](../history/reviews/2026-11-26-cloud-command-drain.md) | EOF dei comandi cloud sotto carico, guardia dopo l’uscita e regressioni. |
+| [docs/history/reviews/2026-11-27-cloud-under-load.md](../history/reviews/2026-11-27-cloud-under-load.md) | Avvio di `rcd` sotto carico, pulizia concorrente delle cartelle e preferenze condivise delle sonde. |
 | [docs/history/reviews/2026-11-26-mac-ci.md](../history/reviews/2026-11-26-mac-ci.md) | Tempi dei runner, compilazioni indipendenti e diagnosi dell'errore OCR. |
 
 ## Aggiornare questo catalogo
