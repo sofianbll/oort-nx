@@ -9,10 +9,7 @@ Rules:
 
 1. The core module (role "core") imports Foundation only.
 2. Nothing imports a module at its own layer or above.
-3. Modules of kind "core" import no interface or device framework
-   (AppKit, SwiftUI, Metal, MetalKit, GameController), except the files in
-   UI_BASELINE. That baseline can only shrink: a listed file that no longer
-   imports the framework is also reported, so the entry gets removed.
+3. What the core may import on every system is R3: scripts/check_oort_core.py.
 4. Only the engine adapter reads checkout HEAD, bundle stamps or managed key status.
 5. Play adapters can be admitted only through PlayEngine; views cannot resume native apps directly.
 6. In an app, only its entry point (`entry` in names.json) imports a module of kind "engine"
@@ -35,12 +32,6 @@ from repo_model import renamed
 NAMES = "architecture/names.json"
 ENGINE_DEBT = "scripts/engine-import-debt.json"
 OORT_CORE_ALLOWED = {"Foundation"}
-UI_FRAMEWORKS = {"AppKit", "SwiftUI", "Metal", "MetalKit", "GameController"}
-# Known exceptions, by file (relative to the root). Remove an entry when its import goes away.
-UI_BASELINE = {
-    "core/OortLibrary/Selene/Motion.swift": {"SwiftUI"},
-    "core/OortLibrary/Artwork/ArtworkStore.swift": {"AppKit"},
-}
 IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+(?:(?:struct|class|enum|protocol|typealias|func|let|var)\s+)?"
                     r"([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
 ENGINE_READ = re.compile(r'"DMCommit"|"rev-parse"\s*,\s*"HEAD"|"--format=%h %s"|\.readStatus\(\)|'
@@ -107,7 +98,7 @@ def check(root, base=None):
         return violations
     layers = {name: module["layer"] for name, module in modules.items()}
     debt = engine_debt(root)
-    seen_ui, seen_engine = {}, set()
+    seen_engine = set()
     for module, relative, name in scan(root, modules):
         if modules[module]["kind"] == "app" and modules.get(name, {}).get("kind") == "engine" \
                 and relative != modules[module].get("entry"):
@@ -119,10 +110,6 @@ def check(root, base=None):
             violations.append(f"{relative}: {module} imports {name}; only Foundation is allowed")
         if name in layers and layers[name] >= layers[module]:
             violations.append(f"{relative}: {module} imports {name}, which is not below it")
-        if modules[module]["kind"] == "core" and name in UI_FRAMEWORKS:
-            seen_ui.setdefault(relative, set()).add(name)
-            if name not in UI_BASELINE.get(relative, set()):
-                violations.append(f"{relative}: {module} imports the interface framework {name}")
     for relative in sorted(debt - seen_engine):
         violations.append(f"{ENGINE_DEBT}: {relative} no longer imports an engine; remove the entry")
     if base is not None:
@@ -130,10 +117,6 @@ def check(root, base=None):
         if before is not None:
             for relative in sorted(debt - before):
                 violations.append(f"{ENGINE_DEBT}: new entry {relative}; the list only shrinks (ADR 0002)")
-    for relative, names in sorted(UI_BASELINE.items()):
-        found = seen_ui.get(relative, set())
-        for name in sorted(names - found):
-            violations.append(f"{relative}: baseline lists {name}, but the file no longer imports it; remove the entry")
     for file in (file for module in modules.values() for file in (root / module["path"]).rglob("*.swift")):
         relative = file.relative_to(root).as_posix()
         text = file.read_text(encoding="utf-8")

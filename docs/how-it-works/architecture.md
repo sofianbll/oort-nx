@@ -53,7 +53,7 @@ Il [modello LikeC4](../../architecture/model.c4) descrive i sistemi, i confini d
 | `NxnativeAdapterTests` | Test XCTest dei file che usano il modulo, anche le regole della base provate attraverso le sue entrate (`SettingsCatalog.all`, `CatalogStore(directory:)`). |
 | `OortCoreTests` | Test della logica portabile; usano `OortCore` senza gli altri moduli dell’app. |
 
-`scripts/check_oort_core.py` controlla manifest e import, anche nei rami condizionali; può preparare un pacchetto Swift minimo per Linux. Il wrapper `ProfileKeypad` in `OortLibrary` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.
+`scripts/check_oort_core.py` (R3) controlla manifest, import, nomi solo Apple e condizioni di sistema di tutto `core/` e dei suoi test, anche nei rami condizionali; i file non ancora portabili sono in `scripts/core-import-debt.json`, che può solo scendere. Il wrapper `ProfileKeypad` in `OortLibrary` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.
 
 Il Core ha una cartella per area: `App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`. Tutto ciò che è Switch (Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi e i loro backup, mod RomFS e GameBanana, la parte nxnative del catalogo e della libreria, lo spazio delle app portate) è il target `NxnativeAdapter` (`engines/nxnative/NxnativeAdapter/`), con una sottocartella per parte; dipende da `OortLibrary`, e l'app li importa entrambi. *Perché:* la base non importa il modulo, così il compilatore ferma ogni uso di un suo tipo o membro.
 

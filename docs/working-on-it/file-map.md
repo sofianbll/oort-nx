@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 27 novembre 2026. Il repository versiona **1666 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1679 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1048,6 +1048,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
 | [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge moduli, tipi e livelli da `architecture/names.json`, li confronta con SwiftPM e verifica gli import; solo il punto d'ingresso di un'app importa un motore (ADR 0002). |
+| [scripts/core-import-debt.json](../../scripts/core-import-debt.json) | Debito di R3: i file del Core che non compilano ancora su ogni sistema; la lista può solo scendere. |
 | [scripts/engine-import-debt.json](../../scripts/engine-import-debt.json) | Debito dell'ADR 0002: i file del Mac che importano ancora l'adattatore nxnative; la lista può solo scendere. |
 | [scripts/check_names.py](../../scripts/check_names.py) | Rifiuta un nome tecnico scritto a mano fuori da `architecture/names.json` e verifica i valori congelati dei giocatori. |
 | [scripts/names.py](../../scripts/names.py) | Legge `architecture/names.json` per gli script e le sonde; `stage()` prepara il pacchetto temporaneo di una sonda. |
@@ -1061,6 +1062,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
 | [scripts/tests/CIChecks/test_changed_areas.py](../../scripts/tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [scripts/tests/CIChecks/test_catalog_checks.py](../../scripts/tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
+| [scripts/tests/ModuleChecks/test_oort_core.py](../../scripts/tests/ModuleChecks/test_oort_core.py) | Esempi rossi di R3: import Apple dietro `#if`, libc fuori da `System/`, nomi solo Apple, test con AppKit, debito che scende. |
 | [scripts/tests/ModuleChecks/test_module_boundaries.py](../../scripts/tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [scripts/tests/SkillChecks/test_skills.py](../../scripts/tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
 | [scripts/tests/RepoChecks/support.py](../../scripts/tests/RepoChecks/support.py) | Repository Git usa e getta per i controlli del repository. |
@@ -1474,7 +1476,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [design/oort-tokens.css](../../design/oort-tokens.css) | Copia CSS generata di `design/oort.tokens.json`. |
 | [scripts/generate_oort_tokens.py](../../scripts/generate_oort_tokens.py) | Controlla il contrasto e genera Swift e la sola voce Oort del catalogo. |
 | [scripts/tests/PublicationChecks/test_oort_tokens.py](../../scripts/tests/PublicationChecks/test_oort_tokens.py) | Prova generazione stabile, output obsoleti e contrasto insufficiente. |
-| [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |
+| [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | R3: il Core compila su ogni sistema. Legge manifest, import (anche nei rami `#if`), nomi solo Apple e condizioni di sistema di `core/` e dei suoi test; le varianti di sistema solo in `core/OortLibrary/System/`. |
 | [scripts/generate_credits.py](../../scripts/generate_credits.py) | Copia i crediti in app, NOTICE e sito; le voci `noticeOnly` restano solo nel NOTICE. Fallisce se manca un credito o una copia differisce. |
 | [scripts/selene-token-debt.json](../../scripts/selene-token-debt.json) | Occorrenze letterali preesistenti per file e firma, escluse le misure già migrate ai token; le voci obsolete fanno fallire il controllo. |
 | [scripts/tests/PublicationChecks/test_selene_tokens.py](../../scripts/tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |

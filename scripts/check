@@ -41,6 +41,10 @@ RULES = [
      "(architecture/names.json, ADR 0002); the engine-import debt only shrinks",
      lambda base: [script("check_module_boundaries.py", *(["--base", base] if base else []))],
      "scripts/tests/ModuleChecks"),
+    ("core", "R3", "The core compiles on every system: portable imports, names and conditions in core/, even behind #if; "
+     "system variants only in core/OortLibrary/System/; the debt only shrinks",
+     lambda base: [script("check_oort_core.py", *(["--base", base] if base else []))],
+     "scripts/tests/ModuleChecks/test_oort_core.py"),
     ("names", "R4", "Technical names are written once (architecture/names.json); players' frozen values stay",
      lambda base: [script("check_names.py", *(["--base", base] if base else []))],
      "scripts/tests/RepoChecks/test_names.py"),

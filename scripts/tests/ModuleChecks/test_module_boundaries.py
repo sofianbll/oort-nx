@@ -28,9 +28,6 @@ def write(root, relative, text):
 
 class ModuleBoundaryTests(unittest.TestCase):
     def setUp(self):
-        # Synthetic fixtures use an empty baseline: the real one lists files that the fixture lacks.
-        self.saved_baseline = dict(boundaries.UI_BASELINE)
-        boundaries.UI_BASELINE.clear()
         self.directory = tempfile.TemporaryDirectory()
         self.root = self.directory.name
         self.names = (ROOT / names.SOURCE).read_text(encoding="utf-8")
@@ -50,8 +47,6 @@ class ModuleBoundaryTests(unittest.TestCase):
 
     def tearDown(self):
         self.directory.cleanup()
-        boundaries.UI_BASELINE.clear()
-        boundaries.UI_BASELINE.update(self.saved_baseline)
 
     def test_layered_fixture_has_no_violation(self):
         self.assertEqual(boundaries.check(self.root), [])
@@ -79,20 +74,7 @@ class ModuleBoundaryTests(unittest.TestCase):
         violations = boundaries.check(self.root)
         self.assertTrue(any(f"{LIBRARY} imports {APP}" in line for line in violations), violations)
 
-    def test_core_interface_import_needs_a_baseline_entry(self):
-        write(self.root, source("library", "Views/Panel.swift"), "import SwiftUI\n")
-        violations = boundaries.check(self.root)
-        self.assertTrue(any(f"{LIBRARY} imports the interface framework SwiftUI" in line for line in violations))
-
-    def test_baseline_entry_passes_and_stale_entry_is_reported(self):
-        boundaries.UI_BASELINE[source("library", "Library.swift")] = {"AppKit"}
-        violations = boundaries.check(self.root)
-        self.assertTrue(any("baseline lists AppKit" in line for line in violations), violations)
-        write(self.root, source("library", "Library.swift"), "import AppKit\n")
-        self.assertEqual(boundaries.check(self.root), [])
-
     def test_repository_respects_its_boundaries(self):
-        boundaries.UI_BASELINE.update(self.saved_baseline)
         self.assertEqual(boundaries.check(ROOT), [])
 
     def test_view_cannot_read_engine_storage(self):
