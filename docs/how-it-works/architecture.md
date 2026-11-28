@@ -230,7 +230,7 @@ canvas, gli effetti e le durate condivise. Il fallback e la prima voce del
 catalogo usano gli stessi ruoli colore Oort; le altre palette non sono generate.
 I sei ruoli di testo crescono fino al doppio con le taglie di accessibilità del
 sistema; la lettura a tre metri si verifica in pixel sul testo disegnato.
-`SeleneTheme` applica la palette corrente. `Motion` definisce le curve per ruolo.
+`SeleneTheme` applica la palette corrente. `Motion` (nell'app: sono animazioni SwiftUI) definisce le curve per ruolo dai tempi di `SeleneTokens.Motion`.
 Il rail di Spotlight e Collection ripunta la molla critica alla nuova selezione;
 con Riduci movimento la posizione e gli interruttori cambiano direttamente.
 
@@ -1108,7 +1108,7 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 - `AppUpdateDownload` limita il trasferimento alla dimensione dichiarata e agli host HTTPS di GitHub.
 - `validate_update.py` verifica struttura e percorsi, poi estrae contando i dati davvero decompressi tramite il Python incluso. Prima della sostituzione si controllano versione, marker, identificativo e firma del bundle.
 - La firma ad hoc protegge il contenuto sigillato ma non identifica da sola il maintainer.
-- `AppUpdate.install` copia il candidato in una cartella esclusiva `.arcane-update.*` sul volume di destinazione e scambia i bundle con `RENAME_SWAP`, mantenendo il nome corrente. Le copie già presenti accanto all’app non vengono usate né rimosse. L’app precedente va nel Cestino; se il Cestino fallisce, resta nella cartella esclusiva. Un errore prima dello scambio pulisce soltanto il candidato posseduto; la cartella finale si rimuove solo se vuota. *Perché:* nomi prevedibili come `(new)` e `(old)` possono appartenere al giocatore.
+- L'installazione è propria del Mac (`AppUpdate+Install.swift` nell'app; nel Core restano versioni, release, requisiti e digest). `AppUpdate.install` copia il candidato in una cartella esclusiva `.arcane-update.*` sul volume di destinazione e scambia i bundle con `RENAME_SWAP`, mantenendo il nome corrente. Le copie già presenti accanto all’app non vengono usate né rimosse. L’app precedente va nel Cestino; se il Cestino fallisce, resta nella cartella esclusiva. Un errore prima dello scambio pulisce soltanto il candidato posseduto; la cartella finale si rimuove solo se vuota. *Perché:* nomi prevedibili come `(new)` e `(old)` possono appartenere al giocatore.
 - Prima dell'installazione l'updater ottiene un'esclusione globale dal `SaveOperationGate`: aspetta che finiscano le operazioni in corso su salvataggi, Play e installazioni e impedisce nuovi ingressi durante sostituzione e riavvio. Un recupero bloccato senza I/O attivo non impedisce l'aggiornamento. Il coordinatore esclude nuovi porting mentre l'app si aggiorna.
 
 **Nome del file alla chiusura.**

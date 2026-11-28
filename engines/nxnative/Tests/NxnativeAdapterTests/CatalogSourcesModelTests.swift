@@ -185,21 +185,21 @@ final class CatalogSourcesModelTests: XCTestCase {
                                        games: [], issues: [])
         let model = CatalogSourcesModel(repository: repository, initialConfiguration: initial,
                                         scanner: { _, _ in scan }, onCommit: { _ in })
-        let watcher = SteamManifestWatcher()
-        defer { watcher.stop() }
-        let observation = model.$libraryRoots.sink { watcher.watch($0, root: root) }
+        // The app hands every value to SteamManifestWatcher, which retries a folder that was missing
+        // (SteamManifestWatcherTests in the Mac's tests): the model must send the same paths again after each scan.
+        var sent: [[URL]] = []
+        let observation = model.$libraryRoots.sink { sent.append($0) }
         defer { withExtendedLifetime(observation) {} }
         model.configure(enabled: true, root: root)
         await settled(model)
         XCTAssertEqual(model.status, .ready)
+        let first = sent.count
         _ = try f.library("Later")
         model.refresh()
         await settled(model)
         XCTAssertEqual(model.status, .ready)
-        let changed = expectation(description: "Watcher retries an unchanged path after the scan")
-        watcher.onChange = { changed.fulfill() }
-        try f.manifest(in: library)
-        await fulfillment(of: [changed], timeout: 6)
+        XCTAssertGreaterThan(sent.count, first, "an unchanged list of libraries is sent again after the scan")
+        XCTAssertEqual(sent.last.map(Set.init), Set([root, library]))
     }
 
     private func settled(_ model: CatalogSourcesModel) async {

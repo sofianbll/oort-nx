@@ -40,8 +40,6 @@ final class CloudTransferPresentationTests: XCTestCase {
         for state in [CloudTransferPresentation.queued, .verifying(nil), .waitingForGame, .ready, .failed] {
             XCTAssertEqual(state.gauge(hasCover: false, hasDownloadPill: false), .none)
         }
-        XCTAssertNil(Motion.transfer(true))
-        XCTAssertNil(Motion.buildArt(true, .fill))
     }
 
     func testManagementEntryNeverAppearsTwice() {

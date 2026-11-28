@@ -1,5 +1,6 @@
 import Foundation
 import CoreServices
+import OortLibrary
 
 /// Tells Arcane when Steam rewrites a manifest (a download starts, pauses or finishes, a game is installed,
 /// removed or launched) or the library index, so the Steam source can rescan without a Refresh. One FSEvents
@@ -53,38 +54,12 @@ public final class SteamManifestWatcher {
         stream = nil; watched = []; libraries = []; root = nil
     }
 
-    /// An event that may change the library. With `dropped` (the system lost events under `path` and asks for a
-    /// rescan of it), only a drop at a `steamapps` folder or above counts: one inside `downloading/` or `common/`
-    /// says nothing about the manifests, and a long download could otherwise rescan every batch.
-    public nonisolated static func isRelevant(_ path: String, dropped: Bool, libraries: [String], root: String?) -> Bool {
-        guard dropped else { return isRelevant(path, libraries: libraries, root: root) }
-        let folder = path.hasSuffix("/") ? String(path.dropLast()) : path
-        return libraries.contains { library in
-            let steamapps = library + "/steamapps"
-            return steamapps == folder || steamapps.hasPrefix(folder + "/")
-        }
-    }
-
-    /// `<library>/steamapps/appmanifest_<digits>.acf`, or the root's `steamapps/libraryfolders.vdf`.
-    public nonisolated static func isRelevant(_ path: String, libraries: [String], root: String?) -> Bool {
-        if let root, path == root + "/steamapps/libraryfolders.vdf" { return true }
-        for library in libraries {
-            let prefix = library + "/steamapps/"
-            guard path.hasPrefix(prefix) else { continue }
-            let name = path.dropFirst(prefix.count)
-            guard name.hasPrefix("appmanifest_"), name.hasSuffix(".acf") else { return false }
-            let digits = name.dropFirst("appmanifest_".count).dropLast(".acf".count)
-            return !digits.isEmpty && digits.utf8.allSatisfy { (48...57).contains($0) }
-        }
-        return false
-    }
-
     private func received(_ paths: [String], flags: [FSEventStreamEventFlags]) {
         let mustScan = FSEventStreamEventFlags(kFSEventStreamEventFlagMustScanSubDirs)
         let changed = zip(paths, flags).contains { path, flag in
             // FSEvents can spell /var and /tmp with /private; compare in the same form as `watch`.
             let canonical = URL(fileURLWithPath: path).resolvingSymlinksInPath().standardizedFileURL.path
-            return Self.isRelevant(canonical, dropped: flag & mustScan != 0, libraries: libraries, root: root)
+            return SteamManifestPaths.isRelevant(canonical, dropped: flag & mustScan != 0, libraries: libraries, root: root)
         }
         if changed { onChange?() }
     }

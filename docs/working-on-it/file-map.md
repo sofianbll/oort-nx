@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1685 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1691 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -196,6 +196,9 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | File | Responsabilità |
 |---|---|
 | [apps/mac/OortMac/Services/AppUpdater.swift](../../apps/mac/OortMac/Services/AppUpdater.swift) | Coordina aggiornamento e riavvio; se il gate blocca l'installazione, conserva lo ZIP verificato per il tentativo successivo. |
+| [apps/mac/OortMac/Services/AppUpdate+Install.swift](../../apps/mac/OortMac/Services/AppUpdate+Install.swift) | L'installazione dell'aggiornamento dell'app Mac: bundle sigillato e firma, App Translocation, scambio atomico con la copia in esecuzione, Cestino della copia precedente e riavvio. |
+| [apps/mac/OortMac/Services/ConnectivityWatcher.swift](../../apps/mac/OortMac/Services/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
+| [apps/mac/OortMac/Services/SteamManifestWatcher.swift](../../apps/mac/OortMac/Services/SteamManifestWatcher.swift) | Uno stream FSEvents sulle cartelle `steamapps` delle librerie dell’ultima scansione; segnala solo i manifest `appmanifest_<AppID>.acf` e l’indice `libraryfolders.vdf` della radice, una volta per gruppo di eventi. I filtri dei percorsi sono `SteamManifestPaths` nel Core. |
 | [apps/mac/OortMac/Services/NativeMenuCommands.swift](../../apps/mac/OortMac/Services/NativeMenuCommands.swift) | Coordina tracking, disponibilità nella scena e passaggio differito dai menu macOS alle azioni del launcher. |
 | [apps/mac/OortMac/Services/NextendoBrowserSignIn.swift](../../apps/mac/OortMac/Services/NextendoBrowserSignIn.swift) | Apre il browser predefinito e riceve una callback HTTP su loopback, con annullamento e scadenza. |
 | [apps/mac/OortMac/Services/ControllerSource.swift](../../apps/mac/OortMac/Services/ControllerSource.swift) | Contratto per connessioni, input, batteria e identificazione esplicita dei pad. |
@@ -265,7 +268,6 @@ Cartella `core/OortLibrary/App/`.
 | [core/OortLibrary/App/AppUpdatePresentation.swift](../../core/OortLibrary/App/AppUpdatePresentation.swift) | Definisce gli stati dell’updater e il gate di installazione per versione e tipo di copia. |
 | [core/OortLibrary/App/AppUpdateDownload.swift](../../core/OortLibrary/App/AppUpdateDownload.swift) | Scarica gli aggiornamenti con limiti di dimensione, redirect HTTPS vincolati a GitHub e gestione del file temporaneo. |
 | [core/OortLibrary/App/BoundedDownload.swift](../../core/OortLibrary/App/BoundedDownload.swift) | Lettura HTTP limitata a blocchi e senza redirect, condivisa fra base e modulo per i provider, Steam e Nextendo. |
-| [core/OortLibrary/App/ConnectivityWatcher.swift](../../core/OortLibrary/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
 | [core/OortLibrary/App/DisplayNameCache.swift](../../core/OortLibrary/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
 | [core/OortLibrary/App/AppIdentity.swift](../../core/OortLibrary/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagine del progetto e del finanziamento. |
 | [core/OortLibrary/App/Credits+Bundled.swift](../../core/OortLibrary/App/Credits+Bundled.swift) | I crediti inclusi nell’app. |
@@ -354,10 +356,9 @@ Cartella `core/OortLibrary/Selene/`.
 | [core/OortLibrary/Selene/BackdropArt.swift](../../core/OortLibrary/Selene/BackdropArt.swift) | Regola che tiene l’arte del gioco precedente sullo sfondo Spotlight (`BackdropArtRule`) dissolvenza di un layer calcolata sull’orologio (`OpacityFade`) e livelli ormai coperti da togliere (`ArtStack`). |
 | [core/OortLibrary/Selene/TileMotion.swift](../../core/OortLibrary/Selene/TileMotion.swift) | Curve e campioni dei loop di ring, bagliore e riflesso della tile selezionata, sull'orologio condiviso. |
 | [core/OortLibrary/Selene/DownloadCloudMotion.swift](../../core/OortLibrary/Selene/DownloadCloudMotion.swift) | Traiettoria smorzata del download, onda calma, assestamento, glifo Oort e bande a dissolvenza. |
-| [core/OortLibrary/Selene/Motion.swift](../../core/OortLibrary/Selene/Motion.swift) | Curve di focus, rail, schermate, overlay, carte ancorate, toast e progressi con varianti di movimento ridotto. |
 | [core/OortLibrary/Selene/SeleneTokens.swift](../../core/OortLibrary/Selene/SeleneTokens.swift) | Ruoli Selene generati: testo, spazi, raggi, effetti, colore, durata e riferimento di distanza. |
 | [core/OortLibrary/Selene/SeleneOverlayStyle.swift](../../core/OortLibrary/Selene/SeleneOverlayStyle.swift) | Associa ogni overlay ai ruoli di velo e sfocatura. |
-| [core/Tests/OortLibraryTests/Selene/MotionTests.swift](../../core/Tests/OortLibraryTests/Selene/MotionTests.swift) | Verifica che in movimento ridotto restino solo i fonduti previsti. |
+| [core/Tests/OortLibraryTests/Selene/SeleneOverlayStyleTests.swift](../../core/Tests/OortLibraryTests/Selene/SeleneOverlayStyleTests.swift) | Veli e sfocature diversi per menu, opzioni, ricerca e livello profondo. |
 | [core/OortLibrary/Selene/TextScroll.swift](../../core/OortLibrary/Selene/TextScroll.swift) | Scorrimento della colonna del pannello della mod: altezza della descrizione dopo Read more, limiti, riga a fuoco mostrata intera e passo Su/Giù che legge prima della riga seguente. |
 | [core/OortLibrary/Selene/CursorIdleState.swift](../../core/OortLibrary/Selene/CursorIdleState.swift) | Politica del ritardo di visibilità del puntatore e reset su mouse o perdita di eleggibilità. |
 | [core/OortLibrary/Selene/OnlineBackgrounds.swift](../../core/OortLibrary/Selene/OnlineBackgrounds.swift) | Modella sorgenti e risultati e interpreta le risposte dei provider di sfondi fissi e video. |
@@ -490,11 +491,11 @@ Cartella `core/OortLibrary/Steam/`.
 | [core/OortLibrary/Steam/InstallationDirectorySnapshot.swift](../../core/OortLibrary/Steam/InstallationDirectorySnapshot.swift) | Lettura incrementale delle cartelle, budget anche sulle voci nascoste e annullamento durante l'enumerazione. |
 | [core/OortLibrary/Steam/NativeMacApplication.swift](../../core/OortLibrary/Steam/NativeMacApplication.swift) | Evidenze del bundle Mac e degli header eseguibili, architetture e categoria dichiarata, senza avvio. |
 | [core/OortLibrary/Steam/SteamLibrarySource.swift](../../core/OortLibrary/Steam/SteamLibrarySource.swift) | Snapshot delle librerie/manifest; omette i percorsi non pubblicabili e segnala una scansione parziale senza modificare il catalogo. |
+| [core/OortLibrary/Steam/SteamManifestPaths.swift](../../core/OortLibrary/Steam/SteamManifestPaths.swift) | Quali eventi sotto le cartelle di Steam possono cambiare la libreria (manifest, indice, eventi persi); lo chiede `SteamManifestWatcher` dell'app Mac. |
 | [core/OortLibrary/Steam/SteamPlayState.swift](../../core/OortLibrary/Steam/SteamPlayState.swift) | Stato di Play per un gioco Steam: processi osservati con i percorsi risolti, passaggio a Steam, sessione solo quando gira l’app di questa installazione, attese e rifiuti. |
 | [core/OortLibrary/Steam/SteamBinaryKeyValues.swift](../../core/OortLibrary/Steam/SteamBinaryKeyValues.swift) | Lettura limitata del formato KeyValues binario di Steam (`appcache/stats`): tipi noti, profondità, voci e dimensione; qualunque altro byte è un errore. |
 | [core/OortLibrary/Steam/SteamAchievementReader.swift](../../core/OortLibrary/Steam/SteamAchievementReader.swift) | Achievement di un gioco per l’account corrente: schema (nomi nella lingua dell’app, poi inglese; nascosti; icone) e soli `AchievementTimes` del file delle statistiche; nessun file, account o statistiche: nessun dato. |
 | [core/OortLibrary/Steam/SteamAchievementRarity.swift](../../core/OortLibrary/Steam/SteamAchievementRarity.swift) | Rarità pubblica (`GetGlobalAchievementPercentagesForApp`, senza chiave) (una percentuale non numerica, «nan» o «inf», si scarta) e indirizzi delle icone sull’host community-assets del CDN di Steam, solo per nomi di file semplici. |
-| [core/OortLibrary/Steam/SteamManifestWatcher.swift](../../core/OortLibrary/Steam/SteamManifestWatcher.swift) | Uno stream FSEvents sulle cartelle `steamapps` delle librerie dell’ultima scansione; segnala solo i manifest `appmanifest_<AppID>.acf` e l’indice `libraryfolders.vdf` della radice, una volta per gruppo di eventi. |
 | [core/OortLibrary/Steam/SteamMetadata.swift](../../core/OortLibrary/Steam/SteamMetadata.swift) | Dati store Steam tipizzati, lingua e URL immagini verificati. |
 | [core/OortLibrary/Steam/SteamMetadataService.swift](../../core/OortLibrary/Steam/SteamMetadataService.swift) | Fino a sei download coalescenti, cache per lingua, ripiego offline (anche in un'altra lingua) e immagini ridimensionate. Legge i tratti dei giochi correlati solo da cache. |
 | [core/OortLibrary/Steam/SteamPersonalizationStore.swift](../../core/OortLibrary/Steam/SteamPersonalizationStore.swift) | Pubblicazione unica di metadati e riferimenti artwork; fallimenti e Automatic conservano le scelte coerenti. |
@@ -992,6 +993,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | File | Responsabilità |
 |---|---|
 | [apps/mac/OortMac/Views/Theme/ThemeStore.swift](../../apps/mac/OortMac/Views/Theme/ThemeStore.swift) | Mantiene palette attiva, wallpaper inclusi e importati e operazioni sulle scelte dell’utente. |
+| [apps/mac/OortMac/Views/Theme/Motion.swift](../../apps/mac/OortMac/Views/Theme/Motion.swift) | Curve di focus, rail, schermate, overlay, carte ancorate, toast e progressi con varianti di movimento ridotto. |
 | [apps/mac/OortMac/Views/Theme/SeleneTheme.swift](../../apps/mac/OortMac/Views/Theme/SeleneTheme.swift) | Espone colori, stili, curve di animazione, focus e ambiente Selene; solo il blu classico usa inchiostro tenue per i glifi delle righe. |
 | [apps/mac/OortMac/Views/Theme/SeleneFonts.swift](../../apps/mac/OortMac/Views/Theme/SeleneFonts.swift) | Registra il font incluso e definisce MaterialIconView. |
 | [apps/mac/OortMac/Views/Theme/SeleneCanvasEnvironment.swift](../../apps/mac/OortMac/Views/Theme/SeleneCanvasEnvironment.swift) | Pubblica il canvas, scala unità e font e applica le sfumature sui bordi orizzontali richiesti. |
@@ -1096,6 +1098,10 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 
 | File | Responsabilità aggiuntiva |
 |---|---|
+| [apps/mac/Tests/OortMacTests/AppUpdateInstallTests.swift](../../apps/mac/Tests/OortMacTests/AppUpdateInstallTests.swift) | Controlli del bundle, firma, translocation, scambio e i suoi errori, Cestino che rifiuta: la copia installata resta sempre utilizzabile. |
+| [apps/mac/Tests/OortMacTests/ConnectivityWatcherTests.swift](../../apps/mac/Tests/OortMacTests/ConnectivityWatcherTests.swift) | Solo il passaggio da offline a online conta come ritorno della connessione; la prima lettura no. |
+| [apps/mac/Tests/OortMacTests/MotionTests.swift](../../apps/mac/Tests/OortMacTests/MotionTests.swift) | Verifica che in movimento ridotto restino solo i fonduti previsti. |
+| [apps/mac/Tests/OortMacTests/SteamManifestWatcherTests.swift](../../apps/mac/Tests/OortMacTests/SteamManifestWatcherTests.swift) | Lo stream FSEvents: riprova una libreria che diventa disponibile, ne aggiunge una nuova, resta vivo fino a `stop`. |
 | [FileBrowserTests.swift](../../core/Tests/OortLibraryTests/FileBrowserTests.swift) | Filtri, ordine, collegamenti, permessi, volume non disponibile e cartella con 2.000 file sintetici. |
 | [core/Tests/OortLibraryTests/SettingsRowActionTests.swift](../../core/Tests/OortLibraryTests/SettingsRowActionTests.swift) | Regressioni per giochi omonimi e azioni secondarie della medesima riga. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/ScreenshotFallbackTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/ScreenshotFallbackTests.swift) | Screenshot LaunchBox cercati una volta e conservati, precedenza di quelli propri e dimensione piena della scelta. |
@@ -1178,7 +1184,6 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [engines/nxnative/Tests/NxnativeAdapterTests/ModInstallerTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/ModInstallerTests.swift) | Installazione con archivi veri: MD5, percorsi pericolosi, mod di codice, errori, gioco aperto, spazio, nomi, aggiornamenti. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/CloudSavesTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/CloudSavesTests.swift) | Cartelle cloud, preferenze per gioco e decodifica delle impostazioni precedenti. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/CompatibilityCheckerTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/CompatibilityCheckerTests.swift) | Commit, modifiche ammesse nel checkout, Metal, CLI e override del gate. |
-| [core/Tests/OortLibraryTests/ConnectivityWatcherTests.swift](../../core/Tests/OortLibraryTests/ConnectivityWatcherTests.swift) | Solo il passaggio da offline a online conta come ritorno della connessione; la prima lettura no. |
 | [core/Tests/OortLibraryTests/DetailsFocusTests.swift](../../core/Tests/OortLibraryTests/DetailsFocusTests.swift) | Spostamento nelle bande di Details, limiti e sezioni vuote. |
 | [core/Tests/OortLibraryTests/DirectorySizeTests.swift](../../core/Tests/OortLibraryTests/DirectorySizeTests.swift) | Somma dei file regolari ignorando nascosti e collegamenti; cartella mancante a zero. |
 | [core/Tests/OortLibraryTests/DiagnosticsReportTests.swift](../../core/Tests/OortLibraryTests/DiagnosticsReportTests.swift) | Rimozione di percorsi personali e chiavi e contenuto delle sezioni diagnostiche. |
@@ -1337,6 +1342,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [SoundPackTests.swift](../../core/Tests/OortLibraryTests/SoundPackTests.swift) | Verifica manifesti, ZIP, limiti, link, copia controllata, eventi mancanti e persistenza della scelta. |
 | [OortAmbianceTests.swift](../../core/Tests/OortLibraryTests/OortAmbianceTests.swift) | Copertura degli eventi, nomi nelle sette lingue, livello e picco, assenza di clic, carattere dei tre ambienti e note di Compose. |
 | [SteamLibrarySourceTests.swift](../../core/Tests/OortLibraryTests/SteamLibrarySourceTests.swift) | Più fonti, dischi assenti, identità, manifest/path con campi duplicati o di tipo errato, file cambiati, limiti e assenza di scritture. |
+| [SteamManifestPathsTests.swift](../../core/Tests/OortLibraryTests/SteamManifestPathsTests.swift) | Filtri dei percorsi Steam: solo manifest e indice delle librerie; eventi persi contati solo a `steamapps` o sopra. |
 | [SteamDiscoveryConsistencyTests.swift](../../core/Tests/OortLibraryTests/SteamDiscoveryConsistencyTests.swift) | Mutazioni reali di inventario e app durante scan, indice inizialmente assente, budget e propagazione dell'annullamento. |
 | [SteamTestSupport.swift](../../core/Tests/OortLibraryTests/SteamTestSupport.swift) | Genera solo metadati e header sintetici nelle directory temporanee dei test. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/SteamTestSupport.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/SteamTestSupport.swift) | Collegamento simbolico a `OortLibraryTests/SteamTestSupport.swift`: i test del modulo usano la stessa fixture Steam, da un solo file. |
@@ -1349,7 +1355,6 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [AchievementsScreenStateTests.swift](../../core/Tests/OortLibraryTests/AchievementsScreenStateTests.swift) | Movimento in due colonne, bordi, liste vuote, cambio filtro e liste che si accorciano. |
 | [GridListLayoutTests.swift](../../core/Tests/OortLibraryTests/GridListLayoutTests.swift) | Linee, altezza, posizione delle righe, spazio da mostrare, linee visibili e riga in vista più vicina dopo la rotella. |
 | [AchievementTierTests.swift](../../core/Tests/OortLibraryTests/AchievementTierTests.swift) | Soglie, tier dalla percentuale mostrata, ordine dal più raro, conteggi per tier, Arcane solo al 100% e mai senza achievement, miglior tier ottenuto, rarità sconosciuta. |
-| [SteamManifestWatcherTests.swift](../../core/Tests/OortLibraryTests/SteamManifestWatcherTests.swift) | Filtri e durata dello stream; eventi reali da librerie tornate disponibili, da sole o accanto a una già osservata, inclusa la normalizzazione `/private`. |
 | [CatalogPreservationTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/CatalogPreservationTests.swift) | Giochi e fonti di un’integrazione sconosciuta: letti, invisibili, riscritti uguali, controlli di forma e duplicati, catalogo noto scritto come prima. |
 | [CatalogModelTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/CatalogModelTests.swift) | Conservazione del record precedente, proprietà comuni e separazione delle azioni per integrazione. |
 | [CatalogStoreTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/CatalogStoreTests.swift) | Conversione, backup, corruzione, versioni, input cambiati, scrittori concorrenti, guasti di pubblicazione e tipi noti disattivati in un nuovo profilo. |

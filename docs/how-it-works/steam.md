@@ -114,7 +114,7 @@ Lo stato nasce dall’osservazione (`SteamGameObservation.State`) e arriva alla 
 
 ## Osservazione dei file di Steam
 
-`SteamManifestWatcher` apre un solo `FSEventStream` (eventi per file, latenza 2 s) sulle cartelle `steamapps` di
+`SteamManifestWatcher` (app Mac; i filtri dei percorsi sono `SteamManifestPaths` nel Core) apre un solo `FSEventStream` (eventi per file, latenza 2 s) sulle cartelle `steamapps` di
 tutte le librerie disponibili dell’ultima scansione. Ogni scansione ricontrolla anche i percorsi invariati: una
 cartella tornata disponibile entra nello stream, anche se le altre erano già osservate. Un avvio dello stream
 fallito si può ritentare. I percorsi degli eventi e delle cartelle usano la stessa normalizzazione (anche sotto

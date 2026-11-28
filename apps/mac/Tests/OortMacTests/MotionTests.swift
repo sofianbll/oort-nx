@@ -1,5 +1,5 @@
-import OortLibrary
 import XCTest
+@testable import OortMac
 
 final class MotionTests: XCTestCase {
     func testReducedMotionStopsFocusRailsAndPagesButAllowsFades() {
@@ -22,11 +22,8 @@ final class MotionTests: XCTestCase {
         XCTAssertEqual(Motion.railOffset(2, maximum: 0), 0)
     }
 
-    func testOverlayStylesRetainDifferentVeilsAndBlur() {
-        XCTAssertEqual(SeleneOverlayStyle.menu.veilOpacity, 0.55)
-        XCTAssertEqual(SeleneOverlayStyle.deep.veilOpacity, 0.65)
-        XCTAssertEqual(SeleneOverlayStyle.options.backdropBlur, 10)
-        XCTAssertEqual(SeleneOverlayStyle.deep.backdropBlur, 40)
-        XCTAssertEqual(SeleneOverlayStyle.search.backdropBlur, 0)
+    func testReducedMotionStopsTransfersAndBuildArt() {
+        XCTAssertNil(Motion.transfer(true))
+        XCTAssertNil(Motion.buildArt(true, .fill))
     }
 }

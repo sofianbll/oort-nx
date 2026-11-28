@@ -11,6 +11,7 @@ let mac = (name: "OortMac", path: "apps/mac/OortMac")
 let coreTests = (name: "OortCoreTests", path: "core/Tests/OortCoreTests")
 let libraryTests = (name: "OortLibraryTests", path: "core/Tests/OortLibraryTests")
 let nxnativeTests = (name: "NxnativeAdapterTests", path: "engines/nxnative/Tests/NxnativeAdapterTests")
+let macTests = (name: "OortMacTests", path: "apps/mac/Tests/OortMacTests")
 // END GENERATED NAMES
 
 // The core (its two modules and their tests) builds on every system; the Mac's targets are declared on a Mac
@@ -42,6 +43,8 @@ let macTargets: [Target] = [
         dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
         path: nxnativeTests.path
     ),
+    // What only the Mac does (its Trash, FSEvents, the network monitor, the update of the app, SwiftUI motion).
+    .testTarget(name: macTests.name, dependencies: [.byName(name: mac.name)], path: macTests.path),
 ]
 #else
 let macProducts: [Product] = []

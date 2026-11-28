@@ -1,5 +1,5 @@
 import XCTest
-@testable import OortLibrary
+@testable import OortMac
 
 final class ConnectivityWatcherTests: XCTestCase {
     func testOnlyOfflineToOnlineIsAReturn() {

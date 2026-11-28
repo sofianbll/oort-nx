@@ -9,7 +9,8 @@
     "nxnative": {"name": "NxnativeAdapter", "kind": "engine", "layer": 2, "path": "engines/nxnative/NxnativeAdapter", "model": "oort.mac",
                  "tests": {"name": "NxnativeAdapterTests", "path": "engines/nxnative/Tests/NxnativeAdapterTests"}},
     "mac": {"name": "OortMac", "kind": "app", "layer": 3, "path": "apps/mac/OortMac", "model": "oort.mac",
-            "entry": "apps/mac/OortMac/NXLibraryApp.swift"}
+            "entry": "apps/mac/OortMac/NXLibraryApp.swift",
+            "tests": {"name": "OortMacTests", "path": "apps/mac/Tests/OortMacTests"}}
   },
   "frozen": {
     "about": "Players' data and settings depend on these values: bundle identifiers, data folders, Info.plist and preference keys, the app's name. scripts/check_names.py holds each one in the files listed; never change one. LICENSE is held to its digest by scripts/check_publication.py.",
