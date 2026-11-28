@@ -15,6 +15,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 source = ''.join(p.read_text() for p in sorted((ROOT / 'apps/mac/OortMac/ViewModels').glob('AppViewModel*.swift')))
 
 
@@ -301,7 +302,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-onboarding-check-') as scratch:
     binary = scratch / 'onboarding'
     library = ROOT / '.build/debug'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
-                    *map(str, names.objects(library)),
+                    *probe_start.core(library),
                     '-o', str(binary)], check=True)
     subprocess.run([str(binary), str(scratch / 'test-preferences')],
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

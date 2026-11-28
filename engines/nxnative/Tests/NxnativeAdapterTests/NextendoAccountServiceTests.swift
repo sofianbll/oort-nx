@@ -338,6 +338,12 @@ final class NextendoAccountServiceTests: XCTestCase {
     }
 
     func testPublicMediaRequestsNeverSendAccountCredentials() async throws {
+        try await PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) {
+            try await publicMediaRequestsNeverSendAccountCredentials()
+        }
+    }
+
+    private func publicMediaRequestsNeverSendAccountCredentials() async throws {
         let png = try XCTUnwrap(Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgWPD/PwAE4gKf9X2tZQAAAABJRU5ErkJggg=="))
         let (client, server) = try await makeClient([
             "/api/gameinfo": #"{"name":"Game title"}"#,

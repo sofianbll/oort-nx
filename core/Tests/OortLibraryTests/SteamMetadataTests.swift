@@ -2,10 +2,13 @@ import XCTest
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import AppKit
 @testable import OortLibrary
 
 final class SteamMetadataTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     private func payload(id: Int = 10) -> Data {
         Data("""
         {"10":{"success":true,"data":{"steam_appid":\(id),"name":"Fixture","short_description":"A &amp; B","genres":[{"id":"2","description":"Strategia"}],"developers":["Studio"],"publishers":["Publisher"],"release_date":{"date":"23 mag 2023"},"screenshots":[{"path_full":"https://shared.akamai.steamstatic.com/test.jpg"},{"path_full":"http://localhost/private"}]}}}
@@ -139,8 +142,7 @@ final class SteamMetadataTests: XCTestCase {
     func testFailedCombinedDraftKeepsAllPreviousPicksAndAutomaticReferences() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
-        let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 2, pixelsHigh: 2, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-        let png = image.representation(using: .png, properties: [:])!
+        let png = TestImages.png(width: 2, height: 2)
         let initial = SteamPersonalizationStore(directory: root)
         try initial.save(fields: [.description: "Previous"], images: [.cover: png], automatic: [], titleID: "10")
         let original = initial.url(titleID: "10", slot: .cover)!

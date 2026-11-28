@@ -1,11 +1,8 @@
 import Foundation
+import Synchronization
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import AppKit
-import ImageIO
-import Combine
-import os
 
 public enum ArtworkKind: String, Codable {
     case hero, logo, square
@@ -50,7 +47,7 @@ public final class ArtworkStore: Sendable {
     // FileManager is thread-safe (Apple's documentation) without being Sendable; the reference never changes.
     nonisolated(unsafe) private let fileManager: FileManager
     /// Steam games LaunchBox had no Square for, this session: not searched again until the next launch.
-    private let steamIconMisses = OSAllocatedUnfairLock(initialState: Set<String>())
+    private let steamIconMisses = Mutex<Set<String>>([])
 
     public init(cacheDirectory: URL = ArtworkStore.defaultDirectory(),
                 client: ArtworkHTTPClient = URLSessionArtworkClient(),
@@ -138,16 +135,18 @@ public final class ArtworkStore: Sendable {
                 try data.write(to: url, options: .atomic)
                 return url
             } else if kind == .square {
+                // Read here: a detached task does not see the services a test scopes (PlatformServices.scoped).
+                let resizer = PlatformServices.imageResizer
                 let png = await Task.detached(priority: .utility) {
-                    Self.downsample(data, maxPixelSize: ArtworkKind.square.maxPixelSize, png: true)
+                    Self.downsample(data, maxPixelSize: ArtworkKind.square.maxPixelSize, png: true, resizer: resizer)
                 }.value
                 guard let png else { return cachedURL(titleID: titleID, kind: kind) }
                 try png.write(to: url, options: .atomic)
                 return url
             } else {
-                let maxPixelSize = kind.maxPixelSize
+                let maxPixelSize = kind.maxPixelSize, resizer = PlatformServices.imageResizer
                 let jpeg = await Task.detached(priority: .utility) {
-                    Self.downsample(data, maxPixelSize: maxPixelSize)
+                    Self.downsample(data, maxPixelSize: maxPixelSize, resizer: resizer)
                 }.value
                 guard let jpeg else { return cachedURL(titleID: titleID, kind: kind) }
                 try jpeg.write(to: url, options: .atomic)
@@ -188,8 +187,9 @@ public final class ArtworkStore: Sendable {
         do {
             let (data, http) = try await client.data(for: request)
             guard (200..<300).contains(http.statusCode), !data.isEmpty else { return nil }
+            let resizer = PlatformServices.imageResizer
             let jpeg = await Task.detached(priority: .utility) {
-                Self.downsample(data, maxPixelSize: 1600)
+                Self.downsample(data, maxPixelSize: 1600, resizer: resizer)
             }.value
             guard let jpeg else { return nil }
             try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -261,18 +261,11 @@ public final class ArtworkStore: Sendable {
         return safe.isEmpty ? "unknown" : safe
     }
 
-    package static func downsample(_ data: Data, maxPixelSize: CGFloat, png: Bool = false) -> Data? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
-        ]
-        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return nil
-        }
-        let rep = NSBitmapImageRep(cgImage: image)
-        if png { return rep.representation(using: .png, properties: [:]) }
-        return rep.representation(using: .jpeg, properties: [.compressionFactor: 0.94])
+    /// The image at most `maxPixelSize` on its longer side, upright, as PNG or JPEG; nil when it is not an image or
+    /// no `ImageResizer` was given (`PlatformServices`), so `downsample(...) != nil` also proves an image.
+    /// A caller that resizes in a detached task reads `resizer` before detaching it.
+    package static func downsample(_ data: Data, maxPixelSize: CGFloat, png: Bool = false,
+                                   resizer: (any ImageResizer)? = PlatformServices.imageResizer) -> Data? {
+        resizer?.resized(data, maxPixelSize: maxPixelSize, png: png)
     }
 }

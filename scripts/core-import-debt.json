@@ -1,20 +1,4 @@
 {
  "about": "Core files (sources and tests) that do not yet compile on every system (R3): an Apple import, an Apple-only name or a branch on the system outside core/OortLibrary/System/. The list only shrinks; scripts/check_oort_core.py holds it. Empty at the end of lot 3, then removed.",
- "files": [
-  "core/OortLibrary/Artwork/ArtworkPicker.swift",
-  "core/OortLibrary/Artwork/ArtworkStore.swift",
-  "core/OortLibrary/Artwork/AutomaticIconResolver.swift",
-  "core/OortLibrary/Artwork/WikipediaDescription.swift",
-  "core/OortLibrary/Steam/SteamBackdropChoice.swift",
-  "core/Tests/OortLibraryTests/AchievementTierTests.swift",
-  "core/Tests/OortLibraryTests/ArtworkStoreTests.swift",
-  "core/Tests/OortLibraryTests/AutomaticIconTests.swift",
-  "core/Tests/OortLibraryTests/ClickableHintsTests.swift",
-  "core/Tests/OortLibraryTests/RcloneDownloadTests.swift",
-  "core/Tests/OortLibraryTests/SteamAchievementRarityTests.swift",
-  "core/Tests/OortLibraryTests/SteamArtworkRequestTests.swift",
-  "core/Tests/OortLibraryTests/SteamAutomaticIconTests.swift",
-  "core/Tests/OortLibraryTests/SteamBackdropChoiceTests.swift",
-  "core/Tests/OortLibraryTests/SteamMetadataTests.swift"
- ]
+ "files": []
 }

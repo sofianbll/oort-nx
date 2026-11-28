@@ -14,6 +14,11 @@ public struct SeleneCanvas: Equatable {
         self.zoom = InterfaceZoom.clamped(zoom)
     }
 
+    // Written out: CGSize is Equatable only through CoreGraphics on a Mac, which the core does not import.
+    public static func == (left: SeleneCanvas, right: SeleneCanvas) -> Bool {
+        left.size.width == right.size.width && left.size.height == right.size.height && left.zoom == right.zoom
+    }
+
     private var fit: CGFloat {
         min(size.width / Self.design.width, size.height / Self.design.height)
     }

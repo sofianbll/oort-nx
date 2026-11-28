@@ -1,11 +1,29 @@
 import XCTest
 @testable import OortLibrary
 
+/// The texts below and the language a detector names for each: the same on every system. On a Mac,
+/// `NaturalLanguageDetectorTests` checks that NaturalLanguage names them so.
+struct WikipediaLanguageFixtures: TextLanguageDetector {
+    static let english = "Stardew Valley is a farming simulation game where you inherit your grandfather's old farm plot."
+    static let italian = "Stardew Valley è un videogioco indipendente del 2016, sviluppato da ConcernedApe e pubblicato da Chucklefish."
+    static let simplified = "《超级马力欧兄弟 惊奇》是一款由任天堂企划制作本部开发，并由任天堂发行在任天堂Switch平台上的平台动作游戏，于2023年10月20日发售。"
+    static let traditional = "《超級瑪利歐兄弟 驚奇》是一款由任天堂企劃製作本部開發，並由任天堂發行在任天堂Switch平台上的平台動作遊戲，於2023年10月20日發售。"
+    static let languages = [english: "en", italian: "it", simplified: "zh-Hans", traditional: "zh-Hant"]
+
+    func dominantLanguage(of text: String) -> (tag: String, confidence: Double)? {
+        Self.languages[text].map { ($0, 0.99) }
+    }
+}
+
 final class WikipediaDescriptionTests: XCTestCase {
-    private let english = "Stardew Valley is a farming simulation game where you inherit your grandfather's old farm plot."
-    private let italian = "Stardew Valley è un videogioco indipendente del 2016, sviluppato da ConcernedApe e pubblicato da Chucklefish."
-    private let simplified = "《超级马力欧兄弟 惊奇》是一款由任天堂企划制作本部开发，并由任天堂发行在任天堂Switch平台上的平台动作游戏，于2023年10月20日发售。"
-    private let traditional = "《超級瑪利歐兄弟 驚奇》是一款由任天堂企劃製作本部開發，並由任天堂發行在任天堂Switch平台上的平台動作遊戲，於2023年10月20日發售。"
+    private let english = WikipediaLanguageFixtures.english
+    private let italian = WikipediaLanguageFixtures.italian
+    private let simplified = WikipediaLanguageFixtures.simplified
+    private let traditional = WikipediaLanguageFixtures.traditional
+
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(languageDetector: WikipediaLanguageFixtures())) { super.invokeTest() }
+    }
 
     // MARK: When to look
 
@@ -42,9 +60,18 @@ final class WikipediaDescriptionTests: XCTestCase {
         XCTAssertFalse(WikipediaDescriptions.wanted(description: "A farming game.", descriptionLanguage: nil, language: .italian))
     }
 
-    func testSpanishOpeningPunctuationIsNotMistakenForCatalan() {
-        XCTAssertEqual(WikipediaDescriptions.resolvedTag(.catalan, text: "¡Visita el pueblo y busca a tus amigos!"), "es")
-        XCTAssertEqual(WikipediaDescriptions.resolvedTag(.catalan, text: "Visita el poble i cerca els teus amics!"), "ca")
+    func testAnUnsureOrAbsentDetectorKeepsTheStoreText() {
+        struct Unsure: TextLanguageDetector {
+            func dominantLanguage(of text: String) -> (tag: String, confidence: Double)? { ("en", 0.59) }
+        }
+        PlatformServices.$scoped.withValue(.init(languageDetector: Unsure())) {
+            XCTAssertFalse(WikipediaDescriptions.wanted(description: italian, descriptionLanguage: nil, language: .english))
+        }
+        PlatformServices.$scoped.withValue(.init()) {
+            XCTAssertNil(WikipediaDescriptions.detectLanguage(of: english))
+            XCTAssertFalse(WikipediaDescriptions.wanted(description: english, descriptionLanguage: nil, language: .italian))
+            XCTAssertTrue(WikipediaDescriptions.wanted(description: " ", descriptionLanguage: nil, language: .italian))
+        }
     }
 
     func testEditions() {

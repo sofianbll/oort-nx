@@ -2,7 +2,6 @@
 from pathlib import Path
 import os
 import pwd
-import shlex
 import shutil
 import subprocess
 import sys
@@ -11,23 +10,11 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 
 def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_sockets=False, environment=None, resources=(),
              package_name=None, launch_services_environment=False):
-    build = ROOT / ".build"
-    products = build / "out/Products/Debug"
-    objects = list((build / f"out/Intermediates.noindex/{names.PACKAGE}.build/Debug/{names.APP}-p.build/Objects-normal")
-                   .glob(f"*/{names.APP}.LinkFileList"))
-    if len(objects) == 1:
-        modules = objects[0].parent
-        inputs = shlex.split(objects[0].read_text())
-    else:
-        products = build / "debug"
-        modules = products / "Modules"
-        inputs = [str(p) for target in (names.APP, names.LIBRARY, names.NXNATIVE, names.CORE)
-                  for p in sorted((products / f"{target}.build").glob("*.swift.o"))]
-        if not inputs or not (modules / f"{names.APP}.swiftmodule").exists():
-            raise SystemExit("Run the debug Swift suite first.")
+    modules, products, inputs = probe_start.app()
     with tempfile.TemporaryDirectory(prefix="audit-probe-") as scratch:
         scratch = Path(scratch).resolve()
         # Standard preferences are named after the executable and kept by cfprefsd in the real home, whatever
@@ -78,8 +65,6 @@ func suppressProbeNotifications() {
         local = '(allow network* (local unix-socket) (remote unix-socket)) ' if unix_sockets else ''
         subprocess.run(["xcrun", "swiftc", "-parse-as-library",
                         *(["-package-name", package_name] if package_name else []),
-                        "-Xfrontend", "-entry-point-function-name", "-Xfrontend", "saveAuditMain",
-                        "-Xlinker", "-e", "-Xlinker", "_saveAuditMain",
                         "-I", str(modules), "-I", str(products),
                         *sources, *inputs, "-o", str(binary)], cwd=ROOT, env=env, check=True)
         sandbox = ('(version 1) (allow default) (deny network*) ' + local +

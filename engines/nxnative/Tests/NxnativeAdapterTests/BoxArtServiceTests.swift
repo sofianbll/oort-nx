@@ -1,10 +1,13 @@
 import XCTest
-import AppKit
 import Synchronization
 @testable import OortLibrary
 @testable import NxnativeAdapter
 
 final class BoxArtServiceTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     /// Answers by URL; anything unknown is a 404.
     private final class RoutedClient: ArtworkHTTPClient {
         private let state = Mutex([String: Data]())
@@ -33,12 +36,7 @@ final class BoxArtServiceTests: XCTestCase {
     }
 
     private func jpeg(width: Int, height: Int) -> Data {
-        let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-                                space: CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        context.setFillColor(NSColor.blue.cgColor)
-        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        return NSBitmapImageRep(cgImage: context.makeImage()!).representation(using: .jpeg, properties: [:])!
+        TestImages.jpegHeader(width: width, height: height)
     }
 
     private let zelda = GameTDBEntry(id: "AAAAA", title: "The Legend of Zelda: Breath of the Wild", region: "ALL")
@@ -63,8 +61,7 @@ final class BoxArtServiceTests: XCTestCase {
         XCTAssertEqual(url, artwork.cachedURL(titleID: "0100F2C0115B6000", kind: .boxart))
         XCTAssertEqual(client.requested, ["https://art.gametdb.com/switch/coverHQ/US/AAAAB.jpg",
                                           "https://art.gametdb.com/switch/coverHQ/EN/AAAAB.jpg"])
-        let image = NSBitmapImageRep(data: try Data(contentsOf: try XCTUnwrap(url)))!
-        XCTAssertEqual(image.pixelsHigh, 1400)
+        XCTAssertEqual(ImageHeader.pixelSize(of: try Data(contentsOf: try XCTUnwrap(url)))?.height, 1400)
 
         client.requested = []
         _ = await boxArt.boxArt(titleID: "0100F2C0115B6000", names: ["TOTK"])

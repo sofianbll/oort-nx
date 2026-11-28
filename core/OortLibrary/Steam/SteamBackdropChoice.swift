@@ -2,7 +2,6 @@ import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import ImageIO
 
 /// The automatic full-screen background of a Steam game. Steam's library hero is a wide banner
 /// (about 3:1) made for the top of Steam's own page: filling a 16:9 screen enlarges and crops it.
@@ -45,7 +44,7 @@ public enum SteamBackdropChoice {
         var loaded: URL?
         for url in urls {
             guard !Task.isCancelled else { return nil }
-            guard let bytes = await data(url), let size = pixelSize(bytes) else { continue }
+            guard let bytes = await data(url), let size = ImageHeader.pixelSize(of: bytes) else { continue }
             if suits(width: size.width, height: size.height) { return url }
             if loaded == nil { loaded = url }
         }
@@ -65,13 +64,5 @@ public enum SteamBackdropChoice {
     /// Fetches a candidate for `choose`.
     public static func download(_ url: URL, client: ArtworkHTTPClient = URLSessionArtworkClient()) async -> Data? {
         await OnlineArtworkRequest.data(url, client: client)
-    }
-
-    static func pixelSize(_ data: Data) -> (width: Int, height: Int)? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
-              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-              let width = properties[kCGImagePropertyPixelWidth] as? Int,
-              let height = properties[kCGImagePropertyPixelHeight] as? Int else { return nil }
-        return (width, height)
     }
 }

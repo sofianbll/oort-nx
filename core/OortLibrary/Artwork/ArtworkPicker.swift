@@ -3,7 +3,6 @@ import Observation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import ImageIO
 
 /// The four artwork slots a player can change, and the cache kind each one replaces.
 public enum ArtworkSlot: String, CaseIterable, Codable, Sendable {
@@ -205,17 +204,8 @@ public enum ArtworkCandidates {
         if isNintendo { request.httpShouldHandleCookies = false }
         request.setValue(isNintendo ? "Game Library" : AppIdentity.userAgent(), forHTTPHeaderField: "User-Agent")
         guard let (data, http) = try? await client.data(for: request), (200..<300).contains(http.statusCode),
-              let size = pixelSize(of: data) else { return nil }
+              let size = ImageHeader.pixelSize(of: data) else { return nil }
         return LoadedArtwork(candidate: candidate, data: data, pixelWidth: size.width, pixelHeight: size.height)
-    }
-
-    public static func pixelSize(of data: Data) -> (width: Int, height: Int)? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
-              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-              let width = properties[kCGImagePropertyPixelWidth] as? Int,
-              let height = properties[kCGImagePropertyPixelHeight] as? Int,
-              width > 0, height > 0 else { return nil }
-        return (width, height)
     }
 }
 

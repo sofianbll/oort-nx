@@ -3,35 +3,17 @@
 from pathlib import Path
 import os
 import platform
-import shlex
 import subprocess
 import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(root / "scripts"))
-import names  # noqa: E402  architecture/names.json
-build = root / ".build"
-products = build / "debug"
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 services = root / "apps/mac/OortMac/Services"
 files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "ControllerLive", "GameControllerService",
          "GCControllerSource", "HIDControllerSource"]
-intermediates = build / f"out/Intermediates.noindex/{names.PACKAGE}.build/Debug"
-link_lists = [
-    list((intermediates / f"{target}-t.build/Objects-normal").glob(f"*/{target}.LinkFileList"))
-    for target in (names.LIBRARY, names.CORE)
-]
-archive = products / f"lib{names.LIBRARY}.a"
-if all(len(matches) == 1 for matches in link_lists):
-    modules = build / "out/Products/Debug"
-    core = [obj for matches in link_lists for obj in shlex.split(matches[0].read_text())]
-elif archive.is_file():
-    modules, core = products, [archive]
-else:
-    modules = products / "Modules"
-    core = [p for target in (names.LIBRARY, names.CORE) for p in sorted((products / f"{target}.build").glob("*.swift.o"))]
-if not core:
-    raise SystemExit("Run a debug swift build --jobs 4 first")
+modules, core = probe_start.library(root)
 
 with tempfile.TemporaryDirectory(prefix="hid-", dir="/private/tmp") as scratch:
     executable = Path(scratch) / "controller-identity"

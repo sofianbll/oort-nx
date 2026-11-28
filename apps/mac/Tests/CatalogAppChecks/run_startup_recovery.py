@@ -14,6 +14,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / '.build/debug'
 source = (ROOT / 'apps/mac/OortMac/Views/Launch/DevelopmentStartupView.swift').read_text()
 start = source.index('@MainActor\nfinal class DevelopmentStartup:')
@@ -230,7 +231,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-startup-recovery-') as folder:
     executable = scratch / 'check'
     package_name = re.search(r'"SWIFT_PACKAGE_NAME"\s*:\s*"([^"]+)"', (ROOT / '.build/manifest.pif').read_text())[1]
     subprocess.run(['xcrun', 'swiftc', '-j', '4', '-parse-as-library', '-package-name', package_name, '-I', str(BIN), str(swift),
-                    *map(str, names.objects(BIN)),
+                    *probe_start.core(BIN),
                     '-o', str(executable)], cwd=ROOT, check=True)
     home = scratch / 'home'
     home.mkdir()

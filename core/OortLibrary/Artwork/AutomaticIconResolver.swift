@@ -3,7 +3,6 @@ import Foundation
 import FoundationNetworking
 #endif
 import Crypto
-import ImageIO
 
 /// Independently implemented from the site's HTML, without importing the GPL reference implementation.
 /// Automatic matching is intentionally exact after punctuation/diacritic normalization: sequels and editions
@@ -96,7 +95,7 @@ actor AutomaticIconResolver {
         let title = titleID.uppercased()
         let folder = directory.appendingPathComponent(title)
         let image = folder.appendingPathComponent("square.png")
-        if let data = try? Data(contentsOf: image), CGImageSourceCreateWithData(data as CFData, nil) != nil { return image }
+        if let data = try? Data(contentsOf: image), ImageHeader.pixelSize(of: data) != nil { return image }
         let key = title + ":" + SwitchIconShowdown.normalized(name)
         if let work = pending[key] { return await work.value }
         let hash = SHA256.hash(data: Data(key.utf8)).map { String(format: "%02x", $0) }.joined()
@@ -149,10 +148,7 @@ actor AutomaticIconResolver {
     }
 
     private static func validImage(_ data: Data) -> Data? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
-              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-              let width = properties[kCGImagePropertyPixelWidth] as? Int,
-              let height = properties[kCGImagePropertyPixelHeight] as? Int,
+        guard let (width, height) = ImageHeader.pixelSize(of: data),
               width == height, width >= 32, width <= 8192 else { return nil }
         return ArtworkStore.downsample(data, maxPixelSize: 512, png: true)
     }

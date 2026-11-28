@@ -227,15 +227,16 @@ final class AppIconWriterTests: XCTestCase {
     }
 
     func testIconPickKeepsAppIconSize() throws {
+        try PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { try iconPickKeepsAppIconSize() }
+    }
+
+    private func iconPickKeepsAppIconSize() throws {
         let picks = ArtworkPicks(directory: root.appendingPathComponent("picks"))
-        let big = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 2000, pixelsHigh: 2000, bitsPerSample: 8,
-                                   samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
-                                   bytesPerRow: 0, bitsPerPixel: 0)!
-        let data = big.representation(using: .png, properties: [:])!
+        let data = TestImages.png(width: 2000, height: 2000)
         let icon = try picks.save(data, titleID: "0400", slot: .icon)
-        XCTAssertEqual(ArtworkCandidates.pixelSize(of: try Data(contentsOf: icon))?.width, 1024)
+        XCTAssertEqual(ImageHeader.pixelSize(of: try Data(contentsOf: icon))?.width, 1024)
         let cover = try picks.save(data, titleID: "0400", slot: .background)
-        XCTAssertEqual(ArtworkCandidates.pixelSize(of: try Data(contentsOf: cover))?.width, 2000)
+        XCTAssertEqual(ImageHeader.pixelSize(of: try Data(contentsOf: cover))?.width, 2000)
     }
 
     /// Launcher art with a transparent margin and rounded corners becomes an opaque square filled to the edges, so

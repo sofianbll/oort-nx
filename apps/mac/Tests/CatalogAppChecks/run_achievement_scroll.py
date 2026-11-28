@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / '.build/debug'
 source = (ROOT / 'apps/mac/OortMac/Views/Spotlight/AchievementsScreen.swift').read_text()
 start = source.index('private struct AchievementsList: View')
@@ -179,7 +180,7 @@ with tempfile.TemporaryDirectory(prefix='achievement-scroll-check-') as folder:
                     str(ROOT / 'apps/mac/OortMac/ViewModels/ListScroll.swift'),
                     str(ROOT / 'apps/mac/OortMac/Views/Components/GlideGroup.swift'),
                     str(ROOT / 'apps/mac/OortMac/Views/Theme/Motion.swift'),
-                    *map(str, names.objects(BIN)),
+                    *probe_start.core(BIN),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

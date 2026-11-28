@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / ".build/debug"
 HOST = r'''
 import AppKit
@@ -84,6 +85,6 @@ with tempfile.TemporaryDirectory(prefix="oort-update-wait-") as path:
     env = dict(os.environ, HOME=str(scratch), CFFIXED_USER_HOME=str(scratch), PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN))
     subprocess.run(["xcrun", "swiftc", "-j", "1", "-parse-as-library", "-I", str(BIN),
                     str(main), str(updater), str(ROOT / "apps/mac/OortMac/Services/AppUpdate+Install.swift"),
-                    *map(str, names.objects(BIN)),
+                    *probe_start.core(BIN),
                     "-o", str(executable)], cwd=ROOT, env=env, check=True)
     subprocess.run([str(executable), str(scratch)], cwd=scratch, env=env, check=True, timeout=30)

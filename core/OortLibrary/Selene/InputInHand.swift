@@ -6,7 +6,11 @@ public enum PointerAnchor {
     nonisolated(unsafe) public static var location: CGPoint?
 
     /// A hover at `now` is the player's: not where the pointer already was, nor where a press left it.
-    public static func isMove(to now: CGPoint, from previous: CGPoint) -> Bool { now != previous && now != location }
+    public static func isMove(to now: CGPoint, from previous: CGPoint) -> Bool {
+        // By coordinates: CGPoint is Equatable only through CoreGraphics on a Mac, which the core does not import.
+        let away = { (point: CGPoint?) in point.map { now.x != $0.x || now.y != $0.y } ?? true }
+        return away(previous) && away(location)
+    }
 }
 
 /// What the player last used: it decides whether the prompts name controller buttons or keys.

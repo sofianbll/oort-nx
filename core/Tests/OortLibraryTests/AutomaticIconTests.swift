@@ -2,11 +2,14 @@ import XCTest
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import AppKit
 import Synchronization
 @testable import OortLibrary
 
 final class AutomaticIconTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     private let switch1 = "0100F2C0115B6000"
     private let switch2 = "0400486024DEC000"
     private let html = """
@@ -72,9 +75,7 @@ final class AutomaticIconTests: XCTestCase {
     }
 
     private func png() -> Data {
-        let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 64, pixelsHigh: 64, bitsPerSample: 8,
-                                  samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-        return rep.representation(using: .png, properties: [:])!
+        TestImages.png(width: 64, height: 64)
     }
 
     func testPrimaryIconStopsTheFallback() async {

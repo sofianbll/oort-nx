@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / '.build/debug'
 parser = argparse.ArgumentParser()
 parser.add_argument('--source-root', type=Path, default=ROOT,
@@ -206,7 +207,7 @@ extension EnvironmentValues {
                     str(scratch / 'Native.swift'), str(scratch / 'Steam.swift'),
                     str(ROOT / 'apps/mac/OortMac/Views/Spotlight/GameArtLoader.swift'),
                     str(ROOT / 'apps/mac/OortMac/Views/Theme/CatalogPersonalizationsEnvironment.swift'),
-                    *map(str, names.objects(BIN)),
+                    *probe_start.core(BIN),
                     '-o', str(executable)], check=True)
     view_result = subprocess.run([str(executable), str(scratch)],
                                  env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
@@ -380,7 +381,7 @@ enum CoverReadGate {
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(mods),
                     str(controlled_host),
                     str(ROOT / 'apps/mac/OortMac/Models/GamepadType.swift'),
-                    *map(str, names.objects(BIN)),
+                    *probe_start.core(BIN),
                     '-o', str(mods_executable)], check=True)
     mods_result = subprocess.run([str(mods_executable), str(scratch)],
                                  env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

@@ -44,7 +44,7 @@ extension ChangeArtworkView {
            let titleID = subject.titleId,
            let url = await AppViewModel.automaticIconArtwork.automaticIcon(titleID: titleID, name: subject.name),
            AppViewModel.automaticIconArtwork.automaticIconSource(titleID: titleID) == "Switch Icon Showdown",
-           let data = try? Data(contentsOf: url), let size = ArtworkCandidates.pixelSize(of: data),
+           let data = try? Data(contentsOf: url), let size = ImageHeader.pixelSize(of: data),
            let preview = await GameArtLoader.decode(at: url, maxPixelSize: 600), !Task.isCancelled {
             let candidate = ArtworkCandidate(slot: .icon, source: "Switch Icon Showdown", url: url)
             let art = LoadedArtwork(candidate: candidate, data: data, pixelWidth: size.width, pixelHeight: size.height)

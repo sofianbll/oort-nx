@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 
 HOST = r'''
 import AppKit
@@ -1337,15 +1338,10 @@ def isolated_home_env(home):
 
 def build_probe(package, *, product=names.APP, jobs=4, environment=None):
     """Build outside the fixture home: Xcode can mount read-only Metal tools there."""
-    command = ["swift", "build", "--package-path", str(package), "--product", product]
-    if jobs is not None:
-        command += ["--jobs", str(jobs)]
     env = dict(os.environ if environment is None else environment)
     if build_home := env.get("OORT_PROBE_BUILD_HOME"):
         env.update(HOME=build_home, CFFIXED_USER_HOME=build_home)
-    subprocess.run(command, check=True, env=env)
-    products = subprocess.check_output(command + ["--show-bin-path"], env=env, text=True).strip()
-    return Path(products) / product
+    return probe_start.build_package(package, product=product, jobs=jobs, env=env)
 
 
 def isolate_cloud_init(model, fixture):

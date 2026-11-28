@@ -1,5 +1,4 @@
 import XCTest
-import AppKit
 @testable import OortLibrary
 
 final class SteamBackdropChoiceTests: XCTestCase {
@@ -71,10 +70,5 @@ final class SteamBackdropChoiceTests: XCTestCase {
         XCTAssertNil(none)
     }
 
-    private static func png(width: Int, height: Int) -> Data? {
-        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8,
-                                         samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
-                                         bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
-        return rep.representation(using: .png, properties: [:])
-    }
+    private static func png(width: Int, height: Int) -> Data? { TestImages.png(width: width, height: height) }
 }

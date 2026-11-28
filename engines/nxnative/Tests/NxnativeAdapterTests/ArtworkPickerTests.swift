@@ -1,10 +1,13 @@
 import XCTest
-import AppKit
 import Synchronization
 @testable import OortLibrary
 @testable import NxnativeAdapter
 
 final class ArtworkPickerTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     private final class RoutedClient: ArtworkHTTPClient {
         private let state = Mutex([String: Data]())
         var routes: [String: Data] {
@@ -25,12 +28,7 @@ final class ArtworkPickerTests: XCTestCase {
     }
 
     private func jpeg(width: Int, height: Int) -> Data {
-        let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-                                space: CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        context.setFillColor(NSColor.red.cgColor)
-        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        return NSBitmapImageRep(cgImage: context.makeImage()!).representation(using: .jpeg, properties: [:])!
+        TestImages.jpegHeader(width: width, height: height)
     }
 
     // MARK: - Title DB
@@ -121,7 +119,7 @@ final class ArtworkPickerTests: XCTestCase {
 
         let saved = try picks.save(jpeg(width: 2000, height: 3238), titleID: "0100F2C0115B6000", slot: .cover)
         XCTAssertEqual(picks.url(titleID: "0100F2C0115B6000", slot: .cover), saved)
-        XCTAssertEqual(NSBitmapImageRep(data: try Data(contentsOf: saved))?.pixelsHigh, 1400)
+        XCTAssertEqual(ImageHeader.pixelSize(of: try Data(contentsOf: saved))?.height, 1400)
         XCTAssertEqual(picks.revision, 1)
 
         let logo = try picks.save(jpeg(width: 300, height: 100), titleID: "0100F2C0115B6000", slot: .logo)

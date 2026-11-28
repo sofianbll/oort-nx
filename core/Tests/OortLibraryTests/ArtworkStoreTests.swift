@@ -2,7 +2,6 @@ import XCTest
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import AppKit
 import Synchronization
 @testable import OortLibrary
 
@@ -33,17 +32,22 @@ final class ArtworkStoreTests: XCTestCase {
         return url
     }
 
+    /// The core resizes through the joint; `ImageIOResizerTests` (OortMacTests) checks real pixels on a Mac.
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     private func imageData(width: Int, height: Int) -> Data {
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let context = CGContext(data: nil, width: width, height: height,
-                                bitsPerComponent: 8, bytesPerRow: 0,
-                                space: colorSpace,
-                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        context.setFillColor(NSColor.red.cgColor)
-        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        let image = context.makeImage()!
-        let rep = NSBitmapImageRep(cgImage: image)
-        return rep.representation(using: .jpeg, properties: [.compressionFactor: 0.8])!
+        TestImages.jpegHeader(width: width, height: height)
+    }
+
+    /// `downsample` is the joint's resizer, here the fake: no larger than asked, and nothing for bytes that are no image.
+    func testDownsampleGoesThroughTheResizer() {
+        let jpeg = ArtworkStore.downsample(imageData(width: 4000, height: 3000), maxPixelSize: 2560)
+        XCTAssertEqual(jpeg.flatMap(TestImages.longerSide), 2560)
+        XCTAssertEqual(ArtworkStore.downsample(TestImages.png(width: 64, height: 32), maxPixelSize: 512, png: true)
+            .flatMap(ImageHeader.pixelSize)?.width, 64, "never enlarged")
+        XCTAssertNil(ArtworkStore.downsample(Data("not an image".utf8), maxPixelSize: 512))
     }
 
     func testFetchCachesAndDoesNotRedownload() async throws {
@@ -53,7 +57,7 @@ final class ArtworkStoreTests: XCTestCase {
         let url = URL(string: "https://example.com/hero.jpg")!
         let first = await store.fetch(titleID: "0100", remoteURL: url, kind: .hero)
         XCTAssertNotNil(first)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: first!.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: try XCTUnwrap(first).path))
         let second = await store.fetch(titleID: "0100", remoteURL: url, kind: .hero)
         XCTAssertEqual(first, second)
         XCTAssertEqual(client.calls, 1)
@@ -105,31 +109,32 @@ final class ArtworkStoreTests: XCTestCase {
         XCTAssertEqual(store.cacheSize(), 0)
     }
 
-    func testDownsampleLimitsHeroAndCover() async {
+    func testDownsampleLimitsHeroAndCover() async throws {
         let client = FakeClient()
         client.body = imageData(width: 4000, height: 3000)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
-        let hero = await store.fetch(titleID: "0100",
+        let heroFetched = await store.fetch(titleID: "0100",
                                      remoteURL: URL(string: "https://example.com/h.jpg"),
-                                     kind: .hero)!
-        let cover = await store.fetch(titleID: "0100",
+                                     kind: .hero)
+        let hero = try XCTUnwrap(heroFetched)
+        let coverFetched = await store.fetch(titleID: "0100",
                                       remoteURL: URL(string: "https://example.com/c.jpg"),
-                                      kind: .boxart)!
-        let heroImage = NSImage(contentsOf: hero)!
-        let coverImage = NSImage(contentsOf: cover)!
-        XCTAssertLessThanOrEqual(max(heroImage.size.width, heroImage.size.height), 2560)
-        XCTAssertLessThanOrEqual(max(coverImage.size.width, coverImage.size.height), 1400)
+                                      kind: .boxart)
+        let cover = try XCTUnwrap(coverFetched)
+        XCTAssertEqual(TestImages.longerSide(try Data(contentsOf: hero)), 2560)
+        XCTAssertEqual(TestImages.longerSide(try Data(contentsOf: cover)), 1400)
     }
 
-    func testLogoPreservesPNG() async {
+    func testLogoPreservesPNG() async throws {
         let client = FakeClient()
         client.body = imageData(width: 800, height: 400)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
-        let logo = await store.fetch(titleID: "0100",
+        let logoFetched = await store.fetch(titleID: "0100",
                                      remoteURL: URL(string: "https://example.com/logo.png"),
-                                     kind: .logo)!
+                                     kind: .logo)
+        let logo = try XCTUnwrap(logoFetched)
         XCTAssertEqual(logo.pathExtension, "png")
         XCTAssertTrue(FileManager.default.fileExists(atPath: logo.path))
     }
@@ -146,36 +151,41 @@ final class ArtworkStoreTests: XCTestCase {
         XCTAssertEqual(store.cachedURL(titleID: "0100ABC", kind: .square), url)
     }
 
-    func testSquareMaxPixelSize512() async {
+    func testSquareMaxPixelSize512() async throws {
         XCTAssertEqual(ArtworkKind.square.maxPixelSize, 512)
         let client = FakeClient()
         client.body = imageData(width: 1024, height: 1024)
         let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
-        let url = await store.fetch(titleID: "0100",
+        let urlFetched = await store.fetch(titleID: "0100",
                                     remoteURL: URL(string: "https://example.com/s.png"),
-                                    kind: .square)!
-        let image = NSImage(contentsOf: url)!
-        XCTAssertLessThanOrEqual(max(image.size.width, image.size.height), 512)
+                                    kind: .square)
+        let url = try XCTUnwrap(urlFetched)
+        XCTAssertEqual(TestImages.longerSide(try Data(contentsOf: url)), 512)
     }
 
-    func testSquareKeepsAlpha() async {
-        let ctx = CGContext(data: nil, width: 64, height: 64, bitsPerComponent: 8, bytesPerRow: 0,
-                            space: CGColorSpaceCreateDeviceRGB(),
-                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        ctx.clear(CGRect(x: 0, y: 0, width: 64, height: 64))
-        ctx.setFillColor(NSColor.red.cgColor)
-        ctx.fill(CGRect(x: 0, y: 0, width: 32, height: 64))
-        let png = NSBitmapImageRep(cgImage: ctx.makeImage()!).representation(using: .png, properties: [:])!
+    /// The square is asked for as PNG, so transparency can survive; that ImageIO keeps it is `ImageIOResizerTests`.
+    func testSquareIsAskedForAsPNG() async throws {
         let client = FakeClient()
-        client.body = png
+        client.body = TestImages.png(width: 64, height: 64)
         let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
-        let url = await store.fetch(titleID: "0100",
+        let urlFetched = await store.fetch(titleID: "0100",
                                     remoteURL: URL(string: "https://example.com/s.png"),
-                                    kind: .square)!
+                                    kind: .square)
+        let url = try XCTUnwrap(urlFetched)
         XCTAssertEqual(url.pathExtension, "png")
-        let rep = NSBitmapImageRep(data: try! Data(contentsOf: url))!
-        XCTAssertTrue(rep.hasAlpha)
-        XCTAssertEqual(rep.colorAt(x: 60, y: 30)?.alphaComponent ?? 1, 0, accuracy: 0.01)
+        XCTAssertEqual(try Data(contentsOf: url).prefix(4), Data([0x89, 0x50, 0x4E, 0x47]))
+    }
+
+    /// Without an `ImageResizer` nothing is cached: an image is never kept unchecked.
+    func testWithoutAResizerNothingIsKept() async {
+        let client = FakeClient()
+        client.body = imageData(width: 800, height: 600)
+        let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
+        let url = await PlatformServices.$scoped.withValue(.init()) {
+            await store.fetch(titleID: "0100", remoteURL: URL(string: "https://example.com/c.jpg"), kind: .boxart)
+        }
+        XCTAssertNil(url)
+        XCTAssertEqual(store.cacheSize(), 0)
     }
 
     func testScreenshotCachePath() async throws {
@@ -187,8 +197,7 @@ final class ArtworkStoreTests: XCTestCase {
         let first = await store.screenshot(titleID: "0100", index: 1, remoteURL: url)
         XCTAssertEqual(first?.lastPathComponent, "screen-1.jpg")
         XCTAssertEqual(first?.deletingLastPathComponent().lastPathComponent, "0100")
-        let image = NSImage(contentsOf: first!)!.representations[0]
-        XCTAssertEqual(max(image.pixelsWide, image.pixelsHigh), 1600)
+        XCTAssertEqual(TestImages.longerSide(try Data(contentsOf: try XCTUnwrap(first))), 1600)
         let second = await store.screenshot(titleID: "0100", index: 1, remoteURL: url)
         XCTAssertEqual(first, second)
         XCTAssertEqual(client.calls, 1)

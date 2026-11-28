@@ -221,6 +221,12 @@ public enum DownloadCloudMotion {
         public let radius: Double
         public let opacity: Double
         public let kind: Kind
+
+        // Written out: CGPoint is Equatable only through CoreGraphics on a Mac, which the core does not import.
+        public static func == (left: Mote, right: Mote) -> Bool {
+            left.center.x == right.center.x && left.center.y == right.center.y && left.radius == right.radius
+                && left.opacity == right.opacity && left.kind == right.kind
+        }
     }
 
     public struct Frame {

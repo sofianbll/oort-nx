@@ -64,7 +64,8 @@ RULES = [
     ("publication", "R10", "No private or game file, no secret; LICENSE keeps its reviewed digest",
      lambda base: [script("check_publication.py")],
      "scripts/tests/PublicationChecks/test_publication.py"),
-    ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible",
+    ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible; a probe that runs the core "
+     "starts in ProbeStart.swift (probe_start.py), which gives the core the Mac joints",
      lambda base: [script("check_probes.py")],
      "scripts/tests/RepoChecks/test_probes.py; the visibility self-test in apps/mac/Tests/CatalogAppChecks/ProbeRenderedText.swift"),
     ("python", "", "The Python tests of every check (each scripts/tests/*/test_*.py folder)",

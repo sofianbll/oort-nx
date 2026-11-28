@@ -31,7 +31,8 @@ public struct CursorIdleState {
     public mutating func observePointer(at position: CGPoint, now: TimeInterval) -> Bool {
         let previous = lastPointerPosition
         lastPointerPosition = position
-        guard let previous, previous != position else { return false }
+        // By coordinates: CGPoint is Equatable only through CoreGraphics on a Mac, which the core does not import.
+        guard let previous, previous.x != position.x || previous.y != position.y else { return false }
         mouseActivity(now: now)
         return true
     }

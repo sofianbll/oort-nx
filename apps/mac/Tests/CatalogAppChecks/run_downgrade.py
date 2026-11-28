@@ -5,7 +5,6 @@ import json
 import os
 from pathlib import Path
 import pwd
-import shlex
 import shutil
 import subprocess
 import sys
@@ -14,15 +13,14 @@ import uuid
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 EXTRACTOR = ROOT / "scripts/extract_downgrade_checkpoint.py"
 PROBE = Path(__file__).with_name("DowngradeProbe.swift")
 
 
 def compile_probe(tree, binary, legacy):
     build = tree / ".build"
-    products = build / "out/Products/Debug"
-    targets = build / f"out/Intermediates.noindex/{names.PACKAGE}.build/Debug/{names.APP}-p.build/Objects-normal"
-    [linkfile] = targets.glob(f"*/{names.APP}.LinkFileList")
+    modules, products, inputs = probe_start.app(tree)
 
     def package_names(node):
         if isinstance(node, dict):
@@ -39,10 +37,8 @@ def compile_probe(tree, binary, legacy):
     bundle_parent.mkdir()
     shutil.copytree(products / names.RESOURCE_BUNDLE, bundle_parent / names.RESOURCE_BUNDLE)
     subprocess.run(["xcrun", "swiftc", "-j", "4", "-parse-as-library", "-package-name", name,
-                    "-Xfrontend", "-entry-point-function-name", "-Xfrontend", "downgradeProbeMain",
-                    "-Xlinker", "-e", "-Xlinker", "_downgradeProbeMain",
-                    "-I", str(linkfile.parent), "-I", str(products), *(["-D", "LEGACY"] if legacy else []),
-                    str(PROBE), *shlex.split(linkfile.read_text()), "-o", str(binary)], check=True, cwd=tree)
+                    "-I", str(modules), "-I", str(products), *(["-D", "LEGACY"] if legacy else []),
+                    str(PROBE), *inputs, "-o", str(binary)], check=True, cwd=tree)
 
 
 def run_probe(binary, home, *args):

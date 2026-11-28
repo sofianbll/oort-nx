@@ -1,9 +1,11 @@
 import XCTest
-import ImageIO
-import UniformTypeIdentifiers
 @testable import OortLibrary
 
 final class SteamAchievementRarityTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     private var root: URL!
     private actor Calls { var count = 0; func bump() { count += 1 } }
 
@@ -171,14 +173,5 @@ final class SteamAchievementRarityTests: XCTestCase {
         XCTAssertNil(icon)
     }
 
-    private static func png() throws -> Data {
-        let context = CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8, bytesPerRow: 0,
-                                space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        context.setFillColor(CGColor(red: 1, green: 0, blue: 0, alpha: 1)); context.fill(CGRect(x: 0, y: 0, width: 4, height: 4))
-        let data = NSMutableData()
-        let destination = CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil)!
-        CGImageDestinationAddImage(destination, context.makeImage()!, nil)
-        CGImageDestinationFinalize(destination)
-        return data as Data
-    }
+    private static func png() throws -> Data { TestImages.png(width: 4, height: 4) }
 }

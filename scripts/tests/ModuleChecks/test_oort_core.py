@@ -60,6 +60,14 @@ class PortableCoreTests(unittest.TestCase):
         found = self.problems(f"{LIBRARY}/Open.swift", "import Foundation\nlet fd = Darwin.open(\"/\", 0)\n")
         self.assertIn("uses Darwin.open", found)
 
+    def test_an_apple_name_in_a_string_is_text_unless_interpolated(self):
+        text = ('import Foundation\nlet a = "NSWorkspace.shared.open(" + "Published"\n'
+                'let b = """\n    NSImage\n    """\nlet c = "\\"NSImage\\""\n')
+        self.assertEqual(self.problems(f"{LIBRARY}/Message.swift", text), [])
+        found = self.problems(f"{LIBRARY}/Hidden.swift", 'import Foundation\nlet a = "\\(NSImage())"\n')
+        self.assertIn("uses NSImage", found)
+        self.assertIn("uses NSImage", self.problems(f"{LIBRARY}/Call.swift", 'import Foundation\nlet a = NSImage("x")\n'))
+
     def test_foundation_networking_is_the_only_conditional_import(self):
         text = "import Foundation\n#if canImport(FoundationNetworking)\nimport FoundationNetworking\n#endif\n"
         self.assertEqual(self.problems(f"{LIBRARY}/Net.swift", text), [])

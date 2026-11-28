@@ -6,6 +6,7 @@ ROOT=Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN=ROOT/'.build/debug'
 files=[ROOT/'apps/mac/OortMac/Views/Components/GameLogoArea.swift', ROOT/'apps/mac/OortMac/Views/Components/GamePrimaryActions.swift']
 actual='\n'.join(p.read_text() for p in files)
@@ -47,5 +48,5 @@ struct SelenePillButton: View {
 '''
 with tempfile.TemporaryDirectory(prefix='game-header-check-') as folder:
  folder=Path(folder);swift=folder/'check.swift';swift.write_text(host);binary=folder/'check'
- subprocess.run(['xcrun','swiftc','-parse-as-library','-I',str(BIN),str(swift),*map(str, names.objects(BIN)),'-o',str(binary)],check=True)
+ subprocess.run(['xcrun','swiftc','-parse-as-library','-I',str(BIN),str(swift),*probe_start.core(BIN),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True,env=dict(os.environ,PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

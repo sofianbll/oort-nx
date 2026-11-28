@@ -9,6 +9,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / ".build/debug"
 VIEWS = ROOT / "apps/mac/OortMac/Views"
 
@@ -240,7 +241,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
     ]
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-I", BIN, swift,
                     ROOT / "apps/mac/OortMac/Models/GamepadType.swift",
-                    *(VIEWS / p for p in paths), *names.objects(BIN, ("library", "core")), "-o", binary], check=True)
+                    *(VIEWS / p for p in paths), *probe_start.core(BIN, ("library", "core")), "-o", binary], check=True)
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else scratch / "screens"
     subprocess.run([binary, ROOT, output], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

@@ -42,6 +42,8 @@ APPLE_NAMES = re.compile(
 # Outside SYSTEM, a condition may name the build (DEBUG...) or FoundationNetworking, nothing about the system.
 SYSTEM_CONDITION = re.compile(r"\b(os|arch|targetEnvironment|canImport|_runtime)\s*\(")
 NETWORKING_CONDITION = re.compile(r"^\s*canImport\s*\(\s*FoundationNetworking\s*\)\s*$")
+# A string literal without interpolation cannot call an API: a test may name one in a message or a source it reads.
+LITERAL = re.compile(r'"""(?:(?!""").)*?"""|"(?:[^"\\\n]|\\.)*"', re.DOTALL)
 
 
 def core_modules():
@@ -74,6 +76,7 @@ def problems_of(root, relative, imports, own_modules, is_test):
     found = [f"imports {name}" for name in sorted(imports - allowed)]
     if not in_system:
         code = re.sub(r"//[^\n]*", "", text)
+        code = LITERAL.sub(lambda literal: literal[0] if "\\(" in literal[0] else '""', code)
         found += [f"uses {name}" for name in sorted(set(APPLE_NAMES.findall(code)))]
         for condition in CONDITION.findall(code):
             if SYSTEM_CONDITION.search(condition) and not NETWORKING_CONDITION.match(condition):

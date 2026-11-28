@@ -18,7 +18,7 @@ import zlib
 ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
-import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / '.build/debug'
 
 
@@ -223,6 +223,6 @@ try verify(destination)
 print("Deep verification rejects changed nested payloads: PASS")
 ''')
     host = scratch / 'check'
-    run('xcrun', 'swiftc', '-I', BIN, main, *names.objects(BIN), '-o', host)
+    run('xcrun', 'swiftc', '-I', BIN, main, *probe_start.core(BIN), '-o', host)
     result = run(host, scratch)
     print(result.stdout, end='')

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 parser = argparse.ArgumentParser()
 parser.add_argument('--engine-snapshot', type=Path)
 parser.add_argument('--python', default='python3')
@@ -91,6 +92,6 @@ print("NUP probe → real UI converters → persisted sources → rebuild progra
     executable = scratch / 'nup-check'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
                     str(ROOT / 'apps/mac/OortMac/Models/SelectableGame.swift'),
-                    *map(str, names.objects(library)),
+                    *probe_start.core(library),
                     '-o', str(executable)], check=True)
     subprocess.run([str(executable), str(scratch)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

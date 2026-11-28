@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[4]
 import sys  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import names  # noqa: E402  architecture/names.json
+import probe_start  # noqa: E402  every probe that links the core starts in ProbeStart.swift
 BIN = ROOT / '.build/debug'
 
 host = r'''
@@ -70,6 +71,6 @@ with tempfile.TemporaryDirectory(prefix='icon-cache-check-') as folder:
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
                     str(ROOT / 'apps/mac/OortMac/Views/Components/GameIconProvider.swift'),
-                    *map(str, names.objects(BIN)),
+                    *probe_start.core(BIN),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)), check=True)

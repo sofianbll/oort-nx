@@ -2,11 +2,14 @@ import XCTest
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import AppKit
 @testable import OortLibrary
 
 /// A Steam game with no app has no icon of its own: LaunchBox's Square for its PC entry, else nothing.
 final class SteamAutomaticIconTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     private final class Client: ArtworkHTTPClient, @unchecked Sendable {
         var routes: [String: Data] = [:]
         var asked: [String] = []
@@ -22,11 +25,7 @@ final class SteamAutomaticIconTests: XCTestCase {
     private static let details = "https://gamesdb.launchbox-app.com/games/details/436343-crimson-desert-enhanced"
     private static let square = "https://images.launchbox-app.com/square-full.png"
 
-    private static var png: Data {
-        let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 8, pixelsHigh: 8, bitsPerSample: 8, samplesPerPixel: 4,
-                                   hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-        return rep.representation(using: .png, properties: [:])!
-    }
+    private static var png: Data { TestImages.png(width: 8, height: 8) }
 
     private func store(_ client: Client) -> ArtworkStore {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("SteamIcon-" + UUID().uuidString)
@@ -57,6 +56,7 @@ final class SteamAutomaticIconTests: XCTestCase {
         let client = client(square: true)
         let artwork = store(client)
         let first = await artwork.automaticSteamIcon(titleID: "steam-3321460", names: ["Crimson Desert Enhanced"])
+        XCTAssertNotNil(first)
         XCTAssertEqual(first, artwork.cachedURL(titleID: "steam-3321460", kind: .square))
         XCTAssertTrue(client.asked.contains(Self.square))
         let asked = client.asked.count

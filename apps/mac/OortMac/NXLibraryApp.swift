@@ -41,6 +41,8 @@ struct NXLibraryApp: App {
 
     #if DEBUG
     init() {
+        // The core's system services first: render modes and stores below use them.
+        MacPlatformServices.register()
         let args = CommandLine.arguments
         if let index = args.firstIndex(of: "--render-file-picker") {
             precondition(args.indices.contains(index + 1), "Pass a directory for the file picker PNGs")

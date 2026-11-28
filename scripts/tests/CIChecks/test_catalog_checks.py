@@ -28,10 +28,19 @@ class CatalogChecksTests(unittest.TestCase):
 
     def test_probe_build_does_not_mount_tools_in_its_fixture_home(self):
         fixture = {"HOME": "/fixture", "CFFIXED_USER_HOME": "/fixture", "OORT_PROBE_BUILD_HOME": "/runner"}
-        with patch("run_cloud_screens.subprocess.run") as build, \
-             patch("run_cloud_screens.subprocess.check_output", return_value="/products\n") as location:
-            self.assertEqual(build_probe("/package", product="ProfileScreenProbe", jobs=2, environment=fixture),
-                             Path("/products/ProfileScreenProbe"))
+        with tempfile.TemporaryDirectory() as package:
+            services = Path(package) / "apps/mac/OortMac/Services"
+            services.mkdir(parents=True)
+            (services / "MacPlatformServices.swift").write_text("PlatformServices.register(imageResizer: Fake())\n")
+            (services / "Fake.swift").write_text("struct Fake {}\n")
+            with patch("probe_start.subprocess.run") as build, \
+                 patch("probe_start.subprocess.check_output", return_value="/products\n") as location:
+                self.assertEqual(build_probe(package, product="ProfileScreenProbe", jobs=2, environment=fixture),
+                                 Path("/products/ProfileScreenProbe"))
+            # The probe in the app's module starts in ProbeStart.swift, with the Mac joints.
+            self.assertIn("MacPlatformServices.register()", (services / "ProbeStart.swift").read_text())
+            self.assertIn("_oortProbeStart", build.call_args.args[0])
+            self.assertNotIn("-DOORT_NO_JOINTS", build.call_args.args[0])
         for call in (build.call_args, location.call_args):
             self.assertEqual(call.kwargs["env"]["HOME"], "/runner")
             self.assertEqual(call.kwargs["env"]["CFFIXED_USER_HOME"], "/runner")

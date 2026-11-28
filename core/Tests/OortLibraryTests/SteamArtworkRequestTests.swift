@@ -1,8 +1,11 @@
 import XCTest
-import AppKit
 @testable import OortLibrary
 
 final class SteamArtworkRequestTests: XCTestCase {
+    override func invokeTest() {
+        PlatformServices.$scoped.withValue(.init(imageResizer: FakeImageResizer())) { super.invokeTest() }
+    }
+
     func testSquareUsesOriginalBundleAssetButPortraitNeverUsesIt() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -63,11 +66,7 @@ final class SteamArtworkRequestTests: XCTestCase {
         return (root, CatalogGame(steam: steam), icon)
     }
 
-    private static func png() -> Data? {
-        let image = NSImage(size: NSSize(width: 8, height: 8))
-        image.lockFocus(); NSColor.red.setFill(); NSRect(x: 0, y: 0, width: 8, height: 8).fill(); image.unlockFocus()
-        return image.tiffRepresentation.flatMap { NSBitmapImageRep(data: $0)?.representation(using: .png, properties: [:]) }
-    }
+    private static func png() -> Data? { TestImages.png(width: 8, height: 8) }
 
     func testOnlyASquareWithoutAnAppWantsAnAutomaticIcon() {
         var steam = SteamCatalogGame(appID: 3321460, name: "Downloading")
