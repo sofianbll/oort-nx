@@ -77,6 +77,15 @@ class ModuleBoundaryTests(unittest.TestCase):
     def test_repository_respects_its_boundaries(self):
         self.assertEqual(boundaries.check(ROOT), [])
 
+    def test_only_the_system_folder_reaches_the_trash(self):
+        write(self.root, source("nxnative", "Cleanup.swift"),
+              "import Foundation\nfunc f(_ u: URL) throws { try FileManager.default.trashItem(at: u, resultingItemURL: nil) }\n")
+        violations = boundaries.check(self.root)
+        self.assertIn(f"{source('nxnative', 'Cleanup.swift')}:2: reach the Trash through OortSystem.trash", violations)
+        write(self.root, source("nxnative", "Cleanup.swift"), "import Foundation\nfunc f(_ u: URL) throws { try OortSystem.trash(u) }\n")
+        write(self.root, source("library", "System/OortSystem.swift"), "let a = FileManager.SearchPathDirectory.trashDirectory\n")
+        self.assertEqual(boundaries.check(self.root), [])
+
     def test_view_cannot_read_engine_storage(self):
         write(self.root, source("mac", "App.swift"), 'git(["rev-parse", "HEAD"])\ngit(["status",\n"--porcelain"])\n')
         self.assertEqual(len(boundaries.check(self.root)), 2)

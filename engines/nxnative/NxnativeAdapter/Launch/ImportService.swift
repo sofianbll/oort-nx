@@ -424,7 +424,7 @@ public final class ImportService {
     public func cleanupAdoption(_ staged: StagedAdoption, published: Bool) {
         if published && staged.plan.previous != nil {
             // Keep the original in staging if the destination volume has no Trash.
-            guard (try? fm.trashItem(at: staged.incoming, resultingItemURL: nil)) != nil else { return }
+            guard (try? OortSystem.trash(staged.incoming)) != nil else { return }
         }
         try? fm.removeItem(at: staged.incoming.deletingLastPathComponent())
     }

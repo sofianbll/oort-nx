@@ -89,11 +89,30 @@ final class OortSystemTests: XCTestCase {
         XCTAssertEqual(OortSystem.regularFileBytes(at: root.appendingPathComponent("none").path, includingHidden: true), 0)
     }
 
-    func testTrashIsRefusedWhereTheSystemHasNone() throws {
-        // Never touches the user's real Trash: on a system with one, the callers' own tests inject a discard.
+    func testATestProcessNeverUsesTheUsersTrash() throws {
+        let own = try XCTUnwrap(OortSystem.currentTrash.root, "a test process gets a Trash of its own")
+        XCTAssertFalse(own.path.hasSuffix("/.Trash"))
+        let file = try write("x", "thrown-\(UUID().uuidString)")
+        try OortSystem.trash(file)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: own.appendingPathComponent(file.lastPathComponent).path))
+        XCTAssertEqual(try OortSystem.trashFolder(for: root).standardizedFileURL, own.standardizedFileURL)
+    }
+
+    func testAFolderTrashKeepsBothItemsOfTheSameName() throws {
+        let trash = OortSystem.Trash.folder(at: root.appendingPathComponent("bin"))
+        for text in ["first", "second"] { try trash.put(try write(text, "same")) }
+        XCTAssertEqual(try String(contentsOf: root.appendingPathComponent("bin/same"), encoding: .utf8), "first")
+        XCTAssertEqual(try String(contentsOf: root.appendingPathComponent("bin/same 2"), encoding: .utf8), "second")
+    }
+
+    func testTheSystemTrashIsRefusedWhereTheSystemHasNone() throws {
+        // Never calls the user's real Trash: on a system that has one, this test has nothing to check.
         try XCTSkipIf(OortSystem.hasTrash, "this system has a Trash")
         let file = try write("x", "kept")
-        XCTAssertThrowsError(try OortSystem.trash(file)) { XCTAssertEqual($0 as? OortSystem.Unsupported, .init(operation: "trash")) }
+        XCTAssertThrowsError(try OortSystem.Trash.system.put(file)) {
+            XCTAssertEqual($0 as? OortSystem.Unsupported, .init(operation: "trash"))
+        }
         XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
     }
 

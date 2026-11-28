@@ -637,7 +637,7 @@ extension PortingModel {
         try FileManager.default.createDirectory(at: logURL.deletingLastPathComponent(),
                                                 withIntermediateDirectories: true)
         if FileManager.default.fileExists(atPath: logURL.path) {
-            try FileManager.default.trashItem(at: logURL, resultingItemURL: nil)
+            try OortSystem.trash(logURL)
         }
 
         let capabilities = app.setup.engineSourceCapabilities

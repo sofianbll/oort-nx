@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1683 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1685 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -237,7 +237,7 @@ Cartella `core/OortLibrary/System/`: l'unico posto del Core con la libreria C di
 
 | File | Responsabilità |
 |---|---|
-| [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Le chiamate che cambiano da un sistema all'altro: `open`/`close`/`read`, date e nomi dei file, rinomina che non sostituisce mai, clone, Cestino, pool, spazio libero, peso di una cartella, preferenze, log; la variante Mac è il codice di sempre, altrove la stessa risposta o `Unsupported`. |
+| [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Le chiamate che cambiano da un sistema all'altro: `open`/`close`/`read`, date e nomi dei file, rinomina che non sostituisce mai, clone, Cestino (quello di sistema per l'app, una cartella propria per test e sonde), pool, spazio libero, peso di una cartella, preferenze, log; la variante Mac è il codice di sempre, altrove la stessa risposta o `Unsupported`. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
@@ -1053,6 +1053,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/check_structure.py](../../scripts/check_structure.py) | R1: rifiuta un file della radice o una cartella di primo o secondo livello non dichiarati, e una dichiarazione senza file. |
 | [scripts/check_docs.py](../../scripts/check_docs.py) | R8: `.md` solo nelle cartelle di documentazione, link relativi risolti, nessun marcatore privato nuovo. |
 | [scripts/private-markers.json](../../scripts/private-markers.json) | Marcatori privati vietati nei `.md` e file che li contengono già; l'elenco può solo ridursi. |
+| [scripts/trash_guard.py](../../scripts/trash_guard.py) | Lancia test e sonde con un Cestino proprio (`OORT_TRASH`) e fallisce se il vero `~/.Trash` riceve un elemento; non tocca mai ciò che c'è già. |
 | [scripts/check_probes.py](../../scripts/check_probes.py) | R13: una sonda che legge il testo reso deve provarne la visibilità con `assertVisible`. |
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
@@ -1069,6 +1070,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [architecture/names.c4](../../architecture/names.c4) | Moduli Swift del modello, generati da `names.json`. |
 | [architecture/structure.c4](../../architecture/structure.c4) | Cartelle e file della radice del repository, e dove può stare la documentazione; letto da `scripts/check`. |
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
+| [scripts/tests/RepoChecks/test_trash_guard.py](../../scripts/tests/RepoChecks/test_trash_guard.py) | Esempio rosso: un comando che scrive nel Cestino osservato fa fallire il passaggio. |
 | [scripts/tests/CIChecks/test_changed_areas.py](../../scripts/tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [scripts/tests/CIChecks/test_catalog_checks.py](../../scripts/tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [scripts/tests/ModuleChecks/test_oort_core.py](../../scripts/tests/ModuleChecks/test_oort_core.py) | Esempi rossi di R3: import Apple dietro `#if`, libc fuori da `System/`, nomi solo Apple, test con AppKit, debito che scende. |

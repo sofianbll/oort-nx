@@ -35,9 +35,7 @@ public struct CatalogStore: Sendable {
         self.init(directory: directory, publication: .atomic, kinds: kinds, legacy: legacy)
     }
     package init(directory: URL, publication: CatalogPublication, kinds: CatalogRecordKinds, legacy: CatalogLegacyImport?,
-                 removalTrashDirectory: @escaping @Sendable (URL) throws -> URL = {
-                     try FileManager.default.url(for: .trashDirectory, in: .userDomainMask, appropriateFor: $0, create: false)
-                 }) {
+                 removalTrashDirectory: @escaping @Sendable (URL) throws -> URL = OortSystem.trashFolder) {
         self.directory = directory.standardizedFileURL
         self.publication = publication
         self.kinds = kinds

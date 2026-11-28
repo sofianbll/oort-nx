@@ -12,7 +12,7 @@ extension AppViewModel {
                         recordsFile: AppData.supportRoot.appendingPathComponent("mods/\(titleID).json"),
                         titleID: titleID,
                         canWrite: { RunningGameMonitor.runningApplication(for: game) == nil },
-                        trash: { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
+                        trash: OortSystem.trash,
                         allowsAutomaticMaintenance: !AppData.profile.isDevelopment)
     }
 
