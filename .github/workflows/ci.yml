@@ -148,16 +148,6 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           echo "OORT_PROBE_OCR=$PWD/read.cjs" >> "$GITHUB_ENV"
-      # SDK modules precompiled by Swift Build, one copy per image and Xcode (see build_probe).
-      - id: modules
-        run: |
-          test -n "$ImageOS" && test -n "$ImageVersion"
-          echo "key=sdk-modules-$ImageOS-$ImageVersion-$(xcodebuild -version | shasum -a 256 | cut -c1-16)" >> "$GITHUB_OUTPUT"
-          echo "OORT_PROBE_MODULE_SEED=$RUNNER_TEMP/oort-sdk-modules" >> "$GITHUB_ENV"
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/oort-sdk-modules
-          key: ${{ steps.modules.outputs.key }}
       - name: Application regressions without UI
         run: python3 scripts/check app-probes "${{ matrix.batch }}"
 

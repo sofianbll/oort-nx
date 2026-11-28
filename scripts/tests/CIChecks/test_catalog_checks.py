@@ -48,37 +48,3 @@ class CatalogChecksTests(unittest.TestCase):
             # Exercise the same sequence runner without building the application.
             self.assertEqual(checks.run([failed, passed], root), 1)
             self.assertTrue(executed.exists())
-
-    def test_probe_build_starts_from_the_sdk_modules_and_fills_an_empty_seed(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            seed, package = root / "seed", root / "package"
-            built = package / ".build/out/SDKExplicitPrecompiledModules"
-
-            def compile_modules(*_, **__):
-                built.mkdir(parents=True, exist_ok=True)
-                (built / "SwiftUI.pcm").write_text("built")
-
-            env = {"OORT_PROBE_MODULE_SEED": str(seed)}
-            with patch("run_cloud_screens.subprocess.run", side_effect=compile_modules), \
-                 patch("run_cloud_screens.subprocess.check_output", return_value="/products\n"):
-                build_probe(package, environment=env)
-            self.assertEqual((seed / "SDKExplicitPrecompiledModules/SwiftUI.pcm").read_text(), "built")
-
-            (seed / "SDKExplicitPrecompiledModules/SwiftUI.pcm").write_text("cached")
-            other = root / "other"
-            seen = []
-            with patch("run_cloud_screens.subprocess.run",
-                       side_effect=lambda *_, **__: seen.append(
-                           (other / ".build/out/SDKExplicitPrecompiledModules/SwiftUI.pcm").read_text())), \
-                 patch("run_cloud_screens.subprocess.check_output", return_value="/products\n"):
-                build_probe(other, environment=env)
-            self.assertEqual(seen, ["cached"])
-
-    def test_probe_build_without_a_seed_leaves_the_package_alone(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            package = Path(tmp) / "package"
-            with patch("run_cloud_screens.subprocess.run"), \
-                 patch("run_cloud_screens.subprocess.check_output", return_value="/products\n"):
-                build_probe(package, environment={})
-            self.assertFalse(package.exists())
