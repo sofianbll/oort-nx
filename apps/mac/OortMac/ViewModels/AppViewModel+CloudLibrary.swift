@@ -2969,3 +2969,14 @@ extension AppViewModel {
         }
     }
 }
+
+#if DEBUG
+extension CloudLibraryModel {
+    /// Probes only (apps/mac/Tests/CatalogAppChecks): cloud archives over a backend the probe supplies, which answers
+    /// nothing from the network. Nothing in the app calls it; Release builds do not contain it.
+    func oortProbeInstallArchives(_ archive: CloudGameArchive, sources: CloudGameSources) {
+        self.archive = archive
+        sourceArchive = sources
+    }
+}
+#endif

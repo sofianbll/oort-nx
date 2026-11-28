@@ -49,6 +49,15 @@ struct ActivityCenterView: View {
         EdgeInsets(top: canvas.u(12), leading: canvas.u(24), bottom: canvas.u(12), trailing: canvas.u(24))
     }
 
+    #if DEBUG
+    /// Offscreen probes only (apps/mac/Tests/CatalogAppChecks): ImageRenderer draws neither a ScrollView nor a lazy
+    /// stack, so a probe asks for the plain list. Nothing in the app sets it; Release builds do not contain it.
+    @MainActor static var oortProbeRendersFlat = false
+    @MainActor private static var rendersFlat: Bool { oortProbeRendersFlat }
+    #else
+    private static let rendersFlat = false
+    #endif
+
     var body: some View {
         let rows = Self.rows(viewModel)
         let focused = Self.selectedRow(focus, in: rows)
@@ -57,6 +66,9 @@ struct ActivityCenterView: View {
                 Text(text("Activity center")).seleneFont(.heading, .semibold)
                     .accessibilityAddTraits(.isHeader)
                 // The list takes its own height up to the cap, then scrolls; the inset keeps focus glows unclipped.
+                if Self.rendersFlat {
+                    sections(rows, focused: focused).padding(focusInset)
+                } else {
                 ScrollViewReader { scroll in
                     ScrollView {
                         sections(rows, focused: focused).padding(focusInset)
@@ -67,6 +79,7 @@ struct ActivityCenterView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .onAppear { scroll.scrollTo(focused) }
                     .onChange(of: focused) { _, row in scroll.scrollTo(row) }
+                }
                 }
             }
             .foregroundColor(SeleneTheme.ink)
@@ -150,7 +163,7 @@ struct ActivityCenterView: View {
     }
 
     private func rowList(_ rows: [ActivityCenterFocus.Row], focused: ActivityCenterFocus.Row) -> some View {
-        LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+        RowStack(flat: Self.rendersFlat, spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(rows, id: \.self) { row in
                 Group {
                     switch row {
@@ -405,5 +418,20 @@ private struct ActivityRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
+    }
+}
+
+/// The rows' stack: lazy in the app, plain when a probe renders offscreen.
+private struct RowStack<Content: View>: View {
+    let flat: Bool
+    let spacing: CGFloat
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        if flat {
+            VStack(alignment: .leading, spacing: spacing) { content }
+        } else {
+            LazyVStack(alignment: .leading, spacing: spacing) { content }
+        }
     }
 }

@@ -8,7 +8,7 @@ The dormant Windows/Linux, iPhone and Android jobs keep their own commands until
   scripts/check --list          each rule with its commands and the tests that prove it can fail
 
 Heavy steps, run by name only: swift (every Swift test, in a temporary HOME), app-build (the Debug app),
-app-probes BATCH (the screen probes, see scripts/ci_catalog_checks.py), release-build.
+app-probes BATCH (the screen probes, see scripts/ci_catalog_checks.py), release-build (then no probe hook in it).
 """
 import os
 import subprocess
@@ -78,7 +78,8 @@ def heavy(name, arg):
     if name == "app-probes" and arg:
         return [script("ci_catalog_checks.py", arg)], {}
     if name == "release-build":
-        return [["swift", "build", "-c", "release", "--product", names.APP]], {}
+        # Then the Release binary may hold no probe hook (scripts/check_probe_hooks.py).
+        return [["swift", "build", "-c", "release", "--product", names.APP], script("check_probe_hooks.py")], {}
     return None
 
 
