@@ -1,5 +1,5 @@
 import Foundation
-import zlib
+import OortCore
 
 public enum SoundPackEvent: String, CaseIterable, Sendable {
     case move, select, confirm, back, deny, open, close, play, resume, success, notification, boot, ambience
@@ -345,9 +345,10 @@ private enum SoundPackZIP {
                   zip[(local + 30)..<(local + 30 + nameLength)] == nameBytes else { throw SoundPackError.layout }
             guard size <= min(remaining, SoundPack.maxBytes(name)) else { throw SoundPackError.size }
             let encoded = zip.subdata(in: payload..<range.upperBound)
-            let decoded = method == 0 ? encoded : try inflate(encoded, size: size)
-            let actual = decoded.withUnsafeBytes { crc32(0, $0.bindMemory(to: UInt8.self).baseAddress, uInt(decoded.count)) }
-            guard decoded.count == size, actual == crc else { throw SoundPackError.archive }
+            let decoded: Data
+            do { decoded = method == 0 ? encoded : try Inflate.raw(encoded, size: size) }
+            catch { throw SoundPackError.archive }
+            guard decoded.count == size, Int(CRC32.checksum(decoded)) == crc else { throw SoundPackError.archive }
             files[name] = decoded
             remaining -= size
             ranges.append(range)
@@ -355,26 +356,5 @@ private enum SoundPackZIP {
         }
         guard central == end, ranges.reduce(0, { $0 + $1.count }) == start else { throw SoundPackError.archive }
         return files
-    }
-
-    private static func inflate(_ bytes: Data, size: Int) throws -> Data {
-        var stream = z_stream()
-        guard inflateInit2_(&stream, -MAX_WBITS, ZLIB_VERSION, Int32(MemoryLayout<z_stream>.size)) == Z_OK else {
-            throw SoundPackError.archive
-        }
-        defer { inflateEnd(&stream) }
-        var decoded = Data(count: size + 1)
-        let status = bytes.withUnsafeBytes { input in
-            decoded.withUnsafeMutableBytes { output in
-                stream.next_in = UnsafeMutablePointer(mutating: input.bindMemory(to: UInt8.self).baseAddress)
-                stream.avail_in = uInt(bytes.count)
-                stream.next_out = output.bindMemory(to: UInt8.self).baseAddress
-                stream.avail_out = uInt(size + 1)
-                return zlib.inflate(&stream, Z_FINISH)
-            }
-        }
-        guard status == Z_STREAM_END, stream.avail_in == 0, stream.total_out == size else { throw SoundPackError.archive }
-        decoded.removeLast()
-        return decoded
     }
 }

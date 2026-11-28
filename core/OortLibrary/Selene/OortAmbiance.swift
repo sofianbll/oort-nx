@@ -1,5 +1,5 @@
-import Accelerate
 import Foundation
+import OortCore
 
 /// The three house moods of the interface: the same notes and the same timing as the other Oort voices,
 /// with their own tone, click and room.
@@ -49,7 +49,6 @@ extension OortSynth {
     /// A thin room, 1 600 echoes a second instead of one per sample: it renders in milliseconds.
     static func echoes(_ dry: [Float], mood: Mood, seed start: UInt32) -> [Float] {
         let length = dry.count, spacing = Int(rate) / 1_600
-        let sounding = (dry.lastIndex { $0 != 0 } ?? 0) + 1
         var seed = start
         func random() -> Float {
             seed = seed &* 1_664_525 &+ 1_013_904_223
@@ -63,13 +62,18 @@ extension OortSynth {
         }
         // The level of the other voices' room: unit energy.
         let scale = 1 / max(0.0001, taps.reduce(0) { $0 + $1.level * $1.level }.squareRoot())
+        // One pass per echo over the part that sounds. Plain `while` loops over raw pointers: a Debug build (the
+        // tests) does not specialise `for … in` ranges; a Release build vectorises this loop.
+        let sounding = (dry.lastIndex { $0 != 0 } ?? 0) + 1
         var wet = [Float](repeating: 0, count: length)
         dry.withUnsafeBufferPointer { source in
             wet.withUnsafeMutableBufferPointer { out in
+                let source = source.baseAddress!
                 for tap in taps where tap.delay < length {
-                    var level = tap.level * scale
+                    let level = tap.level * scale
                     let count = min(sounding, length - tap.delay), at = out.baseAddress! + tap.delay
-                    vDSP_vsma(source.baseAddress!, 1, &level, at, 1, at, 1, vDSP_Length(count))
+                    var n = 0
+                    while n < count { at[n] += source[n] * level; n += 1 }
                 }
             }
         }
@@ -108,8 +112,8 @@ extension OortSynth {
         let peak = sides.flatMap { $0 }.reduce(Float(0)) { max($0, abs($1)) }
         guard best > 0, peak > 0 else { return }
         let loudness = -0.691 + 10 * log10(best / Double(window))
-        var gain = min(Float(pow(10, (target - loudness) / 20)), 0.5 / peak)
-        for index in sides.indices { vDSP_vsmul(sides[index], 1, &gain, &sides[index], 1, vDSP_Length(sides[index].count)) }
+        let gain = min(Float(pow(10, (target - loudness) / 20)), 0.5 / peak)
+        for index in sides.indices { sides[index] = sides[index].map { $0 * gain } }
     }
 
     private struct Weighting {

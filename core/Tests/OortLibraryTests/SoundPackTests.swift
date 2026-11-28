@@ -1,6 +1,5 @@
 import Foundation
 import XCTest
-import zlib
 @testable import OortLibrary
 
 final class SoundPackTests: XCTestCase {
@@ -156,7 +155,7 @@ final class SoundPackTests: XCTestCase {
         for (index, file) in files.enumerated() {
             let name = Data(file.0.utf8), alternate = centralName.map { Data($0.utf8) }
             let centralFile = index == 1 ? alternate ?? name : name
-            let crc = file.1.withUnsafeBytes { crc32(0, $0.bindMemory(to: UInt8.self).baseAddress, uInt(file.1.count)) }
+            let crc = Self.crc(file.1)
             // A raw DEFLATE final uncompressed block, independent of the importer.
             let bytes = deflated ? Data([1]) + le(file.1.count, 2) + le(~file.1.count, 2) + file.1 : file.1
             var shared = le(20, 2) + le(0, 2) + le(deflated ? 8 : 0, 2) + le(0, 4)
@@ -173,4 +172,15 @@ final class SoundPackTests: XCTestCase {
         end.append(le(central.count, 4) + le(local.count, 4) + le(0, 2))
         return local + central + end
     }
+
+    /// CRC-32 bit by bit, apart from the decoder's table: the fixtures must not trust what they test.
+    private static func crc(_ data: Data) -> UInt {
+        var crc: UInt32 = 0xFFFF_FFFF
+        for byte in data {
+            crc ^= UInt32(byte)
+            for _ in 0..<8 { crc = (crc >> 1) ^ (0xEDB8_8320 & (0 &- (crc & 1))) }
+        }
+        return UInt(~crc)
+    }
+
 }

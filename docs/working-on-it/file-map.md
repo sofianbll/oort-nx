@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1699 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1704 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -235,6 +235,8 @@ Cartella `core/OortCore/`, senza risorse né dipendenze.
 | [Engine.swift](../../core/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
 | [PlayReceipt.swift](../../core/OortCore/PlayReceipt.swift) | Identità del gesto, ricevuto e osservazioni portabili; nessuna identità di processo nel contratto. |
 | [VersionNumber.swift](../../core/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+| [Convolution.swift](../../core/OortCore/Convolution.swift) | Convoluzione lineare per FFT in Swift puro, per la stanza dei suoni senza Accelerate. |
+| [Inflate.swift](../../core/OortCore/Inflate.swift) | Decodifica DEFLATE grezzo (voci ZIP dei pacchetti audio) e CRC-32, senza zlib: dimensione esatta, nessun dato in coda. |
 
 ## Core · sistema
 
@@ -1107,6 +1109,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [apps/mac/Tests/OortMacTests/AppUpdateInstallTests.swift](../../apps/mac/Tests/OortMacTests/AppUpdateInstallTests.swift) | Controlli del bundle, firma, translocation, scambio e i suoi errori, Cestino che rifiuta: la copia installata resta sempre utilizzabile. |
 | [apps/mac/Tests/OortMacTests/ConnectivityWatcherTests.swift](../../apps/mac/Tests/OortMacTests/ConnectivityWatcherTests.swift) | Solo il passaggio da offline a online conta come ritorno della connessione; la prima lettura no. |
 | [apps/mac/Tests/OortMacTests/MacCodeSignatureVerifierTests.swift](../../apps/mac/Tests/OortMacTests/MacCodeSignatureVerifierTests.swift) | Il verificatore del Mac accetta un programma firmato da Apple e rifiuta byte non firmati. |
+| [apps/mac/Tests/OortMacTests/ConvolutionAgainstAccelerateTests.swift](../../apps/mac/Tests/OortMacTests/ConvolutionAgainstAccelerateTests.swift) | La convoluzione del Core contro `vDSP_conv` che ha sostituito, alle dimensioni reali: scarto sotto mezzo campione WAV. |
 | [apps/mac/Tests/OortMacTests/MotionTests.swift](../../apps/mac/Tests/OortMacTests/MotionTests.swift) | Verifica che in movimento ridotto restino solo i fonduti previsti. |
 | [apps/mac/Tests/OortMacTests/SteamManifestWatcherTests.swift](../../apps/mac/Tests/OortMacTests/SteamManifestWatcherTests.swift) | Lo stream FSEvents: riprova una libreria che diventa disponibile, ne aggiunge una nuova, resta vivo fino a `stop`. |
 | [FileBrowserTests.swift](../../core/Tests/OortLibraryTests/FileBrowserTests.swift) | Filtri, ordine, collegamenti, permessi, volume non disponibile e cartella con 2.000 file sintetici. |
@@ -1314,6 +1317,8 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [engines/nxnative/Tests/NxnativeAdapterTests/ToolchainGateCopyTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/ToolchainGateCopyTests.swift) | Testi del gate per Metal certificato, precedente, successivo e altre cause di blocco. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/ToolchainRequirementsTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/ToolchainRequirementsTests.swift) | Versioni minime e identificativi degli asset Metal da scaricare. |
 | [core/Tests/OortCoreTests/VersionNumberTests.swift](../../core/Tests/OortCoreTests/VersionNumberTests.swift) | Confronto numerico delle versioni. |
+| [core/Tests/OortCoreTests/ConvolutionTests.swift](../../core/Tests/OortCoreTests/ConvolutionTests.swift) | La convoluzione FFT è uguale alla somma diretta, anche su dimensioni dispari, e tace su ingressi vuoti. |
+| [core/Tests/OortCoreTests/InflateTests.swift](../../core/Tests/OortCoreTests/InflateTests.swift) | Flussi zlib a codici fissi, dinamici e blocchi memorizzati; rifiuta flussi troncati, troppo lunghi o seguiti da dati. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/UpstreamCheckerTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/UpstreamCheckerTests.swift) | Changelog HTTP, cache e gestione degli errori del provider. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/UpstreamCopyTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/UpstreamCopyTests.swift) | Testi della riga upstream e adozione dei commit attraverso gli aggiornamenti dell’app. |
 | [core/Tests/OortLibraryTests/WallpaperBrightnessTests.swift](../../core/Tests/OortLibraryTests/WallpaperBrightnessTests.swift) | Maschere e livelli di luminosità dello sfondo. |
