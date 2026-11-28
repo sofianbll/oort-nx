@@ -59,7 +59,8 @@ final class BuildServiceTests: XCTestCase {
     }
 
     func testDoesNotInstallOverAnUnrelatedAppThatAppearsDuringTheBuild() throws {
-        let fm = NoBuildTestTrash()
+        // Whatever this test throws away goes to the test process's own Trash (OortSystem.currentTrash).
+        let fm = FileManager.default
         let root = fm.temporaryDirectory.appendingPathComponent("NXOccupied-\(UUID())")
         defer { try? fm.removeItem(at: root) }
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
@@ -537,8 +538,3 @@ private final class DenyInstallDirectory: FileManager, @unchecked Sendable {
     }
 }
 
-private final class NoBuildTestTrash: FileManager, @unchecked Sendable {
-    override func trashItem(at url: URL, resultingItemURL: AutoreleasingUnsafeMutablePointer<NSURL?>?) throws {
-        throw CocoaError(.fileWriteNoPermission)
-    }
-}

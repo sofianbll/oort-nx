@@ -163,7 +163,7 @@ public enum GameInbox {
     }
 
     public static func store(_ entry: Entry, root: URL, discover: (URL, PackageContent) throws -> Bool,
-                             trash: @escaping (URL) throws -> Void = { _ = try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
+                             trash: @escaping (URL) throws -> Void = OortSystem.trash,
                              withTrashPermission: (URL, () throws -> Void) throws -> Void = { _, commit in try commit() }) throws {
         try store(entry, root: root, discover: discover, trash: trash, copy: streamCopy, withTrashPermission: withTrashPermission)
     }

@@ -282,7 +282,7 @@ public actor CloudGameArchive {
     private static let listingWidth = 8
 
     public init(backend: any StorageBackend) {
-        self.init(backend: backend, trash: { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
+        self.init(backend: backend, trash: OortSystem.trash,
                   fingerprints: .shared, records: .shared)
     }
 

@@ -89,7 +89,7 @@ extension PortingModel {
                 ?? Date.distantPast
             if UUID(uuidString: item.lastPathComponent) != nil,
                date < cutoff, !kept.contains(item.standardizedFileURL.path) {
-                try? FileManager.default.trashItem(at: item, resultingItemURL: nil)
+                try? OortSystem.trash(item)
             }
         }
     }
