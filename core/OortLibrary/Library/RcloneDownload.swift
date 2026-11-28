@@ -77,7 +77,7 @@ public struct RcloneDownload: Sendable {
     private static func stamp(_ fd: Int32) throws -> String {
         var info = stat()
         guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == S_IFREG else { throw Failure.integrity }
-        return "\(info.st_dev):\(info.st_ino):\(info.st_size):\(info.st_mtimespec.tv_sec):\(info.st_mtimespec.tv_nsec):\(info.st_ctimespec.tv_sec):\(info.st_ctimespec.tv_nsec)"
+        return "\(info.st_dev):\(info.st_ino):\(info.st_size):\(OortSystem.modified(info).seconds):\(OortSystem.modified(info).nanoseconds):\(OortSystem.changed(info).seconds):\(OortSystem.changed(info).nanoseconds)"
     }
 
     private static func checksum(_ file: FileHandle) throws -> String {
@@ -150,7 +150,7 @@ public struct RcloneDownload: Sendable {
                 mkdtemp(buffer.baseAddress!).map { URL(fileURLWithPath: String(cString: $0), isDirectory: true) }
             }) else { throw Failure.installation }
             let launch = Launchable(scratch.appendingPathComponent("rclone"), scratch: scratch)
-            if fclonefileat(file.fileDescriptor, AT_FDCWD, launch.url.path, 0) != 0 {
+            if !OortSystem.clone(file.fileDescriptor, to: launch.url.path) {
                 try Data().write(to: launch.url, options: .withoutOverwriting)
                 let output = try FileHandle(forWritingTo: launch.url)
                 defer { try? output.close() }
@@ -188,9 +188,8 @@ public struct RcloneDownload: Sendable {
     }
 
     public func moveInstalledCopyToTrash() throws {
-        let files = FileManager.default
         guard installedExecutable != nil else { throw Failure.installation }
-        do { try files.trashItem(at: directory, resultingItemURL: nil) }
+        do { try OortSystem.trash(directory) }
         catch { throw Failure.installation }
     }
 
@@ -233,7 +232,7 @@ public struct RcloneDownload: Sendable {
             try Data().write(to: payload.appendingPathComponent(Self.receipt), options: .withoutOverwriting)
             try files.setAttributes([.posixPermissions: 0o700], ofItemAtPath: candidate.path)
             try Task.checkCancellation()
-            guard renamex_np(payload.path, directory.path, UInt32(RENAME_EXCL)) == 0 else {
+            guard OortSystem.rename(payload.path, directory.path, .noReplace) == 0 else {
                 let error = errno
                 if error == EEXIST, let installedExecutable { return installedExecutable }
                 if error == ENOSPC { throw Failure.space }

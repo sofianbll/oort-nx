@@ -97,8 +97,8 @@ final class NativeMacApplicationTests: XCTestCase {
         let result = XCTWaiter.wait(for: [finished], timeout: 1)
         // Release an old blocking implementation so a failed test leaves no blocked worker behind.
         if result != .completed {
-            let writer = Darwin.open(plist.path, O_WRONLY | O_NONBLOCK)
-            if writer >= 0 { Darwin.close(writer) }
+            let writer = OortSystem.open(plist.path, O_WRONLY | O_NONBLOCK)
+            if writer >= 0 { OortSystem.close(writer) }
         }
         XCTAssertEqual(result, .completed)
     }

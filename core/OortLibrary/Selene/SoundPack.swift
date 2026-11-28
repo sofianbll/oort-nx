@@ -62,9 +62,9 @@ public struct SoundPack: Sendable {
     }
 
     public static func read(_ url: URL) throws -> SoundPack {
-        let fd = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        let fd = OortSystem.open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
         guard fd >= 0 else { throw SoundPackError.unavailable }
-        defer { Darwin.close(fd) }
+        defer { OortSystem.close(fd) }
         var info = stat()
         guard fstat(fd, &info) == 0 else { throw SoundPackError.unavailable }
         let files: [String: Data]
@@ -128,7 +128,7 @@ public struct SoundPack: Sendable {
         let copy = dup(fd)
         guard copy >= 0 else { throw SoundPackError.unavailable }
         guard let directory = fdopendir(copy) else {
-            Darwin.close(copy)
+            OortSystem.close(copy)
             throw SoundPackError.unavailable
         }
         defer { closedir(directory) }
@@ -139,7 +139,7 @@ public struct SoundPack: Sendable {
                 if errno != 0 { throw SoundPackError.unavailable }
                 break
             }
-            let length = Int(entry.pointee.d_namlen)
+            let length = OortSystem.nameLength(entry)
             let name = withUnsafeBytes(of: &entry.pointee.d_name) {
                 String(decoding: $0.prefix(length), as: UTF8.self)
             }
@@ -152,7 +152,7 @@ public struct SoundPack: Sendable {
             }
             let item = openat(fd, name, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
             guard item >= 0 else { throw SoundPackError.layout }
-            defer { Darwin.close(item) }
+            defer { OortSystem.close(item) }
             let data = try readFile(item, maximum: min(remaining, maxBytes(name)), singleLink: true)
             remaining -= data.count
             files[name] = data
@@ -169,7 +169,7 @@ public struct SoundPack: Sendable {
         let count = try bytes.withUnsafeMutableBytes { buffer in
             var used = 0
             while used < buffer.count {
-                let step = Darwin.read(fd, buffer.baseAddress!.advanced(by: used), buffer.count - used)
+                let step = OortSystem.read(fd, buffer.baseAddress!.advanced(by: used), buffer.count - used)
                 if step < 0, errno == EINTR { continue }
                 guard step >= 0 else { throw SoundPackError.unavailable }
                 if step == 0 { break }
@@ -291,7 +291,7 @@ public struct SoundPackLibrary: Sendable {
         defer { try? fm.removeItem(at: stage) }
         for (name, data) in pack.files { try data.write(to: stage.appendingPathComponent(name), options: .withoutOverwriting) }
         // One exclusive move publishes a complete copy; another import cannot overwrite it.
-        let result = renameatx_np(AT_FDCWD, stage.path, AT_FDCWD, destination.path, UInt32(RENAME_EXCL))
+        let result = OortSystem.rename(stage.path, destination.path, .noReplace)
         if result != 0 {
             if errno == EEXIST { throw SoundPackError.duplicate }
             throw SoundPackError.unavailable
@@ -301,7 +301,7 @@ public struct SoundPackLibrary: Sendable {
     public func remove(_ key: String) throws {
         guard key.hasPrefix("custom.") else { throw SoundPackError.unavailable }
         let url = try customURL(String(key.dropFirst(7)))
-        try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+        try OortSystem.trash(url)
     }
 
     private func customURL(_ id: String) throws -> URL {

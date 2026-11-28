@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1681 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1683 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -230,6 +230,14 @@ Cartella `core/OortCore/`, senza risorse né dipendenze.
 | [Engine.swift](../../core/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
 | [PlayReceipt.swift](../../core/OortCore/PlayReceipt.swift) | Identità del gesto, ricevuto e osservazioni portabili; nessuna identità di processo nel contratto. |
 | [VersionNumber.swift](../../core/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+
+## Core · sistema
+
+Cartella `core/OortLibrary/System/`: l'unico posto del Core con la libreria C di un sistema e i rami per sistema (R3).
+
+| File | Responsabilità |
+|---|---|
+| [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Le chiamate che cambiano da un sistema all'altro: `open`/`close`/`read`, date e nomi dei file, rinomina che non sostituisce mai, clone, Cestino, pool, spazio libero, peso di una cartella, preferenze, log; la variante Mac è il codice di sempre, altrove la stessa risposta o `Unsupported`. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
@@ -1145,6 +1153,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [core/Tests/OortLibraryTests/RailScrollTests.swift](../../core/Tests/OortLibraryTests/RailScrollTests.swift) | Passi, direzione, scatti, pausa e asse della rotella sulle righe. |
 | [core/Tests/OortLibraryTests/SafeDefaultsTests.swift](../../core/Tests/OortLibraryTests/SafeDefaultsTests.swift) | Schermate che si aprono da sole: Indietro nel primo avvio e scelta iniziale dell'aggiornamento. |
 | [core/Tests/OortLibraryTests/VocabularyTests.swift](../../core/Tests/OortLibraryTests/VocabularyTests.swift) | Parole del contratto: Rimuovi e Elimina, Spotlight, compilazione. |
+| [core/Tests/OortLibraryTests/OortSystemTests.swift](../../core/Tests/OortLibraryTests/OortSystemTests.swift) | Il Core di sistema su ogni sistema: rinomina senza sostituire, scambio, date, nomi, peso senza seguire i link, Cestino rifiutato dove manca. |
 | [core/Tests/OortLibraryTests/OnScreenKeyboardTests.swift](../../core/Tests/OortLibraryTests/OnScreenKeyboardTests.swift) | Caratteri disponibili, maiuscole, focus e cambio pagina della tastiera a schermo. |
 | [core/Tests/OortLibraryTests/SettingsResetQuestionTests.swift](../../core/Tests/OortLibraryTests/SettingsResetQuestionTests.swift) | Domanda prima di ogni ripristino di gruppo e suo testo. |
 | [core/Tests/OortCoreTests/ControllerInputTests.swift](../../core/Tests/OortCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici, calibrazione, transizioni e precedenza di GameController. |

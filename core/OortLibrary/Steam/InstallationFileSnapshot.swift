@@ -9,7 +9,7 @@ struct InstallationFileObservation: Equatable, Sendable {
     private let fileType: mode_t
 
     fileprivate struct Identity: Equatable, Sendable {
-        let device: Int32
+        let device: UInt64
         let inode: UInt64
         let size: Int64
         let modifiedSeconds: Int
@@ -18,13 +18,14 @@ struct InstallationFileObservation: Equatable, Sendable {
         let changedNanoseconds: Int
 
         init(_ status: stat) {
-            device = status.st_dev
-            inode = status.st_ino
-            size = status.st_size
-            modifiedSeconds = status.st_mtimespec.tv_sec
-            modifiedNanoseconds = status.st_mtimespec.tv_nsec
-            changedSeconds = status.st_ctimespec.tv_sec
-            changedNanoseconds = status.st_ctimespec.tv_nsec
+            device = UInt64(truncatingIfNeeded: status.st_dev)
+            inode = UInt64(truncatingIfNeeded: status.st_ino)
+            size = Int64(status.st_size)
+            let modified = OortSystem.modified(status), changed = OortSystem.changed(status)
+            modifiedSeconds = modified.seconds
+            modifiedNanoseconds = modified.nanoseconds
+            changedSeconds = changed.seconds
+            changedNanoseconds = changed.nanoseconds
         }
     }
 
@@ -84,7 +85,7 @@ struct InstallationFileSnapshot {
     }
 
     static func openReadOnly(_ url: URL) throws -> FileHandle {
-        let fd = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
+        let fd = OortSystem.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
         guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         return FileHandle(fileDescriptor: fd, closeOnDealloc: true)
     }

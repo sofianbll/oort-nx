@@ -237,7 +237,7 @@ public final class ArtworkStore: ObservableObject, Sendable {
     }
 
     public func clear() {
-        clear { try fileManager.trashItem(at: $0, resultingItemURL: nil) }
+        clear { try OortSystem.trash($0) }
     }
     internal func clear(discard: (URL) throws -> Void) {
         try? discard(cacheDirectory)

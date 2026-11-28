@@ -22,8 +22,7 @@ package struct BuildInstallIO {
         return sourceInfo.st_dev == parentInfo.st_dev
     }
     package var publish: (URL, URL, Bool) throws -> Void = { source, destination, replacing in
-        let flags = replacing ? RENAME_SWAP : RENAME_EXCL
-        guard renamex_np(source.path, destination.path, UInt32(flags)) == 0 else {
+        guard OortSystem.rename(source.path, destination.path, replacing ? .swap : .noReplace) == 0 else {
             throw BuildInstallError.replaceFailed(String(cString: strerror(errno)))
         }
     }

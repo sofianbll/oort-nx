@@ -125,10 +125,10 @@ public struct LibraryMove {
         // A folder without a library (logs, a launch that stopped early) is kept beside, never mixed in or deleted.
         if try kind(destination) != nil {
             let aside = parent.appendingPathComponent(destination.lastPathComponent + " (before the move) " + UUID().uuidString)
-            guard renamex_np(destination.path, aside.path, UInt32(RENAME_EXCL)) == 0 else { throw Failure.interrupted }
+            guard OortSystem.rename(destination.path, aside.path, .noReplace) == 0 else { throw Failure.interrupted }
         }
         // Never replaces a folder: a second copy starting at the same moment stops here.
-        guard renamex_np(stage.path, destination.path, UInt32(RENAME_EXCL)) == 0 else { throw Failure.interrupted }
+        guard OortSystem.rename(stage.path, destination.path, .noReplace) == 0 else { throw Failure.interrupted }
         try CatalogPublication.synchronize(parent)
         try finish(state, savePreferences: savePreferences)
         return true

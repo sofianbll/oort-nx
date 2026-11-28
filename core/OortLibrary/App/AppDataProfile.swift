@@ -1,5 +1,4 @@
 import Foundation
-import os
 
 /// Immutable location policy. The build declares its profile; filenames and branch names do not select it.
 public struct AppDataProfile: Sendable {
@@ -97,8 +96,8 @@ public enum AppData {
         // Never holds the launch: the old paths still open, and a locked or unreadable file is tried again next time.
         do { try LibraryPathRepair(from: old, to: new).prepare(checks: checks, preferences: preferences, savePreferences: savePreferences) }
         catch {
-            Logger(subsystem: AppDataProfile.identifier, category: "Startup")
-                .error("Library path repair waits: \(String(describing: error), privacy: .private)")
+            OortSystem.logError(subsystem: AppDataProfile.identifier, category: "Startup",
+                                "Library path repair waits: \(String(describing: error))")
         }
     }
     /// `checks` validate the module's own files in the copy (Porting: `prepare()`).
@@ -115,7 +114,7 @@ public enum AppData {
                 UserDefaults.standard.persistentDomain(forName: profile.preferencesDomain) ?? [:]
             }, savePreferences: { values in
                 for (key, value) in values { defaults.set(value, forKey: key) }
-                guard CFPreferencesAppSynchronize(profile.preferencesDomain as CFString) else { throw LibraryMove.Failure.preferencesUnavailable }
+                guard OortSystem.synchronizePreferences(domain: profile.preferencesDomain) else { throw LibraryMove.Failure.preferencesUnavailable }
             })
         }
         // The trial's stable data copy is explicit; opening it never runs the legacy import.
@@ -126,7 +125,7 @@ public enum AppData {
             UserDefaults.standard.persistentDomain(forName: AppDataProfile.identifier) ?? [:]
         }, savePreferences: { values in
             defaults.setPersistentDomain(values, forName: profile.preferencesDomain)
-            guard CFPreferencesAppSynchronize(profile.preferencesDomain as CFString) else {
+            guard OortSystem.synchronizePreferences(domain: profile.preferencesDomain) else {
                 throw DevelopmentProfileError.preferencesUnavailable
             }
         })

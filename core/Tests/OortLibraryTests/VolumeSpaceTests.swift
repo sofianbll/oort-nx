@@ -19,7 +19,7 @@ final class VolumeSpaceTests: XCTestCase {
     func testARealDriveThatIsNotAPFS() throws {
         guard let path = ProcessInfo.processInfo.environment["OORT_EXFAT"] else { throw XCTSkip("no drive given") }
         let url = URL(fileURLWithPath: path)
-        XCTAssertEqual(try url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage, 0)
+        XCTAssertEqual(OortSystem.freeSpace(at: url).important ?? 0, 0)
         XCTAssertGreaterThan(try XCTUnwrap(VolumeSpace.free(at: url)), 1_000_000)
     }
 }

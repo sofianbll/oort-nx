@@ -5,7 +5,7 @@ extension FileHandle {
     /// `while let read(upToCount:)` loop keeps every autoreleased chunk until the loop ends, so hashing a
     /// 79 GB shader cache held tens of GB of memory.
     package func forEachChunk(_ size: Int = 1 << 20, _ body: (Data) throws -> Void) throws {
-        while try autoreleasepool(invoking: {
+        while try OortSystem.withPool({
             guard let chunk = try read(upToCount: size), !chunk.isEmpty else { return false }
             try body(chunk)
             return true

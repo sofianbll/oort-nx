@@ -10,11 +10,11 @@ struct InstallationDirectorySnapshot: Sendable {
 
     static func read(at url: URL, maximumEntries: Int, cancelled: () -> Bool) throws -> Self {
         if cancelled() { throw CancellationError() }
-        let fd = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK | O_DIRECTORY)
+        let fd = OortSystem.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK | O_DIRECTORY)
         guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         guard let directory = fdopendir(fd) else {
             let failure = errno
-            Darwin.close(fd)
+            OortSystem.close(fd)
             throw POSIXError(POSIXErrorCode(rawValue: failure) ?? .EIO)
         }
         defer { closedir(directory) }
@@ -30,7 +30,7 @@ struct InstallationDirectorySnapshot: Sendable {
                 guard errno == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
                 break
             }
-            let count = Int(entry.pointee.d_namlen)
+            let count = OortSystem.nameLength(entry)
             let name = withUnsafePointer(to: &entry.pointee.d_name) { pointer in
                 pointer.withMemoryRebound(to: UInt8.self, capacity: count) {
                     String(bytes: UnsafeBufferPointer(start: $0, count: count), encoding: .utf8)

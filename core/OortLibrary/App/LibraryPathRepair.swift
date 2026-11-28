@@ -65,7 +65,7 @@ public struct LibraryPathRepair {
             var moved: [String: Any] = [:], kept: [String: Any] = [:]
             for (key, value) in values {
                 let next = paths.rebased(value: value)
-                if !(value as AnyObject).isEqual(next) { moved[key] = next; kept[key] = value }
+                if !NSDictionary(dictionary: [key: value]).isEqual(to: [key: next]) { moved[key] = next; kept[key] = value }
             }
             if !changes.isEmpty || !moved.isEmpty { try backUp(changes.map { ($0.name, $0.old) }, preferences: kept) }
             for change in changes {

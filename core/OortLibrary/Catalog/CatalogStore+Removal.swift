@@ -16,7 +16,7 @@ extension CatalogStore {
         if try RemovalIdentity.read(archive) != nil {
             archive = root.appendingPathComponent(UUID().uuidString + "-" + LibraryPaths.inheritedRemoval)
         }
-        guard renamex_np(journal.path, archive.path, UInt32(RENAME_EXCL)) == 0 else {
+        guard OortSystem.rename(journal.path, archive.path, .noReplace) == 0 else {
             throw CatalogRemovalRecovery(journal: journal)
         }
         try CatalogPublication.synchronize(root)
@@ -199,7 +199,7 @@ private struct RemovalIntent: Codable {
         }
 
         func rename(from: URL, to: URL) throws {
-            guard renamex_np(from.path, to.path, UInt32(RENAME_EXCL)) == 0 else {
+            guard OortSystem.rename(from.path, to.path, .noReplace) == 0 else {
                 throw CatalogRemovalFailure.trashUnavailable
             }
             try CatalogPublication.synchronize(bucket)
@@ -223,7 +223,7 @@ private struct RemovalIdentity: Codable, Hashable {
             throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
         }
         return Self(device: status.st_dev, inode: status.st_ino, type: status.st_mode & mode_t(S_IFMT),
-                    birthSeconds: status.st_birthtimespec.tv_sec, birthNanoseconds: status.st_birthtimespec.tv_nsec)
+                    birthSeconds: OortSystem.born(status)?.seconds ?? 0, birthNanoseconds: OortSystem.born(status)?.nanoseconds ?? 0)
     }
 }
 

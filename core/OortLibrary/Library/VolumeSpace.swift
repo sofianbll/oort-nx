@@ -7,8 +7,8 @@ public enum VolumeSpace {
     public static func free(at url: URL) -> Int64? {
         var existing = url.standardizedFileURL
         while !FileManager.default.fileExists(atPath: existing.path), existing.path != "/" { existing.deleteLastPathComponent() }
-        let values = try? existing.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey, .volumeAvailableCapacityKey])
-        return best(important: values?.volumeAvailableCapacityForImportantUsage, plain: values?.volumeAvailableCapacity.map(Int64.init))
+        let space = OortSystem.freeSpace(at: existing)
+        return best(important: space.important, plain: space.plain)
     }
 
     static func best(important: Int64?, plain: Int64?) -> Int64? {

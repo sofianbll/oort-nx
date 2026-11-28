@@ -466,7 +466,7 @@ public struct RcloneStorageBackend: StorageBackend {
                 try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(),
                                                         withIntermediateDirectories: true)
                 try Task.checkCancellation()
-                guard renamex_np(String(temporary.dropFirst(remote.count)), destination.path, UInt32(RENAME_EXCL)) == 0 else {
+                guard OortSystem.rename(String(temporary.dropFirst(remote.count)), destination.path, .noReplace) == 0 else {
                     if errno == EEXIST { throw StorageBackendError.alreadyExists }
                     throw StorageBackendError.publicationFailed
                 }

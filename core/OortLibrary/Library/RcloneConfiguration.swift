@@ -112,7 +112,7 @@ package final class RcloneConfigSnapshot: Sendable {
             where url.lastPathComponent.hasPrefix(prefix) && UUID(uuidString: String(url.lastPathComponent.dropFirst(prefix.count))) != nil {
             var info = stat()
             guard lstat(url.path, &info) == 0, info.st_mode & S_IFMT == S_IFDIR, info.st_uid == geteuid(),
-                  Date.now.timeIntervalSince1970 - Double(info.st_mtimespec.tv_sec) >= age else { continue }
+                  Date.now.timeIntervalSince1970 - Double(OortSystem.modified(info).seconds) >= age else { continue }
             let fd = claim(url)
             guard fd >= 0 else { continue }
             try? fm.removeItem(at: url)

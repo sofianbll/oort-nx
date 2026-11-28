@@ -186,8 +186,8 @@ final class SteamPlaytimeReaderTests: XCTestCase {
         }
         let result = XCTWaiter.wait(for: [finished], timeout: 1)
         if result != .completed {
-            let writer = Darwin.open(fifo.path, O_WRONLY | O_NONBLOCK)
-            if writer >= 0 { Darwin.close(writer) }
+            let writer = OortSystem.open(fifo.path, O_WRONLY | O_NONBLOCK)
+            if writer >= 0 { OortSystem.close(writer) }
         }
         XCTAssertEqual(result, .completed)
     }
