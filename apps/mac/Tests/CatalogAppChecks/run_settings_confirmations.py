@@ -69,7 +69,7 @@ def prepare(package):
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
     replace(cloud, r'private var remotes: \[RcloneRemote\]\?', 'private var remotes: [RcloneRemote]? = SettingsConfirmationProbe.remotes')
     replace(cloud, r'private var inspecting = true', 'private var inspecting = false')
-    replace(cloud, r'try await RcloneConfiguration\(executable: tool\)\.disconnect\(name, keepingClient: keepingClient\)',
+    replace(cloud, r'try await RcloneConfiguration\(executable: tool, secrets: MacKeychainSecretStore\(\)\)\.disconnect\(name, keepingClient: keepingClient\)',
             'try SettingsConfirmationProbe.disconnect(tool, name, keepingClient: keepingClient)')
     replace(cloud, r'private var account: RcloneAccount\?', 'private var account: RcloneAccount? = SettingsConfirmationProbe.account')
     replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
