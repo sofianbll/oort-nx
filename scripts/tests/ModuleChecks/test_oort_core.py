@@ -80,6 +80,8 @@ class PortableCoreTests(unittest.TestCase):
         self.assertEqual(core.check_targets(targets(exclude=["Resources/Strings.xcstrings"], resources=copy)), [])
         refused = f"Package.swift: {library['name']} lists files; the core is a folder"
         self.assertEqual(core.check_targets(targets(exclude=["Legacy/Old.swift"], resources=copy)), [refused])
+        hidden = [{"path": "Legacy/Old.swift", "rule": {"copy": {}}}]
+        self.assertEqual(core.check_targets(targets(exclude=["Legacy/Old.swift"], resources=hidden)), [refused])
         self.assertEqual(core.check_targets(targets(sources=["A.swift"])), [refused])
 
     def test_foundation_networking_is_the_only_conditional_import(self):

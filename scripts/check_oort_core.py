@@ -118,8 +118,9 @@ def check_targets(manifest_targets):
         if target is None or target["type"] != "regular" or target.get("path") != path:
             violations.append(f"Package.swift: {name} must be a regular target at {path}")
             continue
-        # An exclusion only takes a resource the target copies as written out of a processed folder.
-        copied = {resource["path"] for resource in target.get("resources", []) if "copy" in resource.get("rule", {})}
+        # The catalogue is copied unchanged; a source cannot be hidden by treating it as a resource.
+        copied = {resource["path"] for resource in target.get("resources", [])
+                  if resource["path"].endswith(".xcstrings") and "copy" in resource.get("rule", {})}
         if target.get("sources") or not set(target.get("exclude") or []) <= copied:
             violations.append(f"Package.swift: {name} lists files; the core is a folder")
         if [setting["kind"] for setting in target.get("settings", [])] != [{"swiftLanguageMode": {"_0": "6"}}]:
