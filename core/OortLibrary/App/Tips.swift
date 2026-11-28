@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 /// A shortcut told once, when it would have helped.
 public enum Tip: String, CaseIterable {
@@ -23,14 +24,15 @@ public enum Tip: String, CaseIterable {
 }
 
 /// Each tip is shown once on this Mac, one at a time and one per session, and never when tips are off.
-public final class Tips: ObservableObject {
-    static let storageKey = "NXLibrary_TipsSeen"
+@Observable
+public final class Tips {
+    @ObservationIgnored static let storageKey = "NXLibrary_TipsSeen"
     public static let longLibrary = 12
 
-    @Published public private(set) var shown: Tip?
-    private let defaults: UserDefaults
-    private var shownThisSession = false
-    private var changedGames: Set<UUID> = []
+    public private(set) var shown: Tip?
+    @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored private var shownThisSession = false
+    @ObservationIgnored private var changedGames: Set<UUID> = []
 
     public init(defaults: UserDefaults) { self.defaults = defaults }
 

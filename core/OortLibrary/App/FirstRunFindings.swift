@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 /// What the first launch finds already on the Mac, read only and without the network:
 /// installed native Mac games in the chosen Steam folder and ported apps in the Game apps folder.
@@ -45,11 +46,11 @@ public struct FirstRunFindings: Equatable, Sendable {
 }
 
 /// Reads the findings once on a cancellable worker; only the latest request publishes.
-@MainActor
-public final class FirstRunFindingsReader: ObservableObject {
-    @Published public private(set) var findings: FirstRunFindings?
-    private var requestID = 0
-    private var task: Task<Void, Never>?
+@MainActor @Observable
+public final class FirstRunFindingsReader {
+    public private(set) var findings: FirstRunFindings?
+    @ObservationIgnored private var requestID = 0
+    @ObservationIgnored private var task: Task<Void, Never>?
 
     public init() {}
 

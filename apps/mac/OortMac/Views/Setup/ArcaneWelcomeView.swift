@@ -14,7 +14,7 @@ struct ArcaneWelcomeView: View {
     let onAddSteam: () -> Void
     let onExit: (ArcaneWelcome.Exit) -> Void
 
-    @StateObject var reader = FirstRunFindingsReader()
+    @State var reader = FirstRunFindingsReader()
     @State var focus: ArcaneWelcome.Focus = .openLibrary
     @State var moved = false
     /// Add or Not now was chosen: the offer row leaves.

@@ -1,17 +1,19 @@
 import Foundation
+import Observation
 
 /// The last reversible gesture and its way back: a notice shows it, then Activity keeps it until another one
 /// replaces it, so nothing that must be read leaves with the notice.
-public final class UndoOffers: ObservableObject {
+@Observable
+public final class UndoOffers {
     public struct Offer: Identifiable, Equatable {
         public let id: UUID
         public let message: String
     }
 
-    @Published public private(set) var offer: Offer?
+    public private(set) var offer: Offer?
     /// The notice is on screen.
-    @Published public private(set) var isShown = false
-    private var undo: (() -> Void)?
+    public private(set) var isShown = false
+    @ObservationIgnored private var undo: (() -> Void)?
 
     public init() {}
 

@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1691 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1692 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1161,6 +1161,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [core/Tests/OortLibraryTests/RailScrollTests.swift](../../core/Tests/OortLibraryTests/RailScrollTests.swift) | Passi, direzione, scatti, pausa e asse della rotella sulle righe. |
 | [core/Tests/OortLibraryTests/SafeDefaultsTests.swift](../../core/Tests/OortLibraryTests/SafeDefaultsTests.swift) | Schermate che si aprono da sole: Indietro nel primo avvio e scelta iniziale dell'aggiornamento. |
 | [core/Tests/OortLibraryTests/VocabularyTests.swift](../../core/Tests/OortLibraryTests/VocabularyTests.swift) | Parole del contratto: Rimuovi e Elimina, Spotlight, compilazione. |
+| [core/Tests/OortLibraryTests/ObservedStoresTests.swift](../../core/Tests/OortLibraryTests/ObservedStoresTests.swift) | Gli store osservati avvisano chi li legge quando ciò che mostra cambia (Observation, su ogni sistema). |
 | [core/Tests/OortLibraryTests/OortSystemTests.swift](../../core/Tests/OortLibraryTests/OortSystemTests.swift) | Il Core di sistema su ogni sistema: rinomina senza sostituire, scambio, date, nomi, peso senza seguire i link, Cestino rifiutato dove manca. |
 | [core/Tests/OortLibraryTests/OnScreenKeyboardTests.swift](../../core/Tests/OortLibraryTests/OnScreenKeyboardTests.swift) | Caratteri disponibili, maiuscole, focus e cambio pagina della tastiera a schermo. |
 | [core/Tests/OortLibraryTests/SettingsResetQuestionTests.swift](../../core/Tests/OortLibraryTests/SettingsResetQuestionTests.swift) | Domanda prima di ogni ripristino di gruppo e suo testo. |

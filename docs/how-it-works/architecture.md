@@ -59,7 +59,7 @@ Il Core ha una cartella per area: `App`, `Catalog`, `Library`, `Selene`, `Detail
 
 Ciò che il modulo usa della base e l'app no è `package` (per esempio `CatalogStore(directory:publication:kinds:legacy:)`, `LibraryPresentation.duration`); un'estensione del modulo che crea un valore della base chiama un init `package` con tutti i valori, perché da un altro modulo non può assegnare proprietà `let` (`GameDetailPresentation(title:…savePath:)`). Dove la base ha bisogno del modulo (righe e reset di Settings, impostazioni del modulo, conteggi del primo avvio, controlli della copia di sviluppo, tipi e import del catalogo) riceve valori o chiusure da un'entrata generica; l'entrata con lo stesso nome di sempre sta in un'estensione dentro `NxnativeAdapter/` e passa quelli del modulo.
 
-`OortMac` dipende da `OortLibrary`. Il Core usa anche framework macOS, fra cui Combine, AppKit, ImageIO, CommonCrypto e IOKit. Il package non dichiara dipendenze SwiftPM esterne.
+`OortMac` dipende da `OortLibrary`. Il Core diventa portabile (R3): i file che usano ancora un framework macOS sono in `scripts/core-import-debt.json`; gli store che una schermata osserva sono `@Observable` (Observation, in ogni toolchain Swift). L'unica dipendenza SwiftPM esterna è swift-crypto, a versione esatta.
 
 ```mermaid
 flowchart TD

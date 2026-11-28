@@ -113,8 +113,8 @@ struct UndoNoticeLayer: View {
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
-    @ObservedObject var offers: UndoOffers
-    @ObservedObject var tips: Tips
+    let offers: UndoOffers
+    let tips: Tips
     let isBlocked: Bool
     let isBelowCard: Bool
     @Binding var focus: NoticeFocus

@@ -63,6 +63,7 @@ Regole:
   - È `ObservableObject` solo se pubblica stato. Ogni schermata che mostra quello stato lo osserva con `@ObservedObject` (dall'`init` o passato dalla shell), mai attraverso il coordinatore.
   - Un lavoro in background non tocca il modello: è una funzione statica (`PortingModel.sweepStaleBuildTemp`).
   - Nessun nome è uguale fra il modello e il coordinatore.
+- **Uno store del Core che una schermata osserva è `@Observable`** (Observation esiste su ogni sistema; Combine solo da Apple). Le proprietà che prima erano `@Published` restano osservate; il resto è `@ObservationIgnored`, così una schermata si ridisegna per le stesse cause. La schermata lo tiene con `let` (o `@State` se lo crea), mai con `@ObservedObject`. Esempio: `Tips`.
 - **Un solo writer per ogni file su disco.** Il catalogo lo scrive solo `CatalogRepository`, le impostazioni solo `AppSettingsStore`, le sessioni solo `PlaySessionStore`, le mod di un gioco solo `ModStore`.
 
 ## 2. Una fonte di giochi (Steam oggi, CrossOver e altre domani)

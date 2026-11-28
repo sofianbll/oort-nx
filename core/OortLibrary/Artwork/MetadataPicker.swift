@@ -1,5 +1,5 @@
 import Foundation
-import Combine
+import Observation
 
 /// The details a player can choose, field by field, in Change metadata.
 public enum MetadataField: String, CaseIterable, Codable, Sendable {
@@ -32,14 +32,15 @@ public struct MetadataOption: Equatable, Hashable, Sendable {
 
 /// The details a player chose, per title, in `metadata-picks.json`. They are laid
 /// over the store's metadata wherever it shows, and never overwritten by a refresh.
-public final class MetadataPicks: ObservableObject {
+@Observable
+public final class MetadataPicks {
     // Main thread only, like its views; the app's models that use it are not yet main-actor types.
-    nonisolated(unsafe) public static let shared = MetadataPicks()
+    @ObservationIgnored nonisolated(unsafe) public static let shared = MetadataPicks()
 
     public let directory: URL
     /// Bumps on every change, so screens redraw.
-    @Published public private(set) var revision = 0
-    package private(set) var table: [String: [String: String]]
+    public private(set) var revision = 0
+    @ObservationIgnored package private(set) var table: [String: [String: String]]
 
     private var fileURL: URL { directory.appendingPathComponent("metadata-picks.json") }
 

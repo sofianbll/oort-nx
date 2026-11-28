@@ -11,7 +11,7 @@ struct FoundGamesSetupView: View {
     /// The Steam switch lives in `FirstRunSetup`, so it survives the Porting path; the shell applies it.
     let onOpenLibrary: (_ importPorted: Bool) -> Void
 
-    @StateObject var reader = FirstRunFindingsReader()
+    @State var reader = FirstRunFindingsReader()
     @State var focus: FirstRunSetup.Focus = .initialOnFound
 
     var findings: FirstRunFindings? { reader.findings }

@@ -19,7 +19,7 @@ struct ChangeMetadataView: View {
     let subject: PersonalizationSubject
     let onClose: () -> Void
 
-    @ObservedObject private var picks = MetadataPicks.shared
+    private var picks = MetadataPicks.shared
     @ObservedObject private var steamPicks = SteamPersonalizations.shared.metadata
     @ObservedObject private var steamFacts = SteamGameFacts.shared
     @ObservedObject private var igdb = IGDBSettings.shared
