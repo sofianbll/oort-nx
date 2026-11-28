@@ -335,8 +335,7 @@ def main():
         change(inbox_model, "        guard app.setup.isProdKeysValid else { return nil }",
                '        guard FileManager.default.fileExists(atPath: AppData.profile.home.appendingPathComponent("audit-reader").path)\n'
                '        else { return nil }')
-        # Replace the only reachable Inbox Trash implementation with a fixture-local rename.
-        inbox_service = package / "engines/nxnative/NxnativeAdapter/Library/GameInbox.swift"
+        # The Inbox reaches the Trash only through OortSystem.trash, which gives this probe process a folder of its own.
         worker = "                for entry in requested {\n                    do {\n"
         change(inbox_model, worker, worker + r'''
                         let home = AppData.profile.home
@@ -347,13 +346,6 @@ def main():
                             try await Task.sleep(for: .milliseconds(10))
                         }
 ''')
-        for path in (inbox_service, inbox_model):
-            text = path.read_text()
-            for url in ("$0", "source"):
-                text = text.replace(f"_ = try FileManager.default.trashItem(at: {url}, resultingItemURL: nil)",
-                                    f'try FileManager.default.moveItem(at: {url}, to: AppData.profile.home.appendingPathComponent("audit-trash"))')
-            assert ".trashItem(" not in text
-            path.write_text(text)
         inventory = package / "engines/nxnative/NxnativeAdapter/Library/CloudArchiveInventory.swift"
         text = inventory.read_text()
         start = text.index("    static func hashes(at url: URL")

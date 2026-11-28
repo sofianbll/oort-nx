@@ -48,7 +48,7 @@ public final class StorageManager {
         self.applicationsRoot = applicationsRoot
         self.logsRoot = logsRoot
         self.fm = fileManager
-        self.trash = trash ?? { try fileManager.trashItem(at: $0, resultingItemURL: nil) }
+        self.trash = trash ?? OortSystem.trash
     }
 
     public func usage(games: [PortedGame]) -> StorageUsage {

@@ -182,7 +182,7 @@ public enum BuildOutputInstaller {
         defer { _ = rmdir(staging.path) }
         let archived = staging.appendingPathComponent(destination.lastPathComponent)
         try fileManager.moveItem(at: old, to: archived)
-        try? fileManager.trashItem(at: archived, resultingItemURL: nil)
+        try? OortSystem.trash(archived)
     }
 
     private static func identity(_ url: URL, _ fileManager: FileManager) -> Identity? {

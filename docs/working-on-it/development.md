@@ -6,6 +6,7 @@ This guide covers building Oort NX itself. For app setup, game preparation and d
 
 - An Apple-silicon Mac running macOS 26 or later.
 - Full Xcode selected for the build. The current game toolchain requires Xcode 27.2 or later and the Metal compiler certified for the pinned engine. `Package.swift` declares Swift tools 6.0 (`OortCore`, `OortLibrary` and `NxnativeAdapter` build in the Swift 6 language mode, the app and the tests in Swift 5; in Swift 6 a block written inside a main-actor method stops the app when another queue runs it, so write such a block in a `nonisolated` helper) and macOS 26 as package minimums; those values do not certify an engine/compiler combination.
+- Only a normal launch from the `.app` bundle uses the player's Trash. Tests, fixture modes and headless probes use a private folder. `OORT_TRASH` must name an existing directory inside the system's temporary directory; the resolved destination is checked. `scripts/check swift` and `scripts/check app-probes` create it and fail if `~/.Trash` gains an entry or cannot be observed (`scripts/trash_guard.py`).
 - Git and the command-line tools supplied with Xcode.
 - Python 3 for the publication checks and packaging helpers.
 - Homebrew's `zstd` and `glslang`, at the versions recorded in [engines/nxnative/runtime.lock](../../engines/nxnative/runtime.lock), when preparing the bundled runtime. The script checks installed versions; it does not install or silently upgrade them.

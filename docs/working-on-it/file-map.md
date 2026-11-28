@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1701 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1705 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -231,6 +231,14 @@ Cartella `core/OortCore/`, senza risorse né dipendenze.
 | [Engine.swift](../../core/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
 | [PlayReceipt.swift](../../core/OortCore/PlayReceipt.swift) | Identità del gesto, ricevuto e osservazioni portabili; nessuna identità di processo nel contratto. |
 | [VersionNumber.swift](../../core/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+
+## Core · sistema
+
+Cartella `core/OortLibrary/System/`: il Cestino di sistema e il suo equivalente isolato.
+
+| File | Responsabilità |
+|---|---|
+| [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Il Cestino: quello di sistema solo per l'app avviata dal suo bundle `.app`, una cartella propria (`OORT_TRASH`, o temporanea) per ogni test, sonda o eseguibile. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
@@ -1055,6 +1063,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/check_docs.py](../../scripts/check_docs.py) | R8: `.md` solo nelle cartelle di documentazione, link relativi risolti, nessun marcatore privato nuovo. |
 | [scripts/private-markers.json](../../scripts/private-markers.json) | Marcatori privati vietati nei `.md` e file che li contengono già; l'elenco può solo ridursi. |
 | [scripts/check_probe_hooks.py](../../scripts/check_probe_hooks.py) | Rifiuta un binario Release che contiene ancora un aggancio di sonda `oortProbe…` (solo `#if DEBUG`); eseguito da `scripts/check release-build`. |
+| [scripts/trash_guard.py](../../scripts/trash_guard.py) | Lancia test e sonde con un Cestino proprio (`OORT_TRASH`) e fallisce se il vero `~/.Trash` riceve un elemento o non è leggibile; non tocca mai ciò che c'è già. |
 | [scripts/check_probes.py](../../scripts/check_probes.py) | R13: una sonda che legge il testo reso deve provarne la visibilità con `assertVisible`. |
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
@@ -1070,6 +1079,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [architecture/names.c4](../../architecture/names.c4) | Moduli Swift del modello, generati da `names.json`. |
 | [architecture/structure.c4](../../architecture/structure.c4) | Cartelle e file della radice del repository, e dove può stare la documentazione; letto da `scripts/check`. |
 | [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
+| [scripts/tests/RepoChecks/test_trash_guard.py](../../scripts/tests/RepoChecks/test_trash_guard.py) | Esempio rosso: un comando che scrive nel Cestino osservato fa fallire il passaggio. |
 | [scripts/tests/CIChecks/test_changed_areas.py](../../scripts/tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [scripts/tests/CIChecks/test_catalog_checks.py](../../scripts/tests/CIChecks/test_catalog_checks.py) | Verifica che tutti i candidati siano assegnati una sola volta, che i gruppi autonomi siano limitati e che un errore non nasconda il risultato successivo. |
 | [scripts/tests/ModuleChecks/test_module_boundaries.py](../../scripts/tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
@@ -1118,6 +1128,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [engines/nxnative/Tests/NxnativeAdapterTests/AppSettingsStoreTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/AppSettingsStoreTests.swift) | Default e reset di Inbox, errori, recupero, nomi e ordine delle sezioni, chiavi correnti e del modulo, card Spotlight rimosse, ultima selezione in background e alla chiusura. |
 | [core/Tests/OortLibraryTests/AppSettingsDraftTests.swift](../../core/Tests/OortLibraryTests/AppSettingsDraftTests.swift) | Anteprima, scarto, ordine nel riepilogo, merge senza perdita, conflitto, file illeggibile e interruzione prima della sostituzione. |
 | [core/Tests/OortLibraryTests/OnlinePlayersDisplayTests.swift](../../core/Tests/OortLibraryTests/OnlinePlayersDisplayTests.swift) | Sedici combinazioni, migrazione delle quattro scelte precedenti, default, reset e catalogo. |
+| [core/Tests/OortLibraryTests/OortSystemTests.swift](../../core/Tests/OortLibraryTests/OortSystemTests.swift) | Un processo di test non usa mai il Cestino dell'utente; un Cestino cartella tiene due elementi con lo stesso nome; dove il sistema non ne ha, è rifiutato. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/AppSizeCacheTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/AppSizeCacheTests.swift) | Riuso delle dimensioni, invalidazione sui bundle modificati e scansione senza falso stato vuoto. |
 | [core/Tests/OortLibraryTests/AppUpdateTests.swift](../../core/Tests/OortLibraryTests/AppUpdateTests.swift) | Versioni, pagina mista per le prerelease, asset, requisiti, digest, identità del bundle e guasti di copia, scambio e Cestino. |
 | [core/Tests/OortLibraryTests/AppUpdatePresentationTests.swift](../../core/Tests/OortLibraryTests/AppUpdatePresentationTests.swift) | Verifica che i controlli manuali non permettano sostituzioni di copie di sviluppo, in sola lettura o con una versione uguale/più recente. |

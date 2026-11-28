@@ -127,7 +127,7 @@ actor OnlineBackgroundService {
             throw CocoaError(.fileWriteInvalidFileName)
         }
         if fileManager.fileExists(atPath: destination.path) {
-            try fileManager.trashItem(at: destination, resultingItemURL: nil)
+            try OortSystem.trash(destination)
         }
         try fileManager.moveItem(at: temporary, to: destination)
 

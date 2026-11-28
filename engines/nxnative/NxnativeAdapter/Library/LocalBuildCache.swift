@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import OortLibrary
 
 /// A game's build cache on this Mac (`<title ID>_build`): what the engine reuses so a rebuild compiles no shader twice.
 public enum LocalBuildCache {
@@ -66,7 +67,7 @@ public enum LocalBuildCache {
 
     /// A finished build's work folder becomes the game's cache; the cache it replaces goes to the Trash.
     public static func adopt(_ work: URL, as cache: URL,
-                             retire: (URL) throws -> Void = { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }) throws {
+                             retire: (URL) throws -> Void = OortSystem.trash) throws {
         try adopt(work, as: cache, prepare: { source, candidate in
             if renamex_np(source.path, candidate.path, UInt32(RENAME_EXCL)) == 0 { return }
             guard errno == EXDEV else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
