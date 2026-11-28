@@ -32,7 +32,8 @@ final class RcloneDownloadTests: XCTestCase {
         var installer: RcloneDownload {
             let bytes = try! Data(contentsOf: URL(fileURLWithPath: "/usr/bin/true"))
             return .init(supportRoot: root.appendingPathComponent("Support", isDirectory: true),
-                         expectedSHA256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
+                         expectedSHA256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
+                         verifier: FixtureSignature(signed: bytes))
         }
         var transport: URLSessionConfiguration {
             let configuration = URLSessionConfiguration.ephemeral
@@ -279,4 +280,11 @@ final class RcloneDownloadTests: XCTestCase {
         XCTAssertTrue(files.fileExists(atPath: live.path))
         XCTAssertTrue(files.fileExists(atPath: foreign.path))
     }
+}
+
+/// Stands for Apple's code signing in these tests: only the exact bytes of the system's `true` are "signed"
+/// (`MacCodeSignatureVerifierTests` checks the real verifier on a Mac).
+private struct FixtureSignature: ExecutableVerifier {
+    let signed: Data
+    func hasValidSignature(_ url: URL) -> Bool { (try? Data(contentsOf: url)) == signed }
 }

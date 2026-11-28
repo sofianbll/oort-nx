@@ -5,8 +5,6 @@
   "core/OortLibrary/Artwork/ArtworkStore.swift",
   "core/OortLibrary/Artwork/AutomaticIconResolver.swift",
   "core/OortLibrary/Artwork/WikipediaDescription.swift",
-  "core/OortLibrary/Library/RcloneConfiguration.swift",
-  "core/OortLibrary/Library/RcloneDownload.swift",
   "core/OortLibrary/Selene/OortAmbiance.swift",
   "core/OortLibrary/Selene/OortSynth.swift",
   "core/OortLibrary/Selene/SoundPack.swift",

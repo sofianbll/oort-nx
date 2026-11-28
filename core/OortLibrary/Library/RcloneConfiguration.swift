@@ -1,5 +1,4 @@
 import Foundation
-import Security
 
 package struct CloudDriveScope: Codable, Equatable, Sendable {
     package struct Folder: Codable, Equatable, Sendable {
@@ -317,8 +316,8 @@ public struct RcloneConfiguration: Sendable {
     }
 
     static let passwordCommand = "/usr/bin/security find-generic-password -a rclone -s rclone-config -w"
-    private static let service = "rclone-config"
-    private static let account = "rclone"
+    package static let service = "rclone-config"
+    package static let account = "rclone"
 
     package typealias Run = @Sendable (URL, [String], [String: String]) async throws -> CommandResult
     typealias Authorize = @Sendable (URL, URL?, [String: String], String, (id: String, secret: String)?, Bool) async throws -> Void
@@ -329,11 +328,15 @@ public struct RcloneConfiguration: Sendable {
     private let authorize: Authorize
     private let environment: [String: String]
 
-    public init(executable: URL) {
+    /// `secrets` keeps the password that encrypts the configuration (the login keychain on a Mac).
+    public init(executable: URL, secrets: any SecretStore) {
         self.init(executable: executable, config: nil, run: {
             try await RcloneDownload.runCancellable($0, $1, environment: $2)
         }, ensurePassword: {
-            try await Task.detached(priority: .utility) { try Self.ensureKeychainPassword() }.value
+            try await Task.detached(priority: .utility) {
+                do { try secrets.ensureSecret(service: Self.service, account: Self.account) }
+                catch { throw Failure.encryption }
+            }.value
         }, environment: Self.environment())
     }
 
@@ -554,29 +557,5 @@ public struct RcloneConfiguration: Sendable {
         catch is CancellationError { throw CancellationError() }
         // Never surface subprocess output or launch errors: they can contain OAuth credentials.
         catch { throw failure }
-    }
-
-    private static func ensureKeychainPassword() throws {
-        // The CLI password command reads the file-based login keychain, not the Data Protection keychain.
-        var login: SecKeychain?
-        let path = NSHomeDirectory() + "/Library/Keychains/login.keychain-db"
-        guard SecKeychainOpen(path, &login) == errSecSuccess, let login else { throw Failure.encryption }
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword, kSecAttrService: service, kSecAttrAccount: account
-        ]
-        var search = query
-        search[kSecMatchSearchList] = [login]
-        let found = SecItemCopyMatching(search as CFDictionary, nil)
-        if found == errSecSuccess { return }
-        guard found == errSecItemNotFound else { throw Failure.encryption }
-
-        var bytes = Data(count: 32)
-        guard bytes.withUnsafeMutableBytes({ SecRandomCopyBytes(kSecRandomDefault, 32, $0.baseAddress!) }) == errSecSuccess
-        else { throw Failure.encryption }
-        var item = query
-        item[kSecUseKeychain] = login
-        item[kSecValueData] = bytes.base64EncodedData()
-        let status = SecItemAdd(item as CFDictionary, nil)
-        guard status == errSecSuccess || status == errSecDuplicateItem else { throw Failure.encryption }
     }
 }

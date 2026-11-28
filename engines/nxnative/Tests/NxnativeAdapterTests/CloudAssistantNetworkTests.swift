@@ -78,7 +78,7 @@ final class CloudAssistantNetworkTests: XCTestCase {
     /// had to open seven folders, and each one started a process per question.
     func testAssistant() async throws {
         let start = ContinuousClock.now
-        let remotes = try await RcloneConfiguration(executable: tool).remotes()
+        let remotes = try await RcloneConfiguration(executable: tool, secrets: NoSecretStore()).remotes()
         XCTAssertEqual(remotes.map(\.name), ["fixture"])
         try report("account shown", seconds: elapsed(since: start))
         let reads = CloudDriveReads()
@@ -107,4 +107,9 @@ final class CloudAssistantNetworkTests: XCTestCase {
         _ = try await shown.list("Games/Switch", ticket: UUID())
         try report("two folders opened again", seconds: elapsed(since: start))
     }
+}
+
+/// Listing remotes never asks for the configuration password.
+private struct NoSecretStore: SecretStore {
+    func ensureSecret(service: String, account: String) throws { XCTFail("no secret is needed to list remotes") }
 }

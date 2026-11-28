@@ -3,7 +3,6 @@ import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
-import Security
 
 /// The optional Drive helper is not part of the app or of the game build runtime.
 public struct RcloneDownload: Sendable {
@@ -46,14 +45,19 @@ public struct RcloneDownload: Sendable {
     private static let receipt = "oort-install"
     private static let verification = Verification()
 
-    public init(supportRoot: URL) {
-        self.init(supportRoot: supportRoot, expectedSHA256: Self.executableSHA256)
+    /// Where a downloaded executable's signature is checked before it is installed (Apple's code signing on a Mac).
+    private let verifier: (any ExecutableVerifier)?
+
+    /// `verifier` checks the downloaded executable's signature; without one, nothing is ever installed.
+    public init(supportRoot: URL, verifier: any ExecutableVerifier) {
+        self.init(supportRoot: supportRoot, expectedSHA256: Self.executableSHA256, verifier: verifier)
     }
 
-    init(supportRoot: URL, expectedSHA256: String) {
+    init(supportRoot: URL, expectedSHA256: String, verifier: (any ExecutableVerifier)?) {
         directory = supportRoot.appendingPathComponent("DriveTools", isDirectory: true)
             .appendingPathComponent("rclone-\(Self.version)", isDirectory: true)
         self.expectedSHA256 = expectedSHA256
+        self.verifier = verifier
     }
 
     private var parent: URL { directory.deletingLastPathComponent() }
@@ -107,7 +111,8 @@ public struct RcloneDownload: Sendable {
     }
 
     private static func managedCopy(_ tool: URL) -> Self? {
-        let managed = Self(supportRoot: AppData.supportRoot)
+        // Only compared, never installed: no verifier.
+        let managed = Self(supportRoot: AppData.supportRoot, expectedSHA256: Self.executableSHA256, verifier: nil)
         let path = managed.executable.standardizedFileURL.path
         if tool.standardizedFileURL.path == path || tool.resolvingSymlinksInPath().path == path { return managed }
         return nil
@@ -227,7 +232,7 @@ public struct RcloneDownload: Sendable {
             try files.createDirectory(at: payload, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
             let candidate = payload.appendingPathComponent("rclone")
             try await Self.extract(release, archive: archive, to: candidate)
-            guard Self.hasValidSignature(candidate),
+            guard verifier?.hasValidSignature(candidate) == true,
                   try Self.checksum(FileHandle(forReadingFrom: candidate)) == expectedSHA256 else { throw Failure.integrity }
             try Data().write(to: payload.appendingPathComponent(Self.receipt), options: .withoutOverwriting)
             try files.setAttributes([.posixPermissions: 0o700], ofItemAtPath: candidate.path)
@@ -298,11 +303,14 @@ public struct RcloneDownload: Sendable {
         configuration.urlCache = nil
         configuration.httpCookieStorage = nil
         configuration.urlCredentialStorage = nil
-        let session = URLSession(configuration: configuration, delegate: RedirectPolicy(origin: release.url), delegateQueue: nil)
+        let body = DownloadStream(origin: release.url)
+        let session = URLSession(configuration: configuration, delegate: body, delegateQueue: nil)
         defer { session.invalidateAndCancel() }
         var request = URLRequest(url: release.url)
         request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
-        let (body, response) = try await session.bytes(for: request)
+        let task = session.dataTask(with: request)
+        task.resume()
+        let response = try await withTaskCancellationHandler { try await body.response() } onCancel: { task.cancel() }
         guard let response = response as? HTTPURLResponse,
               RedirectPolicy.allows(response.url, origin: release.url) else { throw Failure.redirect }
         if (300..<400).contains(response.statusCode) { throw Failure.redirect }
@@ -312,18 +320,22 @@ public struct RcloneDownload: Sendable {
         try Data().write(to: archive, options: .withoutOverwriting)
         let output = try FileHandle(forWritingTo: archive)
         defer { try? output.close() }
+        // Whole 256 KiB blocks are written as they come; the last, partial one only once the digest matches.
         var hash = SHA256(), chunk = Data(), received = 0
-        chunk.reserveCapacity(256 * 1024)
-        for try await byte in body {
-            guard received < release.bytes else { throw Failure.response }
-            received += 1
-            chunk.append(byte)
-            if chunk.count == 256 * 1024 {
+        chunk.reserveCapacity(512 * 1024)
+        let block = 256 * 1024
+        for try await data in body.chunks(cancelling: task) {
+            guard received + data.count <= release.bytes else { throw Failure.response }
+            received += data.count
+            chunk.append(data)
+            while chunk.count >= block {
                 try Task.checkCancellation()
-                try output.write(contentsOf: chunk)
-                hash.update(data: chunk)
-                chunk.removeAll(keepingCapacity: true)
-                if received.isMultiple(of: 1024 * 1024) { await progress(Double(received) / Double(release.bytes)) }
+                let piece = chunk.prefix(block)
+                try output.write(contentsOf: piece)
+                hash.update(data: piece)
+                chunk.removeFirst(block)
+                let written = received - chunk.count
+                if written.isMultiple(of: 1024 * 1024) { await progress(Double(written) / Double(release.bytes)) }
             }
         }
         try Task.checkCancellation()
@@ -354,17 +366,80 @@ public struct RcloneDownload: Sendable {
         }
     }
 
-    private static func hasValidSignature(_ url: URL) -> Bool {
-        var code: SecStaticCode?
-        return SecStaticCodeCreateWithPath(url as CFURL, [], &code) == errSecSuccess
-            && code.map { SecStaticCodeCheckValidity($0, SecCSFlags(rawValue: kSecCSStrictValidate), nil) == errSecSuccess } == true
-    }
-
     private static func outOfSpace(_ error: Error) -> Bool {
         let error = error as NSError
         return (error.domain == NSPOSIXErrorDomain && error.code == Int(ENOSPC))
             || (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError)
             || (error.userInfo[NSUnderlyingErrorKey] as? NSError).map(outOfSpace) == true
+    }
+
+    /// One GET, read as its response then its body in pieces, on every system (`URLSession.bytes` is Apple's only).
+    /// Its redirects follow `RedirectPolicy`.
+    final class DownloadStream: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+        private let policy: RedirectPolicy
+        private let lock = NSLock()
+        private var answer: CheckedContinuation<URLResponse, Error>?
+        private var answered: Result<URLResponse, Error>?
+        private let pieces: AsyncThrowingStream<Data, Error>
+        private let feed: AsyncThrowingStream<Data, Error>.Continuation
+
+        init(origin: URL) {
+            policy = RedirectPolicy(origin: origin)
+            (pieces, feed) = AsyncThrowingStream.makeStream(of: Data.self)
+        }
+
+        /// The response, once its headers arrive; the body may still be coming.
+        func response() async throws -> URLResponse {
+            try await withCheckedThrowingContinuation { continuation in
+                let ready: Result<URLResponse, Error>? = lock.withLock {
+                    if answered == nil { answer = continuation }
+                    return answered
+                }
+                if let ready { continuation.resume(with: ready) }
+            }
+        }
+
+        /// The body, piece by piece; leaving the loop early cancels the request.
+        func chunks(cancelling task: URLSessionTask) -> AsyncThrowingStream<Data, Error> {
+            feed.onTermination = { reason in if case .cancelled = reason { task.cancel() } }
+            return pieces
+        }
+
+        private func answer(_ result: Result<URLResponse, Error>) {
+            let waiting: CheckedContinuation<URLResponse, Error>? = lock.withLock {
+                guard answered == nil else { return nil }
+                answered = result
+                defer { answer = nil }
+                return answer
+            }
+            waiting?.resume(with: result)
+        }
+
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+                        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+            answer(.success(response))
+            completionHandler(.allow)
+        }
+
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+            feed.yield(data)
+        }
+
+        func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+            if let error {
+                answer(.failure(error))
+                feed.finish(throwing: error)
+            } else {
+                answer(.failure(URLError(.badServerResponse)))
+                feed.finish()
+            }
+        }
+
+        func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+            policy.urlSession(session, task: task, willPerformHTTPRedirection: response, newRequest: request,
+                              completionHandler: completionHandler)
+        }
     }
 
     final class RedirectPolicy: NSObject, URLSessionTaskDelegate, @unchecked Sendable {

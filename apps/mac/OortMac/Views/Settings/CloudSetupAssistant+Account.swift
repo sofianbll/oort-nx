@@ -153,7 +153,7 @@ extension CloudSetupAssistant {
             try Task.checkCancellation()
             guard let found, RcloneStorageBackend.isExecutable(found) else { return }
             tool = found
-            let config = RcloneConfiguration(executable: found)
+            let config = RcloneConfiguration(executable: found, secrets: MacKeychainSecretStore())
             let listed = try await config.remotes()
             try Task.checkCancellation()
             if let name = model.keptConnection, model.preference.remote == nil,
@@ -185,7 +185,7 @@ extension CloudSetupAssistant {
                 await reads.clear()
                 selectAccount(target)
             } else {
-                let remote = try await RcloneConfiguration(executable: tool).connect(clientID: id, secret: password)
+                let remote = try await RcloneConfiguration(executable: tool, secrets: MacKeychainSecretStore()).connect(clientID: id, secret: password)
                 try Task.checkCancellation()
                 await reads.clear()
                 selectAccount(remote.name)

@@ -334,7 +334,7 @@ final class CloudLibraryModel: ObservableObject {
     @Published var driveToolProgress: Double?
     @Published var driveToolFailure: RcloneDownload.Failure?
     var driveToolTask: Task<Void, Never>?
-    let driveTool = RcloneDownload(supportRoot: AppData.supportRoot)
+    let driveTool = RcloneDownload(supportRoot: AppData.supportRoot, verifier: MacCodeSignatureVerifier())
     private(set) var driveToolOfferSeen = false
     /// A connection signed out with its Google client kept in rclone, offered first when connecting again.
     @Published var keptConnection: String? {

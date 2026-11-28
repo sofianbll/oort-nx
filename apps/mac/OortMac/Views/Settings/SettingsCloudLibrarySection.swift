@@ -491,7 +491,7 @@ struct SettingsCloudLibrarySection: View {
             try Task.checkCancellation()
             tool = found
             guard let found else { return }
-            let config = RcloneConfiguration(executable: found)
+            let config = RcloneConfiguration(executable: found, secrets: MacKeychainSecretStore())
             let detectedVersion = try await config.version()
             try Task.checkCancellation()
             version = detectedVersion
@@ -565,7 +565,7 @@ struct SettingsCloudLibrarySection: View {
 
     private func removeConnection(_ name: String, keepingClient: Bool) async throws {
         guard let tool else { throw RcloneConfiguration.Failure.tool }
-        try await RcloneConfiguration(executable: tool).disconnect(name, keepingClient: keepingClient)
+        try await RcloneConfiguration(executable: tool, secrets: MacKeychainSecretStore()).disconnect(name, keepingClient: keepingClient)
     }
 
     private func changeConnection(_ change: @escaping @MainActor () async throws -> Void) {
