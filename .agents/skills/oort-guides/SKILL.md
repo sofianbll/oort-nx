@@ -18,7 +18,7 @@ description: Write or correct an Oort NX guide or doc page so it matches the cod
 4. In the same change, update: the file-map row, the area in `architecture.md` (or the area's own page), `flows.md` if a flow changed, and `validation.md` if something awaits the maintainer's check.
 5. Use short paragraphs, lists and tables. Link to the file, not to a copy of it.
 6. Repository docs are in English. Keep a French text only when the maintainer asks for it, or for a player-facing guide that already exists in French.
-7. Check the links you added resolve to existing files.
+7. Run `scripts/check docs`; check that new links resolve to existing files.
 
 ## Proof
 
