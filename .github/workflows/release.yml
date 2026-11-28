@@ -20,6 +20,9 @@ jobs:
       DM_NEXTENDO_CLIENT_ID: ${{ vars.DM_NEXTENDO_CLIENT_ID }}
       HOMEBREW_NO_AUTO_UPDATE: '1'
       HOMEBREW_NO_INSTALL_FROM_API: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
+      HOMEBREW_CURL_PATH: /usr/bin/curl
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -40,6 +43,8 @@ jobs:
           git -C "$core" init -q
           git -C "$core" fetch --depth=1 https://github.com/Homebrew/homebrew-core.git 5b0e414f47c37ea7128291167fce6f398fea3403
           git -C "$core" checkout --detach FETCH_HEAD
+          # Fetch before replacing zstd: the runner's Homebrew curl links to it.
+          brew fetch --force-bottle --deps zstd glslang
           for formula in zstd glslang; do
             if brew list --versions "$formula" >/dev/null; then
               brew uninstall --ignore-dependencies --force "$formula"

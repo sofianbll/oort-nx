@@ -222,6 +222,10 @@ import NxnativeAdapter
         try git("commit", "-qm", "Updated", "--allow-empty")
         let update = try git("rev-parse", "HEAD")
         try git("remote", "add", "origin", ".")
+        // The probe keeps Git file-only, but exercises both explicit production remotes.
+        for remote in [SetupActions.engineRemote, AppViewModel.defaultPinnedEngineRepository] {
+            try git("config", "--add", "url.\(engineFolder.absoluteString).insteadOf", remote)
+        }
         try git("checkout", "--quiet", "--detach", pin)
 
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
