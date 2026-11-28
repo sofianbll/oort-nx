@@ -76,16 +76,10 @@ struct AppShellView: View {
         viewModel.finishOnboarding()
     }
 
-    func openOnboardingSettings(_ section: SettingsSection) {
+    func openOnboardingSettings(_ section: SettingsSection, rowID: String?) {
         if case .settings = router.route { router.showLibrary() }
         resumeOnboardingAfterSettings = true
         viewModel.showSetupCheck = false
-        let rowID: String?
-        switch section {
-        case .profileIdentity: rowID = "Name"
-        case .sources: rowID = "Steam"
-        default: rowID = nil
-        }
         router.openSettings(section, rowID: rowID)
     }
 

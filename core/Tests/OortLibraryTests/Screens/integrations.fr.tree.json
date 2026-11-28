@@ -1,0 +1,6357 @@
+{
+  "online-off" : [
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Désactiver",
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Activer",
+            "a Ouvrir"
+          ]
+        }
+      ],
+      "screen" : "integrations",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "open steam",
+              "title" : "Ouvrir"
+            },
+            "piece" : 0,
+            "x" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            }
+          },
+          {
+            "a" : {
+              "intent" : "open macApps",
+              "title" : "Ouvrir"
+            },
+            "piece" : 3
+          },
+          {
+            "a" : {
+              "intent" : "open prog",
+              "title" : "Ouvrir"
+            },
+            "piece" : 5
+          },
+          {
+            "a" : {
+              "intent" : "open drive",
+              "title" : "Ouvrir"
+            },
+            "piece" : 7
+          },
+          {
+            "a" : {
+              "intent" : "open switchGames",
+              "title" : "Ouvrir"
+            },
+            "piece" : 9
+          },
+          {
+            "a" : {
+              "intent" : "open nextendo",
+              "title" : "Ouvrir"
+            },
+            "piece" : 11
+          },
+          {
+            "a" : {
+              "intent" : "open saves",
+              "title" : "Ouvrir"
+            },
+            "piece" : 13
+          },
+          {
+            "a" : {
+              "intent" : "open images",
+              "title" : "Ouvrir"
+            },
+            "piece" : 15
+          },
+          {
+            "a" : {
+              "intent" : "open online",
+              "title" : "Ouvrir"
+            },
+            "piece" : 17,
+            "x" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            }
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Jeux installés, jouer via Steam",
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "about" : "Raccourcis vers des apps locales",
+            "piece" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Raccourcis vers des programmes",
+            "piece" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeux et copies de tes fichiers",
+            "piece" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "about" : "Compiler, jouer et conserver les sauvegardes",
+            "piece" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeu en ligne et amis",
+            "piece" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "about" : "Copies des sauvegardes",
+            "piece" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jaquettes, icônes et notes des jeux",
+            "piece" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Intégrations"
+          },
+          {
+            "role" : "heading",
+            "text" : "Sources"
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux installés, jouer via Steam"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des apps locales"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des programmes"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux et copies de tes fichiers"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Epic Games · GOG · Minecraft · CrossOver"
+          },
+          {
+            "role" : "heading",
+            "text" : "Moteurs"
+          },
+          {
+            "role" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "about",
+            "text" : "Compiler, jouer et conserver les sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Ryujinx-Nextendo"
+          },
+          {
+            "role" : "heading",
+            "text" : "Services"
+          },
+          {
+            "role" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeu en ligne et amis"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "about",
+            "text" : "Copies des sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "about",
+            "text" : "Jaquettes, icônes et notes des jeux"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Désactiver"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la source Steam"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Steam"
+          ]
+        }
+      ],
+      "screen" : "integrations.steam",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la source Steam"
+            },
+            "piece" : 2
+          },
+          {
+            "a" : {
+              "intent" : "owner steamGames",
+              "title" : "Ouvrir les jeux Steam"
+            },
+            "piece" : 4
+          }
+        ],
+        "initialFocus" : 2,
+        "pieces" : [
+          {
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Steam"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Steam"
+          },
+          {
+            "role" : "lead",
+            "text" : "Trouve les jeux Mac installés et les ouvre dans Steam."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à Steam sur cet ordinateur."
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les jeux installés par Steam, ton temps de jeu et tes succès."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta bibliothèque Oort NX et les images qu’elle garde ; jamais les fichiers de Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jouer indique à Steam sur cet ordinateur quel jeu lancer. Pendant que tu parcours, Oort envoie à Steam le numéro de chaque jeu et ta langue pour obtenir ses images, ses infos et ses succès."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Steam"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des apps Mac"
+          ]
+        }
+      ],
+      "screen" : "integrations.macApps",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des apps Mac"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute des apps Mac locales comme raccourcis dans la bibliothèque."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Ajoute une app Mac pour commencer."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Le nom, l’emplacement et l’icône de l’app que tu choisis."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Un raccourci dans ta bibliothèque ; l’app elle-même ne change pas."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les programmes"
+          ]
+        }
+      ],
+      "screen" : "integrations.prog",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner programs",
+              "title" : "Ouvrir les programmes"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les programmes"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "lead",
+            "text" : "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié aux programmes que tu as ajoutés."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Nom, emplacement et icône du programme choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le raccourci dans cette bibliothèque, pas le programme."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les programmes"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la bibliothèque cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.drive",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la bibliothèque cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "lead",
+            "text" : "Garde des copies de tes jeux compilés et des fichiers de jeu que tu choisis. Pas tes sauvegardes."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à ton Google Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers que tu choisis et tes dossiers Drive. La bibliothèque partagée est seulement lue."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Des copies sur cet ordinateur et dans ta propre bibliothèque Drive, jamais dans la bibliothèque partagée."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Tes fichiers vers ton Google Drive, et ta connexion Google. Une nouvelle connexion demande l’accès à tout ton Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages du moteur"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Switch"
+          ]
+        }
+      ],
+      "screen" : "integrations.switchGames",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages du moteur"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner switchGames",
+              "title" : "Ouvrir les jeux Switch"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "lead",
+            "text" : "Compile les jeux Switch compatibles pour Mac et ouvre ceux déjà compilés."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au moteur nxnative de cet ordinateur."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "body",
+            "text" : "Moteur à jour"
+          },
+          {
+            "role" : "body",
+            "text" : "Clés Switch sélectionnées"
+          },
+          {
+            "role" : "body",
+            "text" : "Outils Apple prêts"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers de jeu que tu choisis, tes clés Switch et les jeux déjà compilés."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Les jeux qu’il compile, ses fichiers de travail et une copie privée de tes clés. Les jeux écrivent leurs propres sauvegardes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jamais tes jeux ni tes clés. Il télécharge seulement ses mises à jour sur GitHub et les outils d’Apple chez Apple."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages Nextendo"
+          ]
+        }
+      ],
+      "screen" : "integrations.nextendo",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages Nextendo"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "lead",
+            "text" : "Joue en ligne aux jeux nxnative compatibles et retrouve tes amis Nextendo."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Nextendo est injoignable pour le moment."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Ton compte Nextendo, tes amis, leurs photos et qui est en ligne."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta connexion sur cet ordinateur, et les changements d’amis que tu demandes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : À Nextendo : ta connexion, tes demandes d’amis, le fait que tu es en ligne dans l’app et le jeu auquel tu joues en ligne. Ce que voient tes amis dépend de tes réglages."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des sauvegardes cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.saves",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des sauvegardes cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "lead",
+            "text" : "Conserve les sauvegardes compatibles dans iCloud Drive ou dans le dossier de ton choix."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au dossier de sauvegardes que tu as choisi."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les sauvegardes des jeux sur cet ordinateur et leurs copies dans le dossier que tu as choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le dossier et le choix de chaque jeu ; les jeux écrivent les copies. Un jeu peut garder son propre choix."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien directement. iCloud Drive se synchronise avec Apple ; un autre dossier, avec sa propre app."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des fournisseurs"
+          ]
+        }
+      ],
+      "screen" : "integrations.images",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des fournisseurs"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute tes clés SteamGridDB et IGDB. Les icônes et les notes viennent aussi de sites publics."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié avec ta clé SteamGridDB ou IGDB."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms ou numéros de tes jeux et ce que les sites trouvent."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Tes clés, gardées privées, tes choix d’images, et les images et notes qu’il garde."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms ou numéros de tes jeux à SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB et Switch Icon Showdown, et tes clés aux sites qui en ont besoin (SteamGridDB, IGDB via Twitch)."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Activer"
+          ]
+        }
+      ],
+      "screen" : "integrations.online",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "lead",
+            "text" : "Jaquettes et infos sur les jeux"
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Active-le pour chercher les jaquettes et les infos des jeux."
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms de tes jeux, ou leur numéro Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Jaquettes et infos, gardées sur cet ordinateur."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms de tes jeux, ou leur numéro Steam, et ta langue, au magasin Steam, à Wikipédia et à Wikidata."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    }
+  ],
+  "online-on" : [
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Désactiver",
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Désactiver",
+            "a Ouvrir"
+          ]
+        }
+      ],
+      "screen" : "integrations",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "open steam",
+              "title" : "Ouvrir"
+            },
+            "piece" : 0,
+            "x" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            }
+          },
+          {
+            "a" : {
+              "intent" : "open macApps",
+              "title" : "Ouvrir"
+            },
+            "piece" : 3
+          },
+          {
+            "a" : {
+              "intent" : "open prog",
+              "title" : "Ouvrir"
+            },
+            "piece" : 5
+          },
+          {
+            "a" : {
+              "intent" : "open drive",
+              "title" : "Ouvrir"
+            },
+            "piece" : 7
+          },
+          {
+            "a" : {
+              "intent" : "open switchGames",
+              "title" : "Ouvrir"
+            },
+            "piece" : 9
+          },
+          {
+            "a" : {
+              "intent" : "open nextendo",
+              "title" : "Ouvrir"
+            },
+            "piece" : 11
+          },
+          {
+            "a" : {
+              "intent" : "open saves",
+              "title" : "Ouvrir"
+            },
+            "piece" : 13
+          },
+          {
+            "a" : {
+              "intent" : "open images",
+              "title" : "Ouvrir"
+            },
+            "piece" : 15
+          },
+          {
+            "a" : {
+              "intent" : "open online",
+              "title" : "Ouvrir"
+            },
+            "piece" : 17,
+            "x" : {
+              "intent" : "toggle online",
+              "title" : "Désactiver"
+            }
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Jeux installés, jouer via Steam",
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "about" : "Raccourcis vers des apps locales",
+            "piece" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Raccourcis vers des programmes",
+            "piece" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeux et copies de tes fichiers",
+            "piece" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "about" : "Compiler, jouer et conserver les sauvegardes",
+            "piece" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeu en ligne et amis",
+            "piece" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "about" : "Copies des sauvegardes",
+            "piece" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jaquettes, icônes et notes des jeux",
+            "piece" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jaquettes et infos sur les jeux",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Activé",
+            "tone" : "neutral"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Intégrations"
+          },
+          {
+            "role" : "heading",
+            "text" : "Sources"
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux installés, jouer via Steam"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des apps locales"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des programmes"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux et copies de tes fichiers"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Epic Games · GOG · Minecraft · CrossOver"
+          },
+          {
+            "role" : "heading",
+            "text" : "Moteurs"
+          },
+          {
+            "role" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "about",
+            "text" : "Compiler, jouer et conserver les sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Ryujinx-Nextendo"
+          },
+          {
+            "role" : "heading",
+            "text" : "Services"
+          },
+          {
+            "role" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeu en ligne et amis"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "about",
+            "text" : "Copies des sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "about",
+            "text" : "Jaquettes, icônes et notes des jeux"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "about",
+            "text" : "Jaquettes et infos sur les jeux"
+          },
+          {
+            "role" : "status",
+            "text" : "Activé"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Désactiver"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la source Steam"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Steam"
+          ]
+        }
+      ],
+      "screen" : "integrations.steam",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la source Steam"
+            },
+            "piece" : 2
+          },
+          {
+            "a" : {
+              "intent" : "owner steamGames",
+              "title" : "Ouvrir les jeux Steam"
+            },
+            "piece" : 4
+          }
+        ],
+        "initialFocus" : 2,
+        "pieces" : [
+          {
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Steam"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Steam"
+          },
+          {
+            "role" : "lead",
+            "text" : "Trouve les jeux Mac installés et les ouvre dans Steam."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à Steam sur cet ordinateur."
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les jeux installés par Steam, ton temps de jeu et tes succès."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta bibliothèque Oort NX et les images qu’elle garde ; jamais les fichiers de Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jouer indique à Steam sur cet ordinateur quel jeu lancer. Pendant que tu parcours, Oort envoie à Steam le numéro de chaque jeu et ta langue pour obtenir ses images, ses infos et ses succès."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Steam"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des apps Mac"
+          ]
+        }
+      ],
+      "screen" : "integrations.macApps",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des apps Mac"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute des apps Mac locales comme raccourcis dans la bibliothèque."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Ajoute une app Mac pour commencer."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Le nom, l’emplacement et l’icône de l’app que tu choisis."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Un raccourci dans ta bibliothèque ; l’app elle-même ne change pas."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les programmes"
+          ]
+        }
+      ],
+      "screen" : "integrations.prog",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner programs",
+              "title" : "Ouvrir les programmes"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les programmes"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "lead",
+            "text" : "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié aux programmes que tu as ajoutés."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Nom, emplacement et icône du programme choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le raccourci dans cette bibliothèque, pas le programme."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les programmes"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la bibliothèque cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.drive",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la bibliothèque cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "lead",
+            "text" : "Garde des copies de tes jeux compilés et des fichiers de jeu que tu choisis. Pas tes sauvegardes."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à ton Google Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers que tu choisis et tes dossiers Drive. La bibliothèque partagée est seulement lue."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Des copies sur cet ordinateur et dans ta propre bibliothèque Drive, jamais dans la bibliothèque partagée."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Tes fichiers vers ton Google Drive, et ta connexion Google. Une nouvelle connexion demande l’accès à tout ton Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages du moteur"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Switch"
+          ]
+        }
+      ],
+      "screen" : "integrations.switchGames",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages du moteur"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner switchGames",
+              "title" : "Ouvrir les jeux Switch"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "lead",
+            "text" : "Compile les jeux Switch compatibles pour Mac et ouvre ceux déjà compilés."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au moteur nxnative de cet ordinateur."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "body",
+            "text" : "Moteur à jour"
+          },
+          {
+            "role" : "body",
+            "text" : "Clés Switch sélectionnées"
+          },
+          {
+            "role" : "body",
+            "text" : "Outils Apple prêts"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers de jeu que tu choisis, tes clés Switch et les jeux déjà compilés."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Les jeux qu’il compile, ses fichiers de travail et une copie privée de tes clés. Les jeux écrivent leurs propres sauvegardes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jamais tes jeux ni tes clés. Il télécharge seulement ses mises à jour sur GitHub et les outils d’Apple chez Apple."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages Nextendo"
+          ]
+        }
+      ],
+      "screen" : "integrations.nextendo",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages Nextendo"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "lead",
+            "text" : "Joue en ligne aux jeux nxnative compatibles et retrouve tes amis Nextendo."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Nextendo est injoignable pour le moment."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Ton compte Nextendo, tes amis, leurs photos et qui est en ligne."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta connexion sur cet ordinateur, et les changements d’amis que tu demandes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : À Nextendo : ta connexion, tes demandes d’amis, le fait que tu es en ligne dans l’app et le jeu auquel tu joues en ligne. Ce que voient tes amis dépend de tes réglages."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des sauvegardes cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.saves",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des sauvegardes cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "lead",
+            "text" : "Conserve les sauvegardes compatibles dans iCloud Drive ou dans le dossier de ton choix."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au dossier de sauvegardes que tu as choisi."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les sauvegardes des jeux sur cet ordinateur et leurs copies dans le dossier que tu as choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le dossier et le choix de chaque jeu ; les jeux écrivent les copies. Un jeu peut garder son propre choix."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien directement. iCloud Drive se synchronise avec Apple ; un autre dossier, avec sa propre app."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des fournisseurs"
+          ]
+        }
+      ],
+      "screen" : "integrations.images",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des fournisseurs"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute tes clés SteamGridDB et IGDB. Les icônes et les notes viennent aussi de sites publics."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié avec ta clé SteamGridDB ou IGDB."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms ou numéros de tes jeux et ce que les sites trouvent."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Tes clés, gardées privées, tes choix d’images, et les images et notes qu’il garde."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms ou numéros de tes jeux à SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB et Switch Icon Showdown, et tes clés aux sites qui en ont besoin (SteamGridDB, IGDB via Twitch)."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Désactiver"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Supprimer ce qui a été trouvé en ligne"
+          ]
+        }
+      ],
+      "screen" : "integrations.online",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle online",
+              "title" : "Désactiver"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner clearOnline",
+              "title" : "Supprimer ce qui a été trouvé en ligne"
+            },
+            "piece" : 3,
+            "question" : [
+              "Supprimer ce qui a été trouvé en ligne ?",
+              "Les jaquettes et descriptions trouvées en ligne sont supprimées de cet ordinateur. Tes images restent.",
+              "cancel Annuler",
+              "destructive Supprimer"
+            ],
+            "questionFocus" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Activé",
+            "tone" : "neutral"
+          },
+          {
+            "destructive" : true,
+            "piece" : "pill",
+            "text" : "Supprimer ce qui a été trouvé en ligne"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "lead",
+            "text" : "Jaquettes et infos sur les jeux"
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au magasin Steam, à Wikipédia et à Wikidata."
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Activé"
+          },
+          {
+            "role" : "body",
+            "text" : "2 jeux connus"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms de tes jeux, ou leur numéro Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Jaquettes et infos, gardées sur cet ordinateur."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms de tes jeux, ou leur numéro Steam, et ta langue, au magasin Steam, à Wikipédia et à Wikidata."
+          },
+          {
+            "role" : "button",
+            "text" : "Supprimer ce qui a été trouvé en ligne"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Rien d’autre à faire ici : ça fonctionne tout seul."
+          }
+        ]
+      }
+    }
+  ],
+  "steam-missing" : [
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Désactiver",
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Activer",
+            "a Ouvrir"
+          ]
+        }
+      ],
+      "screen" : "integrations",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "open steam",
+              "title" : "Ouvrir"
+            },
+            "piece" : 0,
+            "x" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            }
+          },
+          {
+            "a" : {
+              "intent" : "open macApps",
+              "title" : "Ouvrir"
+            },
+            "piece" : 3
+          },
+          {
+            "a" : {
+              "intent" : "open prog",
+              "title" : "Ouvrir"
+            },
+            "piece" : 5
+          },
+          {
+            "a" : {
+              "intent" : "open drive",
+              "title" : "Ouvrir"
+            },
+            "piece" : 7
+          },
+          {
+            "a" : {
+              "intent" : "open switchGames",
+              "title" : "Ouvrir"
+            },
+            "piece" : 9
+          },
+          {
+            "a" : {
+              "intent" : "open nextendo",
+              "title" : "Ouvrir"
+            },
+            "piece" : 11
+          },
+          {
+            "a" : {
+              "intent" : "open saves",
+              "title" : "Ouvrir"
+            },
+            "piece" : 13
+          },
+          {
+            "a" : {
+              "intent" : "open images",
+              "title" : "Ouvrir"
+            },
+            "piece" : 15
+          },
+          {
+            "a" : {
+              "intent" : "open online",
+              "title" : "Ouvrir"
+            },
+            "piece" : 17,
+            "x" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            }
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Jeux installés, jouer via Steam",
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Introuvable",
+            "tone" : "neutral"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "about" : "Raccourcis vers des apps locales",
+            "piece" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Raccourcis vers des programmes",
+            "piece" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeux et copies de tes fichiers",
+            "piece" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "about" : "Compiler, jouer et conserver les sauvegardes",
+            "piece" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeu en ligne et amis",
+            "piece" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "about" : "Copies des sauvegardes",
+            "piece" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jaquettes, icônes et notes des jeux",
+            "piece" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Intégrations"
+          },
+          {
+            "role" : "heading",
+            "text" : "Sources"
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux installés, jouer via Steam"
+          },
+          {
+            "role" : "status",
+            "text" : "Introuvable"
+          },
+          {
+            "role" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des apps locales"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des programmes"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux et copies de tes fichiers"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Epic Games · GOG · Minecraft · CrossOver"
+          },
+          {
+            "role" : "heading",
+            "text" : "Moteurs"
+          },
+          {
+            "role" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "about",
+            "text" : "Compiler, jouer et conserver les sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Ryujinx-Nextendo"
+          },
+          {
+            "role" : "heading",
+            "text" : "Services"
+          },
+          {
+            "role" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeu en ligne et amis"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "about",
+            "text" : "Copies des sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "about",
+            "text" : "Jaquettes, icônes et notes des jeux"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Désactiver"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la source Steam"
+          ]
+        }
+      ],
+      "screen" : "integrations.steam",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la source Steam"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Introuvable",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Steam"
+          },
+          {
+            "role" : "lead",
+            "text" : "Trouve les jeux Mac installés et les ouvre dans Steam."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Steam n’a pas été trouvé sur cet ordinateur."
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Introuvable"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les jeux installés par Steam, ton temps de jeu et tes succès."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta bibliothèque Oort NX et les images qu’elle garde ; jamais les fichiers de Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jouer indique à Steam sur cet ordinateur quel jeu lancer. Pendant que tu parcours, Oort envoie à Steam le numéro de chaque jeu et ta langue pour obtenir ses images, ses infos et ses succès."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des apps Mac"
+          ]
+        }
+      ],
+      "screen" : "integrations.macApps",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des apps Mac"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute des apps Mac locales comme raccourcis dans la bibliothèque."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Ajoute une app Mac pour commencer."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Le nom, l’emplacement et l’icône de l’app que tu choisis."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Un raccourci dans ta bibliothèque ; l’app elle-même ne change pas."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les programmes"
+          ]
+        }
+      ],
+      "screen" : "integrations.prog",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner programs",
+              "title" : "Ouvrir les programmes"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les programmes"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "lead",
+            "text" : "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié aux programmes que tu as ajoutés."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Nom, emplacement et icône du programme choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le raccourci dans cette bibliothèque, pas le programme."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les programmes"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la bibliothèque cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.drive",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la bibliothèque cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "lead",
+            "text" : "Garde des copies de tes jeux compilés et des fichiers de jeu que tu choisis. Pas tes sauvegardes."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à ton Google Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers que tu choisis et tes dossiers Drive. La bibliothèque partagée est seulement lue."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Des copies sur cet ordinateur et dans ta propre bibliothèque Drive, jamais dans la bibliothèque partagée."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Tes fichiers vers ton Google Drive, et ta connexion Google. Une nouvelle connexion demande l’accès à tout ton Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages du moteur"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Switch"
+          ]
+        }
+      ],
+      "screen" : "integrations.switchGames",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages du moteur"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner switchGames",
+              "title" : "Ouvrir les jeux Switch"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "lead",
+            "text" : "Compile les jeux Switch compatibles pour Mac et ouvre ceux déjà compilés."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au moteur nxnative de cet ordinateur."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "body",
+            "text" : "Moteur à jour"
+          },
+          {
+            "role" : "body",
+            "text" : "Clés Switch sélectionnées"
+          },
+          {
+            "role" : "body",
+            "text" : "Outils Apple prêts"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers de jeu que tu choisis, tes clés Switch et les jeux déjà compilés."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Les jeux qu’il compile, ses fichiers de travail et une copie privée de tes clés. Les jeux écrivent leurs propres sauvegardes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jamais tes jeux ni tes clés. Il télécharge seulement ses mises à jour sur GitHub et les outils d’Apple chez Apple."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages Nextendo"
+          ]
+        }
+      ],
+      "screen" : "integrations.nextendo",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages Nextendo"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "lead",
+            "text" : "Joue en ligne aux jeux nxnative compatibles et retrouve tes amis Nextendo."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Nextendo est injoignable pour le moment."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Ton compte Nextendo, tes amis, leurs photos et qui est en ligne."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta connexion sur cet ordinateur, et les changements d’amis que tu demandes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : À Nextendo : ta connexion, tes demandes d’amis, le fait que tu es en ligne dans l’app et le jeu auquel tu joues en ligne. Ce que voient tes amis dépend de tes réglages."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des sauvegardes cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.saves",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des sauvegardes cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "lead",
+            "text" : "Conserve les sauvegardes compatibles dans iCloud Drive ou dans le dossier de ton choix."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au dossier de sauvegardes que tu as choisi."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les sauvegardes des jeux sur cet ordinateur et leurs copies dans le dossier que tu as choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le dossier et le choix de chaque jeu ; les jeux écrivent les copies. Un jeu peut garder son propre choix."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien directement. iCloud Drive se synchronise avec Apple ; un autre dossier, avec sa propre app."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des fournisseurs"
+          ]
+        }
+      ],
+      "screen" : "integrations.images",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des fournisseurs"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute tes clés SteamGridDB et IGDB. Les icônes et les notes viennent aussi de sites publics."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié avec ta clé SteamGridDB ou IGDB."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms ou numéros de tes jeux et ce que les sites trouvent."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Tes clés, gardées privées, tes choix d’images, et les images et notes qu’il garde."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms ou numéros de tes jeux à SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB et Switch Icon Showdown, et tes clés aux sites qui en ont besoin (SteamGridDB, IGDB via Twitch)."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Activer"
+          ]
+        }
+      ],
+      "screen" : "integrations.online",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "lead",
+            "text" : "Jaquettes et infos sur les jeux"
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Active-le pour chercher les jaquettes et les infos des jeux."
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms de tes jeux, ou leur numéro Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Jaquettes et infos, gardées sur cet ordinateur."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms de tes jeux, ou leur numéro Steam, et ta langue, au magasin Steam, à Wikipédia et à Wikidata."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    }
+  ],
+  "steam-off" : [
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Activer",
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Activer",
+            "a Ouvrir"
+          ]
+        }
+      ],
+      "screen" : "integrations",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "open steam",
+              "title" : "Ouvrir"
+            },
+            "piece" : 0,
+            "x" : {
+              "intent" : "toggle steam",
+              "title" : "Activer"
+            }
+          },
+          {
+            "a" : {
+              "intent" : "open macApps",
+              "title" : "Ouvrir"
+            },
+            "piece" : 3
+          },
+          {
+            "a" : {
+              "intent" : "open prog",
+              "title" : "Ouvrir"
+            },
+            "piece" : 5
+          },
+          {
+            "a" : {
+              "intent" : "open drive",
+              "title" : "Ouvrir"
+            },
+            "piece" : 7
+          },
+          {
+            "a" : {
+              "intent" : "open switchGames",
+              "title" : "Ouvrir"
+            },
+            "piece" : 9
+          },
+          {
+            "a" : {
+              "intent" : "open nextendo",
+              "title" : "Ouvrir"
+            },
+            "piece" : 11
+          },
+          {
+            "a" : {
+              "intent" : "open saves",
+              "title" : "Ouvrir"
+            },
+            "piece" : 13
+          },
+          {
+            "a" : {
+              "intent" : "open images",
+              "title" : "Ouvrir"
+            },
+            "piece" : 15
+          },
+          {
+            "a" : {
+              "intent" : "open online",
+              "title" : "Ouvrir"
+            },
+            "piece" : 17,
+            "x" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            }
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Jeux installés, jouer via Steam",
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          },
+          {
+            "about" : "Raccourcis vers des apps locales",
+            "piece" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Raccourcis vers des programmes",
+            "piece" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeux et copies de tes fichiers",
+            "piece" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "about" : "Compiler, jouer et conserver les sauvegardes",
+            "piece" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeu en ligne et amis",
+            "piece" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "about" : "Copies des sauvegardes",
+            "piece" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jaquettes, icônes et notes des jeux",
+            "piece" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Intégrations"
+          },
+          {
+            "role" : "heading",
+            "text" : "Sources"
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux installés, jouer via Steam"
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          },
+          {
+            "role" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des apps locales"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des programmes"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux et copies de tes fichiers"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Epic Games · GOG · Minecraft · CrossOver"
+          },
+          {
+            "role" : "heading",
+            "text" : "Moteurs"
+          },
+          {
+            "role" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "about",
+            "text" : "Compiler, jouer et conserver les sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Ryujinx-Nextendo"
+          },
+          {
+            "role" : "heading",
+            "text" : "Services"
+          },
+          {
+            "role" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeu en ligne et amis"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "about",
+            "text" : "Copies des sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "about",
+            "text" : "Jaquettes, icônes et notes des jeux"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Activer"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la source Steam"
+          ]
+        }
+      ],
+      "screen" : "integrations.steam",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle steam",
+              "title" : "Activer"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la source Steam"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Steam"
+          },
+          {
+            "role" : "lead",
+            "text" : "Trouve les jeux Mac installés et les ouvre dans Steam."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Active Steam pour ajouter les jeux qu’il a installés."
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les jeux installés par Steam, ton temps de jeu et tes succès."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta bibliothèque Oort NX et les images qu’elle garde ; jamais les fichiers de Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jouer indique à Steam sur cet ordinateur quel jeu lancer. Pendant que tu parcours, Oort envoie à Steam le numéro de chaque jeu et ta langue pour obtenir ses images, ses infos et ses succès."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des apps Mac"
+          ]
+        }
+      ],
+      "screen" : "integrations.macApps",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des apps Mac"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute des apps Mac locales comme raccourcis dans la bibliothèque."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Ajoute une app Mac pour commencer."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Le nom, l’emplacement et l’icône de l’app que tu choisis."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Un raccourci dans ta bibliothèque ; l’app elle-même ne change pas."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les programmes"
+          ]
+        }
+      ],
+      "screen" : "integrations.prog",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner programs",
+              "title" : "Ouvrir les programmes"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les programmes"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "lead",
+            "text" : "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié aux programmes que tu as ajoutés."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Nom, emplacement et icône du programme choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le raccourci dans cette bibliothèque, pas le programme."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les programmes"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la bibliothèque cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.drive",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la bibliothèque cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "lead",
+            "text" : "Garde des copies de tes jeux compilés et des fichiers de jeu que tu choisis. Pas tes sauvegardes."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à ton Google Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers que tu choisis et tes dossiers Drive. La bibliothèque partagée est seulement lue."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Des copies sur cet ordinateur et dans ta propre bibliothèque Drive, jamais dans la bibliothèque partagée."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Tes fichiers vers ton Google Drive, et ta connexion Google. Une nouvelle connexion demande l’accès à tout ton Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages du moteur"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Switch"
+          ]
+        }
+      ],
+      "screen" : "integrations.switchGames",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages du moteur"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner switchGames",
+              "title" : "Ouvrir les jeux Switch"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "lead",
+            "text" : "Compile les jeux Switch compatibles pour Mac et ouvre ceux déjà compilés."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au moteur nxnative de cet ordinateur."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "body",
+            "text" : "Moteur à jour"
+          },
+          {
+            "role" : "body",
+            "text" : "Clés Switch sélectionnées"
+          },
+          {
+            "role" : "body",
+            "text" : "Outils Apple prêts"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers de jeu que tu choisis, tes clés Switch et les jeux déjà compilés."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Les jeux qu’il compile, ses fichiers de travail et une copie privée de tes clés. Les jeux écrivent leurs propres sauvegardes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jamais tes jeux ni tes clés. Il télécharge seulement ses mises à jour sur GitHub et les outils d’Apple chez Apple."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages Nextendo"
+          ]
+        }
+      ],
+      "screen" : "integrations.nextendo",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages Nextendo"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "lead",
+            "text" : "Joue en ligne aux jeux nxnative compatibles et retrouve tes amis Nextendo."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Nextendo est injoignable pour le moment."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Ton compte Nextendo, tes amis, leurs photos et qui est en ligne."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta connexion sur cet ordinateur, et les changements d’amis que tu demandes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : À Nextendo : ta connexion, tes demandes d’amis, le fait que tu es en ligne dans l’app et le jeu auquel tu joues en ligne. Ce que voient tes amis dépend de tes réglages."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des sauvegardes cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.saves",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des sauvegardes cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "lead",
+            "text" : "Conserve les sauvegardes compatibles dans iCloud Drive ou dans le dossier de ton choix."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au dossier de sauvegardes que tu as choisi."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les sauvegardes des jeux sur cet ordinateur et leurs copies dans le dossier que tu as choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le dossier et le choix de chaque jeu ; les jeux écrivent les copies. Un jeu peut garder son propre choix."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien directement. iCloud Drive se synchronise avec Apple ; un autre dossier, avec sa propre app."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des fournisseurs"
+          ]
+        }
+      ],
+      "screen" : "integrations.images",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des fournisseurs"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute tes clés SteamGridDB et IGDB. Les icônes et les notes viennent aussi de sites publics."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié avec ta clé SteamGridDB ou IGDB."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms ou numéros de tes jeux et ce que les sites trouvent."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Tes clés, gardées privées, tes choix d’images, et les images et notes qu’il garde."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms ou numéros de tes jeux à SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB et Switch Icon Showdown, et tes clés aux sites qui en ont besoin (SteamGridDB, IGDB via Twitch)."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Activer"
+          ]
+        }
+      ],
+      "screen" : "integrations.online",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "lead",
+            "text" : "Jaquettes et infos sur les jeux"
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Active-le pour chercher les jaquettes et les infos des jeux."
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms de tes jeux, ou leur numéro Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Jaquettes et infos, gardées sur cet ordinateur."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms de tes jeux, ou leur numéro Steam, et ta langue, au magasin Steam, à Wikipédia et à Wikidata."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    }
+  ],
+  "steam-on" : [
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Désactiver",
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "x Activer",
+            "a Ouvrir"
+          ]
+        }
+      ],
+      "screen" : "integrations",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "open steam",
+              "title" : "Ouvrir"
+            },
+            "piece" : 0,
+            "x" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            }
+          },
+          {
+            "a" : {
+              "intent" : "open macApps",
+              "title" : "Ouvrir"
+            },
+            "piece" : 3
+          },
+          {
+            "a" : {
+              "intent" : "open prog",
+              "title" : "Ouvrir"
+            },
+            "piece" : 5
+          },
+          {
+            "a" : {
+              "intent" : "open drive",
+              "title" : "Ouvrir"
+            },
+            "piece" : 7
+          },
+          {
+            "a" : {
+              "intent" : "open switchGames",
+              "title" : "Ouvrir"
+            },
+            "piece" : 9
+          },
+          {
+            "a" : {
+              "intent" : "open nextendo",
+              "title" : "Ouvrir"
+            },
+            "piece" : 11
+          },
+          {
+            "a" : {
+              "intent" : "open saves",
+              "title" : "Ouvrir"
+            },
+            "piece" : 13
+          },
+          {
+            "a" : {
+              "intent" : "open images",
+              "title" : "Ouvrir"
+            },
+            "piece" : 15
+          },
+          {
+            "a" : {
+              "intent" : "open online",
+              "title" : "Ouvrir"
+            },
+            "piece" : 17,
+            "x" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            }
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Jeux installés, jouer via Steam",
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "about" : "Raccourcis vers des apps locales",
+            "piece" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Raccourcis vers des programmes",
+            "piece" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeux et copies de tes fichiers",
+            "piece" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "about" : "Compiler, jouer et conserver les sauvegardes",
+            "piece" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jeu en ligne et amis",
+            "piece" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "about" : "Copies des sauvegardes",
+            "piece" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Jaquettes, icônes et notes des jeux",
+            "piece" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Intégrations"
+          },
+          {
+            "role" : "heading",
+            "text" : "Sources"
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux installés, jouer via Steam"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des apps locales"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "row",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "about",
+            "text" : "Raccourcis vers des programmes"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "row",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeux et copies de tes fichiers"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Epic Games · GOG · Minecraft · CrossOver"
+          },
+          {
+            "role" : "heading",
+            "text" : "Moteurs"
+          },
+          {
+            "role" : "row",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "about",
+            "text" : "Compiler, jouer et conserver les sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "quiet",
+            "text" : "À venir : Ryujinx-Nextendo"
+          },
+          {
+            "role" : "heading",
+            "text" : "Services"
+          },
+          {
+            "role" : "row",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "about",
+            "text" : "Jeu en ligne et amis"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "row",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "about",
+            "text" : "Copies des sauvegardes"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "row",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "about",
+            "text" : "Jaquettes, icônes et notes des jeux"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Désactiver"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la source Steam"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Steam"
+          ]
+        }
+      ],
+      "screen" : "integrations.steam",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle steam",
+              "title" : "Désactiver"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la source Steam"
+            },
+            "piece" : 2
+          },
+          {
+            "a" : {
+              "intent" : "owner steamGames",
+              "title" : "Ouvrir les jeux Steam"
+            },
+            "piece" : 4
+          }
+        ],
+        "initialFocus" : 2,
+        "pieces" : [
+          {
+            "piece" : "row",
+            "text" : "Steam"
+          },
+          {
+            "on" : true,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Steam"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Steam"
+          },
+          {
+            "role" : "lead",
+            "text" : "Trouve les jeux Mac installés et les ouvre dans Steam."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à Steam sur cet ordinateur."
+          },
+          {
+            "role" : "row",
+            "text" : "Steam"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la source Steam"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les jeux installés par Steam, ton temps de jeu et tes succès."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta bibliothèque Oort NX et les images qu’elle garde ; jamais les fichiers de Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jouer indique à Steam sur cet ordinateur quel jeu lancer. Pendant que tu parcours, Oort envoie à Steam le numéro de chaque jeu et ta langue pour obtenir ses images, ses infos et ses succès."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Steam"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des apps Mac"
+          ]
+        }
+      ],
+      "screen" : "integrations.macApps",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des apps Mac"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Aucun raccourci Mac ajouté",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Apps Mac"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute des apps Mac locales comme raccourcis dans la bibliothèque."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Ajoute une app Mac pour commencer."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des apps Mac"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Aucun raccourci Mac ajouté"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Le nom, l’emplacement et l’icône de l’app que tu choisis."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Un raccourci dans ta bibliothèque ; l’app elle-même ne change pas."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les programmes"
+          ]
+        }
+      ],
+      "screen" : "integrations.prog",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner programs",
+              "title" : "Ouvrir les programmes"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Prêt ici",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les programmes"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Programmes"
+          },
+          {
+            "role" : "lead",
+            "text" : "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié aux programmes que tu as ajoutés."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Prêt ici"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Nom, emplacement et icône du programme choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le raccourci dans cette bibliothèque, pas le programme."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien"
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les programmes"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages de la bibliothèque cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.drive",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages de la bibliothèque cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Transfert Drive en cours",
+            "tone" : "working"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Google Drive"
+          },
+          {
+            "role" : "lead",
+            "text" : "Garde des copies de tes jeux compilés et des fichiers de jeu que tu choisis. Pas tes sauvegardes."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié à ton Google Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Transfert Drive en cours"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers que tu choisis et tes dossiers Drive. La bibliothèque partagée est seulement lue."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Des copies sur cet ordinateur et dans ta propre bibliothèque Drive, jamais dans la bibliothèque partagée."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Tes fichiers vers ton Google Drive, et ta connexion Google. Une nouvelle connexion demande l’accès à tout ton Drive."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages de la bibliothèque cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages du moteur"
+          ]
+        },
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les jeux Switch"
+          ]
+        }
+      ],
+      "screen" : "integrations.switchGames",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages du moteur"
+            },
+            "piece" : 0
+          },
+          {
+            "a" : {
+              "intent" : "owner switchGames",
+              "title" : "Ouvrir les jeux Switch"
+            },
+            "piece" : 2
+          }
+        ],
+        "initialFocus" : 1,
+        "pieces" : [
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Dossier du moteur trouvé",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "nxnative"
+          },
+          {
+            "role" : "lead",
+            "text" : "Compile les jeux Switch compatibles pour Mac et ouvre ceux déjà compilés."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au moteur nxnative de cet ordinateur."
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages du moteur"
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Dossier du moteur trouvé"
+          },
+          {
+            "role" : "body",
+            "text" : "Moteur à jour"
+          },
+          {
+            "role" : "body",
+            "text" : "Clés Switch sélectionnées"
+          },
+          {
+            "role" : "body",
+            "text" : "Outils Apple prêts"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les fichiers de jeu que tu choisis, tes clés Switch et les jeux déjà compilés."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Les jeux qu’il compile, ses fichiers de travail et une copie privée de tes clés. Les jeux écrivent leurs propres sauvegardes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Jamais tes jeux ni tes clés. Il télécharge seulement ses mises à jour sur GitHub et les outils d’Apple chez Apple."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les jeux Switch"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages Nextendo"
+          ]
+        }
+      ],
+      "screen" : "integrations.nextendo",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages Nextendo"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Nextendo indisponible",
+            "tone" : "attention"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Nextendo"
+          },
+          {
+            "role" : "lead",
+            "text" : "Joue en ligne aux jeux nxnative compatibles et retrouve tes amis Nextendo."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Nextendo est injoignable pour le moment."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Nextendo indisponible"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Ton compte Nextendo, tes amis, leurs photos et qui est en ligne."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Ta connexion sur cet ordinateur, et les changements d’amis que tu demandes."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : À Nextendo : ta connexion, tes demandes d’amis, le fait que tu es en ligne dans l’app et le jeu auquel tu joues en ligne. Ce que voient tes amis dépend de tes réglages."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages Nextendo"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des sauvegardes cloud"
+          ]
+        }
+      ],
+      "screen" : "integrations.saves",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des sauvegardes cloud"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "iCloud Drive sélectionné",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Sauvegardes iCloud"
+          },
+          {
+            "role" : "lead",
+            "text" : "Conserve les sauvegardes compatibles dans iCloud Drive ou dans le dossier de ton choix."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié au dossier de sauvegardes que tu as choisi."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "iCloud Drive sélectionné"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les sauvegardes des jeux sur cet ordinateur et leurs copies dans le dossier que tu as choisi."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Le dossier et le choix de chaque jeu ; les jeux écrivent les copies. Un jeu peut garder son propre choix."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Rien directement. iCloud Drive se synchronise avec Apple ; un autre dossier, avec sa propre app."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des sauvegardes cloud"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Ouvrir les réglages des fournisseurs"
+          ]
+        }
+      ],
+      "screen" : "integrations.images",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "owner settings",
+              "title" : "Ouvrir les réglages des fournisseurs"
+            },
+            "piece" : 1
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "piece" : "dot",
+            "text" : "Deux fournisseurs configurés",
+            "tone" : "neutral"
+          },
+          {
+            "piece" : "pill",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Images et notes"
+          },
+          {
+            "role" : "lead",
+            "text" : "Ajoute tes clés SteamGridDB et IGDB. Les icônes et les notes viennent aussi de sites publics."
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Relié avec ta clé SteamGridDB ou IGDB."
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Deux fournisseurs configurés"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms ou numéros de tes jeux et ce que les sites trouvent."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Tes clés, gardées privées, tes choix d’images, et les images et notes qu’il garde."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms ou numéros de tes jeux à SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB et Switch Icon Showdown, et tes clés aux sites qui en ont besoin (SteamGridDB, IGDB via Twitch)."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "button",
+            "text" : "Ouvrir les réglages des fournisseurs"
+          }
+        ]
+      }
+    },
+    {
+      "hints" : [
+        {
+          "left" : [
+            "b Retour"
+          ],
+          "right" : [
+            "a Activer"
+          ]
+        }
+      ],
+      "screen" : "integrations.online",
+      "structure" : {
+        "back" : {
+          "intent" : "back",
+          "title" : "Retour"
+        },
+        "focus" : [
+          {
+            "a" : {
+              "intent" : "toggle online",
+              "title" : "Activer"
+            },
+            "piece" : 0
+          }
+        ],
+        "initialFocus" : 0,
+        "pieces" : [
+          {
+            "about" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "piece" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "on" : false,
+            "piece" : "switch"
+          },
+          {
+            "piece" : "dot",
+            "text" : "Désactivé",
+            "tone" : "neutral"
+          }
+        ],
+        "texts" : [
+          {
+            "role" : "screen",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "lead",
+            "text" : "Jaquettes et infos sur les jeux"
+          },
+          {
+            "role" : "card",
+            "text" : "Relier"
+          },
+          {
+            "role" : "body",
+            "text" : "Active-le pour chercher les jaquettes et les infos des jeux."
+          },
+          {
+            "role" : "row",
+            "text" : "Informations en ligne"
+          },
+          {
+            "role" : "body",
+            "text" : "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur.",
+            "whole" : true
+          },
+          {
+            "role" : "card",
+            "text" : "Vérifier"
+          },
+          {
+            "role" : "status",
+            "text" : "Désactivé"
+          },
+          {
+            "role" : "body",
+            "text" : "Lit : Les noms de tes jeux, ou leur numéro Steam."
+          },
+          {
+            "role" : "body",
+            "text" : "Écrit : Jaquettes et infos, gardées sur cet ordinateur."
+          },
+          {
+            "role" : "body",
+            "text" : "Envoie : Les noms de tes jeux, ou leur numéro Steam, et ta langue, au magasin Steam, à Wikipédia et à Wikidata."
+          },
+          {
+            "role" : "card",
+            "text" : "Continuer"
+          },
+          {
+            "role" : "body",
+            "text" : "Relie d’abord pour continuer."
+          }
+        ]
+      }
+    }
+  ]
+}

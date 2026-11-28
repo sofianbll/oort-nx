@@ -65,13 +65,12 @@ jobs:
           batches="$(python3 scripts/ci_catalog_checks.py matrix)"
           echo "batches=$batches" >> "$GITHUB_OUTPUT"
 
-  # Always runs every rule of scripts/check (`scripts/check --list`); on a pull request, debt lists may only shrink.
+  # The gate: every rule of scripts/check (`scripts/check --list`) on Linux, in seconds; on a pull request,
+  # debt lists may only shrink. Every build job waits for it. The Debug job runs the Python tests again on the Mac.
   checks:
-    name: Mac / checks
-    runs-on: xcode-27
-    timeout-minutes: 25
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    name: Rules
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -81,44 +80,45 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
         run: |
-          xcodebuild -version
+          swift --version
           if [ "$EVENT" = pull_request ]; then python3 scripts/check --base HEAD^1; else python3 scripts/check; fi
 
+  # `swift test` builds the Debug app too: app-build only checks it is up to date, then the shared probes use it.
   swift-debug:
-    name: Mac / Swift unit tests
-    needs: areas
+    name: Mac / Swift tests and shared probes
+    needs: [areas, checks]
     if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
-    timeout-minutes: 25
+    timeout-minutes: 40
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Python tests on the Mac (release.sh needs macOS)
+        run: python3 scripts/check python
       - name: Swift tests
         run: python3 scripts/check swift
-
-  swift-shared:
-    name: Mac / shared app probes
-    needs: areas
-    if: needs.areas.outputs.swift == 'true'
-    runs-on: xcode-27
-    timeout-minutes: 25
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Build the shared Debug app
+      - name: The shared Debug app
         run: python3 scripts/check app-build
       - name: Application regressions without UI
         run: python3 scripts/check app-probes debug
 
+  # Five Mac runners per account: the batches queue a few seconds after the Debug and Release jobs, so that the
+  # longest job does not wait behind them (measured: started 8 min late, run 2.7 min longer).
+  probe-order:
+    name: Standalone probes, after Debug and Release
+    needs: [areas, checks]
+    if: needs.areas.outputs.swift == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: echo "The Debug and Release jobs are queued first."
+
   swift-app:
     name: Mac / standalone app probes (${{ matrix.batch }})
-    needs: areas
+    needs: [areas, checks, probe-order]
     if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
     timeout-minutes: 25
@@ -153,7 +153,7 @@ jobs:
 
   swift-release:
     name: Mac / Release compilation
-    needs: areas
+    needs: [areas, checks]
     if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
     timeout-minutes: 25
@@ -166,25 +166,33 @@ jobs:
       - name: Release compilation
         run: python3 scripts/check release-build
 
-  swift:
-    # Keep the same required check name and require every batch to pass.
-    name: Mac / Swift tests
-    needs: [areas, swift-debug, swift-shared, swift-app, swift-release]
-    if: always() && (needs.areas.outputs.swift == 'true' || needs.areas.result != 'success')
+  # The single verdict for the branch rule: rules and all Mac and Linux core checks when Swift changes.
+  verdict:
+    name: Checks
+    needs: [areas, checks, swift-debug, swift-app, swift-release, core-linux]
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
-      RESULTS: ${{ format('{0} {1} {2} {3}', needs.swift-debug.result, needs.swift-shared.result, needs.swift-app.result, needs.swift-release.result) }}
+      GATE: ${{ format('{0} {1}', needs.areas.result, needs.checks.result) }}
+      SWIFT: ${{ needs.areas.outputs.swift }}
+      MAC: ${{ format('{0} {1} {2}', needs.swift-debug.result, needs.swift-app.result, needs.swift-release.result) }}
+      LINUX_CORE: ${{ needs.core-linux.result }}
     steps:
-      - name: Require all Mac checks
+      - name: Require the rules, Mac checks and Linux core
         run: |
-          echo "Swift tests / shared probes / standalone probes / Release compilation: $RESULTS"
-          test "$RESULTS" = 'success success success success'
+          echo "Changed areas / rules: $GATE; Swift changed: $SWIFT"
+          echo "Swift tests and shared probes / standalone probes / Release compilation: $MAC"
+          echo "Linux core: $LINUX_CORE"
+          test "$GATE" = 'success success'
+          if [ "$SWIFT" = true ]; then
+            test "$MAC" = 'success success success' && test "$LINUX_CORE" = success
+          fi
 
   # Windows and Linux: the portable core, the Tauri host and the packages. Alpha branch layout.
   windows:
     name: Windows ${{ matrix.arch }}
-    needs: areas
+    needs: [areas, checks]
     if: needs.areas.outputs.desktop == 'true'
     strategy:
       fail-fast: false
@@ -282,7 +290,7 @@ jobs:
 
   linux:
     name: Linux x64
-    needs: areas
+    needs: [areas, checks]
     if: needs.areas.outputs.desktop == 'true'
     runs-on: ubuntu-24.04
     container: swift:6.4.3-bookworm
@@ -420,7 +428,7 @@ jobs:
   # iPhone and iPad. Alpha branch layout.
   mobile:
     name: iPhone and iPad / tests and unsigned IPA
-    needs: areas
+    needs: [areas, checks]
     if: needs.areas.outputs.mobile == 'true'
     runs-on: xcode-27
     timeout-minutes: 45
@@ -493,7 +501,7 @@ jobs:
   # Android. Alpha branch layout. Checks that need no SDK run first.
   android-checks:
     name: Android / checks that need no SDK
-    needs: areas
+    needs: [areas, checks]
     if: needs.areas.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -506,7 +514,7 @@ jobs:
       - name: Tokens, resources, licences, bracket balance, no network permission
         run: |
           python3 scripts/generate_oort_android_tokens.py --check
-          python3 -m unittest discover -s Tests/AndroidChecks
+          python3 -m unittest discover -s scripts/tests/AndroidChecks
       - name: The cloud against the Mac's own numbers
         run: python3 -I android/tools/verify_cloud.py
 

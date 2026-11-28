@@ -7,6 +7,7 @@ import NxnativeAdapter
 /// No startup importer, app model, network client or real Play command is mounted in the fixture.
 struct IntegrationFixtureView: View {
     @State private var router = AppRouter()
+    @StateObject private var question = ScreenQuestion()
     @State private var sample = 0
     @State private var french = ProcessInfo.processInfo.arguments.contains("--fixture-fr")
     @State private var onboarding = false
@@ -15,28 +16,36 @@ struct IntegrationFixtureView: View {
     @State private var profileFocused = false
 
     static let steam: [CatalogSourceStatus] = [.disabled, .idle, .scanning, .ready, .partial, .cancelled, .failed]
-    static let sampleCount = IntegrationOverview.Drive.allCases.count + 1
+    static let sampleCount = IntegrationFacts.Drive.allCases.count + 1
 
-    static func example(_ index: Int) -> IntegrationOverview {
-        var data = IntegrationOverview()
+    static func example(_ index: Int) -> IntegrationFacts {
+        var data = IntegrationOverview.mac
         if index == 0 {
             data.engine = .detected
-            data.steam = .ready
+            data.engineCommit = "f1c7100f"
+            data.expectedEngineCommit = "f1c7100f"
+            data.keys = .selected
+            data.xcodeVersion = "Xcode 27"
+            data.metalVersion = "33000.1"
+            data.hasSwitchGames = true
+            data.steam.read = .ready
             data.drive = .transferring
+            data.driveCheckDate = Date(timeIntervalSince1970: 1_795_750_800)
             data.nextendo = .unavailable
             data.steamGridDB = true
             data.igdb = true
             data.saves = .iCloudDrive
         } else {
-            data.engine = IntegrationOverview.Engine.allCases[index % IntegrationOverview.Engine.allCases.count]
-            data.steam = steam[index % steam.count]
-            data.steamGameCount = 3
-            data.drive = IntegrationOverview.Drive.allCases[index % IntegrationOverview.Drive.allCases.count]
-            data.nextendo = IntegrationOverview.Account.allCases[index % IntegrationOverview.Account.allCases.count]
+            data.engine = IntegrationFacts.Engine.allCases[index % IntegrationFacts.Engine.allCases.count]
+            data.steam.read = steam[index % steam.count]
+            data.steam.games = 3
+            data.drive = IntegrationFacts.Drive.allCases[index % IntegrationFacts.Drive.allCases.count]
+            data.nextendo = IntegrationFacts.Account.allCases[index % IntegrationFacts.Account.allCases.count]
             data.steamGridDB = index & 1 != 0
             data.igdb = index & 2 != 0
-            if index.isMultiple(of: 3) { data.saves = .folder("/fixture/saves") }
+            if index.isMultiple(of: 3) { data.saves = .folder }
         }
+        data.steam.enabled = data.steam.read != .disabled
         return data
     }
 
@@ -47,11 +56,12 @@ struct IntegrationFixtureView: View {
         ZStack(alignment: .topTrailing) {
             Group {
                 if onboarding {
-                    FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
-                        steamOn: steamOn, focus: setupFocus, move: { setupFocus = $0 }, activate: setup)
+                    let findings = FirstRunFindings(steamGameCount: 2, portedAppCount: 0)
+                    FoundGamesSetupContent(findings: findings, steam: SteamSourceEntries.found(findings, inForce: steamOn, waiting: nil),
+                        focus: setupFocus, move: { setupFocus = $0 }, activate: setup)
                 } else {
                     switch router.route {
-                    case .integrations: IntegrationsView(overview: data, router: router)
+                    case .integrations: IntegrationsPage(facts: data, router: router, question: question)
                     case .settings(let section):
                         VStack(spacing: SeleneTokens.Space.small) {
                             Text(L10n.text(section.title, context: locale)).seleneFont(.heading)
@@ -114,13 +124,13 @@ struct IntegrationFixtureView: View {
         }
         let data = Self.example(sample)
         switch router.route {
-        case .integrations: IntegrationsView(overview: data, router: router).handle(action)
+        case .integrations: IntegrationsPage(facts: data, router: router, question: question).handle(action)
         case .settings: if action == .cancel { router.back() }
         default: _ = router.handleIntegrationBar(action, profileFocused: &profileFocused, hasProfile: false)
         }
     }
 
-    static func home(_ data: IntegrationOverview, router: AppRouter) -> some View {
+    static func home(_ data: IntegrationFacts, router: AppRouter) -> some View {
         IntegrationFixtureHome(data: data, router: router)
     }
 
@@ -172,7 +182,7 @@ struct IntegrationFixtureView: View {
                     GameControllerService.shared.isGamepadConnected = true
                     for page in FirstRunSetup.Page.tour {
                         try render(OnboardingView(viewModel: model, settings: settings, profiles: profiles, sources: sources,
-                                                  finish: {}, openSettings: { _ in }), as: page.rawValue)
+                                                  finish: {}, openSettings: { _, _ in }), as: page.rawValue)
                         model.moveOnboarding(1)
                     }
                     try render(OnboardingNewsView(onExit: { _ in }), as: "news")
@@ -221,19 +231,21 @@ struct IntegrationFixtureView: View {
                 router.showLibrary()
                 try render(home(data, router: router), as: "home")
                 router.openIntegrations()
-                let page = IntegrationsView(overview: data, router: router)
+                let page = IntegrationsPage(facts: data, router: router, question: ScreenQuestion())
                 try render(page, as: "page")
                 try render(page, as: "all-rows", height: max(size.height, canvas.u(2500)))
                 router.integrationFocus = .saves
                 try render(page, as: "page-bottom")
-                for integration in IntegrationID.allCases {
+                for integration in data.rows.map(\.id) {
                     router.showIntegrationDetail(integration)
                     try render(page, as: "detail-\(integration)")
                     router.backFromIntegration()
                 }
                 for enabled in [false, true] {
-                    try render(FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
-                        steamOn: enabled, focus: .openLibrary, move: { _ in }, activate: { _ in }),
+                    let findings = FirstRunFindings(steamGameCount: 2, portedAppCount: 0)
+                    try render(FoundGamesSetupContent(findings: findings,
+                        steam: SteamSourceEntries.found(findings, inForce: enabled, waiting: nil),
+                        focus: .openLibrary, move: { _ in }, activate: { _ in }),
                         as: enabled ? "steam-on" : "steam-off")
                 }
             }
@@ -357,9 +369,9 @@ struct IntegrationFixtureView: View {
 private struct IntegrationFixtureHome: View {
     @Environment(\.seleneCanvas) private var canvas
     var router: AppRouter
-    let data: IntegrationOverview
+    let data: IntegrationFacts
 
-    init(data: IntegrationOverview, router: AppRouter) { self.data = data; self.router = router }
+    init(data: IntegrationFacts, router: AppRouter) { self.data = data; self.router = router }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

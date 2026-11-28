@@ -1,10 +1,22 @@
 import Foundation
+import OortCore
 import Synchronization
 
 public enum L10n {
     private static let selected = Mutex(AppLocale(language: .english, region: "US"))
     public static var context: AppLocale { selected.withLock { $0 } }
     public static func setContext(_ context: AppLocale) { selected.withLock { $0 = context } }
+
+    /// Resolves catalogue words, verbatim arguments, counts and dates in the reader's locale.
+    public static func say(_ text: Screen.Text, context: AppLocale? = nil) -> String {
+        let context = context ?? Self.context
+        var arguments: [CVarArg] = text.words.map { say($0, context: context) } + text.args
+        if let date = text.date {
+            arguments.append(date.formatted(.dateTime.year().month().day().hour().minute().locale(context.formatLocale)))
+        }
+        if let count = text.count { return Self.count(text.key, count, arguments: arguments, context: context) }
+        return arguments.isEmpty ? Self.text(text.key, context: context) : format(text.key, arguments, context: context)
+    }
 
     /// Installed apps find their resources before considering SwiftPM's development location.
     public static func resources(in app: URL? = nil) -> Bundle? {

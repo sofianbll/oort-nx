@@ -15,8 +15,7 @@ let nxnativeTests = (name: "NxnativeAdapterTests", path: "engines/nxnative/Tests
 let macTests = (name: "OortMacTests", path: "apps/mac/Tests/OortMacTests")
 // END GENERATED NAMES
 
-// The core (its two modules and their tests) builds on every system; the Mac's targets are declared on a Mac
-// only, so that Linux and Windows build and test the core with this same manifest (R3).
+// Linux builds and tests the core from this manifest (R3). The Mac's targets are declared on a Mac only.
 let coreTargets: [Target] = [
     .target(name: cSystem.name, path: cSystem.path),
     .target(name: core.name, path: core.path, swiftSettings: [.swiftLanguageMode(.v6)]),
@@ -29,7 +28,9 @@ let coreTargets: [Target] = [
             exclude: ["Resources/Localizable.xcstrings"],
             resources: [.copy("Resources/Localizable.xcstrings"), .process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]),
-    .testTarget(name: libraryTests.name, dependencies: [.byName(name: library.name)], path: libraryTests.path),
+    // The reviewed screens and reference tree are read by IntegrationScreenTests from their source paths.
+    .testTarget(name: libraryTests.name, dependencies: [.byName(name: library.name)], path: libraryTests.path,
+                exclude: ["Screens"]),
     .testTarget(name: coreTests.name, dependencies: [.byName(name: core.name)], path: coreTests.path),
 ]
 

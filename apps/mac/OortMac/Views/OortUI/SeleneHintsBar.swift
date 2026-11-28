@@ -30,6 +30,7 @@ struct SeleneHintsBar: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneShowButtonHints) private var showHints
     @Environment(\.seleneHintsCovered) private var covered
+    @Environment(\.screenTrace) private var trace
     @ObservedObject private var controller = GameControllerService.shared
 
     var left: [HintItem] = []
@@ -51,6 +52,14 @@ struct SeleneHintsBar: View {
     }
 
     var body: some View {
+        bar.screenTrace(trace, showHints ? visibleLeft(inHand: pad).map { traced($0, left: true) } + right.map { traced($0, left: false) } : [])
+    }
+
+    private func traced(_ item: HintItem, left: Bool) -> ScreenTracePiece {
+        .init(kind: .hint, text: L10n.text(item.label, context: localization), key: item.button?.rawValue, left: left)
+    }
+
+    @ViewBuilder private var bar: some View {
         if !showHints, let back = Self.mouseBack(left: left, right: right, pointer: controller.pointerInHand),
            clickAction(back) != nil {
             item(back)

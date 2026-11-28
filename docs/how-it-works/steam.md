@@ -77,7 +77,7 @@ successivo. Sette prove sui lettori reali fissano questi esiti.
 
 ## Rilevamento e catalogo
 
-Nel primo avvio, trovare Steam (anche con zero giochi) non accende l'interruttore. Senza una scelta salvata, l'interruttore mostra l'attivazione già configurata; aprire la libreria senza toccarlo non cambia la fonte.
+Nel primo avvio, trovare Steam (anche con zero giochi) non accende l'interruttore. Senza una scelta salvata, l'interruttore mostra l'attivazione già configurata; aprire la libreria senza toccarlo non cambia la fonte. Queste righe, quelle di Settings → Sources e lo stato nella panoramica Integrations sono decise in `SteamSourceEntries`.
 
 1. `CatalogSourcesModel` avvia una scansione: all’avvio se Steam è abilitato, su Refresh, quando si attiva la fonte o
    si cambia cartella, e quando cambiano i file di Steam (vedi sotto). Una scansione alla volta, su un worker

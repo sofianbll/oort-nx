@@ -65,6 +65,8 @@ Su Linux, `core/CSystem/` espone solo le chiamate non disponibili nel modulo lib
 
 La lettura HTTP a blocchi mantiene il limite in memoria e rifiuta i redirect. Su Linux il delegato appartiene a una sessione dedicata; su Mac rimane assegnato al singolo task. Il selettore normalizza gli alias di sistema `/tmp`, `/var` e `/etc` solo su Mac.
 
+Test, sonde e modalità fixture usano un Cestino privato anche dentro un bundle `.app`. `OORT_TRASH` è accettato solo se il percorso risolto indica una directory esistente sotto la directory temporanea del sistema. Il controllo delle suite si ferma se non può osservare il Cestino reale.
+
 ```mermaid
 flowchart TD
     Entry["NXLibraryApp → MainView"] --> Shell["AppShellView"]

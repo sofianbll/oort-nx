@@ -56,7 +56,7 @@ When unsure, put the code in the lowest layer that does not need a higher one. M
 ## Other systems
 
 - **Windows and Linux (`desktop/`).** The page is generated: change its source, then run `python3 desktop/scripts/generate.py`, and check with `--check`.
-- **Android (`android/`).** Put core code under `core/` and screens under `ui/`. Its numbers for the cloud, sounds and pad must match the Mac's own output. `Tests/AndroidChecks` and `android/tools/verify_cloud.py` hold that check.
+- **Android (`android/`).** Put core code under `core/` and screens under `ui/`. Its numbers for the cloud, sounds and pad must match the Mac's own output. `scripts/tests/AndroidChecks` (once the alpha branch joins main) and `android/tools/verify_cloud.py` hold that check.
 - **iPhone and iPad (`mobile/`).** The app target and the capture target are separate.
 
 The portable rules are the reason for `OortCore`. Before a shared rule is added there, check that every system needs it, and that the fixture in its tests is synthetic.

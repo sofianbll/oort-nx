@@ -6,7 +6,8 @@ extension EnvironmentValues {
     @Entry var integrationBar: AnyView? = nil
 }
 
-/// Observe the owners directly; the same throwaway projection feeds the home bar and the page.
+/// Observe the owners directly and say what they observe as the core's facts; the same facts feed the home bar and
+/// the page.
 struct IntegrationSurface: View {
     var router: AppRouter
     var sources: CatalogSourcesModel
@@ -17,6 +18,7 @@ struct IntegrationSurface: View {
     @ObservedObject var igdb: IGDBSettings
     let nextendo: NextendoSettings?
     let isBar: Bool
+    @StateObject private var question = ScreenQuestion()
 
     var body: some View {
         if let nextendo {
@@ -26,26 +28,48 @@ struct IntegrationSurface: View {
         }
     }
 
-    private func surface(_ account: IntegrationOverview.Account) -> some View {
-        let data = overview(account)
+    private func surface(_ account: IntegrationFacts.Account) -> some View {
+        let data = facts(account)
         return Group {
             if isBar {
                 IntegrationBar(rows: data.rows, focused: router.integrationBarFocused, open: router.openIntegrations)
             } else {
-                IntegrationsView(overview: data, router: router)
+                IntegrationsPage(facts: data, router: router, question: question, toggle: toggle)
             }
         }
     }
 
-    private func overview(_ account: IntegrationOverview.Account) -> IntegrationOverview {
-        var data = IntegrationOverview()
+    /// Steam's switch, from the list: the same choice Settings › Sources saves, written as one committed field and
+    /// applied by the shell as a saved choice is. Refused, with nothing written, when the catalogue changed since it was
+    /// shown, when the write fails, or while a settings draft waits.
+    private func toggle(_ id: IntegrationID) -> Bool {
+        guard id == .steam, !router.hasPendingSettings() else { return false }
+        let current = sources.configuration
+        guard (try? app.catalogRepository.load().source(.steam)?.generation) == current.generation else { return false }
+        var change = AppSettingsDraft(settings.settings, fields: [
+            .init(SteamSourceEntries.sourceID, \.launcherChoices.steamSource) { _ in "" }
+        ])
+        change.values.launcherChoices.steamSource = SteamSourceEntries.flipped(current, root: sources.discoveryRoot)
+        return (try? settings.commit(change)) != nil
+    }
+
+    private func facts(_ account: IntegrationFacts.Account) -> IntegrationFacts {
+        var data = IntegrationOverview.mac
         if setup.isCheckingEnvironment { data.engine = .checking }
         else if setup.isNxnativeValid {
             data.engine = (setup.compatibilityReport != nil && !setup.canPassToolchainGate)
                 || setup.environmentStatus?.canBuild == false ? .blocked : .detected
         }
-        data.steam = sources.status
-        data.steamGameCount = sources.observedGameCount
+        data.engineCommit = setup.versions.selected.value
+        data.expectedEngineCommit = setup.versions.expected
+        data.keys = IntegrationOverview.keys(setup.localKeyStatus)
+        data.xcodeVersion = setup.environmentStatus?.xcodeVersion
+        data.metalVersion = setup.environmentStatus?.metalVersion
+        data.buildBlock = IntegrationOverview.buildBlock(setup.compatibilityReport, canPass: setup.canPassToolchainGate,
+                                                         canBuild: setup.environmentStatus?.canBuild)
+        data.appleToolsTested = setup.compatibilityReport.map { $0.metal == .same }
+        data.hasSwitchGames = app.visibleCatalogGames.contains { $0.integration == .nxnative && !$0.isHidden }
+        data.steam = IntegrationOverview.steam(sources)
         data.hasMacShortcuts = app.catalogGames.contains { $0.macShortcut != nil }
         if cloud.preference.remote == nil { data.drive = .notConfigured }
         else if !cloud.preference.enabled { data.drive = .off }
@@ -55,21 +79,22 @@ struct IntegrationSurface: View {
         else if cloud.connectionCheck?.failure != nil || cloud.checkFailure != nil { data.drive = .failed }
         else if cloud.connectionCheck != nil { data.drive = .checked }
         else { data.drive = .unchecked }
+        data.driveCheckDate = cloud.connectionCheck?.date
         data.nextendo = account
         data.steamGridDB = app.hasSteamGridDBKey
         data.igdb = igdb.isConfigured
-        data.saves = settings.settings.cloudSaves
+        data.saves = IntegrationOverview.saves(settings.settings.cloudSaves)
         return data
     }
 }
 
 private struct IntegrationAccountSurface<Content: View>: View {
     @ObservedObject var account: NextendoSettings
-    let show: (IntegrationOverview.Account) -> Content
+    let show: (IntegrationFacts.Account) -> Content
 
     var body: some View { show(status) }
 
-    private var status: IntegrationOverview.Account {
+    private var status: IntegrationFacts.Account {
         if account.isBusy { return .checking }
         return switch account.status {
         case .signedOut: account.failure == nil ? .unchecked : .unavailable
@@ -102,7 +127,7 @@ struct IntegrationBar: View {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                     Text(L10n.text("Integrations", context: locale)).seleneFont(.row, .semibold)
                     if let summary {
-                        Text(L10n.text(summary.status, context: locale))
+                        Text(L10n.text(summary.barStatus, context: locale))
                             .seleneFont(.text)
                             .foregroundStyle(focused ? SeleneTheme.onFocus : SeleneTheme.ink82)
                     }
@@ -119,7 +144,7 @@ struct IntegrationBar: View {
         .buttonStyle(OortPressStyle())
         .accessibilityLabel(L10n.text("Integrations", context: locale))
         .accessibilityValue(summary.map {
-            "\(L10n.text($0.name, context: locale)): \(L10n.text($0.status, context: locale))"
+            "\(L10n.text($0.barName, context: locale)): \(L10n.text($0.barStatus, context: locale))"
         } ?? "")
         .accessibilityAddTraits(focused ? .isSelected : [])
         .accessibilityFocused($accessibilityFocus)
@@ -129,94 +154,76 @@ struct IntegrationBar: View {
     }
 }
 
-struct IntegrationsView: View {
-    @Environment(\.nxAppLocale) private var locale
-    @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: IntegrationID?
-    let overview: IntegrationOverview
+/// Settings › Integrations on the Mac: the core's screens (IntegrationScreen) drawn by ScreenView, their focus kept by
+/// the router, their intents done by the Mac's effects table.
+struct IntegrationsPage: View {
+    let facts: IntegrationFacts
     var router: AppRouter
+    @ObservedObject var question: ScreenQuestion
     var showsHints = true
+    /// Asks the owner for the other state of an entry's switch; false when the owner refuses (a settings draft waits).
+    var toggle: (IntegrationID) -> Bool = { _ in false }
 
-    private func text(_ key: String) -> String { L10n.text(key, context: locale) }
+    var screen: Screen {
+        router.integrationDetail.flatMap { IntegrationScreen.detail($0, facts) } ?? IntegrationScreen.list(facts)
+    }
+
+    /// The list keeps its focused entry, the detail its focused node: both in the router, so B comes back to them.
+    private var focus: Binding<String?> {
+        router.integrationDetail == nil
+            ? Binding(get: { router.integrationFocus?.rawValue }, set: { router.integrationFocus = $0.flatMap(IntegrationID.init(rawValue:)) })
+            : Binding(get: { router.integrationAction }, set: { router.integrationAction = $0 })
+    }
+
+    private var view: ScreenView {
+        ScreenView(screen: screen, focus: focus, question: question,
+                   restoreScroll: router.integrationDetail == nil && router.isReturningFromBack, showsHints: showsHints,
+                   platform: Self.platform, perform: perform)
+    }
 
     var body: some View {
-        Group {
-            if let id = router.integrationDetail {
-                detail(overview.row(id))
-            } else {
-                let rows = overview.rows
-                OortPage(title: text("Integrations"), scrollFocus: router.integrationFocus,
-                         initialFocus: rows.first?.id, restoreScroll: router.isReturningFromBack,
-                         back: backHint, confirm: confirmHint("Open")) {
-                    OortSection(title: text("Games")) {
-                        ForEach(rows.filter { $0.id.isGameSource }) { summary($0) }
-                        OortReadout(text: text("Coming later") + ": " + PlatformKind.upcoming.map {
-                            text($0.rawValue)
-                        }.joined(separator: " · "), preset: .quiet)
-                    }
-                    OortSection(title: text("Integration services")) {
-                        ForEach(rows.filter { !$0.id.isGameSource }) { summary($0) }
-                    }
-                }
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .nxIntegrationsAction)) { note in
+        view.onReceive(NotificationCenter.default.publisher(for: .nxIntegrationsAction)) { note in
             guard router.route == .integrations, let action = note.object as? GamepadAction else { return }
             handle(action)
         }
-        .onChange(of: router.integrationDetail, initial: true) { _, detail in
-            accessibilityFocus = detail ?? router.integrationFocus
-        }
     }
 
-    private var backHint: HintItem? {
-        showsHints ? HintItem(.b, text("Back"), action: router.backFromIntegration) : nil
-    }
+    func handle(_ action: GamepadAction) { view.handle(action) }
 
-    private func confirmHint(_ title: String) -> HintItem? {
-        showsHints ? HintItem(.a, text(title)) { handle(.confirm) } : nil
-    }
-
-    private func summary(_ row: IntegrationRow) -> some View {
-        OortRow(title: text(row.name), platform: platform(row.id), status: text(row.status),
-                focused: router.integrationFocus == row.id, tone: tone(row),
-                preset: .navigation(label: text("Details")) { router.showIntegrationDetail(row.id) })
-            .id(row.id)
-            .accessibilityFocused($accessibilityFocus, equals: row.id)
-    }
-
-    private func detail(_ row: IntegrationRow) -> some View {
-        OortPage<IntegrationID, _>(title: text(row.name), back: backHint, confirm: confirmHint("Open")) {
-            OortCard {
-                OortStatus(text: text(row.status), tone: tone(row))
-                OortReadout(text: text(row.purpose))
-                ForEach([("Reads: %@", row.reads), ("Writes: %@", row.writes), ("Sends: %@", row.sends)], id: \.0) { key, value in
-                    OortReadout(text: L10n.format(key, [text(value)], context: locale))
-                }
+    /// The Mac's effect of each intent, complete for IntegrationTarget: the targets the Mac does not offer are refused.
+    func perform(_ intent: Screen.Intent) -> ScreenOutcome {
+        switch intent {
+        case .open(let id):
+            guard let id = IntegrationID(rawValue: id), facts.row(id) != nil else { return .refused(nil) }
+            router.showIntegrationDetail(id)
+            if router.integrationDetail != id { return .refused(nil) }
+        case .back:
+            router.backFromIntegration()
+        case .toggle(let id):
+            guard let id = IntegrationID(rawValue: id), facts.row(id)?.switchOn != nil, toggle(id) else { return .refused(nil) }
+        case .owner(let target):
+            guard let target = IntegrationTarget(rawValue: target), let id = router.integrationDetail else { return .refused(nil) }
+            switch target {
+            case .settings: if !IntegrationOverview.open(id, facts, in: router) { return .refused(nil) }
+            case .switchGames: router.browseIntegrationLibrary(.nxnative)
+            case .steamGames: router.browseIntegrationLibrary(.steam)
+            case .programs, .clearOnline: return .refused(nil)
             }
-            OortButton(title: row.action, focused: true, preset: .compact) {
-                overview.open(row.id, in: router)
-            }
-            .accessibilityFocused($accessibilityFocus, equals: row.id)
         }
+        return .done
     }
 
-    private func platform(_ id: IntegrationID) -> PlatformKind {
-        switch id {
-        case .switchGames: .switch1
-        case .steam: .steam
-        case .macApps: .mac
-        case .drive: .drive
-        case .nextendo: .nextendo
-        case .images: .images
-        case .saves: .saves
-        }
-    }
-
-    private func tone(_ row: IntegrationRow) -> OortStatus.Tone {
-        switch row.emphasis {
-        case .attention: .attention
-        case .working: .working
-        case .neutral: .neutral
+    /// The Mac's picture of each entry, by its identity: the Mac keeps its PlatformKind table.
+    static func platform(_ icon: String) -> PlatformKind? {
+        switch IntegrationID(rawValue: icon) {
+        case .switchGames?: .switch1
+        case .steam?: .steam
+        case .macApps?: .mac
+        case .drive?: .drive
+        case .nextendo?: .nextendo
+        case .images?: .images
+        case .saves?: .saves
+        case .programs?, .online?, nil: nil
         }
     }
 }
