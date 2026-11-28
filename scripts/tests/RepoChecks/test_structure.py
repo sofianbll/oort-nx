@@ -57,3 +57,30 @@ class StructureTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RetiredPathTests(unittest.TestCase):
+    """The CI may not name a path under a root folder the layout retired, even in a job that sleeps."""
+
+    def fixture(self, workflow):
+        fixture = Fixture(self)
+        fixture.track("architecture/names.json",
+                      '{"former": [{"modules": {"app": {"path": "Old/App", "tests": {"path": "OldTests/AppTests"}}}}]}\n')
+        fixture.track(".github/workflows/ci.yml", workflow)
+        return check_structure.check(fixture.root)
+
+    def test_a_retired_root_in_a_workflow_fails(self):
+        issues = self.fixture("      - run: python3 -m unittest discover -s OldTests/AndroidChecks\n")
+        self.assertIn(".github/workflows/ci.yml:1: OldTests/AndroidChecks is under a folder the layout retired"
+                      " (architecture/names.json, former)", issues)
+
+    def test_a_folder_of_the_same_name_deeper_down_passes(self):
+        issues = self.fixture("      - run: cd apps/OldTests/ocr && python3 -m unittest discover -s scripts/tests/Old\n")
+        self.assertEqual([issue for issue in issues if "retired" in issue], [])
+
+    def test_a_former_root_that_still_exists_passes(self):
+        # The fixture still declares Sources/: a former path there is not retired.
+        fixture = Fixture(self)
+        fixture.track("architecture/names.json", '{"former": [{"modules": {"core": {"path": "Sources/Core"}}}]}\n')
+        fixture.track(".github/workflows/ci.yml", "      - run: ls Sources/Core\n")
+        self.assertEqual([issue for issue in check_structure.check(fixture.root) if "retired" in issue], [])

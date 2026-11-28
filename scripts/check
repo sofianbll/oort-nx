@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Run the repository's checks. The Mac jobs of CI call this file and nothing else; the docs cite it.
+"""Run the repository's checks. The Rules and Mac jobs of CI call this file and nothing else; the docs cite it.
 The dormant Windows/Linux, iPhone and Android jobs keep their own commands until their apps join main.
 
-  scripts/check                 every rule (what the "Mac / checks" job runs)
+  scripts/check                 every rule (what the "Rules" job runs, on Linux)
   scripts/check --base REF      the same; debt lists may only shrink against REF (pull requests)
   scripts/check NAME [ARG]      one rule, or one heavy step below
   scripts/check --list          each rule with its commands and the tests that prove it can fail

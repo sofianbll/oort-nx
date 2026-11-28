@@ -16,8 +16,8 @@ Name branches after the work, not after the tool that made them.
 ## `main`
 
 - A pull request is required to change `main`. Direct pushes are refused, including by the maintainer.
-- Required status checks: **`Mac / checks`** and **`Mac / Swift tests`**. These are the names in `.github/workflows/ci.yml`. The old name `Mac / tests` no longer exists: update the required check before merging the workflow change.
-- A job skipped by its path filter counts as passing for a required check in GitHub. Confirm this on a test pull request before requiring a job that is sometimes skipped. The two Mac checks run on every pull request that touches code.
+- Required status check: **`Checks`**, the single verdict of `.github/workflows/ci.yml` (the rules, and every Mac job when Swift changed). The old names `Mac / tests`, `Mac / checks` and `Mac / Swift tests` no longer exist.
+- A job skipped by its path filter counts as passing for a required check in GitHub. `Checks` always runs (`if: always()`), so it is never skipped.
 - Review: the code owners in `.github/CODEOWNERS` are the maintainer. The maintainer cannot approve their own pull request, so the approval count stays at **0** while the maintainer is the only reviewer. Raise it to 1 when a second reviewer exists.
 - Conversations must be resolved before merging.
 - Force-push and deletion are blocked.
@@ -36,7 +36,7 @@ Name branches after the work, not after the tool that made them.
 
 ## Decisions to take before applying
 
-1. Accept the rename of the required check (`Mac / tests` to `Mac / checks` and `Mac / Swift tests`).
+1. Accept the single required check `Checks`.
 2. Confirm that a skipped job satisfies the required check, on a test pull request.
 3. Choose the approval count: 0 while the maintainer is alone.
 4. Decide whether administrators are bound by the rules. The recommendation is yes, so that no rule can be bypassed silently.

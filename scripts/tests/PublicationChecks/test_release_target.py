@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -12,6 +13,8 @@ OTHER = "fixture/oort-nx"
 ENGINE = "https://github.com/fixture/nxnative"
 
 
+# release.sh is a Mac script (PlistBuddy, codesign). CI runs these on the Mac too: `scripts/check python` in the Debug job.
+@unittest.skipUnless(sys.platform == "darwin", "release.sh needs macOS")
 class ReleaseTarget(unittest.TestCase):
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
