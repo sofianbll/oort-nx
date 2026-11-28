@@ -178,6 +178,7 @@ with tempfile.TemporaryDirectory(prefix='achievement-scroll-check-') as folder:
                     str(ROOT / 'apps/mac/OortMac/ViewModels/AchievementsScreenModel.swift'),
                     str(ROOT / 'apps/mac/OortMac/ViewModels/ListScroll.swift'),
                     str(ROOT / 'apps/mac/OortMac/Views/Components/GlideGroup.swift'),
+                    str(ROOT / 'apps/mac/OortMac/Views/Theme/Motion.swift'),
                     *map(str, names.objects(BIN)),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable)], check=True,

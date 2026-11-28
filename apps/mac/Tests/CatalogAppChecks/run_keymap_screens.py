@@ -234,7 +234,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
     binary = scratch / "check"
     paths = [
         "Theme/AppLocaleEnvironment.swift", "Theme/SeleneCanvasEnvironment.swift",
-        "Theme/SeleneFonts.swift", "Theme/SeleneTheme.swift",
+        "Theme/SeleneFonts.swift", "Theme/SeleneTheme.swift", "Theme/Motion.swift",
         "Components/SeleneBottomScrim.swift", "Components/SeleneHomeChrome.swift",
         "OortUI/SeleneHintsBar.swift", "OortUI/SelenePromptBadge.swift", "OortUI/OortSecondaryClick.swift",
     ]

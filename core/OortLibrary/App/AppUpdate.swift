@@ -179,7 +179,8 @@ public enum AppUpdate {
         return parsed(version) == nil ? nil : version
     }
 
-    package static func numbers(_ version: String) -> [Int]? {
+    /// "1.2.3" → [1, 2, 3]; nil unless one to four non-negative numbers.
+    public static func numbers(_ version: String) -> [Int]? {
         let parts = version.split(separator: ".", omittingEmptySubsequences: false)
         guard (1...4).contains(parts.count) else { return nil }
         let values = parts.map { part in part.allSatisfy(\.isASCII) ? Int(part) : nil }

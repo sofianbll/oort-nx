@@ -11,20 +11,21 @@ public enum BuildInstallError: Error, LocalizedError {
     }
 }
 
-/// Filesystem boundary for failure and cross-volume tests.
-package struct BuildInstallIO {
-    package init() {}
-    package var sameVolume: (URL, URL) throws -> Bool = { source, parent in
+/// Filesystem boundary for failure and cross-volume tests. Public: the engine adapter and the Mac app's update both
+/// install through it.
+public struct BuildInstallIO {
+    public init() {}
+    public var sameVolume: (URL, URL) throws -> Bool = { source, parent in
         var sourceInfo = stat(), parentInfo = stat()
         guard stat(source.path, &sourceInfo) == 0, stat(parent.path, &parentInfo) == 0 else {
             throw BuildInstallError.replaceFailed("Could not inspect the destination volume.")
         }
         return sourceInfo.st_dev == parentInfo.st_dev
     }
-    package var publish: (URL, URL, Bool) throws -> Void = { source, destination, replacing in
+    public var publish: (URL, URL, Bool) throws -> Void = { source, destination, replacing in
         guard OortSystem.rename(source.path, destination.path, replacing ? .swap : .noReplace) == 0 else {
             throw BuildInstallError.replaceFailed(String(cString: strerror(errno)))
         }
     }
-    package var afterPublish: () throws -> Void = {}
+    public var afterPublish: () throws -> Void = {}
 }
