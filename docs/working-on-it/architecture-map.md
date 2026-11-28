@@ -37,7 +37,7 @@ The [LikeC4 MCP server](https://likec4.dev/tooling/ai-tools/#mcp-server) queries
 
 1. **OortCore imports Foundation only.** A new Apple framework in this module fails the check.
 2. **Layer order.** A module imports only the modules below it. For example, `OortLibrary` may not import `OortMac`.
-3. **The core compiles on every system (R3).** `scripts/check_oort_core.py` parses every file of `core/` and its tests, `#if` branches included: only portable modules (Foundation, FoundationNetworking, Synchronization, Observation, swift-crypto's `Crypto`), no Apple-only name, no branch on the system. `core/OortLibrary/System/` is the one place for a system's C library and its variants. Files not there yet are listed in `scripts/core-import-debt.json`, which only shrinks. CI proves it on Linux (job `core-linux`, which builds and tests the whole core); Windows joins with the PC app (migration lot 4), and until then the manifest has no Windows exception.
+3. **The core compiles on every system (R3).** `scripts/check_oort_core.py` parses every Swift file of `core/` and its tests, `#if` branches included: only portable modules (Foundation, FoundationNetworking, Synchronization, Observation, swift-crypto's `Crypto`), no Apple-only name, no branch on the system. `core/OortLibrary/System/` is the one place for a system's C library and its variants, including `CSystem` on Linux. CI requires `core-linux`, which builds and tests the whole core. Windows joins with the PC app (migration lot 4), and until then the manifest has no Windows exception.
 
 The check compares `swiftModule` declarations with the regular and executable targets returned by `swift package dump-package`. It reads actual source imports, not the build graph.
 

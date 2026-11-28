@@ -222,8 +222,9 @@ private struct RemovalIdentity: Codable, Hashable {
             if errno == ENOENT { return nil }
             throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
         }
+        let birth = OortSystem.born(status, at: url.path)
         return Self(device: status.st_dev, inode: status.st_ino, type: status.st_mode & mode_t(S_IFMT),
-                    birthSeconds: OortSystem.born(status)?.seconds ?? 0, birthNanoseconds: OortSystem.born(status)?.nanoseconds ?? 0)
+                    birthSeconds: birth?.seconds ?? 0, birthNanoseconds: birth?.nanoseconds ?? 0)
     }
 }
 

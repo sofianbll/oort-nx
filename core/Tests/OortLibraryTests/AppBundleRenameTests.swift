@@ -5,7 +5,7 @@ final class AppBundleRenameTests: XCTestCase {
     private var dir: URL!
 
     override func setUpWithError() throws {
-        dir = FileManager.default.temporaryDirectory.appendingPathComponent("AppBundleRename-\(UUID().uuidString)")
+        dir = FileManager.default.temporaryDirectory.appendingPathComponent("AppBundleRename-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     }
 
@@ -29,7 +29,7 @@ final class AppBundleRenameTests: XCTestCase {
         let bundle = try makeBundle("NX Library.app")
         let renamed = try XCTUnwrap(target(bundle))
         XCTAssertEqual(renamed.lastPathComponent, "Oort NX.app")
-        XCTAssertEqual(renamed.deletingLastPathComponent().standardizedFileURL, dir.standardizedFileURL)
+        XCTAssertEqual(renamed.deletingLastPathComponent().standardizedFileURL.path, dir.standardizedFileURL.path)
 
         try AppBundleRename.perform(bundleURL: bundle, to: renamed)
         XCTAssertFalse(FileManager.default.fileExists(atPath: bundle.path))
@@ -45,6 +45,7 @@ final class AppBundleRenameTests: XCTestCase {
     func testReadOnlyFolderBlocksRename() throws {
         let bundle = try makeBundle("NX Library.app")
         try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: dir.path)
+        try XCTSkipIf(FileManager.default.isWritableFile(atPath: dir.path), "This user can write despite the mode bits")
         XCTAssertNil(target(bundle))
     }
 

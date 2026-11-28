@@ -2,7 +2,7 @@ import XCTest
 @testable import OortLibrary
 
 @MainActor final class UndoOffersTests: XCTestCase {
-    func testOnlyTheLastGestureIsUndoneAndOnce() {
+    func testOnlyTheLastGestureIsUndoneAndOnce() async {
         let offers = UndoOffers()
         XCTAssertFalse(offers.perform())
         var undone: [String] = []
@@ -15,7 +15,7 @@ import XCTest
         XCTAssertNil(offers.offer)
     }
 
-    func testTheNoticeLeavesButTheWayBackStaysUntilReplacedOrDropped() {
+    func testTheNoticeLeavesButTheWayBackStaysUntilReplacedOrDropped() async {
         let offers = UndoOffers()
         offers.offer("a") {}
         let first = offers.offer!.id
@@ -30,14 +30,14 @@ import XCTest
         XCTAssertFalse(offers.isShown)
     }
 
-    func testAnUndoMayOfferItsOwnWayBack() {
+    func testAnUndoMayOfferItsOwnWayBack() async {
         let offers = UndoOffers()
         offers.offer("hide") { offers.offer("show") {} }
         offers.perform()
         XCTAssertEqual(offers.offer?.message, "show")
     }
 
-    func testActivityListsTheWayBackWithTheResults() {
+    func testActivityListsTheWayBackWithTheResults() async {
         let result = UUID()
         XCTAssertEqual(ActivityCenterFocus.rows(isBuilding: false, undo: true), [.undo])
         XCTAssertEqual(ActivityCenterFocus.rows(isBuilding: true, results: [result], undo: true),

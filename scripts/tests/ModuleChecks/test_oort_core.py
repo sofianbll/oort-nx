@@ -1,8 +1,6 @@
 """Tests for scripts/check_oort_core.py (R3), on synthetic fixtures and on the repository."""
 
-import json
 from pathlib import Path
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -27,7 +25,6 @@ class PortableCoreTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.root = Path(self.directory.name)
-        write(self.root, core.CORE_DEBT, json.dumps({"files": []}))
         write(self.root, f"{names.path('core')}/Core.swift", "import Foundation\n")
 
     def tearDown(self):
@@ -71,7 +68,8 @@ class PortableCoreTests(unittest.TestCase):
     def test_the_core_is_a_folder_except_a_resource_it_copies_as_written(self):
         library = names.MODULES["library"]
         def targets(**library_target):
-            return [{"name": names.CORE, "type": "regular", "path": names.path("core"), "dependencies": [],
+            return [{"name": core.SYSTEM_SHIM, "type": "regular", "path": names.path("cSystem")},
+                    {"name": names.CORE, "type": "regular", "path": names.path("core"), "dependencies": [],
                      "settings": [{"kind": {"swiftLanguageMode": {"_0": "6"}}}]},
                     {"name": library["name"], "type": "regular", "path": library["path"],
                      "dependencies": [{"byName": [names.CORE, None]}],
@@ -83,6 +81,15 @@ class PortableCoreTests(unittest.TestCase):
         hidden = [{"path": "Legacy/Old.swift", "rule": {"copy": {}}}]
         self.assertEqual(core.check_targets(targets(exclude=["Legacy/Old.swift"], resources=hidden)), [refused])
         self.assertEqual(core.check_targets(targets(sources=["A.swift"])), [refused])
+        wrong_platform = targets()
+        wrong_platform[-1]["dependencies"].append({"byName": [core.SYSTEM_SHIM, None]})
+        self.assertEqual(core.check_targets(wrong_platform),
+                         [f"Package.swift: {core.SYSTEM_SHIM} is a Linux-only system shim"])
+
+    def test_the_c_shim_is_only_imported_in_the_system_folder(self):
+        import_shim = f"import {core.SYSTEM_SHIM}\n"
+        self.assertIn(f"imports {core.SYSTEM_SHIM}", self.problems(f"{LIBRARY}/Art.swift", import_shim))
+        self.assertEqual(self.problems(f"{LIBRARY}/System/Rename.swift", import_shim), [])
 
     def test_foundation_networking_is_the_only_conditional_import(self):
         text = "import Foundation\n#if canImport(FoundationNetworking)\nimport FoundationNetworking\n#endif\n"
@@ -94,24 +101,12 @@ class PortableCoreTests(unittest.TestCase):
         self.assertEqual(self.problems(f"{LIBRARY_TESTS}/ATests.swift", "import XCTest\n@testable import OortLibrary\n"), [])
         self.assertIn("imports AppKit", self.problems(f"{LIBRARY_TESTS}/BTests.swift", "import XCTest\nimport AppKit\n"))
 
-    def test_debt_holds_a_file_and_reports_a_stale_entry(self):
+    def test_a_nonportable_import_fails_the_gate(self):
         relative = f"{LIBRARY}/Old.swift"
         write(self.root, relative, "import Combine\n")
         self.assertTrue(any("imports Combine" in line for line in core.check(self.root)))
-        write(self.root, core.CORE_DEBT, json.dumps({"files": [relative]}))
-        self.assertEqual(core.check(self.root), [])
         write(self.root, relative, "import Foundation\n")
-        self.assertIn(f"{core.CORE_DEBT}: {relative} breaks no rule now; remove the entry", core.check(self.root))
-
-    def test_debt_only_shrinks_against_a_base(self):
-        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
-        subprocess.run(["git", "add", "-A"], cwd=self.root, check=True)
-        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base"], cwd=self.root,
-                       check=True)
-        relative = f"{LIBRARY}/New.swift"
-        write(self.root, relative, "import AppKit\n")
-        write(self.root, core.CORE_DEBT, json.dumps({"files": [relative]}))
-        self.assertIn(f"{core.CORE_DEBT}: new entry {relative}; the list only shrinks", core.check(self.root, "HEAD"))
+        self.assertEqual(core.check(self.root), [])
 
     def test_repository_holds_its_core(self):
         self.assertEqual(core.check_manifest(ROOT) + core.check(ROOT), [])

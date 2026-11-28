@@ -164,7 +164,7 @@ public struct SoundPack: Sendable {
         var info = stat()
         guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == S_IFREG,
               !singleLink || info.st_nlink == 1 else { throw SoundPackError.layout }
-        guard (0...Int64(maximum)).contains(info.st_size) else { throw SoundPackError.size }
+        guard (0...Int64(maximum)).contains(Int64(info.st_size)) else { throw SoundPackError.size }
         var bytes = Data(count: Int(info.st_size) + 1)
         let count = try bytes.withUnsafeMutableBytes { buffer in
             var used = 0

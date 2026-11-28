@@ -6,11 +6,7 @@ way the compiler does, after removing the #if lines, so that a condition cannot 
 only portable modules. The system folder of the library (SYSTEM) is the one place where a file may import the C
 library of a system, branch on the system with #if os(...) or call an Apple-only name: one API, one variant per
 system. Outside it, the only conditional import is FoundationNetworking, which Linux and Windows keep apart.
-
-Files that still break a rule are listed in CORE_DEBT. The list only shrinks: a listed file that no longer breaks a
-rule is reported, and with --base a file that the base did not list is refused.
 """
-import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
 from pathlib import Path
@@ -20,10 +16,8 @@ import sys
 import tempfile
 
 import names  # architecture/names.json
-from repo_model import renamed
 
 ROOT = Path(__file__).resolve().parents[1]
-CORE_DEBT = "scripts/core-import-debt.json"
 CONDITIONAL = re.compile(r"^[ \t]*#(?:if|elseif|else|endif)\b[^\n]*", re.MULTILINE)
 CONDITION = re.compile(r"^[ \t]*#(?:if|elseif)\b([^\n]*)", re.MULTILINE)
 IMPORT = re.compile(r'^\s*\(import_decl .*? module="([^"]+)"', re.MULTILINE)
@@ -31,7 +25,8 @@ PORTABLE = {"Foundation", "FoundationEssentials", "FoundationNetworking", "Swift
             "Crypto"}
 TESTING = {"XCTest", "Testing"}
 # The C library of each system, the system log, and the core's own C target: SYSTEM only.
-SYSTEM_MODULES = {"Darwin", "Glibc", "Musl", "Android", "WinSDK", "ucrt", "os", "CSystem"}
+SYSTEM_SHIM = names.MODULES["cSystem"]["name"]
+SYSTEM_MODULES = {"Darwin", "Glibc", "Musl", "Android", "WinSDK", "ucrt", "os", SYSTEM_SHIM}
 # Names that exist only on Apple systems, or behave differently there: SYSTEM only.
 APPLE_NAMES = re.compile(
     r"\b(CFPreferences\w*|NSWorkspace|NSImage|NSBitmapImageRep|CGContext|CGImage\w*|SecItem\w*|SecKeychain\w*|"
@@ -47,9 +42,9 @@ LITERAL = re.compile(r'"""(?:(?!""").)*?"""|"(?:[^"\\\n]|\\.)*"', re.DOTALL)
 
 
 def core_modules():
-    """(module name, source folder, test folder or None) for every module of kind core."""
+    """(module name, source folder, test folder or None) for every Swift core module."""
     return [(module["name"], module["path"], module.get("tests", {}).get("path"))
-            for module in names.MODULES.values() if module["kind"] == "core"]
+            for module in names.MODULES.values() if module["kind"] == "core" and module.get("language") != "c"]
 
 
 def system_folder():
@@ -113,6 +108,10 @@ def check_targets(manifest_targets):
     targets = {target["name"]: target for target in manifest_targets}
     own = {name for name, _, _ in core_modules()}
     violations = []
+    shim = targets.get(SYSTEM_SHIM)
+    if (not shim or shim["type"] != "regular" or shim.get("path") != names.path("cSystem")
+        or any(shim.get(key) for key in ("dependencies", "resources", "sources", "exclude", "settings"))):
+        violations.append(f"Package.swift: {SYSTEM_SHIM} must be a plain C target with no dependencies")
     for name, path, _ in core_modules():
         target = targets.get(name)
         if target is None or target["type"] != "regular" or target.get("path") != path:
@@ -128,6 +127,10 @@ def check_targets(manifest_targets):
         for dependency in target.get("dependencies", []):
             kind, value = next(iter(dependency.items()))
             dependency_name = value[0]
+            if dependency_name == SYSTEM_SHIM and name == names.LIBRARY and kind in {"target", "byName"}:
+                if (value[1] or {}).get("platformNames") != ["linux"]:
+                    violations.append(f"Package.swift: {SYSTEM_SHIM} is a Linux-only system shim")
+                continue
             if kind == "product" and value[1] == "swift-crypto" and dependency_name == "Crypto":
                 continue
             if dependency_name not in own:
@@ -138,52 +141,19 @@ def check_targets(manifest_targets):
     return violations
 
 
-def debt(root, ref=None):
-    """The files listed in CORE_DEBT, in the checkout or in REF (named as they are now); None when REF has none."""
-    if ref is None:
-        path = Path(root) / CORE_DEBT
-        return set(json.loads(path.read_text(encoding="utf-8"))["files"]) if path.is_file() else set()
-    shown = subprocess.run(["git", "show", f"{ref}:{CORE_DEBT}"], cwd=root, capture_output=True, text=True)
-    if shown.returncode:
-        return None
-    moved = renamed(root, ref)
-    return {moved.get(name, name) for name in json.loads(shown.stdout)["files"]}
+def check(root):
+    return [f"{relative}: {phrase}; the core must compile on every system (R3)"
+            for relative, found in sorted(scan(root).items()) for phrase in found]
 
 
-def check(root, base=None, problems=None):
-    root = Path(root)
-    problems = scan(root) if problems is None else problems
-    listed = debt(root)
-    violations = []
-    for relative, found in sorted(problems.items()):
-        if found and relative not in listed:
-            violations += [f"{relative}: {phrase}; the core must compile on every system (R3)" for phrase in found]
-    for relative in sorted(listed):
-        if not problems.get(relative):
-            violations.append(f"{CORE_DEBT}: {relative} breaks no rule now; remove the entry")
-    if base is not None:
-        before = debt(root, base)
-        if before is not None:
-            violations += [f"{CORE_DEBT}: new entry {relative}; the list only shrinks" for relative in sorted(listed - before)]
-    return violations
-
-
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--base", help="refuse a debt entry this Git revision did not have")
-    parser.add_argument("--debt", action="store_true", help="print the files that break a rule, for CORE_DEBT")
-    args = parser.parse_args(argv)
-    if args.debt:
-        print(json.dumps(sorted(relative for relative, found in scan(ROOT).items() if found), indent=1))
-        return 0
-    violations = check_manifest(ROOT) + check(ROOT, args.base)
+def main():
+    violations = check_manifest(ROOT) + check(ROOT)
     for line in violations:
         print(line)
     if violations:
         print(f"{len(violations)} portable-core violation(s).")
         return 1
-    count = len(debt(ROOT))
-    print(f"Core: portable imports, names and conditions{f'; {count} file(s) in {CORE_DEBT}' if count else ''}.")
+    print("Core: portable imports, names and conditions.")
     return 0
 
 

@@ -617,23 +617,20 @@ jobs:
           retention-days: 30
           path: captures/
 
-  # The core on Linux (R3): on Linux, Package.swift declares only the core, so `scripts/check swift` builds and tests it
-  # alone. Kept out of the verdict while lot 3 ports the last files (scripts/core-import-debt.json). Windows comes with
-  # the PC app (lot 4).
+  # On Linux Package.swift declares only the core, so `scripts/check swift` builds and tests all of it (R3).
   core-linux:
     name: Linux / core
     needs: [areas, checks]
     if: needs.areas.outputs.swift == 'true'
     runs-on: ubuntu-24.04
     container: swift:6.4.3-bookworm
-    continue-on-error: true
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Python for scripts/check
-        run: apt-get update -qq && apt-get install -y -qq --no-install-recommends python3
+      - name: Test tools
+        run: apt-get update -qq && apt-get install -y -qq --no-install-recommends python3 zip unzip
       - name: Core tests
         run: |
           swift --version

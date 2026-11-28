@@ -4,6 +4,7 @@ specification {
   element app { style { color slate; size sm; iconSize xs } }
   element external { style { color gray; size sm; iconSize xs } }
   element swiftModule { style { color slate; shape component; size sm; border solid; opacity 15% } }
+  element cModule { style { color slate; shape component; size sm; border solid; opacity 15% } }
   element seam { style { color givre; size sm } }
   element domain { style { color slate; size sm } }
   relationship prevu { line dashed }

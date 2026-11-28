@@ -9,6 +9,18 @@ final class CommandRunnerTests: XCTestCase {
         }
     }
 
+    func testChildUsesItsWorkingDirectoryAndDefaultSIGPIPE() throws {
+        let directory = FileManager.default.temporaryDirectory.resolvingSymlinksInPath()
+        let shell = URL(fileURLWithPath: "/bin/sh")
+        let runner = BoundedCommandRunner(seconds: 3, cancellation: .init())
+        // Stdin configures the parent's broken-pipe policy before the child is spawned.
+        let result = try runner.run(shell, ["-c", "pwd -P; /bin/cat >/dev/null; kill -PIPE $$; exit 0"],
+                                    environment: [:], currentDirectory: directory, input: Data([1]))
+        let workingPath = result.stdout.trimmingCharacters(in: .newlines)
+        XCTAssertEqual(OortSystem.physicalSystemPath(workingPath), OortSystem.physicalSystemPath(directory.path))
+        XCTAssertEqual(result.status, 128 + SIGPIPE)
+    }
+
     func testCancellableCommandTerminatesRunningProcess() async throws {
         let started = expectation(description: "process is running")
         let task = Task {
@@ -91,7 +103,12 @@ final class CommandRunnerTests: XCTestCase {
     }
 
     @MainActor
-    func testWaitingForExitDoesNotServiceTheMainRunLoop() throws {
+    func testWaitingForExitDoesNotServiceTheMainRunLoop() async throws {
+        try checkWaitingForExit()
+    }
+
+    @MainActor
+    private func checkWaitingForExit() throws {
         let runner = SystemCommandRunner()
         let shell = URL(fileURLWithPath: "/bin/sh")
         // Close both pipes before exiting so even the synchronous path has to wait.

@@ -74,7 +74,7 @@ final class ObservedStoresTests: XCTestCase {
     }
 
     @MainActor
-    func testALanguageChangeIsSeen() {
+    func testALanguageChangeIsSeen() async {
         let localization = AppLocalization()
         var settings = AppSettings()
         settings.appLanguage = settings.appLanguage == .french ? .english : .french

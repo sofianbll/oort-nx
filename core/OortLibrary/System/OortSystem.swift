@@ -3,6 +3,7 @@ import Darwin
 import os
 #elseif canImport(Glibc)
 import Glibc
+import CSystem
 #elseif canImport(Musl)
 import Musl
 #endif
@@ -13,6 +14,24 @@ import Synchronization
 /// library and a branch on the system only in this folder). The Mac's variant is the code the app has always run;
 /// the others give the same answer, or throw `Unsupported` where the system has no equivalent yet.
 public enum OortSystem {
+    /// Resolve only the Mac's system aliases, not symlinks supplied by the user.
+    static func physicalSystemPath(_ path: String) -> String {
+        #if canImport(Darwin)
+        if ["/tmp", "/var", "/etc"].contains(where: { path == $0 || path.hasPrefix($0 + "/") }) {
+            return "/private" + path
+        }
+        #endif
+        return path
+    }
+
+    static func isPackage(_ url: URL, values: URLResourceValues) -> Bool {
+        #if canImport(Darwin)
+        return values.isPackage == true
+        #else
+        return values.isDirectory == true && url.pathExtension.lowercased() == "app"
+        #endif
+    }
+
     /// The system has no equivalent of this operation yet.
     public struct Unsupported: Error, Equatable, Sendable {
         public let operation: String
@@ -75,10 +94,14 @@ public enum OortSystem {
         #endif
     }
 
-    /// When the file was created, where `stat` says it (Apple systems); nil where it does not.
-    public static func born(_ status: stat) -> FileTime? {
+    /// Creation time for the same inode, if the filesystem provides it.
+    public static func born(_ status: stat, at path: String) -> FileTime? {
         #if canImport(Darwin)
         FileTime(seconds: Int(status.st_birthtimespec.tv_sec), nanoseconds: Int(status.st_birthtimespec.tv_nsec))
+        #elseif canImport(Glibc)
+        var seconds: Int64 = 0, nanoseconds: Int32 = 0
+        guard oort_birth_time(path, UInt64(status.st_dev), UInt64(status.st_ino), &seconds, &nanoseconds) != 0 else { return nil }
+        return FileTime(seconds: Int(seconds), nanoseconds: Int(nanoseconds))
         #else
         nil
         #endif
@@ -109,6 +132,8 @@ public enum OortSystem {
     public static func rename(_ from: String, _ to: String, _ mode: RenameMode) -> Int32 {
         #if canImport(Darwin)
         renamex_np(from, to, UInt32(mode == .swap ? RENAME_SWAP : RENAME_EXCL))
+        #elseif canImport(Glibc)
+        mode == .swap ? oort_rename_exchange(from, to) : oort_rename_noreplace(from, to)
         #else
         errno = ENOSYS
         return -1

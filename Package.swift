@@ -4,6 +4,7 @@ import PackageDescription
 // The names and folders below come from architecture/names.json; change them there and run scripts/generate.
 // BEGIN GENERATED NAMES (architecture/names.json, scripts/generate_names.py)
 let packageName = "OortNX"
+let cSystem = (name: "CSystem", path: "core/CSystem")
 let core = (name: "OortCore", path: "core/OortCore")
 let library = (name: "OortLibrary", path: "core/OortLibrary")
 let nxnative = (name: "NxnativeAdapter", path: "engines/nxnative/NxnativeAdapter")
@@ -17,9 +18,11 @@ let macTests = (name: "OortMacTests", path: "apps/mac/Tests/OortMacTests")
 // The core (its two modules and their tests) builds on every system; the Mac's targets are declared on a Mac
 // only, so that Linux and Windows build and test the core with this same manifest (R3).
 let coreTargets: [Target] = [
+    .target(name: cSystem.name, path: cSystem.path),
     .target(name: core.name, path: core.path, swiftSettings: [.swiftLanguageMode(.v6)]),
     .target(name: library.name,
-            dependencies: [.byName(name: core.name), .product(name: "Crypto", package: "swift-crypto")],
+            dependencies: [.byName(name: core.name), .byName(name: cSystem.name, condition: .when(platforms: [.linux])),
+                           .product(name: "Crypto", package: "swift-crypto")],
             path: library.path,
             // The string catalogue is copied as written (L10n.Catalog reads it): SwiftPM compiles one only on Apple
             // systems. The exclusion only takes it out of the processed folder.

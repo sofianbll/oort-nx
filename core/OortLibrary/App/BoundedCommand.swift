@@ -14,35 +14,18 @@ final class BoundedChild: @unchecked Sendable {
     init(_ executable: URL, _ arguments: [String], environment: [String: String]?,
          directory: URL? = nil, input: FileHandle? = nil,
          output: FileHandle? = nil, error: FileHandle? = nil) throws {
-        var actions: posix_spawn_file_actions_t?
-        try checkPOSIX(posix_spawn_file_actions_init(&actions))
-        defer { posix_spawn_file_actions_destroy(&actions) }
-        var attributes: posix_spawnattr_t?
-        try checkPOSIX(posix_spawnattr_init(&attributes))
-        defer { posix_spawnattr_destroy(&attributes) }
-        try checkPOSIX(posix_spawnattr_setflags(&attributes, Int16(POSIX_SPAWN_SETPGROUP | POSIX_SPAWN_CLOEXEC_DEFAULT)))
-        try checkPOSIX(posix_spawnattr_setpgroup(&attributes, 0))
-        if let directory { try checkPOSIX(posix_spawn_file_actions_addchdir(&actions, directory.path)) }
-        for (index, handle) in [input, output, error].enumerated() {
-            let fd = Int32(index)
-            if let handle {
-                try checkPOSIX(posix_spawn_file_actions_adddup2(&actions, handle.fileDescriptor, fd))
-            } else {
-                try checkPOSIX(posix_spawn_file_actions_addopen(&actions, fd, "/dev/null", fd == 0 ? O_RDONLY : O_WRONLY, 0))
-            }
-        }
         var args = ([executable.path] + arguments).map { strdup($0) }
         var env = (environment ?? ProcessInfo.processInfo.environment).map { strdup("\($0.key)=\($0.value)") }
         defer { (args + env).forEach { free($0) } }
         guard !args.contains(nil), !env.contains(nil) else { throw POSIXError(.ENOMEM) }
         args.append(nil)
         env.append(nil)
-        var child: pid_t = 0
         let registry = Self.live
         registry.lock.lock()
         defer { registry.lock.unlock() }
         guard !registry.quitting else { throw CancellationError() }
-        try checkPOSIX(posix_spawn(&child, executable.path, &actions, &attributes, &args, &env))
+        let child = try OortSystem.spawnCommand(executable.path, arguments: &args, environment: &env,
+                                                directory: directory?.path, standard: [input, output, error])
         pid = child
         registry.children[child] = self
     }
@@ -50,13 +33,7 @@ final class BoundedChild: @unchecked Sendable {
     var status: Int32? {
         Self.live.lock.withLock {
             guard Self.live.children[pid] === self else { return nil }
-            var info = siginfo_t()
-            guard waitid(P_PID, id_t(pid), &info, WEXITED | WNOWAIT | WNOHANG) == 0, info.si_pid != 0 else { return nil }
-            switch info.si_code {
-            case CLD_EXITED: return info.si_status
-            case CLD_KILLED, CLD_DUMPED: return 128 + info.si_status
-            default: return nil
-            }
+            return OortSystem.commandStatus(pid)
         }
     }
 
@@ -87,7 +64,7 @@ final class BoundedChild: @unchecked Sendable {
     }
 }
 
-private func checkPOSIX(_ error: Int32) throws {
+func checkPOSIX(_ error: Int32) throws {
     if error != 0 { throw POSIXError(POSIXErrorCode(rawValue: error) ?? .EIO) }
 }
 
@@ -113,7 +90,7 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
         let stdout = output == nil ? try Self.commandPipe() : nil
         let stderr = try Self.commandPipe()
         let writeEnd = stdin?.fileHandleForWriting
-        if let writeEnd, fcntl(writeEnd.fileDescriptor, F_SETNOSIGPIPE, 1) != 0 { try checkPOSIX(errno) }
+        if let writeEnd { try OortSystem.prepareCommandInput(writeEnd.fileDescriptor) }
         let child = try BoundedChild(executable, arguments, environment: environment, directory: currentDirectory,
             input: stdin?.fileHandleForReading, output: output ?? stdout?.fileHandleForWriting, error: stderr.fileHandleForWriting)
         defer { child.stop() }

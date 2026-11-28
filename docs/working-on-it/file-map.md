@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1721 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1723 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -248,6 +248,8 @@ Cartella `core/OortLibrary/System/`: l'unico posto del Core con la libreria C di
 | File | Responsabilità |
 |---|---|
 | [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Le chiamate che cambiano da un sistema all'altro: `open`/`close`/`read`, date e nomi dei file, rinomina che non sostituisce mai, clone, Cestino (quello di sistema solo per l'app nel suo bundle, una cartella temporanea propria per ogni altro processo), pool, spazio libero, peso di una cartella, preferenze, log; la variante Mac è il codice di sempre, altrove la stessa risposta o `Unsupported`. |
+| [OortSystem+Process.swift](../../core/OortLibrary/System/OortSystem+Process.swift) | Avvia un gruppo di processi separato, chiude i descrittori estranei e legge l'esito senza raccogliere il capogruppo. |
+| [csystem.c](../../core/CSystem/csystem.c) e [csystem.h](../../core/CSystem/include/csystem.h) | Ponte Linux per la rinomina atomica, la data di nascita dei file e le chiamate di processo non esposte dal modulo libc di Swift. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
@@ -1074,7 +1076,6 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
 | [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge moduli, tipi e livelli da `architecture/names.json`, li confronta con SwiftPM e verifica gli import; solo il punto d'ingresso di un'app importa un motore (ADR 0002). |
-| [scripts/core-import-debt.json](../../scripts/core-import-debt.json) | Debito di R3: i file del Core che non compilano ancora su ogni sistema; la lista può solo scendere. |
 | [scripts/engine-import-debt.json](../../scripts/engine-import-debt.json) | Debito dell'ADR 0002: i file del Mac che importano ancora l'adattatore nxnative; la lista può solo scendere. |
 | [scripts/check_names.py](../../scripts/check_names.py) | Rifiuta un nome tecnico scritto a mano fuori da `architecture/names.json` e verifica i valori congelati dei giocatori. |
 | [scripts/names.py](../../scripts/names.py) | Legge `architecture/names.json` per gli script e le sonde; `stage()` prepara il pacchetto temporaneo di una sonda. |

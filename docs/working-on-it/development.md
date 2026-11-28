@@ -125,6 +125,10 @@ and commit the generated outputs (Swift, CSS, palettes). The generator checks co
 default Oort surfaces, not artwork or other palettes. The 26 px distance
 reference is rendered glyph height at 1080p, not a 26-point SwiftUI font.
 
+On Linux, use Swift 6.4.3 on Debian Bookworm and install `python3`, `zip` and `unzip`.
+Run `scripts/check swift` to build and test the whole core. Run as an unprivileged user so the
+filesystem permission tests can exercise real access denials. The Mac app and engine adapter are not built there.
+
 When reviewing an engine upgrade in a separate checkout, set `NX_TEST_ENGINE_REPO` to that checkout's absolute path for `swift test`. The engine-fragment regression reads the application's pin and checks it in that repository; an invalid explicit path fails. Without the variable it uses `~/nxnative`, skipping only when that default checkout is absent. This allows verification without fetching into or changing the engine used by the installed app.
 
 To check the prepared runtime as well:

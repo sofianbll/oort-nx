@@ -36,11 +36,12 @@ def model():
     parents = {}
     for role, module in names.MODULES.items():
         parents.setdefault(module["model"], []).append((role, module))
-    out = [f"// {HEADER}", "// Each Swift module of Package.swift, with its layer: a module imports only lower layers.", "model {"]
+    out = [f"// {HEADER}", "// Each module of Package.swift, with its layer: a module imports only lower layers.", "model {"]
     for parent, modules in parents.items():
         out.append(f"  extend {parent} {{")
         for role, module in modules:
-            out += [f'    {role}Module = swiftModule "{module["name"]}" {{',
+            element = "cModule" if module.get("language") == "c" else "swiftModule"
+            out += [f'    {role}Module = {element} "{module["name"]}" {{',
                     "      metadata {", f'        layer "{module["layer"]}"', f'        folder "{module["path"]}"', "      }",
                     "    }"]
         out.append("  }")

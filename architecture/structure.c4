@@ -20,6 +20,7 @@ model {
       summary "The core: states, rules and screen descriptions, in Swift"
       metadata { path "core" }
       coreOortCore = folder "OortCore/" { metadata { path "core/OortCore" } }
+      coreCInterop = folder "CSystem/" { metadata { path "core/CSystem" } }
       coreLibrary = folder "OortLibrary/" { metadata { path "core/OortLibrary" } }
       coreTests = folder "Tests/" { metadata { path "core/Tests" } }
     }

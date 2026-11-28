@@ -255,6 +255,10 @@ final class LibraryPathsTests: XCTestCase {
         }
         try copiedByAnEarlierVersion(catalog)
         try put("synthetic", "workspaces/" + composed + "/game.txt", in: new)
+        // A normalization-sensitive filesystem stores these as different directory entries.
+        if !fm.fileExists(atPath: new.path + "/workspaces/" + decomposed) {
+            try put("synthetic", "workspaces/" + decomposed + "/game.txt", in: new)
+        }
         XCTAssertTrue(try repair())
         let repaired = try XCTUnwrap(values("catalog.json", in: new) as? [String: String])
         for (key, value) in repaired {

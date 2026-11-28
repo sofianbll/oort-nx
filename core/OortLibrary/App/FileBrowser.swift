@@ -99,9 +99,7 @@ public enum FileBrowser {
         do {
             // Check each component in order, not the link's target. /tmp and /var are macOS aliases
             // for /private/tmp and /private/var; normalize those system roots only.
-            let path = folder.standardizedFileURL.path
-            let systemAlias = ["/tmp", "/var", "/etc"].contains { path == $0 || path.hasPrefix($0 + "/") }
-            let physicalPath = systemAlias ? "/private" + path : path
+            let physicalPath = OortSystem.physicalSystemPath(folder.standardizedFileURL.path)
             var component = URL(fileURLWithPath: "/", isDirectory: true)
             for name in physicalPath.split(separator: "/") {
                 try Task.checkCancellation()
@@ -128,8 +126,9 @@ public enum FileBrowser {
                           (try? url.resolvingSymlinksInPath().resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else { return nil }
                     return Entry(url: url, isFolder: false, isHidden: name.hasPrefix("."), size: nil)
                 }
-                let directory = values.isDirectory == true && values.isPackage != true
-                let package = choice == .apps && values.isPackage == true
+                let isPackage = OortSystem.isPackage(url, values: values)
+                let directory = values.isDirectory == true && !isPackage
+                let package = choice == .apps && isPackage
                 guard directory || ((values.isRegularFile == true || package) && choice.accepts(name)) else { return nil }
                 return Entry(url: url, isFolder: directory, isHidden: values.isHidden == true || name.hasPrefix("."),
                              size: directory ? nil : values.fileSize)

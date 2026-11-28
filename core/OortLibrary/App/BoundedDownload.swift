@@ -11,8 +11,8 @@ package enum BoundedDownload {
     package static func data(for request: URLRequest, session: URLSession, limit: Int) async throws -> (Data, URLResponse) {
         try Task.checkCancellation()
         let collector = Collector(limit: limit)
-        let task = session.dataTask(with: request)
-        task.delegate = collector
+        let (task, ownedSession) = OortSystem.streamingTask(for: request, session: session, delegate: collector)
+        defer { ownedSession?.finishTasksAndInvalidate() }
         return try await withTaskCancellationHandler(operation: {
             try await withCheckedThrowingContinuation { continuation in
                 collector.start(continuation)
@@ -62,6 +62,8 @@ package enum BoundedDownload {
             if tooLong { failure = URLError(.dataLengthExceedsMaximum) }
             lock.unlock()
             completionHandler(tooLong ? .cancel : .allow)
+            // FoundationNetworking ignores the response disposition.
+            if tooLong { dataTask.cancel() }
         }
 
         func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive chunk: Data) {

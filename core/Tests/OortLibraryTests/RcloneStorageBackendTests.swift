@@ -140,7 +140,7 @@ final class RcloneStorageBackendTests: XCTestCase {
 
     func testLocalDiskFullIsNotOfflineOrDriveQuota() async throws {
         let destination = FileManager.default.temporaryDirectory
-        let volume = try XCTUnwrap(destination.resourceValues(forKeys: [.volumeLocalizedNameKey]).volumeLocalizedName)
+        let volume = try destination.resourceValues(forKeys: [.volumeLocalizedNameKey]).volumeLocalizedName
         for failure in [
             NSError(domain: NSCocoaErrorDomain, code: CocoaError.fileWriteOutOfSpace.rawValue),
             POSIXError(.ENOSPC) as NSError,
@@ -157,7 +157,16 @@ final class RcloneStorageBackendTests: XCTestCase {
                 XCTFail("A full local disk cannot complete the download")
             } catch {
                 XCTAssertEqual((error as? CloudLibraryFailure)?.action, .freeMacStorage)
-                XCTAssertTrue(error.localizedDescription.contains(volume), error.localizedDescription)
+                if let volume, !volume.isEmpty {
+                    XCTAssertEqual(error as? CloudLibraryFailure, .volumeFull(volume))
+                    XCTAssertTrue(error.localizedDescription.contains(volume), error.localizedDescription)
+                } else if case .volumeFull(let name)? = error as? CloudLibraryFailure {
+                    // Some filesystems only report the name on an ancestor, not on the destination.
+                    XCTAssertFalse(name.isEmpty)
+                    XCTAssertTrue(error.localizedDescription.contains(name), error.localizedDescription)
+                } else {
+                    XCTAssertEqual(error as? CloudLibraryFailure, .macFull)
+                }
             }
         }
         XCTAssertEqual(CloudLibraryFailure.rclone("403 storageQuotaExceeded", status: 1), .quotaFull)
