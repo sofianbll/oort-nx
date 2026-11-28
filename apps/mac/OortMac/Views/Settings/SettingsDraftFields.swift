@@ -35,8 +35,8 @@ enum SettingsDraftFields {
             .init("libraryFolder", \.launcherChoices.gameAppsPath, important: true) { path($0 ?? paths.gameAppsPath) },
             .init("gameFolder", \.launcherChoices.gameSourcesPath, important: true) { path($0 ?? paths.gameSourcesPath) },
             .init("engineFolder", \.launcherChoices.enginePath, important: true) { path($0 ?? paths.enginePath) },
-            .init("steamSource", \.launcherChoices.steamSource, important: true) { choice in
-                let on = choice?.enabled ?? steam?.isEnabled ?? false
+            .init(SteamSourceEntries.sourceID, \.launcherChoices.steamSource, important: true) { choice in
+                let on = SteamSourceEntries.sourceSwitch(id: SteamSourceEntries.sourceID, inForce: steam?.isEnabled ?? false, waiting: choice?.enabled).checked == true
                 let root = choice?.root ?? steam?.rootURL ?? CatalogSourcesModel.defaultSteamRoot
                 return "\(onOff(on)) · \((root.path as NSString).abbreviatingWithTildeInPath)"
             },
@@ -193,7 +193,7 @@ enum SettingsDraftFields {
         case "multiplayerVPN": "Local play uses this VPN. macOS network settings stay unchanged."
         case "cloudSaves": "This applies to all ported games at their next launch. No saves are deleted."
         case "toolchainOverride": "This changes the build compatibility gate. Existing apps are not changed."
-        case "steamSource": "Your Steam files stay where they are. Disabling this source keeps its games and personal choices."
+        case SteamSourceEntries.sourceID: SteamSourceEntries.keptWhenOff.key
         default: SettingsCatalog.all.first { $0.id == id }?.about
         }
     }
