@@ -77,12 +77,7 @@ struct CloudLibraryPanel: View {
             .seleneOverlayOwnership(freeSelection == nil)
             if let freeSelection { freeDialog(freeSelection) }
         }
-        .task(id: ReadRequest(game: game, revision: refreshRevision)) {
-            #if DEBUG
-            if Self.oortProbeSkipsRead { return }
-            #endif
-            await viewModel.refreshCloudLibrary(game)
-        }
+        .task(id: ReadRequest(game: game, revision: refreshRevision)) { await refreshCloudLibrary() }
         .onChange(of: controls) { _, controls in
             if let focus, controls.contains(focus) { return }
             focus = startControl
@@ -292,6 +287,14 @@ struct CloudLibraryPanel: View {
                            ? "Reference archive · Full download (%@ of %@)"
                            : "Update this Mac from the reference · %@ of %@",
                            [formattedBytes(bytes), formattedBytes(total)], context: localization)
+    }
+
+    // The standalone cloud screens probe still removes the task's single line from its copy of the app.
+    private func refreshCloudLibrary() async {
+        #if DEBUG
+        if Self.oortProbeSkipsRead { return }
+        #endif
+        await viewModel.refreshCloudLibrary(game)
     }
 
     private func artifactControl(_ item: CloudLibraryItem) -> Control? {
