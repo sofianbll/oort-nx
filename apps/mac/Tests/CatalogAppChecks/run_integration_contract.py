@@ -46,7 +46,7 @@ class IntegrationContract(unittest.TestCase):
     def test_spotlight_leaves_header_focus_when_wheel_enters_content(self):
         input_view = (VIEWS / "Spotlight/SpotlightView+Input.swift").read_text()
         selection = (VIEWS / "Spotlight/SpotlightView+Selection.swift").read_text()
-        header = (VIEWS / "Shell/IntegrationsView+Input.swift").read_text()
+        header = (VIEWS / "Shell/IntegrationBar+Input.swift").read_text()
         self.assertRegex(input_view, r"func scrollPage[\s\S]*?mutate \{ \$0.focus = \.pills; \$0.pillIndex = 0 \}")
         self.assertRegex(selection, r"if viewModel.spotlight.focus == \.row, state.focus != \.row \{\s*"
                                     r"router.integrationBarFocused = false\s*profileFocused = false")
@@ -54,32 +54,44 @@ class IntegrationContract(unittest.TestCase):
                                  r"\.contains\(action\) \{ return true \}")
 
     def test_navigating_up_can_scroll_back_to_the_first_integration(self):
-        page = (VIEWS / "Shell/IntegrationsView.swift").read_text()
-        self.assertRegex(page, r"scrollFocus: router.integrationFocus,\s*initialFocus:")
+        # Every screen of the core is drawn by ScreenView: the stored focus scrolls, the screen's initial focus guards it.
+        page = (VIEWS / "OortUI/ScreenView.swift").read_text()
+        self.assertRegex(page, r"scrollFocus: focus, initialFocus: screen\.initialFocus")
         shared = (VIEWS / "OortUI/OortPage.swift").read_text()
         self.assertRegex(shared, r"guard let id, old != id \|\| id != initialFocus \|\| restoreScroll")
 
-    def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
-        source = (ROOT / "engines/nxnative/NxnativeAdapter/Settings/IntegrationOverview.swift").read_text()
+    def test_access_copy_names_actual_destinations_plainly_in_every_language(self):
+        # The core decides every entry once, for every system (IntegrationFacts.decided).
+        source = (ROOT / "core/OortLibrary/Settings/IntegrationFacts.swift").read_text()
         catalog = json.loads((ROOT / "core/OortLibrary/Resources/Localizable.xcstrings").read_text())["strings"]
-        sections = re.split(r"^        case \.(\w+):$", source, flags=re.MULTILINE)
+        sections = re.split(r"^        case \.(\w+):$", source.split("private func decided(", 1)[1], flags=re.MULTILINE)
+        self.assertEqual(set(sections[1::2]), {"switchGames", "steam", "macApps", "programs", "online", "drive", "nextendo",
+                                               "images", "saves"})
         for row, body in zip(sections[1::2], sections[2::2]):
             rights = dict(re.findall(r'(reads|writes|sends): "([^"]+)"', body))
             self.assertEqual(set(rights), {"reads", "writes", "sends"}, row)
-            for language in ["en", "fr"]:
+            for language in ["en", "it", "fr", "de", "es", "pt-BR", "zh-Hans"]:
                 with self.subTest(row=row, language=language):
                     rendered = {right: catalog[key]["localizations"][language]["stringUnit"]["value"]
                                 for right, key in rights.items()}
                     self.assertTrue(all(value.strip() for value in rendered.values()))
-                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam", "App ID", "CDN"], "macApps": [],
-                                 "drive": ["rclone", "OAuth", "Google"], "nextendo": ["Nextendo", "OAuth"],
-                                 "images": ["SteamGridDB", "IGDB", "Twitch", "Wikidata", "Nlib", "Switch Icon Showdown"],
-                                 "saves": ["iCloud Drive", "Apple"]}[row]:
+                    # The player's words: no format, protocol or tool name stands for what it means.
+                    for value in rendered.values():
+                        for jargon in ["App ID", "CDN", "API", "OAuth", "rclone", "manifests?", "manifestes?", "tokens?", "jetons?",
+                                       "cache", "commit"]:
+                            self.assertNotRegex(value, re.compile(rf"(?<![\w-]){jargon}(?![\w-])", re.IGNORECASE))
+                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam"], "macApps": [], "programs": [],
+                                 "online": ["Steam"],
+                                 "drive": ["Google"], "nextendo": ["Nextendo"],
+                                 "images": ["SteamGridDB", "IGDB", "Twitch", "Nlib", "Nintendo", "LaunchBox", "GameTDB", "Switch Icon Showdown"],
+                                 "saves": ["iCloud", "Apple"]}[row]:
                         self.assertIn(term, rendered["sends"])
-                    if row == "switchGames":
+                    if row == "images" and language in ("en", "fr"):
+                        self.assertIn("Wikidata", rendered["sends"])
+                    if row == "switchGames" and language in ("en", "fr"):
                         self.assertIn("private copy" if language == "en" else "copie privée", rendered["writes"])
-                    if row == "saves":
-                        self.assertIn("preference" if language == "en" else "préférence", rendered["writes"])
+                    if row == "saves" and language in ("en", "fr"):
+                        self.assertIn("choice" if language == "en" else "choix", rendered["writes"])
 
 
 if __name__ == "__main__":

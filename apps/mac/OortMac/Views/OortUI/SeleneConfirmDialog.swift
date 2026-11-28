@@ -245,6 +245,7 @@ struct SeleneDialogCard: ViewModifier {
 /// acts on `onChoose` (the choice's index); B and a click outside are the caller's cancel.
 struct SeleneChoiceDialog: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.screenTrace) private var trace
 
     let title: String
     let message: String
@@ -269,6 +270,8 @@ struct SeleneChoiceDialog: View {
             card.fixedSize(horizontal: true, vertical: false).modifier(dialogCard(width: nil))
             card.modifier(dialogCard(width: SeleneTokens.Space.questionMeasure))
         }
+        // Its title and message, then its keys (SelenePillButton) in drawing order.
+        .screenTrace(trace, [.init(kind: .question, text: L10n.text(title), about: message)])
     }
 
     private func dialogCard(width: CGFloat?) -> SeleneDialogCard {

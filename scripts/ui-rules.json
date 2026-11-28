@@ -1112,6 +1112,9 @@
   }
  ],
  "mouse_paths": {
+  "apps/mac/OortMac/Views/OortUI/ScreenView.swift": {
+   "PromptButton(rawValue:key.rawValue) say(gesture.title)": "each gesture of a node is also its click: A the row or the button, X the row's switch; B stays for the mouse (SeleneHintsBar.mouseBack)"
+  },
   "apps/mac/OortMac/Views/Collection/CollectionView.swift": {
    "lb Previous": "the tabs are clickable",
    "rb Next": "the tabs are clickable"

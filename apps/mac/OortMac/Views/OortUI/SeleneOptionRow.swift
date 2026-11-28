@@ -4,6 +4,7 @@ import OortLibrary
 struct SeleneOptionRow<Trailing: View>: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.oortGroupedRow) private var grouped
+    @Environment(\.screenTrace) private var trace
     @State private var hovered = false
 
     let icon: MaterialIcon?
@@ -23,6 +24,8 @@ struct SeleneOptionRow<Trailing: View>: View {
     var platform: PlatformKind? = nil
     /// False: the line is data (a path, a state), not an explanation, and stays on the row.
     var aboutIsHelp = true
+    /// The line is read as body text (what an entry sends, before it is turned on), not discreet.
+    var aboutIsBody = false
     var formatBadges: [String] = []
     var detail: AnyView? = nil
     @ViewBuilder var trailing: () -> Trailing
@@ -43,6 +46,8 @@ struct SeleneOptionRow<Trailing: View>: View {
         .preference(key: OortRowHelpKey.self, value: grouped && aboutIsHelp && (focused || hovered) ? about : nil)
         .accessibilityHint(grouped && aboutIsHelp ? about ?? "" : "")
         .containerValue(\.oortSettingsRow, true)
+        .screenTrace(trace, [.init(kind: .row, text: title, about: grouped && aboutIsHelp ? nil : about, focused: focused,
+                                    role: aboutIsBody ? .body : .about)])
     }
 
     private var row: some View {
@@ -75,7 +80,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                         }
                     }
                     .seleneFont(aboutFont)
-                        .foregroundColor(SeleneTheme.ink60)
+                        .foregroundColor(aboutIsBody ? SeleneTheme.ink : SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 OortFormatBadges(labels: formatBadges)
@@ -90,13 +95,15 @@ struct SeleneOptionRow<Trailing: View>: View {
 struct SeleneOptionRowSurface: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.oortGroupedRow) private var grouped
+    @Environment(\.oortFlushRow) private var flush
     let focused: Bool
 
     func body(content: Content) -> some View {
         let radius = canvas.u(SeleneTokens.Radius.card)
+        let outset = flush ? canvas.u(SeleneTokens.Space.compact) : 0
         content
-            .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
-            .padding(.trailing, canvas.u(SeleneTokens.Space.large))
+            .padding(.leading, flush ? outset : canvas.u(SeleneTokens.Space.rowLeading))
+            .padding(.trailing, flush ? outset : canvas.u(SeleneTokens.Space.large))
             .padding(.vertical, canvas.u(grouped ? SeleneTokens.Space.line : SeleneTokens.Space.control))
             .background { if !grouped { Color.clear.oortPanel(radius: radius) } }
             .background {
@@ -107,5 +114,6 @@ struct SeleneOptionRowSurface: ViewModifier {
             }
             .seleneRowFocus(focused, radius: radius)
             .oortPadPress(focused)
+            .padding(.horizontal, -outset)
     }
 }

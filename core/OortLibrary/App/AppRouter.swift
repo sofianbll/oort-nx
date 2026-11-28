@@ -28,11 +28,7 @@ public enum AppRoute: Equatable {
     }
 }
 
-public enum IntegrationID: CaseIterable, Hashable, Sendable {
-    case switchGames, steam, macApps, drive, nextendo, saves, images
-
-    public var isGameSource: Bool { self == .switchGames || self == .steam || self == .macApps }
-}
+public typealias IntegrationID = IntegrationCatalog.ID
 
 /// A full-screen page covers lower UI layers while their shared background stays mounted.
 public enum ShellBackdropCover: Equatable {
@@ -118,6 +114,9 @@ public final class AppRouter: ObservableObject {
     public var showsIntegrationBar = false
     @Published public var integrationFocus: IntegrationID?
     @Published public private(set) var integrationDetail: IntegrationID?
+    /// The focused node of the open detail (IntegrationScreen), by its identity.
+    @Published public var integrationAction: String?
+    private var integrationLibraryPlatform: CatalogIntegration?
     @Published public private(set) var settingsRowID: String?
     public enum SettingsDecision: Equatable { case save, leave }
     @Published public private(set) var settingsDecision: SettingsDecision? {
@@ -312,17 +311,27 @@ public final class AppRouter: ObservableObject {
     public func openIntegrations() {
         guard route != .integrations else { return }
         integrationDetail = nil
-        integrationFocus = IntegrationID.allCases.first
+        integrationFocus = nil
         navigate(to: .integrations)
     }
     public func showIntegrationDetail(_ id: IntegrationID) {
         guard route == .integrations else { return }
         integrationFocus = id
         integrationDetail = id
+        integrationAction = nil
     }
     public func backFromIntegration() {
         if integrationDetail != nil { integrationDetail = nil }
         else { back() }
+    }
+    public func browseIntegrationLibrary(_ platform: CatalogIntegration) {
+        guard route == .integrations else { return }
+        integrationLibraryPlatform = platform
+        showLibrary()
+    }
+    public func takeIntegrationLibraryPlatform() -> CatalogIntegration? {
+        defer { integrationLibraryPlatform = nil }
+        return integrationLibraryPlatform
     }
     /// Only directional input or a return from the page can put focus on the home bar.
     public func stepIntegrationBar(_ step: MenuStep?, profileFocused: inout Bool, hasProfile: Bool) -> Bool {

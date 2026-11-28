@@ -123,9 +123,11 @@ final class LibraryRefreshModel: ObservableObject {
         guard let sources else { return .read }
         sources.refresh()
         for await status in sources.$status.values where status != .scanning { break }
+        // What the state says is Settings › Sources' own words (SteamSourceEntries); a failure's own message comes first.
+        let state = L10n.text(SteamSourceEntries.state(sources.status, found: sources.observedGameCount).detail.key)
         switch sources.status {
-        case .failed: return .stale(sources.errorMessage ?? L10n.text("Steam could not be refreshed. Your library has been kept."))
-        case .partial: return .stale(L10n.text("Some installations could not be checked. Your library has been kept."))
+        case .failed: return .stale(sources.errorMessage ?? state)
+        case .partial: return .stale(state)
         case .cancelled: return .cancelled
         default: return .read
         }

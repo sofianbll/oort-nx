@@ -24,6 +24,10 @@ extension SpotlightView {
             mutate { $0.startingTabApplied = true }
             viewModel.librarySelection.query.filter = LibraryFilter(startingTab: settings.settings.startingTab)
         }
+        if let platform = router.takeIntegrationLibraryPlatform() {
+            platformChoice = platform
+            viewModel.librarySelection.query.filter = .all
+        }
         hadGames = !viewModel.visibleCatalogGames.isEmpty
         reconcile()
         selectionChanged()

@@ -1,40 +1,25 @@
 import XCTest
-import OortLibrary
-import NxnativeAdapter
+@testable import OortLibrary
+@testable import NxnativeAdapter
 
+/// The Mac's own observations and its settings effect; the decisions are tested in IntegrationScreenTests.
 final class IntegrationOverviewTests: XCTestCase {
-    func testAnEmptySteamScanIsNotAnUnfinishedOrSuccessfulPlayCheck() throws {
-        var snapshot = IntegrationOverview()
-        snapshot.steam = .ready
-        let steam = try XCTUnwrap(snapshot.rows.first { $0.id == .steam })
-        XCTAssertEqual(steam.status, "No games found")
-        snapshot.steam = .scanning
-        XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Reading Steam libraries…")
-        snapshot.steam = .failed
-        XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Steam scan failed")
-        snapshot.steam = .partial
-        XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Steam scan incomplete")
-        snapshot.steam = .ready
-        snapshot.steamGameCount = 2
-        XCTAssertEqual(snapshot.rows.first { $0.id == .steam }?.status, "Steam library scanned")
-    }
-
     func testRoutesUseExistingSettingsAndBackKeepsTheOrigin() {
-        var snapshot = IntegrationOverview()
+        var facts = IntegrationOverview.mac
         let router = AppRouter()
         router.showsIntegrationBar = true
         router.openIntegrations()
-        XCTAssertTrue(snapshot.open(.steam, in: router))
+        XCTAssertTrue(IntegrationOverview.open(.steam, facts, in: router))
         XCTAssertEqual(router.route, .settings(.sources))
         XCTAssertEqual(router.settingsRowID, "steamSource")
         router.back()
         XCTAssertEqual(router.route, .integrations)
         XCTAssertEqual(router.integrationFocus, .steam)
-        XCTAssertTrue(snapshot.open(.drive, in: router))
+        XCTAssertTrue(IntegrationOverview.open(.drive, facts, in: router))
         XCTAssertEqual(router.settingsRowID, "cloudLibrarySetup")
         router.back()
-        snapshot.drive = .failed
-        XCTAssertTrue(snapshot.open(.drive, in: router))
+        facts.drive = .failed
+        XCTAssertTrue(IntegrationOverview.open(.drive, facts, in: router))
         XCTAssertEqual(router.settingsRowID, "cloudLibraryService")
         router.back()
         router.back()
@@ -42,22 +27,19 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertTrue(router.integrationBarFocused)
     }
 
-    func testOnlyCurrentPageCanOpenExistingSettingsAndAllRowsHaveAccessCopy() {
-        var snapshot = IntegrationOverview()
+    func testOnlyCurrentPageCanOpenExistingSettings() {
+        var facts = IntegrationOverview.mac
         let router = AppRouter()
         router.showsIntegrationBar = true
-        XCTAssertFalse(snapshot.open(.drive, in: router))
+        XCTAssertFalse(IntegrationOverview.open(.drive, facts, in: router))
         XCTAssertEqual(router.route, .library)
         XCTAssertFalse(router.integrationBarFocused)
-        XCTAssertEqual(snapshot.rows.filter(\.id.isGameSource).map(\.id), [.switchGames, .steam, .macApps])
-        XCTAssertEqual(snapshot.rows.filter { !$0.id.isGameSource }.map(\.id), [.drive, .nextendo, .saves, .images])
-        XCTAssertTrue(snapshot.rows.allSatisfy { !$0.reads.isEmpty && !$0.writes.isEmpty && !$0.sends.isEmpty })
         router.openCollection()
         router.openIntegrations()
-        snapshot.engine = .blocked
-        snapshot.nextendo = .connected
-        snapshot.steamGridDB = true
-        snapshot.drive = .transferring
+        facts.engine = .blocked
+        facts.nextendo = .connected
+        facts.steamGridDB = true
+        facts.drive = .transferring
         for (id, section, setting) in [
             (IntegrationID.switchGames, SettingsSection.engine, "engineStatus"),
             (.steam, .sources, "steamSource"),
@@ -67,19 +49,20 @@ final class IntegrationOverviewTests: XCTestCase {
             (.images, .apiServices, "igdb"),
             (.saves, .cloudSaves, "cloudSaves"),
         ] {
-            XCTAssertTrue(snapshot.open(id, in: router))
+            XCTAssertTrue(IntegrationOverview.open(id, facts, in: router))
             XCTAssertEqual(router.route, .settings(section))
             XCTAssertEqual(router.settingsRowID, setting)
             router.back()
             XCTAssertEqual(router.integrationFocus, id)
         }
+        XCTAssertFalse(IntegrationOverview.open(.online, facts, in: router), "not offered on the Mac")
         router.back()
         XCTAssertEqual(router.route, .collection)
         XCTAssertTrue(router.integrationBarFocused)
     }
 
     func testDetailDoesNotOpenSettingsAndBackReturnsToSameRow() {
-        let snapshot = IntegrationOverview()
+        let facts = IntegrationOverview.mac
         let router = AppRouter()
         router.showsIntegrationBar = true
         router.openIntegrations()
@@ -87,21 +70,49 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertEqual(router.route, .integrations)
         XCTAssertEqual(router.integrationDetail, .macApps)
         XCTAssertNil(router.settingsRowID)
-        XCTAssertTrue(snapshot.open(.macApps, in: router))
+        XCTAssertTrue(IntegrationOverview.open(.macApps, facts, in: router))
         router.back()
         XCTAssertEqual(router.integrationDetail, .macApps)
         router.backFromIntegration()
         XCTAssertNil(router.integrationDetail)
         XCTAssertEqual(router.integrationFocus, .macApps)
+        router.showIntegrationDetail(.switchGames)
+        router.browseIntegrationLibrary(.nxnative)
+        XCTAssertEqual(router.route, .library)
+        XCTAssertNil(router.settingsRowID)
+        XCTAssertEqual(router.takeIntegrationLibraryPlatform(), .nxnative)
+        XCTAssertNil(router.takeIntegrationLibraryPlatform())
+    }
+
+    /// Which check blocks says what is blamed: Metal is Apple's tools, a commit alone the engine's version.
+    func testBuildBlockNamesTheRealCause() {
+        func report(_ blocking: [String]) -> CompatibilityReport {
+            .init(ok: blocking.isEmpty, checks: ["commit", "tree", "metal", "python", "cli"].map {
+                .init(id: $0, title: $0, status: blocking.contains($0) ? .block : .pass, detail: "")
+            })
+        }
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["metal", "commit"]), canPass: false, canBuild: true), .appleTools)
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["commit"]), canPass: false, canBuild: true), .engineVersion)
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["tree"]), canPass: false, canBuild: true), .buildTools)
+        XCTAssertEqual(IntegrationOverview.buildBlock(report(["python", "commit"]), canPass: false, canBuild: true), .buildTools)
+        XCTAssertNil(IntegrationOverview.buildBlock(report(["metal"]), canPass: true, canBuild: true), "the override lets it pass")
+        XCTAssertEqual(IntegrationOverview.buildBlock(nil, canPass: false, canBuild: false), .buildTools)
+        XCTAssertNil(IntegrationOverview.buildBlock(nil, canPass: false, canBuild: nil))
+    }
+
+    func testKeysAndSavesAreSaidAsFacts() {
+        XCTAssertEqual(IntegrationOverview.keys(.available(applicationGenerations: 1)), .selected)
+        XCTAssertNil(IntegrationOverview.keys(nil))
+        XCTAssertEqual(IntegrationOverview.saves(.folder("/fixture")), .folder)
     }
 
     func testTheBarOnlyTakesConfirmAfterExplicitFocusEvenWhenAServiceFails() {
         let router = AppRouter()
         router.showsIntegrationBar = true
         var profileFocused = false
-        var snapshot = IntegrationOverview()
-        snapshot.drive = .failed
-        XCTAssertEqual(snapshot.rows.first { $0.id == .drive }?.status, "Drive check failed")
+        var facts = IntegrationOverview.mac
+        facts.drive = .failed
+        XCTAssertEqual(facts.rows.first { $0.id == .drive }?.status, "Drive check failed")
         XCTAssertFalse(router.stepIntegrationBar(.confirm, profileFocused: &profileFocused, hasProfile: true))
         XCTAssertEqual(router.route, .library)
         profileFocused = true
@@ -123,5 +134,40 @@ final class IntegrationOverviewTests: XCTestCase {
         router.back()
         XCTAssertEqual(router.route, .settings(.sources))
         XCTAssertFalse(router.integrationBarFocused)
+    }
+}
+
+/// From the real observation to the core's facts: a Steam read by its source, with three fictive games.
+@MainActor
+final class IntegrationSteamObservationTests: XCTestCase {
+    func testSteamIsObservedFromItsSourceAsTheCoreDecidesIt() async throws {
+        let fixture = try SteamTestFixture.temporary(in: self)
+        _ = try CatalogTestSupport.writeLegacy([CatalogTestSupport.completeLegacyGame()], to: fixture.root)
+        let repository = CatalogRepository(store: CatalogStore(directory: fixture.root))
+        let initial = try XCTUnwrap(try repository.load().source(.steam))
+        let root = fixture.root
+        let games: [SteamGameObservation] = ([10, 11, 12] as [UInt32]).map { id in
+            let content = root.appendingPathComponent("steamapps/common/Game \(id)")
+            let app = content.appendingPathComponent("Game.app")
+            let native = NativeMacApplication(url: app, executableURL: app.appendingPathComponent("Contents/MacOS/game"),
+                                              bundleIdentifier: "test.steam.\(id)", name: "Steam game \(id)", architectures: [.arm64],
+                                              isDeclaredGame: true, fileObservations: [])
+            return .init(appID: id, name: "Steam game \(id)", installationURL: content, libraryURL: root,
+                         reportedSizeBytes: 1, buildID: nil, nativeApps: [native], state: .nativeReady)
+        }
+        let scan = SteamLibrarySnapshot(libraries: [.init(root: root, isReadable: true, isComplete: true)], games: games, issues: [])
+        let read = expectation(description: "three games read")
+        let sources = CatalogSourcesModel(repository: repository, initialConfiguration: initial, scanner: { _, _ in scan }) { document in
+            if document.games.filter({ $0.steamGame != nil }).count == 3 { read.fulfill() }
+        }
+        XCTAssertEqual(IntegrationOverview.steam(sources), SteamFacts(enabled: false, read: .disabled, games: 0))
+        sources.configure(enabled: true, root: root)
+        await fulfillment(of: [read], timeout: 5)
+        let steam = IntegrationOverview.steam(sources)
+        XCTAssertEqual(steam, SteamFacts(enabled: true, read: .ready, games: 3))
+        var facts = IntegrationOverview.mac
+        facts.steam = steam
+        XCTAssertEqual(facts.row(.steam)?.status, "Ready here")
+        XCTAssertEqual(facts.row(.steam)?.browse?.target, .steamGames)
     }
 }
