@@ -618,7 +618,8 @@ jobs:
           path: captures/
 
   # The core on Linux (R3): on Linux, Package.swift declares only the core, so `scripts/check swift` builds and tests it
-  # alone. Kept out of the verdict while lot 3 ports the last files (scripts/core-import-debt.json).
+  # alone. Kept out of the verdict while lot 3 ports the last files (scripts/core-import-debt.json). Windows comes with
+  # the PC app (lot 4).
   core-linux:
     name: Linux / core
     needs: [areas, checks]
