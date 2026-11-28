@@ -11,7 +11,7 @@ extension Notification.Name {
 /// Find a game (View hold or ⌘F): a pill field over a glass scrim, square results as you type.
 /// Y or ⌘K takes the words typed to the command palette.
 struct FindGameView: View {
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var playSessions: PlaySessionStore
     let artwork: ArtworkStore

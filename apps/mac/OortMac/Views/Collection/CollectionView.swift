@@ -13,8 +13,8 @@ struct CollectionView: View {
     @ObservedObject var viewModel: AppViewModel
     /// The Nintendo store's data (`StoreMetadataModel`): descriptions, screenshots and names shown here.
     @ObservedObject var store: StoreMetadataModel
-    @ObservedObject var router: AppRouter
-    @ObservedObject var settings: AppSettingsStore
+    var router: AppRouter
+    var settings: AppSettingsStore
     @ObservedObject var playSessions: PlaySessionStore
     @ObservedObject var artwork: ArtworkStore
     @ObservedObject var cloud: CloudLibraryModel

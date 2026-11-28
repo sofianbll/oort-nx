@@ -316,16 +316,7 @@ extension AppShellView {
                 viewModel.porting.scheduleNextBuild()
             }
         }
-        .onReceive(settings.$loadError) { error in
-            guard error != nil else { return }
-            let writing = settings.errorKind == .writing
-            viewModel.showSettingsNotice(
-                title: writing ? L10n.text("Settings not saved") : L10n.text("Settings unavailable"),
-                message: writing ? L10n.text("Your changes could not be saved. Try again.")
-                    : L10n.text("Defaults are in use. Your previous settings file has been kept."),
-                retry: writing ? { _ = settings.save() } : nil)
-            viewModel.settingsNotice?.onDismiss = { settings.dismissError() }
-        }
+        .modifier(SettingsErrorNotices(revision: settings.loadErrorRevision, show: showSettingsError))
         .onDisappear {
             runningGames.stop()
             SteamPlayCoordinator.shared.stop()
@@ -591,5 +582,26 @@ private struct InterfaceZoomCommands: ViewModifier {
             // While Settings is open the change joins its draft.
             settings.editingSettings.interfaceZoom = Double(next)
         }
+    }
+}
+
+/// Each failure to read or save the settings, even with the same text as the last one, shows its notice (and one
+/// that is already there at launch).
+private struct SettingsErrorNotices: ViewModifier {
+    let revision: Int
+    let show: () -> Void
+    func body(content: Content) -> some View { content.onChange(of: revision, initial: true) { show() } }
+}
+
+extension AppShellView {
+    func showSettingsError() {
+        guard settings.loadError != nil else { return }
+        let writing = settings.errorKind == .writing
+        viewModel.showSettingsNotice(
+            title: writing ? L10n.text("Settings not saved") : L10n.text("Settings unavailable"),
+            message: writing ? L10n.text("Your changes could not be saved. Try again.")
+                : L10n.text("Defaults are in use. Your previous settings file has been kept."),
+            retry: writing ? { _ = settings.save() } : nil)
+        viewModel.settingsNotice?.onDismiss = { settings.dismissError() }
     }
 }

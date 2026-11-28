@@ -6,7 +6,7 @@ struct GameInboxView: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
     @ObservedObject var model: GameInboxModel
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     var showsHints = true
     @State var focused: Action = .folder
     @State private var dropTarget = false

@@ -560,4 +560,24 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         XCTAssertFalse(run.contains("terminate"))
         XCTAssertTrue(run.contains("confirmSetting(ask.title"))
     }
+
+    func testTurningTheInboxOffLeavesItAndForgetsItInHistory() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("router-settings-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let settings = AppSettingsStore(fileURL: url)
+        settings.settings.gameInboxEnabled = true
+        let router = AppRouter(settings: settings)
+        XCTAssertTrue(router.menuSelection.gameInboxEnabled, "the router reads the setting when it starts")
+        router.openGameInbox()
+        router.openAddGame()
+        router.openGameInbox()
+        XCTAssertEqual(router.route, .gameInbox)
+        settings.settings.gameInboxEnabled = false
+        XCTAssertFalse(router.menuSelection.gameInboxEnabled)
+        XCTAssertNotEqual(router.route, .gameInbox)
+        router.back()
+        XCTAssertNotEqual(router.route, .gameInbox, "the Inbox is gone from the history too")
+        router.openGameInbox()
+        XCTAssertNotEqual(router.route, .gameInbox, "a disabled Inbox does not open")
+    }
 }

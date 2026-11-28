@@ -211,7 +211,7 @@ enum SettingsDraftFields {
 /// Sections edit the draft through the same bindings they used for committed values.
 final class SettingsEditor: ObservableObject {
     let store: AppSettingsStore
-    private var observation: AnyCancellable?
+    private var observation: AppSettingsObservation?
     @MainActor lazy var playersSession = PlayersScreenSession()
     var originalPlayers: PlayerPlan?
     var hasReadPlayers = false
@@ -229,6 +229,6 @@ final class SettingsEditor: ObservableObject {
 
     init(_ store: AppSettingsStore) {
         self.store = store
-        observation = store.objectWillChange.sink { [weak self] in self?.objectWillChange.send() }
+        observation = store.observe { [weak self] _ in self?.objectWillChange.send() }
     }
 }

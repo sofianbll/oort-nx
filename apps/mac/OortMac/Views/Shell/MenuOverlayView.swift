@@ -12,7 +12,7 @@ import OortLibrary
 struct MenuOverlayView: View {
     @Environment(\.controllerHomeAvailable) private var hasHome
     var gamepadLayout: GamepadLayout = .arcane
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     @ObservedObject var cloudLibrary: CloudLibraryModel
     var activeProfile: LocalProfile? = nil
     let hasBuildActivity: Bool

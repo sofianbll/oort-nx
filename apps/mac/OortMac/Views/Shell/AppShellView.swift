@@ -13,8 +13,8 @@ struct AppShellView: View {
     @ObservedObject var setup: SetupModel
     /// The Nintendo store's data (`StoreMetadataModel`): descriptions, screenshots and names shown here.
     @ObservedObject var store: StoreMetadataModel
-    @StateObject var router: AppRouter
-    @StateObject var settings: AppSettingsStore
+    @State var router: AppRouter
+    @State var settings: AppSettingsStore
     @StateObject var playSessions = PlaySessionStore()
     @ObservedObject var profiles: LocalProfileStore
     @State var profileFlow: ProfileFlow?
@@ -51,11 +51,11 @@ struct AppShellView: View {
 
     @MainActor init(state: AppShellState) {
         _sources = StateObject(wrappedValue: state.sources)
-        _settings = StateObject(wrappedValue: state.settings)
+        _settings = State(initialValue: state.settings)
         _viewModel = StateObject(wrappedValue: state.viewModel)
         _setup = ObservedObject(wrappedValue: state.viewModel.setup)
         _store = ObservedObject(wrappedValue: state.viewModel.store)
-        _router = StateObject(wrappedValue: state.router)
+        _router = State(initialValue: state.router)
         _profiles = ObservedObject(wrappedValue: state.profiles)
         igdb = state.igdb
         _profileFlow = State(initialValue: state.viewModel.profileOwnsInput
@@ -447,7 +447,7 @@ struct AppShellView: View {
 
 /// Selene's panel and back cues for the shell's overlays and routes.
 struct SoundCueHooks: ViewModifier {
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     @ObservedObject var viewModel: AppViewModel
 
     func body(content: Content) -> some View {

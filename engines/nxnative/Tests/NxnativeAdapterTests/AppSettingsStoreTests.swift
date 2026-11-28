@@ -1,3 +1,4 @@
+import Observation
 import XCTest
 import Combine
 @testable import OortLibrary
@@ -145,11 +146,13 @@ final class AppSettingsStoreTests: XCTestCase {
     @MainActor
     func testSelectingAGameDoesNotInvalidateSettingsObservers() {
         let store = AppSettingsStore(fileURL: tempURL())
-        var publications = 0
-        let observation = store.objectWillChange.sink { publications += 1 }
+        var publications = 0, screens = 0
+        let observation = store.observe { _ in publications += 1 }
+        withObservationTracking { _ = (store.settings, store.draft, store.loadError) } onChange: { screens += 1 }
         store.rememberLastSelectedGame(UUID())
         store.flushPendingSelection()
-        XCTAssertEqual(publications, 0, "A row move must not invalidate views observing settings")
+        XCTAssertEqual(publications, 1, "A row move must not notify what follows the settings (1: the current value)")
+        XCTAssertEqual(screens, 0, "A row move must not invalidate views observing settings")
         withExtendedLifetime(observation) {}
     }
 
@@ -211,11 +214,15 @@ final class AppSettingsStoreTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: url) }
         try JSONEncoder().encode(AppSettings()).write(to: url)
         let store = AppSettingsStore(fileURL: url, fileManager: RejectSettingsWrite())
-        var notifications = 0
-        let subscription = store.objectWillChange.sink { notifications += 1 }
+        var notifications = 0, screens = 0
+        let subscription = store.observe { _ in notifications += 1 }
+        let revision = store.loadErrorRevision
+        withObservationTracking { _ = store.loadErrorRevision } onChange: { screens += 1 }
         store.save()
         XCTAssertNotNil(store.loadError)
-        XCTAssertGreaterThan(notifications, 0)
+        XCTAssertGreaterThan(notifications, 1)
+        XCTAssertEqual(screens, 1)
+        XCTAssertGreaterThan(store.loadErrorRevision, revision)
         XCTAssertEqual(AppSettingsStore(fileURL: url).settings, AppSettings())
         withExtendedLifetime(subscription) {}
     }

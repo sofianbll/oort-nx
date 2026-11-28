@@ -15,8 +15,8 @@ import NxnativeAdapter
 /// downloads the full picture (B cancels) before applying it.
 struct ThemePickerView: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var router: AppRouter
-    @ObservedObject var settings: AppSettingsStore
+    var router: AppRouter
+    var settings: AppSettingsStore
     /// The library, for the preview's tiles.
     let games: [PortedGame]
 

@@ -1,18 +1,38 @@
 import Foundation
-import Combine
+import Observation
 
 // @unchecked: the main thread owns the snapshots and their revision, the serial `writer` owns the disk state.
-public final class AppSettingsStore: ObservableObject, @unchecked Sendable {
-    @Published public var settings: AppSettings {
+// Observed: `settings`, `draft` and `loadError`, what a screen shows; everything else is ignored.
+@Observable
+public final class AppSettingsStore: @unchecked Sendable {
+    public var settings: AppSettings {
         didSet {
             if settings.lastSelectedGameID != oldValue.lastSelectedGameID {
                 lastSelectedGameID = settings.lastSelectedGameID
             }
             save()
+            changed(.settings)
         }
     }
 
-    @Published public private(set) var draft: AppSettingsDraft?
+    public private(set) var draft: AppSettingsDraft? {
+        didSet { changed(.draft) }
+    }
+
+    /// What `observe` reports: the value when it starts, then each set of the settings, of the draft or of the error.
+    public enum Change: Sendable { case current, settings, draft, error }
+
+    /// Code that is not a view (the router, the sounds, the Settings editor) follows the store here: `handler` runs
+    /// now with `.current`, then after each set, on the thread that set it (the main thread). Keep the token.
+    public func observe(_ handler: @escaping (Change) -> Void) -> AppSettingsObservation {
+        let id = UUID()
+        listeners[id] = handler
+        handler(.current)
+        return AppSettingsObservation { [weak self] in self?.listeners[id] = nil }
+    }
+
+    @ObservationIgnored private var listeners: [UUID: (Change) -> Void] = [:]
+    private func changed(_ change: Change) { for handler in listeners.values { handler(change) } }
     /// Read by the Settings screen only. Background consumers continue to read committed settings.
     public var editingSettings: AppSettings {
         get { draft?.displayed(over: settings, previewsOnly: false) ?? settings }
@@ -60,22 +80,29 @@ public final class AppSettingsStore: ObservableObject, @unchecked Sendable {
     }
 
     /// Navigation state. Publishing it as a settings change re-enters the view graph during a row move.
-    public private(set) var lastSelectedGameID: UUID?
+    @ObservationIgnored public private(set) var lastSelectedGameID: UUID?
 
     public enum ErrorKind { case reading, writing }
-    @Published public private(set) var loadError: String?
-    public private(set) var errorKind: ErrorKind?
-    public private(set) var recoveryFileURL: URL?
+    /// Set again on every failure, even with the same text: `loadErrorRevision` counts them.
+    public private(set) var loadError: String? {
+        didSet {
+            if loadError != nil { loadErrorRevision += 1 }
+            changed(.error)
+        }
+    }
+    public private(set) var loadErrorRevision = 0
+    @ObservationIgnored public private(set) var errorKind: ErrorKind?
+    @ObservationIgnored public private(set) var recoveryFileURL: URL?
     public let fileURL: URL
     private let fileManager: FileManager
-    private var isLoading = false
+    @ObservationIgnored private var isLoading = false
     // The main thread owns the snapshots and their revision. The writer serializes file replacement.
     private let writer = DispatchQueue(label: "io.github.sofianbll.oortnx.settings-write", qos: .utility)
-    private var writeRevision = 0
-    private var pendingSelectionWrite: DispatchWorkItem?
-    private var needsRecoveryCopy = false
+    @ObservationIgnored private var writeRevision = 0
+    @ObservationIgnored private var pendingSelectionWrite: DispatchWorkItem?
+    @ObservationIgnored private var needsRecoveryCopy = false
     // Only the serial writer changes this after initialization; normal writes must not trample external edits.
-    private var lastDiskBytes: Data?
+    @ObservationIgnored private var lastDiskBytes: Data?
 
     public init(fileURL: URL = AppSettingsStore.defaultURL(),
                 fileManager: FileManager = .default) {
@@ -233,4 +260,12 @@ public final class AppSettingsStore: ObservableObject, @unchecked Sendable {
             loadError = error.localizedDescription
         }
     }
+}
+
+/// Ends an `AppSettingsStore.observe` when dropped or cancelled.
+public final class AppSettingsObservation {
+    private var end: (() -> Void)?
+    init(_ end: @escaping () -> Void) { self.end = end }
+    public func cancel() { end?(); end = nil }
+    deinit { end?() }
 }

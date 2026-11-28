@@ -20,8 +20,8 @@ struct GameDetailView: View {
     @ObservedObject var setup: SetupModel
     /// The Nintendo store's data (`StoreMetadataModel`): descriptions, screenshots and names shown here.
     @ObservedObject var store: StoreMetadataModel
-    @ObservedObject var router: AppRouter
-    @ObservedObject var settings: AppSettingsStore
+    var router: AppRouter
+    var settings: AppSettingsStore
     @ObservedObject var playSessions: PlaySessionStore
     @ObservedObject var runningGames: RunningGameMonitor
     @ObservedObject var artwork: ArtworkStore

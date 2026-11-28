@@ -35,7 +35,7 @@ struct SettingsSearchSection: View {
 
 /// Changed: every row whose value differs from the default.
 struct SettingsChangedSection: View {
-    @ObservedObject var settings: AppSettingsStore
+    var settings: AppSettingsStore
     @ObservedObject var viewModel: AppViewModel
     /// The engine folder (`SetupModel`), so the Changed list follows it.
     @ObservedObject var setup: SetupModel

@@ -8,12 +8,12 @@ extension EnvironmentValues {
 
 /// Observe the owners directly; the same throwaway projection feeds the home bar and the page.
 struct IntegrationSurface: View {
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     @ObservedObject var sources: CatalogSourcesModel
     @ObservedObject var app: AppViewModel
     @ObservedObject var setup: SetupModel
     @ObservedObject var cloud: CloudLibraryModel
-    @ObservedObject var settings: AppSettingsStore
+    var settings: AppSettingsStore
     @ObservedObject var igdb: IGDBSettings
     let nextendo: NextendoSettings?
     let isBar: Bool
@@ -133,7 +133,7 @@ struct IntegrationsView: View {
     @Environment(\.nxAppLocale) private var locale
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: IntegrationID?
     let overview: IntegrationOverview
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     var showsHints = true
 
     private func text(_ key: String) -> String { L10n.text(key, context: locale) }

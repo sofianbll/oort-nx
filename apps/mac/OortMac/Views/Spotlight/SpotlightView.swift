@@ -26,8 +26,8 @@ struct SpotlightView: View {
     /// The Nintendo store's data (`StoreMetadataModel`): descriptions, screenshots and names shown here.
     @ObservedObject var store: StoreMetadataModel
     @ObservedObject var gameInbox: GameInboxModel
-    @ObservedObject var router: AppRouter
-    @ObservedObject var settings: AppSettingsStore
+    var router: AppRouter
+    var settings: AppSettingsStore
     @ObservedObject var playSessions: PlaySessionStore
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared

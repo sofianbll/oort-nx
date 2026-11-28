@@ -5,7 +5,7 @@ import OortLibrary
 
 struct OnboardingView: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    var settings: AppSettingsStore
     @ObservedObject var profiles: LocalProfileStore
     @ObservedObject var sources: CatalogSourcesModel
     @ObservedObject private var controller = GameControllerService.shared

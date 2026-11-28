@@ -17,7 +17,7 @@ struct ProfilePage: View {
     @ObservedObject var history: PlaySessionStore
     let artwork: ArtworkStore
     let nextendo: NextendoSettings?
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     @Binding var focus: Focus?
     var isGuest = false
     let onSwitch: () -> Void

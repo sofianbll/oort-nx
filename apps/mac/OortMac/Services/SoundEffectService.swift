@@ -26,7 +26,7 @@ enum SoundEffectType: String, CaseIterable {
 final class SoundEffectService {
     static let shared = SoundEffectService()
 
-    private var cancellable: AnyCancellable?
+    private var observation: AppSettingsObservation?
     private var focusObserver: AnyCancellable?
     /// Starting a player blocks for a few milliseconds (the audio server's
     /// handshake), so the players live and play on a queue of their own: a move
@@ -74,34 +74,37 @@ final class SoundEffectService {
     /// Follows the settings store from now on.
     @MainActor
     func bind(to store: AppSettingsStore) {
-        cancellable = store.$settings.combineLatest(store.$draft)
-            .map { committed, draft in draft?.displayed(over: committed, previewsOnly: true) ?? committed }
-            .map { ($0.interfaceSounds, $0.soundVolume, $0.soundPackID, OortSynth.Place.allCases.map($0.melody)) }
-            .removeDuplicates { $0 == $1 }
-            .sink { enabled, volume, id, melodies in
-                self.audio.async {
-                    let melodies = Dictionary(uniqueKeysWithValues: zip(OortSynth.Place.allCases, melodies))
-                    if melodies != self.melodies {
-                        self.melodies = melodies
-                        self.synthesised = self.synthesised.filter { !$0.key.contains(".move.") }
-                    }
-                    self.enabled = enabled
-                    self.gain = volume.isFinite ? Float(min(max(volume, 0), 1)) : 0
-                    if self.selected != id {
-                        self.stopPlayers()
-                        self.returnPending = false
-                        self.selected = id
-                        self.pack = try? self.library.load(id)
-                    }
-                    if !enabled || self.gain == 0 {
-                        self.stopPlayers()
-                        self.returnPending = false
-                    } else {
-                        self.current?.volume = self.gain
-                        self.players.values.forEach { $0.volume = self.gain }
-                    }
+        var applied: (Bool, Double, String, [OortSynth.Melody])?
+        observation = store.observe { [weak self, weak store] _ in
+            guard let self, let store else { return }
+            let shown = store.presentation
+            let (enabled, volume, id, melodies) = (shown.interfaceSounds, shown.soundVolume, shown.soundPackID,
+                                                   OortSynth.Place.allCases.map(shown.melody))
+            if let applied, applied == (enabled, volume, id, melodies) { return }
+            applied = (enabled, volume, id, melodies)
+            self.audio.async {
+                let melodies = Dictionary(uniqueKeysWithValues: zip(OortSynth.Place.allCases, melodies))
+                if melodies != self.melodies {
+                    self.melodies = melodies
+                    self.synthesised = self.synthesised.filter { !$0.key.contains(".move.") }
+                }
+                self.enabled = enabled
+                self.gain = volume.isFinite ? Float(min(max(volume, 0), 1)) : 0
+                if self.selected != id {
+                    self.stopPlayers()
+                    self.returnPending = false
+                    self.selected = id
+                    self.pack = try? self.library.load(id)
+                }
+                if !enabled || self.gain == 0 {
+                    self.stopPlayers()
+                    self.returnPending = false
+                } else {
+                    self.current?.volume = self.gain
+                    self.players.values.forEach { $0.volume = self.gain }
                 }
             }
+        }
         let center = NotificationCenter.default
         focusObserver = center.publisher(for: NSApplication.didBecomeActiveNotification).map { _ in true }
             .merge(with: center.publisher(for: NSApplication.didResignActiveNotification).map { _ in false })

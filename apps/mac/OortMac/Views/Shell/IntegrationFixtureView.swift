@@ -6,7 +6,7 @@ import NxnativeAdapter
 
 /// No startup importer, app model, network client or real Play command is mounted in the fixture.
 struct IntegrationFixtureView: View {
-    @StateObject private var router = AppRouter()
+    @State private var router = AppRouter()
     @State private var sample = 0
     @State private var french = ProcessInfo.processInfo.arguments.contains("--fixture-fr")
     @State private var onboarding = false
@@ -356,7 +356,7 @@ struct IntegrationFixtureView: View {
 
 private struct IntegrationFixtureHome: View {
     @Environment(\.seleneCanvas) private var canvas
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     let data: IntegrationOverview
 
     init(data: IntegrationOverview, router: AppRouter) { self.data = data; self.router = router }

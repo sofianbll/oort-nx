@@ -1,5 +1,5 @@
 import Foundation
-import Combine
+import Observation
 
 public enum AppRoute: Equatable {
     /// Spotlight, the home screen.
@@ -67,15 +67,16 @@ public enum MenuOutcome: Equatable {
     case power(PowerAction)
 }
 
-public final class AppRouter: ObservableObject {
-    @Published public private(set) var route: AppRoute = .library {
+@Observable
+public final class AppRouter {
+    public private(set) var route: AppRoute = .library {
         didSet {
             if !route.isSettings && settingsOverlayOwnsInput { settingsOverlayOwnsInput = false }
             leavePalette()
         }
     }
-    @Published public private(set) var isReturningFromBack = false
-    @Published private var menuPresented = false
+    public private(set) var isReturningFromBack = false
+    private var menuPresented = false
     public var isMenuPresented: Bool {
         get { menuPresented }
         set {
@@ -85,11 +86,11 @@ public final class AppRouter: ObservableObject {
             if newValue { leavePalette() }
         }
     }
-    @Published public var isSearchPresented = false {
+    public var isSearchPresented = false {
         didSet { if isSearchPresented { leavePalette() } }
     }
     /// The command palette stands alone: it closes the menu and the search, and leaves with whatever it opens.
-    @Published private var palettePresented = false
+    private var palettePresented = false
     public var isPalettePresented: Bool {
         get { palettePresented }
         set {
@@ -101,36 +102,36 @@ public final class AppRouter: ObservableObject {
             sortMenu = nil
         }
     }
-    @Published package var sortMenu: LibraryMenuItem?
+    package var sortMenu: LibraryMenuItem?
     /// True while the full-screen screenshot viewer is open; the shell ignores its global shortcuts.
-    @Published public var isScreenshotViewerOpen = false
-    @Published public var menuSelection = MenuSelectionModel()
+    public var isScreenshotViewerOpen = false
+    public var menuSelection = MenuSelectionModel()
     /// The activity card replaces the control-center row while the menu still owns input.
-    @Published public var activityCenterFocus: ActivityCenterFocus?
+    public var activityCenterFocus: ActivityCenterFocus?
     /// The menu's Theme screen (colors, then background) is open in place of its row.
-    @Published public var isThemePickerOpen = false
+    public var isThemePickerOpen = false
     /// A Spotlight item key waiting to be lifted for moving (see `requestSpotlightMove`).
-    @Published public var pendingSpotlightMove: String?
+    public var pendingSpotlightMove: String?
     /// A game id waiting for Spotlight to select it (Details' More like this).
-    @Published public var pendingSpotlightSelect: UUID?
-    @Published public var integrationBarFocused = false
+    public var pendingSpotlightSelect: UUID?
+    public var integrationBarFocused = false
     /// The home screens no longer draw the bar; without it, nothing may move focus to it.
-    public var showsIntegrationBar = false
-    @Published public var integrationFocus: IntegrationID?
-    @Published public private(set) var integrationDetail: IntegrationID?
-    @Published public private(set) var settingsRowID: String?
+    @ObservationIgnored public var showsIntegrationBar = false
+    public var integrationFocus: IntegrationID?
+    public private(set) var integrationDetail: IntegrationID?
+    public private(set) var settingsRowID: String?
     public enum SettingsDecision: Equatable { case save, leave }
-    @Published public private(set) var settingsDecision: SettingsDecision? {
+    public private(set) var settingsDecision: SettingsDecision? {
         didSet { if settingsDecision != nil { leavePalette() } }
     }
-    @Published public var settingsOverlayOwnsInput = false {
+    public var settingsOverlayOwnsInput = false {
         didSet { if settingsOverlayOwnsInput { leavePalette() } }
     }
     public var settingsOwnsInput: Bool {
         route.isSettings && (settingsDecision != nil || settingsOverlayOwnsInput)
     }
-    public var hasPendingSettings: () -> Bool = { false }
-    private var afterSettingsDecision: (() -> Void)?
+    @ObservationIgnored public var hasPendingSettings: () -> Bool = { false }
+    @ObservationIgnored private var afterSettingsDecision: (() -> Void)?
 
     /// Pause before changing route, history, menu, profile or quit. A second request can't replace the first.
     @discardableResult
@@ -160,17 +161,19 @@ public final class AppRouter: ObservableObject {
         return requestSettingsDeparture(proceed)
     }
 
-    private var history: [AppRoute] = []
+    @ObservationIgnored private var history: [AppRoute] = []
 
     private func leavePalette() {
         if isPalettePresented { isPalettePresented = false }
     }
-    private var profileSpotlightKey: String?
-    private var inboxSetting: AnyCancellable?
+    @ObservationIgnored private var profileSpotlightKey: String?
+    @ObservationIgnored private var inboxSetting: AppSettingsObservation?
 
     public init(settings: AppSettingsStore? = nil) {
-        inboxSetting = settings?.$settings.map(\.gameInboxEnabled).removeDuplicates().sink { [weak self] enabled in
-            guard let self else { return }
+        var shown: Bool?
+        inboxSetting = settings?.observe { [weak self, weak settings] _ in
+            guard let self, let enabled = settings?.settings.gameInboxEnabled, enabled != shown else { return }
+            shown = enabled
             self.menuSelection.gameInboxEnabled = enabled
             if !enabled {
                 self.history.removeAll { $0 == .gameInbox }

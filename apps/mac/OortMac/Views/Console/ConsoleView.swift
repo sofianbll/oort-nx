@@ -46,7 +46,7 @@ struct ConsoleView: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     private let showsHints: Bool
 
     @State private var filter: ConsoleFilter = .all

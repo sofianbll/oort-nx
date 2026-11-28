@@ -21,7 +21,7 @@ struct AddGameView: View {
     @ObservedObject var porting: PortingModel
     /// The Switch Setup (`SetupModel`): engine, keys and the Metal gate the review checks.
     @ObservedObject var setup: SetupModel
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
 
     private let showsHints: Bool
     private let artwork: ArtworkStore?

@@ -554,8 +554,12 @@ import NxnativeAdapter
         setup.compatibilityReport = .init(ok: false, checks: [])
         settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))
         var overrideWrites = 0
-        let overrideObserver = settings.$settings.map(\.toolchainOverride).removeDuplicates().dropFirst()
-            .sink { _ in overrideWrites += 1 }
+        var committedOverride = settings.settings.toolchainOverride
+        let overrideObserver = settings.observe { change in
+            guard change == .settings, settings.settings.toolchainOverride != committedOverride else { return }
+            committedOverride = settings.settings.toolchainOverride
+            overrideWrites += 1
+        }
         pressEngine("override")
         precondition(!setup.allowUntestedToolchain && overrideWrites == 0 && settings.editingSettings.toolchainOverride == true)
         try settings.commitDraft()
@@ -607,7 +611,7 @@ import NxnativeAdapter
             supportsNextendo: true, advanced: .constant(true), onActions: { networkActions = $0 })
         network.publishActions()
         var networkWrites = 0
-        let networkObserver = settings.$settings.dropFirst().sink { _ in networkWrites += 1 }
+        let networkObserver = settings.observe { if $0 == .settings { networkWrites += 1 } }
         func pressNetwork(_ id: String) { networkActions.first { $0.id == id }!.press(button: 0) }
         pressNetwork("multiplayerVPN")
         precondition(editor.settings.multiplayerVPN == .zeroTier && editor.settings.multiplayerAdapter == nil)

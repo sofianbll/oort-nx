@@ -6,7 +6,7 @@ import NxnativeAdapter
 struct AddGameStepThreeView: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var porting: PortingModel
-    @ObservedObject var router: AppRouter
+    var router: AppRouter
     var artwork: ArtworkStore? = nil
 
     @Environment(\.seleneCanvas) private var canvas
