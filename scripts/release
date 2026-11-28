@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Package locally using the same entry point as the Mac CI job.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+metadata() { python3 scripts/release_metadata.py "$@"; }
+fail() { echo "error: $*" >&2; exit 1; }
+STYLE=()
+case "${1:-}" in
+  '') [ "$#" -eq 0 ] || fail "usage: scripts/release [--plain-dmg]" ;;
+  --plain-dmg) [ "$#" -eq 1 ] || fail "usage: scripts/release [--plain-dmg]"; STYLE=(--plain) ;;
+  *) fail "usage: scripts/release [--plain-dmg]" ;;
+esac
+
+[ "$(uname -s)" = Darwin ] || fail "Mac packaging requires macOS"
+changes="$(git status --porcelain --untracked-files=all)"
+[ -z "$changes" ] || fail "the working tree has changes; commit or stash them first"
+metadata check-version
+VERSION="$(metadata version)"
+ENGINE="$(metadata engine-commit)"
+ENGINE_REPO="$(metadata engine-repository)"
+NOTES="$(metadata notes)"
+
+OUT="$ROOT/work/release"
+VERIFY=(--public)
+if [[ "${ARCANE_GOOGLE_CLIENT_ID:-}" =~ [^[:space:]] && "${ARCANE_GOOGLE_CLIENT_SECRET:-}" =~ [^[:space:]] ]]; then
+  [ -z "${GITHUB_ACTIONS:-}" ] || fail "CI must not package a private Google OAuth client"
+  OUT="$ROOT/work/release-private"
+  VERIFY=()
+fi
+[ -d "$ROOT/work/Runtime" ] || fail "no work/Runtime: run scripts/bundle_runtime.sh first"
+python3 scripts/check_publication.py --runtime "$ROOT/work/Runtime"
+
+# A hash from another repo or a tag alone is not a published engine branch.
+ENGINE_PROBE="$(mktemp -d)"
+trap 'rm -rf "$ENGINE_PROBE"' EXIT
+(
+  cd "$ENGINE_PROBE"
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_CONFIG GIT_CONFIG_PARAMETERS
+  export HOME="$ENGINE_PROBE" XDG_CONFIG_HOME="$ENGINE_PROBE" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+  export GIT_CONFIG_COUNT=0 GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false
+  git -c http.followRedirects=false clone --quiet --no-checkout --no-tags "$ENGINE_REPO" checkout &&
+    [ -n "$(git -C checkout for-each-ref --count=1 --contains="$ENGINE" refs/remotes/origin)" ]
+) || fail "engine commit $ENGINE must be reachable from a public branch of $ENGINE_REPO"
+
+NX_TEST_ENGINE_REPO="$ENGINE_PROBE/checkout" NX_TEST_ENGINE_COMMIT="$ENGINE" NX_TEST_ENGINE_REQUIRED=1 \
+  scripts/check swift
+scripts/check app-probes all
+python3 -m unittest discover -s scripts/tests/PublicationChecks
+
+APP="$OUT/Oort NX.app"
+ZIP="$OUT/Oort-NX-$VERSION.zip"
+DMG="$OUT/Oort-NX-$VERSION.dmg"
+rm -rf "$OUT"
+mkdir -p "$OUT"
+NX_RELEASE=1 bash scripts/build_app.sh "$APP"
+codesign --verify --deep --strict "$APP"
+metadata verify-app --app "$APP" ${VERIFY[@]+"${VERIFY[@]}"}
+
+# Finder metadata becomes unsealed sidecars. Use the updater's extraction path.
+ditto --norsrc -c -k --keepParent "$APP" "$ZIP"
+"$APP/Contents/Resources/Runtime/python/bin/python3" -I -B \
+  "$APP/Contents/Resources/validate_update.py" "$ZIP" "$OUT/.update-check"
+UNZIPPED="$OUT/.update-check/Oort NX.app"
+codesign --verify --deep --strict "$UNZIPPED"
+metadata verify-app --app "$UNZIPPED" ${VERIFY[@]+"${VERIFY[@]}"}
+python3 scripts/check_localizations.py --app "$UNZIPPED"
+python3 scripts/check_publication.py --app "$UNZIPPED"
+rm -rf "$OUT/.update-check"
+
+bash scripts/build_dmg.sh ${STYLE[@]+"${STYLE[@]}"} "$APP"
+mv "$ROOT/dist/Oort NX.dmg" "$DMG"
+printf '%s\n' "$NOTES" > "$OUT/requirements.md"
+(cd "$OUT" && shasum -a 256 "${ZIP##*/}" "${DMG##*/}" | tee SHA256SUMS)

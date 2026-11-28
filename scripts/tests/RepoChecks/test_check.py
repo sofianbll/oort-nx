@@ -25,7 +25,7 @@ class CheckRunnerTests(unittest.TestCase):
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0)
         for rule in ("R1  structure", "R2  boundaries", "R4  generated", "R5  strings", "R8  docs",
-                     "R10  publication", "R13  probes"):
+                     "R9  version", "R10  publication", "R12  release", "R13  probes"):
             self.assertIn(rule, result.stdout)
         self.assertEqual(result.stdout.count("red examples:"), len(load("check").RULES))
 

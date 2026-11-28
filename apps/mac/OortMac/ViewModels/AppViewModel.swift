@@ -398,7 +398,8 @@ final class AppViewModel: ObservableObject {
         ("ko", "Korean")
     ]
 
-    static let defaultPinnedEngineCommit = "99224562186a8fdb7e97afb872319a21941ec317"
+    static let defaultPinnedEngineRepository = "https://github.com/sofianbll/nxnative"
+    static let defaultPinnedEngineCommit = "29f84a30876f1516bd1dc3c92fcf93ae900785e7"
     let engineOverride = SetupActions.engineOverride(in: Bundle.main.infoDictionary)
     let core = AppData.supportRoot
     let catalogRepository: CatalogRepository

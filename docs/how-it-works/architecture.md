@@ -12,7 +12,7 @@ Ordine di lettura per chi lavora sul codice:
 
 Il [README](../../README.md) è la guida d'uso; la [guida di sviluppo](../working-on-it/development.md) raccoglie build, runtime, CI e release.
 
-**Engine predefinito:** pin `99224562186a8fdb7e97afb872319a21941ec317` di `seedds/nxnative`, definito in `AppViewModel.defaultPinnedEngineCommit`. Il suo lock certifica Metal `32023.922`, asset Apple `27B47`, con Xcode minimo `27.2`. Le revisioni di ogni pin sono in [upstream-upgrades](../history/engine-upgrades/README.md).
+**Engine predefinito:** il fork e il commit sono definiti in `AppViewModel.defaultPinnedEngineRepository` e `defaultPinnedEngineCommit` e copiati nel plist del bundle. Il lock dell’engine fissa Metal `32023.922`, asset Apple `27B47`, con Xcode minimo `27.2`. Le revisioni dei pin sono in [upstream-upgrades](../history/engine-upgrades/README.md).
 
 ## Indice
 
@@ -96,7 +96,7 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 - Le preferenze storiche appartengono a una lista esplicita; file di credenziali e nuovi token non si copiano per semplice prefisso. Le sessioni rimaste aperte nella copia terminano all'ultimo heartbeat registrato. Ripetere l'avvio non reimporta e non sovrascrive la Dev. La copia fallisce con Retry/Close, senza ripiegare sul profilo stabile.
 - Nella Dev il recupero dei salvataggi e la riconciliazione automatica delle icone non partono all'avvio. `DevelopmentOperationStore`, escluso dall'import, registra le richieste esplicite di build e icone e ne permette la ripresa dopo un riavvio. La pulizia automatica visita solo la Temp del profilo Dev, non lo staging sui volumi condivisi. Il factory dei `ModStore` disabilita la manutenzione automatica: consultare e aggiornare le schede non scrive l'overlay né elimina installazioni residue, e la lettura usa lo stato reale dell'overlay. Le azioni manuali agiscono sui giochi reali.
 - La Dev dell’essai 2 usa identificatore e cartelle separati dalla Dev ordinaria. Non importa automaticamente dalla stabile. Il comando esplicito di copia riusa i controlli del catalogo e la pubblicazione in staging dell’importatore, con una lista più stretta e senza leggere le preferenze stabili.
-- `release.sh` rifiuta un marker Dev nel pacchetto, e `AppUpdate` rifiuta un pacchetto del genere come aggiornamento.
+- `scripts/release` rifiuta un marker Dev nel pacchetto, e `AppUpdate` rifiuta un pacchetto del genere come aggiornamento.
 - Solo in Debug, la fixture Integrations sostituisce l’avvio normale e riceve radice e preferenze temporanee: usa le stesse viste con fatti sintetici, senza aprire store o servizi reali.
 
 **Shell.**
@@ -392,7 +392,7 @@ I quattro servizi facoltativi del tour sono decisi in `OptionalServiceEntries`, 
   - Cache di sette giorni (un giorno per le assenze e il ripiego di lingua), pause tra le richieste e un solo nuovo tentativo per timeout o errore server. Un errore non rende fresca una cache precedente. Details e Spotlight indicano la fonte e l'eventuale lingua di ripiego.
   - `metadataLocaleGeneration` impedisce a una risposta vecchia di ripopolare la UI dopo un cambio di lingua. Screenshot e artwork restano condivisi.
 
-**Controlli.** SwiftPM compila le risorse e `build_app.sh` le include prima della firma. `check_localizations.py` verifica copertura delle sette lingue, segnaposto, plurali e risorse compilate; `release.sh` ripete il controllo sullo ZIP estratto. Le traduzioni sono bozze dell'agente, non revisioni di madrelingua.
+**Controlli.** SwiftPM compila le risorse e `build_app.sh` le include prima della firma. `check_localizations.py` verifica copertura delle sette lingue, segnaposto, plurali e risorse compilate; `scripts/release` ripete il controllo sullo ZIP estratto. Le traduzioni sono bozze dell'agente, non revisioni di madrelingua.
 
 ## Setup, engine e compatibilità
 
@@ -1128,7 +1128,7 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 **Script di build e release.**
 - `bundle_runtime.sh` prepara Python e strumenti da `engines/nxnative/runtime.lock`, controlla gli hash e sistema i riferimenti Mach-O con `relink_macho.py`.
 - `build_app.sh` compila e confeziona bundle, risorse, plist e firma ad hoc, poi installa il bundle completo attraverso `BuildOutputInstaller` dopo firma e verifica. Le destinazioni standard sono `Oort NX Dev.app` e `Oort NX.app`. Il suo parametro di destinazione permette di preparare una copia temporanea prima di sostituire quella installata. `check_publication.py` rifiuta un helper rclone incluso o un avviso richiesto mancante. Se sono forniti entrambi i valori OAuth Google, `inject_google_client.py` li scrive nel plist senza inserirli negli argomenti dei processi.
-- `release.sh` richiede un albero pulito e il runtime pronto, esegue la suite Swift sul pin effettivo in un checkout temporaneo e lancia i controlli `apps/mac/Tests/CatalogAppChecks/run_*.py`. Imposta versione e marker di release e crea ZIP e DMG. Un pin personalizzato è scritto nel bundle prima della firma e nelle note.
+- `scripts/release` richiede un albero pulito e il runtime pronto. Esegue la suite Swift sul pin effettivo in un checkout temporaneo, poi i controlli su dati sintetici. Crea ZIP e DMG senza pubblicare; il plist e le note leggono versione e pin dalle rispettive fonti.
 - Con `--publish` autorizzato, l'unico URL di push di `origin` corrisponde al repository pubblico dell'updater, `HEAD` coincide con il suo `main` e il pin è raggiungibile da un ramo pubblico. Lo script verifica tag e assenza della release; riprende solo con tag locale e remoto identici sul commit atteso. Rifiuta le variabili del client Google, anche vuote, e le chiavi nel plist finale.
 - `build_dmg.sh` verifica la firma del bundle in ingresso e nel DMG UDZO montato in sola lettura e invisibile al Finder. `style_dmg.py` scrive il layout Finder nella radice del volume e genera il TIFF 1×/2× con `make_dmg_background.swift`, riusando la geometria Oort di `brand_icons.py`. Il bundle non porta i metadati Finder o i tool di confezionamento; `--plain` esclude la veste grafica e lascia invariato il contenuto di installazione.
 - `scripts/check_publication.py` verifica il runtime e i contenuti versionati.

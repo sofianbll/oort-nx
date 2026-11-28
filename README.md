@@ -11,7 +11,7 @@
 - **Apple silicon · macOS 26 or later.** Steam and individual games may need a newer system.
 - **Download** the DMG from [Releases](https://github.com/sofianbll/oort-nx/releases) and drag Oort NX to Applications. The app is not notarised: open it once, then choose **Open Anyway** in **System Settings → Privacy & Security**. Coming from 0.3.0? Install this DMG once: your library is copied and the earlier one stays untouched.
 - **Beta.** Versions follow semantic versioning. Real Drive transfers and games have not been tried with this build.
-- **Building a game?** Open **Settings → Switch → Engine**. New builds need compatible game files you have permission to use, nxnative and its matching Xcode and Metal compiler. Games, keys and firmware are not included. You do not need the build tools to play an existing game app.
+- **Building a Switch game?** Open **Settings → Switch → Engine**. The pinned nxnative fork needs macOS 26.6 or later, its matching Xcode and Metal compiler, and compatible game files you have permission to use. Games, keys and firmware are not included. You do not need the build tools to play an existing game app.
 
 For a source build, see the [development guide](docs/working-on-it/development.md). For help, see [Contributing](CONTRIBUTING.md); report vulnerabilities [privately](SECURITY.md).
 

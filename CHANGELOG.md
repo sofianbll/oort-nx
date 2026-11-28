@@ -4,6 +4,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ## Unreleased
 
+- **Switch on Mac:** Setup points to the updated nxnative fork. Existing game apps are not rebuilt by the launcher update; an untested toolchain still requires an explicit choice.
 - **My profile** keeps each total on one line at larger interface sizes and in every language, and shows achievement texts in full. An empty card says what to do and offers no **See all**. The buttons at the top are selected like **See all**, and the week writes the time above each day played. With a controller, ZL/ZR go to the first and last item, Right reaches Friends, and the hints show that holding Menu opens **Profile page**.
 - **Settings → Switch → Keys** no longer shows the private file’s location. Checking the keys does not change file permissions.
 - **Settings → Account → Nextendo** wraps access and verification messages across the account row instead of squeezing them next to the buttons.
@@ -11,7 +12,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - **Cloud library** keeps reading rclone’s output when macOS is slow to close its streams, instead of reporting a successful command as unavailable.
 - **Cloud library** keeps its single rclone when the Mac is busy: a daemon slow to start is no longer stopped for a 30-second fallback to one rclone per command, and its private folder can no longer be removed while it is being created.
 
-## 0.5.0-beta.4 — unreleased
+## 0.5.0-beta.4
 
 ### Added
 

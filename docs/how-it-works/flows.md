@@ -420,4 +420,4 @@ Dopo il riavvio, Setup confronta l'engine locale con il pin della nuova app. Se 
 
 ## 10. Preparare il DMG
 
-`release.sh` passa il bundle firmato a `build_dmg.sh`, che copia `Oort NX.app` senza risorse Finder e aggiunge il collegamento ad Applicazioni. Senza il ripiego esplicito `--plain-dmg`, aggiunge il layout, lo sfondo e l'icona al volume, non all'app. Crea il DMG UDZO, lo monta senza Finder in sola lettura, verifica firma e contenuto e lo smonta. Solo dopo questi controlli `release.sh` conserva il file come `NXLibrary-<version>.dmg`. Lo ZIP usato dall'updater è indipendente da questo layout.
+`scripts/release` passa il bundle firmato a `build_dmg.sh`, che copia `Oort NX.app` senza risorse Finder e aggiunge il collegamento ad Applicazioni. Senza il ripiego esplicito `--plain-dmg`, aggiunge layout, sfondo e icona al volume, non all'app. Monta il DMG UDZO in sola lettura, verifica firma, plist e contenuto e smonta. Solo dopo questi controlli `scripts/release` conserva `Oort-NX-<version>.dmg`. Lo ZIP usato dall'updater è indipendente dal layout; il workflow carica entrambi come artefatti di CI.

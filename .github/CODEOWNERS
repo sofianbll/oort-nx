@@ -5,7 +5,8 @@
 
 # Data, access, engine and releases need an explicit look.
 /.github/                           @sofianbll
-/scripts/release.sh                 @sofianbll
+/scripts/release                    @sofianbll
+/scripts/release_metadata.py        @sofianbll
 /scripts/build_app.sh               @sofianbll
 /scripts/check_publication.py       @sofianbll
 /engines/nxnative/NxnativeAdapter/Saves/       @sofianbll

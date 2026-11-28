@@ -41,7 +41,8 @@ final class SetupCheckModel: ObservableObject {
                    keysDirectory: viewModel.setup.keysDirectory, libraryFolder: viewModel.libraryFolder,
                    sourcesFolder: viewModel.porting.gameFilesFolder,
                    libraryNeedsConfirmation: viewModel.requiresGameAppsFolderChoice,
-                   newestEngine: viewModel.setup.newestEngineChoice, engineRemote: viewModel.engineOverride?.remote)
+                    newestEngine: viewModel.setup.newestEngineChoice,
+                    engineRemote: viewModel.engineOverride?.remote ?? AppViewModel.defaultPinnedEngineRepository)
     }
 
     func refresh() {

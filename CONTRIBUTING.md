@@ -112,4 +112,4 @@ Run `scripts/check strings` after any edit.
 - State the problem, the change, the checks you ran and the manual check that remains.
 - Record a user-visible change under **Unreleased** in [CHANGELOG.md](CHANGELOG.md), focused on the resulting behaviour.
 - The maintainer reviews, decides and merges. Passing checks are not approval to publish or install.
-- Releases go through `scripts/release.sh` and only the maintainer runs them. See [branch rules](docs/working-on-it/branch-rules.md).
+- Build packages with `scripts/release`. Only the maintainer authorizes a release. See [branch rules](docs/working-on-it/branch-rules.md).

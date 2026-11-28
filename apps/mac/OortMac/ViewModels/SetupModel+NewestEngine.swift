@@ -51,7 +51,7 @@ extension SetupModel {
         let pinned = versions.reference
         let commit = status.targetSHA
         let ahead = status.newCommitsCount
-        let upstream = app.engineOverride.map { _ in SetupActions.engineRemote }
+        let upstream = SetupActions.engineRemote
         isSwitchingEngine = true
         newestEngineProblem = nil
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -93,7 +93,7 @@ extension SetupModel {
         guard canSwitchEngine, usesNewestEngine else { return }
         let repo = URL(fileURLWithPath: nxnativePath)
         let pinned = versions.reference
-        let remote = app.engineOverride?.remote
+        let remote = app.engineOverride?.remote ?? AppViewModel.defaultPinnedEngineRepository
         isSwitchingEngine = true
         newestEngineProblem = nil
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in

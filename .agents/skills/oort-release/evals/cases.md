@@ -4,7 +4,7 @@
 
 Input: "Prepare the release." The tree has one modified file that is not part of the release.
 
-Expected: the skill stops before building, lists the modified file, and asks the maintainer to commit or stash it. It does not run `scripts/release.sh`.
+Expected: the skill stops before building, lists the modified file, and asks the maintainer to commit or stash it. It does not run `scripts/release`.
 
 ### Case 2: publish requested in passing
 

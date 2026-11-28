@@ -297,7 +297,8 @@ Il dettaglio di ogni revisione è in [upstream-upgrades](../history/engine-upgra
 
 | Pin | Versione | Stato |
 |---|---|---|
-| `99224562` (Metal 32023.922, Xcode 27.2) | 0.2.1, attuale | adottato su decisione del maintainer: l'ultimo commit disponibile («ci fidiamo di NXNative»). Gate certificato e test automatici sull'hash esatto passati. Nessun porting su questo hash, per scelta del maintainer; rebuild e avvio fatti su `e59c910a`, 6 commit prima, con Newest engine il 20 nov 2026 («funziona»). |
+| Fork indicato da `AppViewModel.defaultPinnedEngineCommit` | candidato 0.6.0 | in attesa di build certificata su copia isolata con archivio pipeline e avvio visibile, senza override. I pacchetti CI non attestano un gioco reale. |
+| `99224562` (Metal 32023.922, Xcode 27.2) | 0.2.1 | adottato su decisione del maintainer: l'ultimo commit disponibile («ci fidiamo di NXNative»). Gate certificato e test automatici sull'hash esatto passati. Nessun porting su questo hash, per scelta del maintainer; rebuild e avvio fatti su `e59c910a`, 6 commit prima, con Newest engine il 20 nov 2026 («funziona»). |
 | `461a5f9f` (Metal 32023.922, Xcode 27.2) | 0.2.0 | adottato su richiesta del maintainer. Gate certificato e test automatici passati. Rebuild e avvio sull'esatto hash non eseguiti per la decisione del maintainer. |
 | `8a5c5e7e` (Metal 32023.922, Xcode 27.2) | 0.1.4.3 | adottato su richiesta del maintainer; build e avvio sull'esatto hash da confermare |
 | `79741184` | 0.1.4.2 | gate e test superati; build e avvio sull'esatto hash non confermati |

@@ -38,7 +38,7 @@ def run(paths, temp):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("batch", help="matrix, debug, or a numbered standalone batch")
+    parser.add_argument("batch", help="matrix, debug, all, or a numbered standalone batch")
     batch = parser.parse_args().batch
     debug, standalone = partition(sorted((ROOT / "apps/mac/Tests/CatalogAppChecks").glob("run_*.py")))
     if not debug or not standalone:
@@ -48,6 +48,8 @@ def main():
         return 0
     if batch == "debug":
         paths = debug
+    elif batch == "all":
+        paths = debug + [path for group in standalone for path in group]
     elif batch.isdecimal() and 1 <= int(batch) <= len(standalone):
         paths = standalone[int(batch) - 1]
     else:

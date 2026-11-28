@@ -26,7 +26,7 @@ Name branches after the work, not after the tool that made them.
 ## Tags and releases
 
 - Protect tags matching `v*` and `*-v*`, for example `v0.5.0` and `windows-v0.1.0-alpha.1`. Only the maintainer creates them.
-- A release is created by `scripts/release.sh`, run by the maintainer. CI checks the code and does not publish anything. See the release section of [development](development.md#release-packaging).
+- `scripts/release` only builds local packages. The release workflow checks the tag and builds CI artifacts; only that workflow may create a draft release. See [development](development.md#release-packaging).
 - A release tag never moves. A fix is a new version.
 
 ## Commits and identity

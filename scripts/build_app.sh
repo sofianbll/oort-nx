@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # scripts/build_app.sh [destination.app]
-# NX_VERSION sets the app version (default: the version in progress, from the VERSION file); NX_RELEASE=1
-# marks a release copy, the only kind that updates itself. scripts/release.sh sets both; a plain build sets
-# neither, so a development copy carries the version being worked on and says it is a development build.
+# VERSION is the version in progress. scripts/release sets NX_RELEASE=1 to mark a release copy,
+# the only kind that updates itself. A plain build is marked as a development build.
 # A development copy is "Oort NX Dev" (default ~/Applications/Oort NX Dev.app), the maintainer's test copy,
 # beside the released "Oort NX" that updates itself. The development marker selects separate launcher
 # data/preferences and a distinct bundle ID, so framework-owned preferences are separate too.
@@ -33,21 +32,12 @@ if [[ "${NX_DEV_TRIAL2:-0}" = "1" ]]; then
   BUNDLE_ID="$BUNDLE_ID.trial2"
 fi
 CONFIG="${NX_BUILD_CONFIG:-release}"
-VERSION="${NX_VERSION:-$(tr -d '[:space:]' < "$ROOT/VERSION")}"
-if ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,3}$ || "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-(alpha|beta|rc)\.[1-9][0-9]*$ ]]; then
-  echo "error: NX_VERSION must be dotted numbers, or like 0.5.0-beta.1, got '$VERSION'" >&2
-  exit 1
-fi
+metadata() { python3 "$ROOT/scripts/release_metadata.py" "$@"; }
+VERSION="$(metadata version)"
 RELEASE_KEY="  <key>NXLibraryDevelopmentProfile</key><true/>"
 [ "${NX_RELEASE:-0}" = "1" ] && RELEASE_KEY="  <key>NXLibraryRelease</key><true/>"
-# release.sh validates reachability; reject incomplete/malformed pins in direct builds too.
-ENGINE_REPO="${NX_ENGINE_REPO:-}"
-ENGINE_COMMIT="${NX_ENGINE_COMMIT:-}"
-if [[ -n "$ENGINE_REPO$ENGINE_COMMIT" ]] &&
-   ! [[ "$ENGINE_REPO" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ && "$ENGINE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
-  echo "error: NX_ENGINE_REPO and NX_ENGINE_COMMIT must name a GitHub HTTPS repository and a full lowercase SHA" >&2
-  exit 1
-fi
+ENGINE_REPO="$(metadata engine-repository)"
+ENGINE_COMMIT="$(metadata engine-commit)"
 NEXTENDO_CLIENT_ID="${DM_NEXTENDO_CLIENT_ID:-}"
 GOOGLE_CLIENT_ID="${ARCANE_GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${ARCANE_GOOGLE_CLIENT_SECRET:-}"
@@ -150,10 +140,8 @@ fi
 if [[ -n "$NEXTENDO_CLIENT_ID" ]]; then
   /usr/bin/plutil -insert DMNextendoClientID -string "$NEXTENDO_CLIENT_ID" "$APP/Contents/Info.plist"
 fi
-if [[ -n "$ENGINE_REPO" ]]; then
-  /usr/bin/plutil -insert NXLibraryEngineRepository -string "$ENGINE_REPO" "$APP/Contents/Info.plist"
-  /usr/bin/plutil -insert NXLibraryEngineCommit -string "$ENGINE_COMMIT" "$APP/Contents/Info.plist"
-fi
+/usr/bin/plutil -insert NXLibraryEngineRepository -string "$ENGINE_REPO" "$APP/Contents/Info.plist"
+/usr/bin/plutil -insert NXLibraryEngineCommit -string "$ENGINE_COMMIT" "$APP/Contents/Info.plist"
 
 # Exercise the real profile/defaults accessor under this bundle identity, without
 # opening the app or importing data. Unit-test hosts have a different identity.

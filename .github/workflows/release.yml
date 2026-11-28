@@ -1,0 +1,63 @@
+name: Release packages
+
+'on':
+  workflow_dispatch:
+  workflow_call:
+  push:
+    tags: ['v*.*.*']
+
+# This first slice only builds Mac artifacts. A tag does not create a partial release.
+permissions:
+  contents: read
+
+jobs:
+  mac:
+    name: Mac / signed DMG and update ZIP
+    runs-on: xcode-27
+    timeout-minutes: 120
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+      DM_NEXTENDO_CLIENT_ID: ${{ vars.DM_NEXTENDO_CLIENT_ID }}
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_INSTALL_FROM_API: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check version and release boundaries
+        run: |
+          scripts/check version
+          scripts/check release
+          if [[ "$GITHUB_REF" == refs/tags/* && -z "$DM_NEXTENDO_CLIENT_ID" ]]; then
+            echo "::error::Set the public DM_NEXTENDO_CLIENT_ID repository variable to preserve the shipped Nextendo default."
+            exit 1
+          fi
+      - name: Prepare locked Mac tools
+        run: |
+          # This core snapshot still ships the zstd and glslang versions in runtime.lock.
+          core="$(brew --repository)/Library/Taps/homebrew/homebrew-core"
+          mkdir -p "$core"
+          git -C "$core" init -q
+          git -C "$core" fetch --depth=1 https://github.com/Homebrew/homebrew-core.git 5b0e414f47c37ea7128291167fce6f398fea3403
+          git -C "$core" checkout --detach FETCH_HEAD
+          for formula in zstd glslang; do
+            if brew list --versions "$formula" >/dev/null; then
+              brew uninstall --ignore-dependencies --force "$formula"
+            fi
+          done
+          brew install --force-bottle zstd glslang
+          bash scripts/bundle_runtime.sh
+          python3 -m venv "$RUNNER_TEMP/dmg-tools"
+          "$RUNNER_TEMP/dmg-tools/bin/python" -m pip install --require-hashes --only-binary=:all: -r scripts/dmg-requirements.txt
+          echo "OORT_DMG_PYTHON=$RUNNER_TEMP/dmg-tools/bin/python" >> "$GITHUB_ENV"
+      - name: Build and verify the Mac packages
+        run: scripts/release
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oort-nx-mac
+          path: |
+            work/release/Oort-NX-*.dmg
+            work/release/Oort-NX-*.zip
+            work/release/SHA256SUMS
+            work/release/requirements.md
+          if-no-files-found: error

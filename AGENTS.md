@@ -105,4 +105,4 @@ Development builds install as **Oort NX Dev** (`~/Applications/Oort NX Dev.app`)
 
 Then verify the gate in **Settings → Setup and engine**, build one real game, and launch it to a visible screen. Do not claim a build or game is working from compilation alone.
 
-Releases go through `scripts/release.sh` only: it refuses a dirty tree, so commit or stash local changes first. Never publish (`--publish`) without the user asking.
+Package with `scripts/release` from a clean tree. Only `release.yml` may write a GitHub release; a rehearsal must only upload CI artifacts. Tagging and publication need separate approval.

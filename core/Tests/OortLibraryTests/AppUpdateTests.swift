@@ -322,14 +322,14 @@ final class AppUpdateTests: XCTestCase {
         XCTAssertEqual(AppUpdate.requirementNotes(r, installedXcode: "Xcode 27.2", currentEngine: "x"), [])
     }
 
-    /// scripts/release.sh reads these two values from the sources with sed; a reformat must not break it.
+    /// The release metadata reader reads these two values from the sources.
     func testReleaseScriptCanReadTheRequirements() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let requirements = try String(contentsOf: root.appendingPathComponent("engines/nxnative/NxnativeAdapter/Setup/ToolchainRequirements.swift"), encoding: .utf8)
         XCTAssertNotNil(requirements.range(of: #"minimumXcode: "[0-9.]+""#, options: .regularExpression))
         let viewModel = try String(contentsOf: root.appendingPathComponent("apps/mac/OortMac/ViewModels/AppViewModel.swift"), encoding: .utf8)
         XCTAssertNotNil(viewModel.range(of: #"let defaultPinnedEngineCommit = "[0-9a-f]{40}""#, options: .regularExpression))
-        let script = try String(contentsOf: root.appendingPathComponent("scripts/release.sh"), encoding: .utf8)
+        let script = try String(contentsOf: root.appendingPathComponent("scripts/release_metadata.py"), encoding: .utf8)
         XCTAssertTrue(script.contains("nxlibrary-requires"))
     }
 

@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1699 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1702 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -78,6 +78,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo, npm e Gradle; apre solo pull request. |
 | [.github/LABELS.md](../../.github/LABELS.md) | Propone le etichette da creare; nessuna è stata applicata su GitHub. |
 | [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: prima le regole su Linux (Rules), poi i job di build; per Swift, unit test e sonde sulla stessa build Debug, gruppi di sonde autonome e build Release paralleli. Un solo verdetto, Checks. I port girano solo se cambiano i loro percorsi. |
+| [.github/workflows/release.yml](../../.github/workflows/release.yml) | Confeziona DMG e ZIP Mac in CI e ne carica le prove; nessun accesso in scrittura al repository. |
 | [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
@@ -1110,7 +1111,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [engines/nxnative/Tests/NxnativeAdapterTests/ScreenshotFallbackTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/ScreenshotFallbackTests.swift) | Screenshot LaunchBox cercati una volta e conservati, precedenza di quelli propri e dimensione piena della scelta. |
 | [core/Tests/OortLibraryTests/SteamGridDBArtTests.swift](../../core/Tests/OortLibraryTests/SteamGridDBArtTests.swift) | Chiave privata, richieste con la chiave solo a SteamGridDB, crediti, anteprime e ricerca da Browse online. |
 | [scripts/tests/PublicationChecks/test_publication.py](../../scripts/tests/PublicationChecks/test_publication.py) | Esegue il controllo in repository temporanee: file vietati, chiavi sintetiche redatte, runtime non conforme e testi o sorgenti mancanti o alterati. |
-| [scripts/tests/PublicationChecks/test_release_target.py](../../scripts/tests/PublicationChecks/test_release_target.py) | Verifica senza rete i controlli, la destinazione unica di tag e release e il ripiego DMG mantenendo il nome dell'asset, attraverso repository locali e comandi sostitutivi. |
+| [scripts/tests/RepoChecks/test_release_metadata.py](../../scripts/tests/RepoChecks/test_release_metadata.py) | Verifica con fixture il tag, la fonte del pin, il plist, il limite di pubblicazione e il rifiuto di un pin fuori dai branch pubblici. |
 | [scripts/tests/PublicationChecks/test_update_archive.py](../../scripts/tests/PublicationChecks/test_update_archive.py) | Verifica il controllo ZIP reale con bundle sintetici, symlink, percorsi non sicuri, collisioni Unicode, header incoerenti e dimensioni eccessive. |
 
 | File | Responsabilità |
@@ -1463,7 +1464,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [SteamArtworkRequestTests.swift](../../core/Tests/OortLibraryTests/SteamArtworkRequestTests.swift) | Quadrato dall’icona originale e mai dalla copertina, scelta personale prima, link che escono dal bundle ignorati, icona automatica solo senza app. |
 | [SteamAutomaticIconTests.swift](../../core/Tests/OortLibraryTests/SteamAutomaticIconTests.swift) | Quadrato LaunchBox della voce PC preso intero, scaricato una volta e conservato; nessun quadrato non si richiede di nuovo nella sessione. |
 | [SteamBackdropChoiceTests.swift](../../core/Tests/OortLibraryTests/SteamBackdropChoiceTests.swift) | Solo arte in formato schermo, ordine store → screenshot → banner, fan art LaunchBox fra store e screenshot, ripiego sulla prima immagine che si carica. |
-| [test_app_bundle.py](../../scripts/tests/PublicationChecks/test_app_bundle.py) | Verifica Game Mode, iniezione della coppia OAuth nel plist solo se completa e rifiuto delle variabili in pubblicazione. |
+| [test_app_bundle.py](../../scripts/tests/PublicationChecks/test_app_bundle.py) | Verifica Game Mode e iniezione della coppia OAuth nel plist solo se completa. |
 
 ## Script di sviluppo e packaging
 
@@ -1480,7 +1481,8 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/make_dmg_background.swift](../../scripts/make_dmg_background.swift) | Disegna il fondo Oort del DMG a 1× e 2×. |
 | [scripts/dmg-requirements.txt](../../scripts/dmg-requirements.txt) | Versioni e SHA-256 dei tool Python usati solo per confezionare il DMG. |
 | [scripts/bundle_runtime.sh](../../scripts/bundle_runtime.sh) | Prepara e firma il runtime dalle versioni bloccate, verifica hash e avvio, scarta il percorso home del costruttore Python. |
-| [scripts/release.sh](../../scripts/release.sh) | Verifica il pin effettivo in un checkout anonimo temporaneo; produce ZIP con radice `NXLibrary.app` e DMG Oort NX. Riprende la pubblicazione solo con tag identici sul commit atteso e release assente. |
+| [scripts/release](../../scripts/release) | Verifica il pin in un checkout temporaneo e genera ZIP di aggiornamento e DMG firmati; non pubblica. |
+| [scripts/release_metadata.py](../../scripts/release_metadata.py) | Legge VERSION e il pin, verifica il plist e applica R9 e R12. |
 | [scripts/validate_update.py](../../scripts/validate_update.py) | Verifica struttura, percorsi e limiti degli archivi prima dell'estrazione, sia nel bundle sia durante il packaging delle release. |
 | [scripts/relink_macho.py](../../scripts/relink_macho.py) | Riscrive riferimenti Mach-O dei binari e delle librerie affinché il runtime incluso sia rilocabile. |
 | [scripts/make_icons.swift](../../scripts/make_icons.swift) | Rigenera il cristallo dell’icona originale. |
@@ -1639,6 +1641,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [docs/history/engine-upgrades/2026-11-12-79741184-8a5c5e7e-review.md](../history/engine-upgrades/2026-11-12-79741184-8a5c5e7e-review.md) | Adozione engine per 0.1.4.3 e limiti della validazione registrata. |
 | [docs/history/engine-upgrades/2026-11-18-8a5c5e7e-461a5f9f-review.md](../history/engine-upgrades/2026-11-18-8a5c5e7e-461a5f9f-review.md) | Revisione engine per 0.2.0, confronto con il commit già provato, scelte d'integrazione e prove del gate. |
 | [docs/history/engine-upgrades/2026-11-20-461a5f9f-99224562-review.md](../history/engine-upgrades/2026-11-20-461a5f9f-99224562-review.md) | Revisione engine per 0.2.1: superficie del contratto, delta per area, cosa non si adotta (microfono, polacco e tailandese, switch di regolazione), gate certificato e test sull'hash esatto. |
+| [docs/history/engine-upgrades/2026-11-28-fork-candidate.md](../history/engine-upgrades/2026-11-28-fork-candidate.md) | Contratto del pin del fork per 0.6.0, requisiti invariati e prove ancora da completare. |
 | [docs/history/reviews/2026-11-09-hotfix-0.1.4.2.md](../history/reviews/2026-11-09-hotfix-0.1.4.2.md) | Ambito della release 0.1.4.2, autorizzazione del maintainer e verifiche ancora non confermate. |
 | [docs/history/reviews/2026-11-16-ratings-metadata-evidence.md](../history/reviews/2026-11-16-ratings-metadata-evidence.md) | Prove e misure dietro le scelte di voti e metadati: abbinamenti Wikidata, console Switch 2 in IGDB, download a blocchi, movimento del selettore, sonde LaunchBox/TheGamesDB. |
 | [docs/history/reviews/2026-11-17-arcane-moonlight.md](../history/reviews/2026-11-17-arcane-moonlight.md) | Contratti provati fuori schermo e tempi GPU del Moonlight prima/dopo, con limiti delle misure. |

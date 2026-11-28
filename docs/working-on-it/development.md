@@ -25,7 +25,7 @@ codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 
 The default destination is `~/Applications/Oort NX Dev.app`, named **Oort NX Dev**. It stays apart from the self-updating release (`Oort NX.app` for new installs; existing copies may keep a legacy path). On the launcher-development branch, Dev uses bundle ID `local.nxlibrary.development`, app data under `~/Library/Application Support/NXLibrary-Development`, a separate cache root and preference domain. A new Dev profile offers an independent copy of a stable local library if present. It copies catalog, profiles, artwork and play history, not builds, saves, preferences, queues or credentials. Close the release copy before importing. The held 0.1.4.3 branch retains its previously validated behavior. `build_app.sh` compiles the Release configuration, creates the bundle in staging, includes resources and notices, ad-hoc signs and verifies it, then installs it through the same atomic installer used by the application. It does not launch the app.
 
-A development copy carries the version in progress from the `VERSION` file at the repository root and shows it as "(Dev · Launcher)" on this development line in Settings; it has no release marker, so it never offers or installs app updates. `scripts/release.sh <version>` sets the released version itself and refuses to run unless `VERSION` already says that version. After a release, raise `VERSION` to the next version being worked on.
+A development copy shows the version from the repository's `VERSION` file as "(Dev · Launcher)" in Settings and never updates itself. `scripts/release` packages that same version with a release marker. After a release, raise `VERSION` to the next version being worked on.
 
 An alternate destination can be supplied without replacing the installed development copy:
 
@@ -42,7 +42,7 @@ Register a public PKCE application with Nextendo for `http://127.0.0.1:47823/cal
 
 ### Private Google Drive builds
 
-Supply both `ARCANE_GOOGLE_CLIENT_ID` and `ARCANE_GOOGLE_CLIENT_SECRET` in the environment of `scripts/release.sh` (without `--publish`) or `scripts/build_app.sh`. Use a desktop OAuth client. If either variable is missing or blank, no Google client keys are added to `Info.plist`. These keys are readable by anyone with the app, ZIP or DMG: keep the artifacts private and don't run the scripts with shell tracing. `release.sh --publish` refuses either variable even if set to an empty string and checks that the built plist has neither key. Personal releases go to `work/release-private`, accept an existing version tag without changing it, and can lose the embedded client when a public update replaces the app.
+Supply both `ARCANE_GOOGLE_CLIENT_ID` and `ARCANE_GOOGLE_CLIENT_SECRET` to `scripts/release` or `scripts/build_app.sh` for a private build. Use a desktop OAuth client. If either variable is missing or blank, neither key is added to `Info.plist`. Anyone with the app, ZIP or DMG can read them: keep the artifacts private and do not use shell tracing. `scripts/release` puts these packages in `work/release-private` and refuses to build them in CI. A public update can replace a private copy's embedded client.
 
 No app bundle includes rclone. With the player’s consent, `RcloneDownload` fetches the pinned macOS arm64 ZIP directly from the official HTTPS host, checks its exact size and SHA-256 against the reviewed [upstream checksums](https://downloads.rclone.org/v1.75.2/SHA256SUMS), and extracts only the expected member into the private app-data tree on the destination volume. `SecStaticCodeCheckValidity` verifies the original embedded signature before an exclusive atomic rename. The upstream signature is ad hoc, not a Developer ID or notarization claim; the checked archive hash is the identity of this release. URLSession writes bytes into app-created files, rather than opening a Finder download, and the app does not remove quarantine, re-sign or run approval overrides. Externally chosen executables retain their own signatures and quarantine. If macOS refuses one, choose a working executable in Advanced.
 
@@ -150,13 +150,13 @@ Passing checks do not establish that an interactive update or a game works. See 
 
 For manual setup checks on an existing account, use **Settings → Start-up → Open Setup**: Continue opens Your games without resetting the library. Check file-picker cancellation, Back, Open library and source review. A fresh account additionally verifies Skip persistence and resuming an interrupted first setup. Interactive checks remain the user's responsibility; agents do not launch the UI.
 
-`release.sh` runs the same `CatalogAppChecks/run_*.py` set after the Swift suite and stops if any check fails. These checks use synthetic inputs without opening windows. The Cloud screen checks with optional output paths use temporary directories by default. The downgrade comparison and download capture report a skip without their explicit inputs; the NUP engine-snapshot probe remains optional.
+`scripts/release` runs `scripts/check app-probes all` after the Swift suite and stops if any check fails. The probes use synthetic inputs and isolated homes. The downgrade comparison and download capture report a skip without their explicit inputs; the NUP engine-snapshot probe remains optional.
 
 ### Continuous integration
 
-The [Checks workflow](../../.github/workflows/ci.yml) runs on both `main` pushes and pull requests, including forks. Its **Rules** job runs `scripts/check` on Linux in seconds; every build job waits for it. The Mac jobs use GitHub-hosted `xcode-27`, at most five at a time per account. The single **Checks** verdict requires the rules and, for Swift changes, the Swift unit suite with the shared application probes, every standalone probe batch, and the Release build. `swift test` already builds the Debug app, so the shared probes run in the same job on that build; that job first runs the Python tests again on the Mac (`release.sh` needs macOS). CI runs at most two standalone package builds per runner. The common build helper uses the runner home for Xcode mounts, then the probe binary runs with its isolated fixture home. Every `run_*.py` still runs and reports its timing.
+The [Checks workflow](../../.github/workflows/ci.yml) runs on `main` pushes and pull requests, including forks. Its **Rules** job runs `scripts/check` on Linux; every check build waits for it. The Mac jobs use GitHub-hosted `xcode-27`, at most five at a time per account. The single **Checks** verdict requires the rules and, for Swift changes, the Swift unit suite with the shared probes, every standalone probe batch and the Release build. The Debug job first repeats the Python tests on Mac. The common probe helper uses the runner home for Xcode mounts and an isolated fixture home for the probe. Every `run_*.py` reports its timing.
 
-Checkout is pinned and does not retain credentials. Permissions are read-only; the workflow needs no secrets, self-hosted runners, packaging or publishing. It does not run the UI or games or certify the engine. See the [runner measurements](../history/reviews/2026-11-26-mac-ci.md).
+Checkout is pinned and does not retain credentials. Checks use read-only permissions and no secrets. Manual dispatch with `mac_packages` calls the Mac packaging job with the same read-only permissions. CI does not run real games or certify the engine. See the [runner measurements](../history/reviews/2026-11-26-mac-ci.md).
 
 Standalone probes use a SHA-256-verified rclone release for the synthetic local transport. SwiftUI-only text checks read a companion PDF from the same offscreen renderer and prove each expected text visible from its pixels (`assertVisible`); the AppKit settings probe still reads its screenshots and uses CPU-only Tesseract in CI for the hidden windows. The OCR package lock and language files are test dependencies, not application dependencies (Tesseract and its language data: Apache-2.0; see the [npm wrapper](https://github.com/naptha/tesseract.js)). `workflow_dispatch` can exercise all jobs on an authorized fix branch without changing `main`.
 
@@ -168,17 +168,13 @@ Before a game/toolchain combination is described as working, the user checks **S
 
 ## Engine upgrades
 
-Never patch `~/nxnative` or follow its `main` branch automatically. The default pin is in `AppViewModel.defaultPinnedEngineCommit`; an explicit release pin supplies both the repository and commit. `ToolchainRequirements.current` describes the supported setup requirements and downloadable Metal assets.
+Never patch `~/nxnative` or follow `main` automatically. `AppViewModel.defaultPinnedEngineCommit` and `defaultPinnedEngineRepository` select the fork checkout; Mac builds write both to `Info.plist`. Choosing **Newest engine** explicitly still targets upstream. `ToolchainRequirements.current` describes the supported setup requirements and downloadable Metal assets.
 
 An upgrade requires reviewing the upstream delta and CLI, deciding which capabilities to adopt, wiring applicable flags, updating certification data and verifying tests, the gate, a real build and a visible launch. Follow the [upgrade checklist](../history/engine-upgrades/README.md), write a dated note and update the README, design spec and changelog. A newer engine commit alone is not sufficient evidence.
 
 ## Release packaging
 
-Use `scripts/release.sh` for releases. It requires a clean working tree, a `VERSION` file that names the release and a runtime that matches the lock. It tests the exact engine pin shipped in the bundle in an anonymous temporary checkout and runs the publication checks before packaging. An unavailable pin fails the release. Commit or deliberately stash local work first; do not discard changes to satisfy the check.
-
-Publication normally requires an unused tag. If the tag was pushed but the release is absent, run the same publish command again: it accepts only identical local and remote tag objects that resolve to the published release commit. An existing release (including a draft) or an unverified release list stops the script. This does not move or re-push the tag.
-
-With `--publish`, the effective `origin` push URL must point to the one public GitHub repository resolved from the updater source. The script reads `main` and the version tag directly in that repository, not from the fetch URL or a cached tracking ref. It requires `HEAD` to match that `main`, the version tag to be unused locally and remotely, and the engine pin to be reachable from a public branch. It checks again after packaging, pushes only that tag, and verifies its commit before asking GitHub to create the release in the same repository. If the tag push or release upload fails, check the remote tag and release state before retrying.
+`scripts/release` builds the same Mac packages as CI. It requires a clean tree and `work/Runtime` from `scripts/bundle_runtime.sh`. It verifies that the exact engine SHA is reachable from a public branch of the selected fork, then tests the launcher against that SHA. `scripts/check version` validates `VERSION` and the current CI tag; `scripts/check release` guards the publication boundary. The local command cannot tag, push or publish.
 
 The release DMG uses the Oort artwork by default. Set up its build-only Python
 tools once in a virtual environment outside the repository:
@@ -192,58 +188,33 @@ export OORT_DMG_PYTHON="$dmg_env/bin/python"
 
 [dmgbuild](https://github.com/dmgbuild/dmgbuild), [ds_store](https://github.com/dmgbuild/ds_store) and [mac_alias](https://github.com/dmgbuild/mac_alias) (both MIT) are not included in the app or installer. The DMG step works offline after setup and needs Xcode's Swift and SetFile. `diskutil image create from` drops the canonical spelling `.DS_Store` when copying a folder on macOS 27; the builder stages it as `.ds_store` and verifies its contents at the canonical path on the case-insensitive APFS volume.
 
-For example, to prepare a later release locally:
+From a clean checkout, with the locked runtime and DMG tools ready:
 
 ~~~sh
-bash scripts/release.sh 0.1.2
+scripts/release
 ~~~
 
-The script builds a release-marked app, verifies its version and signature, and produces a ZIP and DMG in `work/release/`. Without `--publish`, it does not push a tag or create a GitHub release. Version `0.1.0` is the first public alpha; use an unused version for later releases.
-
-To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/Oort NX.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
+The script verifies the signed bundle and re-reads its metadata in the updater ZIP and the mounted DMG. `work/release/` contains both packages, `SHA256SUMS` and the Xcode/engine note consumed by the updater. Use `scripts/release --plain-dmg` for the unstyled installer; missing tools do not silently change the style.
 
 Platform SVGs, generic Lucide fallbacks and notices live in `design/Brands/Platforms`.
 Publication checks verify reviewed hashes and reject extra brand files. Only the two Switch platform symbols are an exception to the Nintendo artwork rule.
 
-Publishing requires an explicit maintainer decision and the script's `--publish --notes <file>` options. Prepare reviewed notes from [CHANGELOG.md](../../CHANGELOG.md), then date the version when it is actually published. The script adds engine/Xcode requirement metadata to release notes for the updater. Never publish automatically as part of an agent's verification.
+[Release packages](../../.github/workflows/release.yml) builds on a matching `vX.Y.Z` tag or manual dispatch, and currently only uploads Mac artifacts. Before the release workflow joins the default branch, use the already-registered Checks workflow with `mac_packages` on the authorized branch. A rehearsal has read-only repository permissions.
 
 ### Publication perso (Sofian)
 
 Oort NX utilise son propre `MAJOR.MINOR.PATCH` : **PATCH** pour les correctifs seuls, **MINOR** pour les nouveautés compatibles et **MAJOR** pour les changements incompatibles. La base amont (« basé sur Arcane 0.2.1 ») figure dans les notes et dans À propos, jamais dans le numéro. Les anciennes releases `0.2.1.2026112x` conservent leurs versions et leurs tags ; l’updater les reconnaît toujours.
 
-1. Choisir un commit **testé** du fork moteur, accessible depuis une branche publique. Après accord, poser le tag moteur `oort-vX.Y.Z` sur ce SHA exact ; Oort NX épingle le SHA, pas le tag. Pour `0.3.0` :
-
-   ~~~sh
-   git -C ~/Games/Switch/Engine tag oort-v0.3.0 46612553ee409a7f42549d0533cb76655e72cd77
-   git -C ~/Games/Switch/Engine push https://github.com/sofianbll/nxnative refs/tags/oort-v0.3.0
-   ~~~
-
-2. Dans le dépôt du lanceur, inscrire `0.3.0` dans `VERSION`, préparer les notes à partir du [modèle FR](perso-release-notes.md), valider et commiter sur un arbre propre. Préparer `work/Runtime` avec `scripts/bundle_runtime.sh`, puis vérifier ZIP, DMG et plist sans publier :
-
-   ~~~sh
-   DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID" bash scripts/release.sh 0.3.0 \
-     --engine-repo https://github.com/sofianbll/nxnative \
-     --engine-commit 46612553ee409a7f42549d0533cb76655e72cd77
-   ~~~
-
-   Pour la publication perso, passer `DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID"` aux deux commandes : le build inscrit cet identifiant public dans `DMNextendoClientID` dans le plist de l’app. Ne pas fournir de secret Nextendo. Le script refuse un SHA qui n'est pas accessible depuis une branche du dépôt. Sans les deux options moteur, la build conserve le dépôt et le pin amont.
-
-3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Depuis 0.4.0, le script vise `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Pour 0.4.0 seulement, publier ensuite les mêmes fichiers et le même tag dans `sofianbll/NxLibrary` : les copies jusqu’à 0.3.0 y cherchent leur mise à jour. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
-
-   ~~~sh
-   DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID" bash scripts/release.sh 0.3.0 \
-     --engine-repo https://github.com/sofianbll/nxnative \
-     --engine-commit 46612553ee409a7f42549d0533cb76655e72cd77 \
-     --publish --notes "$HOME/oort-nx-0.3.0.md"
-   ~~~
-
-4. Le pote qui utilise déjà une **release du fork** voit la version et ses notes dans **Settings → About → Check now** (ou à l'ouverture si le contrôle automatique est dû). Une copie Dev ou une release Bium23 ne bascule pas sur le fork : première installation depuis le DMG du fork. Après le redémarrage, **Setup** propose de cloner, mettre à jour ou basculer vers le moteur épinglé. Les jeux existants restent jouables ; recompiler les titres indiqués dans les notes pour appliquer les changements moteur. Le bouton **Upstream** compare toujours à `seedds/nxnative` `main`.
+1. Valider le commit moteur exact du fork. Avec accord, poser `oort-vX.Y.Z` côté moteur et `vX.Y.Z` sur le commit approuvé de `main` côté lanceur. Les deux tags restent immuables.
+2. Donner à la CI l'identifiant **public** Nextendo via la variable de dépôt `DM_NEXTENDO_CLIENT_ID`, après accord séparé sur le réglage GitHub. Une répétition manuelle peut construire sans cet identifiant ; un tag le demande pour préserver le défaut du paquet distribué. Ne jamais fournir de secret Nextendo.
+3. Préparer les [notes FR](perso-release-notes.md) à partir de `CHANGELOG.md`, avec le marqueur de compatibilité généré. Ne dater les notes dans le changelog qu'à la publication effective.
+4. Dans une release du fork, **Settings → About → Check now** propose les nouvelles versions compatibles. Après redémarrage, **Setup** propose le moteur épinglé. Les jeux existants gardent le moteur avec lequel ils ont été compilés ; **Upstream** compare toujours à `seedds/nxnative` `main`.
 
 ### Distribution work still open
 
 The first public alpha uses the existing `local.nxlibrary` bundle identity and ad-hoc signing, without notarisation. Developer ID distribution will need signing-identity verification and notarisation. Updates verify GitHub's SHA-256 digest and the sealed app signature; ad-hoc signatures do not independently identify the publisher.
 
-From 0.4.0 the updater uses `sofianbll/oort-nx` directly, with anonymous public access. Copies up to 0.3.0 check `sofianbll/NxLibrary`, where the same files of 0.4.0 are published. No separate download repository or login is needed for users. Release copies update themselves; source builds remain excluded. `release.sh --publish` requires the configured repository to be public. ZIP downloads are limited to 512 MiB, restricted to GitHub's HTTPS download hosts and checked against the published size and digest. The bundled Python checks paths, symlinks, duplicates, special files and a 30,000-entry limit, then extracts using bounded raw decompression with a 2 GiB total limit. It verifies actual output size and CRC rather than trusting ZIP size fields. Release packaging uses this same extraction path and verifies the extracted bundle signature; ZIPs omit Finder metadata sidecars.
+From 0.4.0 the updater uses `sofianbll/oort-nx` directly, with anonymous public access. Copies up to 0.3.0 check `sofianbll/NxLibrary`. Release copies update themselves; source builds remain excluded. ZIP downloads are limited to 512 MiB, restricted to GitHub's HTTPS download hosts and checked against the published size and digest. The bundled Python checks paths, symlinks, duplicates, special files and a 30,000-entry limit, then extracts using bounded raw decompression with a 2 GiB total limit. It verifies actual output size and CRC rather than trusting ZIP size fields. Release packaging uses the same extraction path and verifies the extracted bundle signature; ZIPs omit Finder metadata sidecars.
 
 ### First installation and A → B update test
 
@@ -252,10 +223,10 @@ Validate installation from the published DMG and replacement of an installed rel
 1. Download release A's DMG from GitHub, install normally, eject the DMG and complete Setup. Check that the installation folder is writable; updates must not change permissions silently.
 2. Build and launch one supported game using the user's own files. Save progress, set a favourite and change one preference. Create a save backup, then close the game and app.
 3. Prepare B with a higher numeric version and clear test notes, keeping the same bundle ID, data paths and engine pin. No artificial feature is required to exercise replacement.
-4. Publish B through `scripts/release.sh`, then open the installed A. Automatic checks run at most once per 24 hours; use **Settings → About → Check now** for an immediate check. The manual check exposes availability in About; the launch popup is a separate check after the interval.
+4. Once B is published with approval, open the installed A. Automatic checks run at most once per 24 hours; use **Settings → About → Check now** for an immediate check. The manual check exposes availability in About; the launch popup is a separate check after the interval.
 5. Update from inside A. Verify B reopens, reports its version and retains the library, favourite, preference, keys, backups and game progress. Test the automatic launch offer separately. Record actual results; compilation does not establish that this interactive flow worked.
 
-The updater reads `releases/latest`, which excludes draft and prerelease entries. A copy running a pre-release reads the release list instead, so a beta finds the next beta. Keep both A's DMG and ZIP when preparing B: `release.sh` replaces its local `work/release` output. Do not alter the Mac's clock to exercise the interval.
+The updater reads `releases/latest`, which excludes draft and prerelease entries. A copy running a pre-release reads the release list instead, so a beta finds the next beta. Keep both A's DMG and ZIP outside `work/release` when preparing B. Do not alter the Mac's clock to exercise the interval.
 
 These are distribution decisions. Do not bypass the dirty-tree check, change the engine pin or weaken the Metal gate to make packaging succeed.
 

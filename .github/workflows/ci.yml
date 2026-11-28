@@ -11,6 +11,11 @@ name: Checks
     # `labeled` so that adding ci:full starts the proof jobs without a new commit.
     types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
+    inputs:
+      mac_packages:
+        description: Build and verify Mac release artifacts without publishing
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,6 +25,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-mac:
+    if: github.event_name == 'workflow_dispatch' && inputs.mac_packages
+    uses: ./.github/workflows/release.yml
+
   areas:
     name: Changed areas
     runs-on: ubuntu-24.04
@@ -96,7 +105,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Python tests on the Mac (release.sh needs macOS)
+      - name: Python tests on the Mac
         run: python3 scripts/check python
       - name: Swift tests
         run: python3 scripts/check swift

@@ -56,6 +56,8 @@ fi
 hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$MOUNT" "$IMAGE" >/dev/null
 ATTACHED=1
 codesign --verify --deep --strict "$MOUNT/Oort NX.app"
+cmp -s "$APP/Contents/Info.plist" "$MOUNT/Oort NX.app/Contents/Info.plist" || fail "the mounted app's plist changed"
+echo "Mounted DMG version: $(/usr/bin/plutil -extract CFBundleShortVersionString raw "$MOUNT/Oort NX.app/Contents/Info.plist")"
 [ "$(readlink "$MOUNT/Applications")" = /Applications ] || fail "Applications shortcut missing"
 if [ "$PLAIN" = 0 ]; then
   for file in .DS_Store .background.tiff .VolumeIcon.icns; do
