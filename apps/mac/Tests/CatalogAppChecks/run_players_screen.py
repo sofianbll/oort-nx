@@ -740,7 +740,7 @@ final class HomeSettingsFixture: ControllerHomeSettings {
 
     @MainActor static func withHost<V: View, Result>(_ view: V, size: CGSize, locale: AppLocale,
         backdrop: SeleneBackdropStyle = .init(), _ inspect: (NSView) throws -> Result) rethrows -> Result {
-        let host = NSHostingView(rootView: view.environmentObject(sources).environmentObject(AppUpdater())
+        let host = NSHostingView(rootView: view.environment(sources).environmentObject(AppUpdater())
             .environment(\.nxAppLocale, locale)
             .environment(\.seleneReduceMotion, true).environment(\.seleneBackdropStyle, backdrop).seleneCanvasRoot())
         host.frame.size = size

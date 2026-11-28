@@ -24,7 +24,7 @@ struct GameDetailView: View {
     var settings: AppSettingsStore
     var playSessions: PlaySessionStore
     @ObservedObject var runningGames: RunningGameMonitor
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
     let game: PortedGame
     @ObservedObject private var cloud: CloudLibraryModel
 
@@ -49,7 +49,7 @@ struct GameDetailView: View {
 
     @StateObject var art = SeleneHeroArt()
     /// Art the player picks redraws the hero and logo (their task keys carry its revision).
-    @ObservedObject var picks = ArtworkPicks.shared
+    var picks = ArtworkPicks.shared
     @State var focus = DetailsFocus()
     /// The open screenshot viewer (the game's titleID, its urls and the paging state).
     @State var viewer: ViewerContext?
@@ -163,6 +163,8 @@ struct GameDetailView: View {
     // MARK: - Body
 
     var body: some View {
+        // A chosen picture changes what every card shows: redraw on each pick (ArtworkPicks.revision).
+        let _ = picks.revision
         let model = self.model
         cache.model = model
         return ZStack(alignment: .topLeading) {

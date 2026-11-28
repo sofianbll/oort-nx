@@ -10,7 +10,7 @@ struct LocalePicker: View {
     @ObservedObject var settings: SettingsEditor
     let canHandleInput: () -> Bool
     let onClose: () -> Void
-    @ObservedObject private var localization = AppLocalization.shared
+    private var localization = AppLocalization.shared
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @State private var query = ""

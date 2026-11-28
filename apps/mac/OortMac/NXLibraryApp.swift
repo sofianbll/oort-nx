@@ -37,7 +37,7 @@ extension Notification.Name {
 struct NXLibraryApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @FocusedValue(\.nxMenuAvailability) private var availability
-    @ObservedObject private var localization = AppLocalization.shared
+    private var localization = AppLocalization.shared
 
     #if DEBUG
     init() {
@@ -73,6 +73,8 @@ struct NXLibraryApp: App {
     #endif
 
     var body: some Scene {
+        // The window title and the menus are words of the app's language: read it so they follow a change.
+        let _ = localization.context
         Window(windowTitle, id: windowID) {
             startup
         }

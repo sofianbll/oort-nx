@@ -1,14 +1,16 @@
 import Foundation
-import Combine
+import Observation
 
 /// One manifest publishes a complete title draft. New image files are prepared
 /// first; a failed manifest commit leaves every previous reference untouched.
-public final class SteamPersonalizationStore: ObservableObject {
+@Observable
+public final class SteamPersonalizationStore {
     private struct Entry: Codable { var fields: [String: String]; var art: [String: String] }
-    @Published public private(set) var revision = 0
+    public private(set) var revision = 0
     private let directory: URL
     private let publish: (Data, URL) throws -> Void
     private let invalidManifest: Bool
+    /// Observed with `revision`: a view that reads a value or a picture redraws when it changes.
     private var entries: [String: Entry]
     public init(directory: URL, publish: @escaping (Data, URL) throws -> Void = { try $0.write(to: $1, options: .atomic) }) {
         self.directory = directory; self.publish = publish

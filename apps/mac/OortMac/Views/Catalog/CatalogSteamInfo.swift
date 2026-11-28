@@ -19,8 +19,8 @@ struct CatalogSteamInfo: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.nxAppLocale) private var localization
-    @ObservedObject private var fields = SteamPersonalizations.shared.metadata
-    @ObservedObject private var picks = SteamPersonalizations.shared.artwork
+    private var fields = SteamPersonalizations.shared.metadata
+    private var picks = SteamPersonalizations.shared.artwork
     @ObservedObject private var facts = SteamGameFacts.shared
     @ObservedObject private var player = SteamPlayCoordinator.shared
     @ObservedObject private var logos = SteamLogoCache.shared

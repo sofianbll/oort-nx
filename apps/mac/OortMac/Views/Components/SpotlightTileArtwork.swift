@@ -20,7 +20,7 @@ struct SpotlightTileArtwork: View {
     var ownIconFirst = false
     var cloudTile: DownloadCloudTileStyle? = nil
 
-    @ObservedObject private var picks = ArtworkPicks.shared
+    private var picks = ArtworkPicks.shared
     @State private var better: NSImage?
     @State private var picked: NSImage?
     @State private var loadedPickKey: NSString?

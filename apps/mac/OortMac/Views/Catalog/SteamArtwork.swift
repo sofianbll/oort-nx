@@ -16,7 +16,7 @@ struct SteamArtwork: View {
     /// The first look-up has ended (art found or not): a tile is ready for Spotlight's entrance.
     @State private var settled = false
     @Environment(\.seleneCanvas) private var canvas
-    @ObservedObject private var picks = SteamPersonalizations.shared.artwork
+    private var picks = SteamPersonalizations.shared.artwork
     private var installedApp: CatalogNativeApplication? {
         game.steamGame?.firstAvailableInstallation?.primaryApplication
     }

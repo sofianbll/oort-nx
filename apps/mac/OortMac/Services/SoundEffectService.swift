@@ -26,7 +26,7 @@ enum SoundEffectType: String, CaseIterable {
 final class SoundEffectService {
     static let shared = SoundEffectService()
 
-    private var observation: AppSettingsObservation?
+    private var observation: StoreObservation?
     private var focusObserver: AnyCancellable?
     /// Starting a player blocks for a few milliseconds (the audio server's
     /// handshake), so the players live and play on a queue of their own: a move

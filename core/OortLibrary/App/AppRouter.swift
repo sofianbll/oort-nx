@@ -167,7 +167,7 @@ public final class AppRouter {
         if isPalettePresented { isPalettePresented = false }
     }
     @ObservationIgnored private var profileSpotlightKey: String?
-    @ObservationIgnored private var inboxSetting: AppSettingsObservation?
+    @ObservationIgnored private var inboxSetting: StoreObservation?
 
     public init(settings: AppSettingsStore? = nil) {
         var shown: Bool?

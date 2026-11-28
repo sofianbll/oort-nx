@@ -15,24 +15,24 @@ struct AppShellView: View {
     @ObservedObject var store: StoreMetadataModel
     @State var router: AppRouter
     @State var settings: AppSettingsStore
-    @State var playSessions = PlaySessionStore()
+    @State var playSessions: PlaySessionStore
     var profiles: LocalProfileStore
     @State var profileFlow: ProfileFlow?
     @State var profilePageFocus: ProfilePage.Focus?
     @State var steamBlocksIdlePresence = false
     @State var onlinePlayers: [String: Int] = [:]
     static let onlineCounts = NextendoOnlineCounts()
-    @StateObject var artwork = ArtworkStore()
+    @State var artwork: ArtworkStore
     @StateObject var runningGames = RunningGameMonitor()
     @StateObject var sessionCard = SessionCardPresenter()
     @StateObject var updater = AppUpdater()
     @StateObject var palette = CommandPalette()
-    @StateObject var sources: CatalogSourcesModel
+    @State var sources: CatalogSourcesModel
     private let igdb: IGDBSettings
     private let modStoreHost: ModStoreHost
     @StateObject var nativeMenus = NativeMenuCommands.shared
     @ObservedObject private var theme = ThemeStore.shared
-    @ObservedObject var localization = AppLocalization.shared
+    var localization = AppLocalization.shared
     @State var gestureKeyMonitor: Any?
     @State var cloudQuitFocus: SeleneConfirmButton = .cancel
     /// Rescans the Steam source when Steam rewrites a manifest (a download finishing, a game installed or removed).
@@ -50,12 +50,14 @@ struct AppShellView: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
 
     @MainActor init(state: AppShellState) {
-        _sources = StateObject(wrappedValue: state.sources)
+        _sources = State(initialValue: state.sources)
         _settings = State(initialValue: state.settings)
         _viewModel = StateObject(wrappedValue: state.viewModel)
         _setup = ObservedObject(wrappedValue: state.viewModel.setup)
         _store = ObservedObject(wrappedValue: state.viewModel.store)
         _router = State(initialValue: state.router)
+        _playSessions = State(initialValue: state.playSessions)
+        _artwork = State(initialValue: state.artwork)
         profiles = state.profiles
         igdb = state.igdb
         _profileFlow = State(initialValue: state.viewModel.profileOwnsInput

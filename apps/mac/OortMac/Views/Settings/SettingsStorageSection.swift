@@ -3,7 +3,7 @@ import OortLibrary
 
 struct SettingsStorageSection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
     let onActions: ([SettingsRowAction]) -> Void
 
     @State private var metadataBytes: Int64 = 0

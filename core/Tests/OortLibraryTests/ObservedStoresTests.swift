@@ -60,6 +60,27 @@ final class ObservedStoresTests: XCTestCase {
         store.start(gameID: game, sourceID: "steam-440")
         XCTAssertEqual(started, [game])
     }
+
+    func testAPictureChoiceAndAPersonalValueAreSeen() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("art-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let picks = ArtworkPicks(directory: directory)
+        XCTAssertTrue(notifies({ _ = picks.revision }, when: { picks.remove(titleID: "0100", slot: .cover) }))
+        let personal = SteamPersonalizationStore(directory: directory)
+        XCTAssertTrue(try notifies({ _ = personal.value(titleID: "10", field: .description) }, when: {
+            try personal.save(fields: [.description: "Mine"], images: [:], automatic: [], titleID: "10")
+        }), "a view that reads a value redraws when it changes")
+    }
+
+    @MainActor
+    func testALanguageChangeIsSeen() {
+        let localization = AppLocalization()
+        var settings = AppSettings()
+        settings.appLanguage = settings.appLanguage == .french ? .english : .french
+        XCTAssertTrue(notifies({ _ = localization.context }, when: { localization.configure(settings) }))
+        L10n.setContext(AppLocale(language: .english, region: "US"))
+    }
 }
 
 private final class LockedFlag: @unchecked Sendable {

@@ -1528,7 +1528,7 @@ extension SettingsView {
         let sources = CatalogSourcesModel(repository: viewModel.catalogRepository,
             initialConfiguration: .init(integration: .steam), onCommit: { _ in preconditionFailure("Unexpected Steam change") })
         let view = Self(initialSection: .sources, viewModel: viewModel, settings: settings, router: router, artwork: artwork)
-        let host = NSHostingView(rootView: view.environmentObject(sources).frame(width: 1280, height: 800))
+        let host = NSHostingView(rootView: view.environment(sources).frame(width: 1280, height: 800))
         host.frame = CGRect(x: 0, y: 0, width: 1280, height: 800)
         for _ in 0..<10 {
             _ = host.fittingSize

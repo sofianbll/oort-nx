@@ -43,7 +43,7 @@ public struct URLSessionArtworkClient: ArtworkHTTPClient {
     }
 }
 
-public final class ArtworkStore: ObservableObject, Sendable {
+public final class ArtworkStore: Sendable {
     public let cacheDirectory: URL
     private let client: ArtworkHTTPClient
     private let automaticIcons: AutomaticIconResolver

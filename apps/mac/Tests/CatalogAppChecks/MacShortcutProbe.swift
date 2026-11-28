@@ -170,7 +170,7 @@ extension ProfileScreenProbe {
                            in: out, refs, "none", names: buttons, size: size)
             }
             try shot("sources", SettingsView(initialSection: .sources, viewModel: vm, settings: settings,
-                                             router: AppRouter(), artwork: art).environmentObject(sources))
+                                             router: AppRouter(), artwork: art).environment(sources))
             try shot("spotlight", spotlight())
             try shot("collection", collection())
             vm.macShortcuts.showTileOptions(game)

@@ -288,13 +288,13 @@ extension AppShellView {
         .environment(\.seleneButtonNames, settings.presentation.buttonNames)
         .environment(\.seleneHintsCovered, filePicker.isOpen || keyboard.isOpen)
         .environmentObject(updater)
-        .environmentObject(sources)
+        .environment(sources)
         .onAppear { [sources] in
             viewModel.libraryRefresh.sources = sources
             steamWatcher.onChange = { [weak sources] in sources?.steamFilesChanged() }
+            steamWatcher.follow(sources)
             sources.startIfEnabled()
         }
-        .onReceive(sources.$libraryRoots) { roots in steamWatcher.watch(roots, root: sources.configuration.rootURL) }
         .preferredColorScheme(.dark)
         .frame(minWidth: 1100, minHeight: 700)
         .onAppear(perform: startRuntime)

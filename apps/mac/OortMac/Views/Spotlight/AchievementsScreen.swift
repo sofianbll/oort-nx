@@ -13,7 +13,7 @@ struct AchievementsScreen: View {
     /// The earned Arcane comes to colour just after the screen opens (`arcaneOrb`).
     @State private var arcaneLit = false
     @ObservedObject private var logos = SteamLogoCache.shared
-    @ObservedObject private var picks = SteamPersonalizations.shared.artwork
+    private var picks = SteamPersonalizations.shared.artwork
     @ObservedObject var model: AchievementsScreenModel
 
     let game: CatalogGame

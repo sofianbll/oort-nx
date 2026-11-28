@@ -12,6 +12,9 @@ final class AppShellState {
     let router: AppRouter
     let sources: CatalogSourcesModel
     let profiles: LocalProfileStore
+    /// Made once: a view's `@State` default would run the store's start (reading files) at every view init.
+    let playSessions = PlaySessionStore()
+    let artwork = ArtworkStore()
     let igdb = IGDBSettings.shared
     /// The Mods card keeps its prepared cover across navigation; Spotlight observes it only while visible.
     let modStoreHost = ModStoreHost()

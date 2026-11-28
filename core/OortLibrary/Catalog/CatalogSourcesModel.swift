@@ -1,39 +1,68 @@
 import Foundation
-import Combine
+import Observation
 
 public enum CatalogSourceStatus: Equatable, Sendable { case disabled, idle, scanning, ready, partial, cancelled, failed }
 
 /// Source UI state and a cancellable reader. CatalogRepository alone owns the
 /// persisted source configuration and game records; no competing catalog cache.
-@MainActor
-public final class CatalogSourcesModel: ObservableObject {
+@MainActor @Observable
+public final class CatalogSourcesModel {
     /// Steam's own folder, where the first launch and Settings → Sources look first.
     nonisolated public static var defaultSteamRoot: URL { AppData.profile.home.appendingPathComponent("Library/Application Support/Steam") }
     /// Discovery and its eventual opt-in must use the same folder, including a disabled source's choice.
     public var discoveryRoot: URL { configuration.rootURL ?? Self.defaultSteamRoot }
     public typealias Scanner = @Sendable (URL, @escaping () -> Bool) throws -> SteamLibrarySnapshot
-    @Published public private(set) var configuration: CatalogSourceConfiguration
-    @Published public private(set) var status: CatalogSourceStatus
-    @Published public private(set) var observedGameCount = 0
-    @Published public private(set) var reviewCount = 0
-    @Published public private(set) var issues: [SteamScanIssue] = []
-    @Published public private(set) var errorMessage: String?
+    public private(set) var configuration: CatalogSourceConfiguration
+    public private(set) var status: CatalogSourceStatus {
+        didSet { listeners.notify(.status) }
+    }
+    public private(set) var observedGameCount = 0
+    public private(set) var reviewCount = 0
+    public private(set) var issues: [SteamScanIssue] = []
+    public private(set) var errorMessage: String?
     /// The libraries the last committed scan read (the source's root first): what `SteamManifestWatcher` watches.
     /// Empty while the source is disabled or before its first scan.
-    @Published public private(set) var libraryRoots: [URL] = []
+    public private(set) var libraryRoots: [URL] = [] {
+        didSet { listeners.notify(.libraryRoots) }
+    }
+    /// What `observe` reports: the value when it starts, then each set of the status or of the libraries.
+    public enum Change: Sendable { case current, status, libraryRoots }
+    private let listeners = StoreListeners<Change>()
+
+    /// Code that is not a view (the Steam watcher, a refresh waiting for the scan) follows the model here: `handler`
+    /// runs now, then after each set of `status` or `libraryRoots`, even to the same value. Keep the token.
+    public func observe(_ handler: @escaping (Change) -> Void) -> StoreObservation {
+        listeners.add(current: .current, handler)
+    }
+
+    /// Returns once the model is not scanning (at once when it is not).
+    public func settled() async {
+        guard status == .scanning else { return }
+        var observation: StoreObservation?
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            var waiting = true
+            observation = observe { [weak self] _ in
+                guard waiting, self?.status != .scanning else { return }
+                waiting = false
+                continuation.resume()
+            }
+        }
+        observation?.cancel()
+    }
+
     private let repository: CatalogRepository
     private let scanner: Scanner
     private let onCommit: (CatalogDocument) -> Void
-    private var requestID = UUID()
-    private var task: Task<Void, Never>?
+    @ObservationIgnored private var requestID = UUID()
+    @ObservationIgnored private var task: Task<Void, Never>?
     /// Rescans asked for by Steam's files changing: after `rescanQuiet` without changes, at most once every
     /// `rescanSpacing`, never over a running scan (one follows it instead).
     private let rescanQuiet: TimeInterval
     private let rescanSpacing: TimeInterval
-    private var rescanTimer: Task<Void, Never>?
-    private var rescanAfterScan = false
-    private var lastScanStart: Date?
-    private var unappliedChoice: SteamSourceChoice?
+    @ObservationIgnored private var rescanTimer: Task<Void, Never>?
+    @ObservationIgnored private var rescanAfterScan = false
+    @ObservationIgnored private var lastScanStart: Date?
+    @ObservationIgnored private var unappliedChoice: SteamSourceChoice?
 
     public init(repository: CatalogRepository, initialConfiguration: CatalogSourceConfiguration,
                 scanner: @escaping Scanner = { root, cancelled in try SteamLibrarySource(root: root).scan(cancelled: cancelled) },

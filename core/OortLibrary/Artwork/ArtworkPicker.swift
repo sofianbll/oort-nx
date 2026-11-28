@@ -1,9 +1,9 @@
 import Foundation
+import Observation
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
 import ImageIO
-import Combine
 
 /// The four artwork slots a player can change, and the cache kind each one replaces.
 public enum ArtworkSlot: String, CaseIterable, Codable, Sendable {
@@ -221,9 +221,10 @@ public enum ArtworkCandidates {
 
 /// The artwork a player chose, kept apart from the trimmed cache so it is never
 /// evicted or overwritten. Every screen checks a pick before its automatic art.
-public final class ArtworkPicks: ObservableObject {
+@Observable
+public final class ArtworkPicks {
     // Background work only asks `url`, which reads the fixed folder; `revision` is main-thread only, like its views.
-    nonisolated(unsafe) public static let shared = ArtworkPicks()
+    @ObservationIgnored nonisolated(unsafe) public static let shared = ArtworkPicks()
 
     public enum Failure: LocalizedError {
         case notAnImage
@@ -232,7 +233,7 @@ public final class ArtworkPicks: ObservableObject {
 
     public let directory: URL
     /// Bumps on every change, so screens reload their art.
-    @Published public private(set) var revision = 0
+    public private(set) var revision = 0
 
     public init(directory: URL = AppData.supportRoot.appendingPathComponent("artwork-picks")) {
         self.directory = directory

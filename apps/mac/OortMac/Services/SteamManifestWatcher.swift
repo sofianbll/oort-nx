@@ -11,6 +11,16 @@ import OortLibrary
 public final class SteamManifestWatcher {
     /// Called on the main thread, at most once per batch of events.
     public var onChange: (@MainActor () -> Void)?
+    private var sourcesObservation: StoreObservation?
+
+    /// Watches the libraries `sources` read, again after each scan even when the paths are the same: a folder that
+    /// was missing may be there now.
+    public func follow(_ sources: CatalogSourcesModel) {
+        sourcesObservation = sources.observe { [weak self, weak sources] change in
+            guard let self, let sources, change != .status else { return }
+            self.watch(sources.libraryRoots, root: sources.configuration.rootURL)
+        }
+    }
 
     private var stream: FSEventStreamRef?
     private var watched: [String] = []

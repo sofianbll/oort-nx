@@ -24,7 +24,7 @@ struct LaunchScreenView: View {
     @ObservedObject var viewModel: AppViewModel
     /// The Nintendo store's data (`StoreMetadataModel`): descriptions, screenshots and names shown here.
     @ObservedObject var store: StoreMetadataModel
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
     let settings: AppSettings
     let reduceMotion: Bool
 

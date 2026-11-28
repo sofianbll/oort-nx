@@ -122,7 +122,7 @@ final class LibraryRefreshModel: ObservableObject {
     private func readSteam() async -> LibraryRefresh.State {
         guard let sources else { return .read }
         sources.refresh()
-        for await status in sources.$status.values where status != .scanning { break }
+        await sources.settled()
         switch sources.status {
         case .failed: return .stale(sources.errorMessage ?? L10n.text("Steam could not be refreshed. Your library has been kept."))
         case .partial: return .stale(L10n.text("Some installations could not be checked. Your library has been kept."))

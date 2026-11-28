@@ -144,8 +144,9 @@ final class CatalogSourcesModelTests: XCTestCase {
         let model = CatalogSourcesModel(repository: repository, initialConfiguration: initial, scanner: { _, _ in
             if counter.increment() == 1 { throw POSIXError(.EACCES) }; return scan
         }, onCommit: { _ in })
-        let observation = model.$status.sink { status in
-            if status == .failed { failed.fulfill() }; if status == .partial { partial.fulfill() }
+        let observation = model.observe { change in
+            guard change == .status else { return }
+            if model.status == .failed { failed.fulfill() }; if model.status == .partial { partial.fulfill() }
         }
         model.configure(enabled: true, root: f.root)
         await fulfillment(of: [failed], timeout: 3)
@@ -188,7 +189,7 @@ final class CatalogSourcesModelTests: XCTestCase {
         // The app hands every value to SteamManifestWatcher, which retries a folder that was missing
         // (SteamManifestWatcherTests in the Mac's tests): the model must send the same paths again after each scan.
         var sent: [[URL]] = []
-        let observation = model.$libraryRoots.sink { sent.append($0) }
+        let observation = model.observe { change in if change != .status { sent.append(model.libraryRoots) } }
         defer { withExtendedLifetime(observation) {} }
         model.configure(enabled: true, root: root)
         await settled(model)
@@ -200,6 +201,19 @@ final class CatalogSourcesModelTests: XCTestCase {
         XCTAssertEqual(model.status, .ready)
         XCTAssertGreaterThan(sent.count, first, "an unchanged list of libraries is sent again after the scan")
         XCTAssertEqual(sent.last.map(Set.init), Set([root, library]))
+    }
+
+    func testSettledReturnsOnceTheScanHasEnded() async throws {
+        let (f, repository, initial) = try prepared()
+        let root = try f.library()
+        let model = CatalogSourcesModel(repository: repository, initialConfiguration: initial,
+                                        scanner: { _, _ in Thread.sleep(forTimeInterval: 0.2); return .init(libraries: [], games: [], issues: []) },
+                                        onCommit: { _ in })
+        await model.settled()
+        model.configure(enabled: true, root: root)
+        XCTAssertEqual(model.status, .scanning)
+        await model.settled()
+        XCTAssertNotEqual(model.status, .scanning)
     }
 
     private func settled(_ model: CatalogSourcesModel) async {
@@ -255,8 +269,8 @@ final class CatalogSourcesModelTests: XCTestCase {
         let rescans = expectation(description: "both rescans start")
         rescans.expectedFulfillmentCount = 2
         var starts: [Date] = []
-        let observation = model.$status.sink { status in
-            guard status == .scanning else { return }
+        let observation = model.observe { change in
+            guard change == .status, model.status == .scanning else { return }
             starts.append(Date())
             if starts.count == 1 { model.steamFilesChanged() }
             rescans.fulfill()

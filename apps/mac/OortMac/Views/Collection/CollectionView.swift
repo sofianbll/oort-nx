@@ -16,7 +16,7 @@ struct CollectionView: View {
     var router: AppRouter
     var settings: AppSettingsStore
     var playSessions: PlaySessionStore
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
     @ObservedObject var cloud: CloudLibraryModel
 
     @Environment(\.seleneCanvas) var canvas
@@ -26,7 +26,7 @@ struct CollectionView: View {
 
     @StateObject var art = SeleneHeroArt()
     /// Art the player picks redraws the hero and logo (their task keys carry its revision).
-    @ObservedObject var picks = ArtworkPicks.shared
+    var picks = ArtworkPicks.shared
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @State var keyMonitor: Any?
@@ -84,6 +84,8 @@ struct CollectionView: View {
     // MARK: - Body
 
     var body: some View {
+        // A chosen picture changes what every card shows: redraw on each pick (ArtworkPicks.revision).
+        let _ = picks.revision
         let games = self.games
         let record = selectedCatalogGame(in: games)
         let game = record?.nxnativeGame

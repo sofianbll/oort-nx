@@ -6,7 +6,7 @@ import OortLibrary
 struct SettingsSourcesSection: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var settings: SettingsEditor
-    @EnvironmentObject private var sources: CatalogSourcesModel
+    @Environment(CatalogSourcesModel.self) private var sources
     @Environment(\.nxAppLocale) private var localization
     let onOpenIntegrations: () -> Void
     let onActions: ([SettingsRowAction]) -> Void

@@ -29,7 +29,7 @@ private struct MacShortcutArtwork: View {
     let shortcut: MacShortcutRecord
     let key: String
     @Environment(\.seleneCanvas) private var canvas
-    @ObservedObject private var picks = ArtworkPicks.shared
+    private var picks = ArtworkPicks.shared
     @State private var image: NSImage?
     @State private var loadedKey: String?
 

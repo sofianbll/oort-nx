@@ -206,7 +206,7 @@ extension SettingsConfirmationProbe {
                 repository: CatalogRepository(store: .init(directory: output.appendingPathComponent("att-catalog-\(tag)"))),
                 initialConfiguration: .init(integration: .steam)) { _ in }
             try withHost(SettingsView(initialSection: .navigation, viewModel: vm, settings: settings, router: settingsRouter, artwork: ArtworkStore())
-                .environmentObject(sources).environmentObject(AppUpdater()), locale) { settle, capture in
+                .environment(sources).environmentObject(AppUpdater()), locale) { settle, capture in
                 func send(_ action: GamepadAction) { NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action); settle() }
                 // A row at its default still resets the group; a changed row only itself.
                 try capture("reglages-ligne-\(tag)")

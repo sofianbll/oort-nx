@@ -7,7 +7,7 @@ struct OnboardingView: View {
     @ObservedObject var viewModel: AppViewModel
     var settings: AppSettingsStore
     var profiles: LocalProfileStore
-    @ObservedObject var sources: CatalogSourcesModel
+    var sources: CatalogSourcesModel
     @ObservedObject private var controller = GameControllerService.shared
     let finish: () -> Void
     let openSettings: (SettingsSection) -> Void

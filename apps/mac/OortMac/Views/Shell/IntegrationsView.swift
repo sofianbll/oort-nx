@@ -9,7 +9,7 @@ extension EnvironmentValues {
 /// Observe the owners directly; the same throwaway projection feeds the home bar and the page.
 struct IntegrationSurface: View {
     var router: AppRouter
-    @ObservedObject var sources: CatalogSourcesModel
+    var sources: CatalogSourcesModel
     @ObservedObject var app: AppViewModel
     @ObservedObject var setup: SetupModel
     @ObservedObject var cloud: CloudLibraryModel

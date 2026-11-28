@@ -764,7 +764,7 @@ import NxnativeAdapter
             initialConfiguration: .init(integration: .steam)) { _ in }
         let host = NSHostingView(rootView: SettingsView(initialSection: .cloudSaves, viewModel: vm,
                 settings: settings, router: router, artwork: ArtworkStore())
-            .environmentObject(sources)
+            .environment(sources)
             .environmentObject(AppUpdater())
             .environment(\.nxAppLocale, locale)
             .environment(\.colorScheme, .dark)

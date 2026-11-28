@@ -21,7 +21,7 @@ struct SwitchBoxArtCover: View {
     var indexVersion = 0
     var cloudTile: DownloadCloudTileStyle? = nil
 
-    @ObservedObject private var picks = ArtworkPicks.shared
+    private var picks = ArtworkPicks.shared
     @State private var cover: NSImage?
     @State private var banner: NSImage?
     @State private var icon: NSImage?

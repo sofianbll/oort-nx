@@ -7,7 +7,7 @@ struct SettingsSectionContent: View {
     let section: SettingsSection
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var settings: SettingsEditor
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
     let supportsNextendo: Bool
     let activeProfile: LocalProfile?
     let profileNextendo: NextendoSettings?

@@ -38,8 +38,8 @@ struct ChangeArtworkView: View {
         self.onClose = onClose
     }
 
-    @ObservedObject private var picks = ArtworkPicks.shared
-    @ObservedObject private var steamPicks = SteamPersonalizations.shared.artwork
+    private var picks = ArtworkPicks.shared
+    private var steamPicks = SteamPersonalizations.shared.artwork
     @State var slot: ArtworkSlot = .cover
     /// The focused tile; while browsing, -1 is the search field.
     @State var focus = 0

@@ -19,7 +19,7 @@ struct SettingsView: View {
     var settings: AppSettingsStore
     @StateObject private var editor: SettingsEditor
     var router: AppRouter
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
 
     /// Opens the Search field when the player asks for it (`enterSection`).
     @State private var searchFieldRequest = 0

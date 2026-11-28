@@ -24,15 +24,12 @@ public final class AppSettingsStore: @unchecked Sendable {
 
     /// Code that is not a view (the router, the sounds, the Settings editor) follows the store here: `handler` runs
     /// now with `.current`, then after each set, on the thread that set it (the main thread). Keep the token.
-    public func observe(_ handler: @escaping (Change) -> Void) -> AppSettingsObservation {
-        let id = UUID()
-        listeners[id] = handler
-        handler(.current)
-        return AppSettingsObservation { [weak self] in self?.listeners[id] = nil }
+    public func observe(_ handler: @escaping (Change) -> Void) -> StoreObservation {
+        listeners.add(current: .current, handler)
     }
 
-    @ObservationIgnored private var listeners: [UUID: (Change) -> Void] = [:]
-    private func changed(_ change: Change) { for handler in listeners.values { handler(change) } }
+    private let listeners = StoreListeners<Change>()
+    private func changed(_ change: Change) { listeners.notify(change) }
     /// Read by the Settings screen only. Background consumers continue to read committed settings.
     public var editingSettings: AppSettings {
         get { draft?.displayed(over: settings, previewsOnly: false) ?? settings }
@@ -260,12 +257,4 @@ public final class AppSettingsStore: @unchecked Sendable {
             loadError = error.localizedDescription
         }
     }
-}
-
-/// Ends an `AppSettingsStore.observe` when dropped or cancelled.
-public final class AppSettingsObservation {
-    private var end: (() -> Void)?
-    init(_ end: @escaping () -> Void) { self.end = end }
-    public func cancel() { end?(); end = nil }
-    deinit { end?() }
 }

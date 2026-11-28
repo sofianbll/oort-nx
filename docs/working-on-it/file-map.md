@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1692 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1694 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -249,6 +249,7 @@ Cartella `core/OortLibrary/App/`.
 | File | Responsabilità |
 |---|---|
 | [FileBrowser.swift](../../core/OortLibrary/App/FileBrowser.swift) | Elenco asincrono dei metadati delle cartelle, luoghi, filtri e risalita del selettore. |
+| [core/OortLibrary/App/StoreListeners.swift](../../core/OortLibrary/App/StoreListeners.swift) | Il codice che segue uno store senza essere una vista (router, suoni, watcher Steam): chiamato subito, poi dopo ogni assegnazione, sullo stesso thread. |
 | [core/OortLibrary/App/AppRouter.swift](../../core/OortLibrary/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus e richieste Spotlight. Una bozza sospende l’uscita da Settings; i suoi dialoghi bloccano la palette. |
 | [core/OortLibrary/App/AppRouter.swift](../../core/OortLibrary/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus e richieste Spotlight. Una bozza di Settings sospende l'azione prima di lasciare la schermata. ShellBackdropCover definisce la priorità degli strati. |
 | [core/OortLibrary/App/UndoOffers.swift](../../core/OortLibrary/App/UndoOffers.swift) | L’ultimo gesto reversibile e il modo di annullarlo, una volta: avviso, ⌘Z e centro attività. Un altro profilo lo toglie. |
@@ -469,7 +470,8 @@ Cartella `core/OortLibrary/Settings/`. Il catalogo dei testi sta in `Resources/`
 | [core/OortLibrary/Settings/SettingsReset.swift](../../core/OortLibrary/Settings/SettingsReset.swift) | Reset group per sezione, anche Inbox con Game folders, Compilati di recente con Spotlight, Home in gioco e scelte Play together, non l'ID Nextendo né i percorsi delle cartelle di gioco. |
 | [core/OortLibrary/Settings/OnlinePlayersDisplay.swift](../../core/OortLibrary/Settings/OnlinePlayersDisplay.swift) | I quattro interruttori di Nextendo players, la conversione delle scelte precedenti e la condizione per leggere il conteggio. |
 | [core/OortLibrary/Settings/AppLocale.swift](../../core/OortLibrary/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
-| [core/OortLibrary/Settings/AppLocalization.swift](../../core/OortLibrary/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
+| [core/OortLibrary/Settings/AppLocalization.swift](../../core/OortLibrary/Settings/AppLocalization.swift) | Il contesto di lingua e regione osservato dalle viste (`@Observable`). |
+| [core/OortLibrary/Settings/L10n.swift](../../core/OortLibrary/Settings/L10n.swift) | Lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi, per il contesto scelto; letto anche dal lavoro in background. |
 | [core/OortLibrary/Settings/GeneratedNames.swift](../../core/OortLibrary/Settings/GeneratedNames.swift) | Nome del bundle di risorse compilato, generato da `architecture/names.json`. |
 | [core/OortLibrary/Resources/credits.json](../../core/OortLibrary/Resources/credits.json) | Copia generata di `design/credits.json`. |
 | [core/OortLibrary/Resources/Localizable.xcstrings](../../core/OortLibrary/Resources/Localizable.xcstrings) | Testi in sette lingue, inclusi errori di avvio di Python, avvisi del Cestino, recupero degli spostamenti cloud e accessi di Integrations. |

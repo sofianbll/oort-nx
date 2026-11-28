@@ -33,7 +33,7 @@ struct SpotlightView: View {
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @ObservedObject var runningGames: RunningGameMonitor
     @ObservedObject var cloud: CloudLibraryModel
-    @ObservedObject var artwork: ArtworkStore
+    let artwork: ArtworkStore
 
     @Environment(\.seleneCanvas) var canvas
     @Environment(\.controllerHomeAvailable) var controllerHomeAvailable
@@ -43,11 +43,11 @@ struct SpotlightView: View {
 
     @StateObject var art = SeleneHeroArt()
     /// Art the player picks redraws the hero and logo (their task keys carry its revision).
-    @ObservedObject var picks = ArtworkPicks.shared
+    var picks = ArtworkPicks.shared
     /// Steam store facts and personal fields, shared with the Steam head.
     @ObservedObject var steamFacts = SteamGameFacts.shared
     @ObservedObject var achievementsStore = SteamAchievementsStore.shared
-    @ObservedObject var steamFields = SteamPersonalizations.shared.metadata
+    var steamFields = SteamPersonalizations.shared.metadata
     /// Only traits are retained for the cache pass, without artwork, screenshots or descriptions.
     @State var cachedSteamRelated: (request: SteamRelatedRequest, traits: [UInt32: MoreLikeThis.Traits])?
     @State var keyMonitor: Any?
@@ -249,6 +249,8 @@ struct SpotlightView: View {
 
     // The body is split in steps: one chain of every modifier is more than the type checker can solve in time.
     var body: some View {
+        // A chosen picture changes what every card shows: redraw on each pick (ArtworkPicks.revision).
+        let _ = picks.revision
         let model = snapshot()
         tasks(model, on: events(on: libraryChanges(on: lifecycle(on: chrome(model, state: viewModel.spotlight)))))
     }
