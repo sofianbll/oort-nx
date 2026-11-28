@@ -21,7 +21,7 @@ AREAS = {
                 # desktop/scripts/generate.py reads these.
                 "design/*", "design/Selene/palettes.json", "scripts/generate_oort_tokens.py"),
     "mobile": ("mobile/", "core/OortCore/", "Package.swift"),
-    "android": ("android/", "Tests/AndroidChecks/", "scripts/generate_oort_android_tokens.py",
+    "android": ("android/", "scripts/tests/AndroidChecks/", "scripts/generate_oort_android_tokens.py",
                 # The tokens and the app mark Android is drawn from.
                 "design/*", "design/Icons/AppIcon.icon/"),
 }

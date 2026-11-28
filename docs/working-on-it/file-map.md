@@ -77,7 +77,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [.github/CODEOWNERS](../../.github/CODEOWNERS) | Designa il maintainer come revisore delle aree sensibili: dati, accesso, release, pacchetto, motore. |
 | [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo, npm e Gradle; apre solo pull request. |
 | [.github/LABELS.md](../../.github/LABELS.md) | Propone le etichette da creare; nessuna è stata applicata su GitHub. |
-| [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: controlli Mac sempre; per Swift, unit test, sonde sulla build Debug condivisa, gruppi di sonde autonome e build Release paralleli, tutti richiesti da Mac / Swift tests. I port girano solo se cambiano i loro percorsi. |
+| [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: prima le regole su Linux (Rules), poi i job di build; per Swift, unit test e sonde sulla stessa build Debug, gruppi di sonde autonome e build Release paralleli. Un solo verdetto, Checks. I port girano solo se cambiano i loro percorsi. |
 | [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
