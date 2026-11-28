@@ -287,8 +287,8 @@ final class IntegrationScreenTests: XCTestCase {
 
     /// Every word of every scenario's screens is a key of the catalog in its seven languages.
     func testEveryWordOfTheScreensIsInTheCatalog() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("Sources/NXLibraryCore/Resources/Localizable.xcstrings"))) as? [String: Any]
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("core/OortLibrary/Resources/Localizable.xcstrings"))) as? [String: Any]
         let strings = try XCTUnwrap(catalog?["strings"] as? [String: Any])
         func keys(_ text: Screen.Text?) -> [String] { text.map { [$0.key] + $0.words.flatMap(keys) } ?? [] }
         func keys(_ gesture: Screen.Gesture?) -> [String] { keys(gesture?.title) }

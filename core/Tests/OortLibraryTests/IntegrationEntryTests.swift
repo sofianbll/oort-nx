@@ -179,8 +179,8 @@ final class IntegrationEntryTests: XCTestCase {
 
     /// Every word the Mac rows use is a key of the catalog in its seven languages.
     func testEveryMacWordIsInTheCatalog() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("Sources/NXLibraryCore/Resources/Localizable.xcstrings"))) as? [String: Any]
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("core/OortLibrary/Resources/Localizable.xcstrings"))) as? [String: Any]
         let strings = try XCTUnwrap(catalog?["strings"] as? [String: Any])
         var entries: [IntegrationEntry] = [true, false].compactMap {
             SteamSourceEntries.found(.init(steamGameCount: $0 ? 2 : nil, portedAppCount: 0, steamReadFailed: !$0), inForce: true, waiting: nil)
