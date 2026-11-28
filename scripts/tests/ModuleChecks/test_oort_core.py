@@ -57,6 +57,8 @@ class PortableCoreTests(unittest.TestCase):
         found = self.problems(f"{LIBRARY}/Trash.swift", "import Foundation\nfunc f(_ u: URL) throws {\n"
                                                           "    try FileManager.default.trashItem(at: u, resultingItemURL: nil)\n}\n")
         self.assertIn("uses trashItem", found)
+        found = self.problems(f"{LIBRARY}/Open.swift", "import Foundation\nlet fd = Darwin.open(\"/\", 0)\n")
+        self.assertIn("uses Darwin.open", found)
 
     def test_foundation_networking_is_the_only_conditional_import(self):
         text = "import Foundation\n#if canImport(FoundationNetworking)\nimport FoundationNetworking\n#endif\n"

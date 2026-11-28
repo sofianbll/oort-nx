@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// Surface roles are independent of the active palette; SwiftUI supplies its tint.
 public enum SeleneOverlayStyle: Equatable {

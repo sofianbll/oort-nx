@@ -37,7 +37,8 @@ APPLE_NAMES = re.compile(
     r"\b(CFPreferences\w*|NSWorkspace|NSImage|NSBitmapImageRep|CGContext|CGImage\w*|SecItem\w*|SecKeychain\w*|"
     r"SecStaticCode\w*|os_log|OSLog|OSAllocatedUnfairLock|clonefile|fclonefileat|renamex_np|renameatx_np|trashItem|"
     r"makeFileSystemObject\w*|ObservableObject|Published|AnyCancellable|PassthroughSubject|autoreleasepool|"
-    r"NLLanguageRecognizer|FSEvent\w*|vDSP_\w+|volumeAvailableCapacityForImportantUsage\w*|st_\w+timespec|d_namlen)\b")
+    r"NLLanguageRecognizer|FSEvent\w*|vDSP_\w+|volumeAvailableCapacityForImportantUsage\w*|st_\w+timespec|d_namlen|"
+    r"Darwin\.\w+|Glibc\.\w+)\b")
 # Outside SYSTEM, a condition may name the build (DEBUG...) or FoundationNetworking, nothing about the system.
 SYSTEM_CONDITION = re.compile(r"\b(os|arch|targetEnvironment|canImport|_runtime)\s*\(")
 NETWORKING_CONDITION = re.compile(r"^\s*canImport\s*\(\s*FoundationNetworking\s*\)\s*$")

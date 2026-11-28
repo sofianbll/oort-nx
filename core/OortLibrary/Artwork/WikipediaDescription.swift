@@ -1,5 +1,8 @@
 import Crypto
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import NaturalLanguage
 
 /// A game's introduction from Wikipedia in the player's language, shown in About this game when the store has no

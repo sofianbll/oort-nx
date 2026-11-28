@@ -1,6 +1,5 @@
 import Foundation
 import Combine
-import Darwin
 
 // @unchecked: the main thread owns the snapshots and their revision, the serial `writer` owns the disk state.
 public final class AppSettingsStore: ObservableObject, @unchecked Sendable {

@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// When a store's title is the player's game: the same name, or the same name
 /// with an edition after it ("Voidheart Edition", "Nintendo Switch Edition").

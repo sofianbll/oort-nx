@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Steam's own art for a game that is also on Steam: the publisher's logo with a
 /// transparent background, the library cover and the library background. Found by

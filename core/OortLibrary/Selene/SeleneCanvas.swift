@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// Selene's 1920x1080 design canvas. Lengths are written in canvas units and
 /// multiplied by `scale`, which follows the smaller window axis.

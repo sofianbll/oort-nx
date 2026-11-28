@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// One bounded public download. The serial session delegate owns completion and the temporary file.
 public final class AppUpdateDownload: NSObject, URLSessionDownloadDelegate, @unchecked Sendable {

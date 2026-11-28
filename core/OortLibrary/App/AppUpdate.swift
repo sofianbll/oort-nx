@@ -3,7 +3,6 @@
 
 import Foundation
 import Crypto
-import Darwin
 
 /// The rules of Arcane's self-update: which release, what may be installed, which copy may
 /// replace itself, and the swap. Everything works on paths it is given, so the tests run it on

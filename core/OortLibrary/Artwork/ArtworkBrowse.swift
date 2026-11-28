@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// The sources Change artwork browses on their own, from their "Browse online" tiles, the way the Theme screen
 /// browses wallpaper sites: a search prefilled with the game's name, its results for the open tab, each credited, and

@@ -1,4 +1,7 @@
 import XCTest
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import AppKit
 import Synchronization
 @testable import OortLibrary

@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// A size-bounded HTTP read that keeps the chunks URLSession delivers. Iterating `URLSession.AsyncBytes`
 /// one byte at a time cost about 6 µs per byte (a 640 KB LaunchBox page: 5.4 s instead of 2.0 s, almost all

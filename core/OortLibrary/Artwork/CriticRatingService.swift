@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import Crypto
 
 /// Keyless, on-demand enrichment for Details. Cache and failures never alter the catalog.

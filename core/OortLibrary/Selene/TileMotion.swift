@@ -1,4 +1,3 @@
-import CoreGraphics
 import Foundation
 
 /// The selected tile's ring and shine as loops: their curves, and the samples Core Animation plays on its own.

@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 extension CatalogStore {
     private var removalJournal: URL { directory.appendingPathComponent(LibraryPaths.removalJournal) }

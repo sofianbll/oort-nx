@@ -1,5 +1,4 @@
 import Crypto
-import Darwin
 import Foundation
 
 /// Oort NX used to keep its data in Arcane's folder, under Arcane's identifier. The first launch under its own

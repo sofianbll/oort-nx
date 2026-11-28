@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 public enum CatalogRepositoryError: Error, Equatable { case gameNotFound }
 

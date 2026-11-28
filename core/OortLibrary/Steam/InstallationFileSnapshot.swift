@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 enum InstallationFileReadError: Error { case tooLarge, unsafeFile, sourceChanged, invalidText }
 

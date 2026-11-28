@@ -1,6 +1,8 @@
 import Crypto
-import Darwin
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import Security
 
 /// The optional Drive helper is not part of the app or of the game build runtime.

@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// Where Spotlight's tiles go, in Selene units (Main.xaml SeleneGameRow + SeleneTileStyle). Each item is
 /// `1 + 174·s + 3` wide (item margin 1/3, tile host 174 = 160 + 2·7), where `s` is 1.3 for the selected tile and 1

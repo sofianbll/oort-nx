@@ -1,4 +1,3 @@
-import Darwin
 import Foundation
 
 /// The leader stays unreaped until the group is stopped, so its group ID cannot be recycled.

@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Shared IGDB authentication and bounded serial requests; provider data stays in its own services.
 actor IGDBClient {

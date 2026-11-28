@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 typealias InstallationDirectoryReader = @Sendable (URL, Int, () -> Bool) throws -> InstallationDirectorySnapshot
 

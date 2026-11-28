@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// The player's SteamGridDB API key (generated in their SteamGridDB profile), kept on this Mac in a private file
 /// (mode 0600) beside Arcane's other data. Never logged and never sent anywhere but SteamGridDB's API.

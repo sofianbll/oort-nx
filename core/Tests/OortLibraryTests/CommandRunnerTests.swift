@@ -1,5 +1,4 @@
 import XCTest
-import Darwin
 @testable import OortLibrary
 
 final class CommandRunnerTests: XCTestCase {

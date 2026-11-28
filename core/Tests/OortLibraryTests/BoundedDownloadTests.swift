@@ -1,4 +1,7 @@
 import XCTest
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 @testable import OortLibrary
 
 /// Serves a fixed body in several chunks, or a redirect, without the network.

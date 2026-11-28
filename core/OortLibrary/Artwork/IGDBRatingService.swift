@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// User-owned IGDB credentials only. Tokens live in memory; network errors never include server bodies.
 public actor IGDBRatingService {

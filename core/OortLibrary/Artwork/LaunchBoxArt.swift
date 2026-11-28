@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// The LaunchBox Games Database (https://gamesdb.launchbox-app.com), read from its public pages when the player
 /// browses it from Change artwork or opens a game's Details without screenshots: the game's search result, then the

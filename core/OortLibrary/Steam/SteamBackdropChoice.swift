@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import ImageIO
 
 /// The automatic full-screen background of a Steam game. Steam's library hero is a wide banner

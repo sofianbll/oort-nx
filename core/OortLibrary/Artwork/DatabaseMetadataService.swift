@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Two bounded public-page lookups, isolated from artwork downloads and personal choices.
 public actor DatabaseMetadataService {

@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 public enum BuildInstallError: Error, LocalizedError {
     case invalidApp(String)

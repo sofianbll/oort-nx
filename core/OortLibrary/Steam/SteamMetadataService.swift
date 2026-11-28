@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import Crypto
 
 /// Bounded, source-specific enrichment. Failures preserve disk cache; no catalog

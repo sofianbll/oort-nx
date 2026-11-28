@@ -1,6 +1,5 @@
 import Foundation
 import Crypto
-import Darwin
 
 public enum CatalogStoreError: Error, Equatable {
     case invalidLegacy, invalidCatalog(backupAvailable: Bool), legacyChanged, staleRevision, busy, unsafeDirectory

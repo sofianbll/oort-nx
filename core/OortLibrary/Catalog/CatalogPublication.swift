@@ -1,5 +1,4 @@
 import Foundation
-import Darwin
 
 /// Only the commit boundary is replaceable; staging, decoding, locking and
 /// source/revision checks remain real in failure and concurrency tests.

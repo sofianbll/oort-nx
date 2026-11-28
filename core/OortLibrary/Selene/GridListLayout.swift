@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// A list of equal rows in columns, scrolled by an offset of its own (`TextScroll`) rather than a scroll view:
 /// where each row sits, how tall the whole list is, which lines to draw for a window, and where the focus goes
