@@ -124,8 +124,9 @@ public enum OortSystem {
         #endif
     }
 
-    /// Where removed files go. The app uses the system's Trash; a test or a probe never does: it gets a folder of its
-    /// own, from `OORT_TRASH` (scripts/check sets it) or, in a test process, a new temporary folder.
+    /// Where removed files go. Only the app, run from its `.app` bundle, uses the system's Trash. Any other process (a
+    /// test, a probe, a throwaway executable, however it was started) gets a folder of its own: `OORT_TRASH` when
+    /// scripts/check sets it, a new temporary folder otherwise.
     public struct Trash: Sendable {
         /// Moves a file or folder there.
         public let put: @Sendable (URL) throws -> Void
@@ -185,18 +186,18 @@ public enum OortSystem {
 
     private static let chosenTrash = Mutex<Trash?>(nil)
 
-    /// The Trash this process uses: `OORT_TRASH`, then a folder of its own in a test process, then the system's.
+    /// The Trash this process uses: `OORT_TRASH`; the system's for the app run from its bundle; else a folder of its own.
     public static var currentTrash: Trash {
         chosenTrash.withLock { chosen in
             if let chosen { return chosen }
             let trash: Trash
             if let path = ProcessInfo.processInfo.environment["OORT_TRASH"], !path.isEmpty {
                 trash = .folder(at: URL(fileURLWithPath: path, isDirectory: true))
-            } else if isTestProcess {
-                trash = .folder(at: FileManager.default.temporaryDirectory
-                    .appendingPathComponent("oort-test-trash-\(ProcessInfo.processInfo.processIdentifier)", isDirectory: true))
-            } else {
+            } else if isBundledApp && !isTestProcess {
                 trash = .system
+            } else {
+                trash = .folder(at: FileManager.default.temporaryDirectory
+                    .appendingPathComponent("oort-trash-\(ProcessInfo.processInfo.processIdentifier)", isDirectory: true))
             }
             chosen = trash
             return trash
@@ -205,6 +206,9 @@ public enum OortSystem {
 
     /// Replaces the Trash of this process (a test that checks how a failing Trash is handled).
     public static func useTrash(_ trash: Trash) { chosenTrash.withLock { $0 = trash } }
+
+    /// The app as players run it: from an `.app` bundle (probes and tests run bare executables or test bundles).
+    private static var isBundledApp: Bool { Bundle.main.bundleURL.pathExtension == "app" }
 
     private static var isTestProcess: Bool {
         if NSClassFromString("XCTestCase") != nil { return true }

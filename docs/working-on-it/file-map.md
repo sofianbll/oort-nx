@@ -237,7 +237,7 @@ Cartella `core/OortLibrary/System/`: l'unico posto del Core con la libreria C di
 
 | File | Responsabilità |
 |---|---|
-| [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Le chiamate che cambiano da un sistema all'altro: `open`/`close`/`read`, date e nomi dei file, rinomina che non sostituisce mai, clone, Cestino (quello di sistema per l'app, una cartella propria per test e sonde), pool, spazio libero, peso di una cartella, preferenze, log; la variante Mac è il codice di sempre, altrove la stessa risposta o `Unsupported`. |
+| [OortSystem.swift](../../core/OortLibrary/System/OortSystem.swift) | Le chiamate che cambiano da un sistema all'altro: `open`/`close`/`read`, date e nomi dei file, rinomina che non sostituisce mai, clone, Cestino (quello di sistema solo per l'app nel suo bundle, una cartella temporanea propria per ogni altro processo), pool, spazio libero, peso di una cartella, preferenze, log; la variante Mac è il codice di sempre, altrove la stessa risposta o `Unsupported`. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
