@@ -76,7 +76,7 @@ final class CheatsModel {
                                                  home: FileManager.default.homeDirectoryForCurrentUser) {
                 store = CheatStore(folder: folder, titleID: titleID, buildID: buildID,
                                    canWrite: { RunningGameMonitor.runningApplication(for: game) == nil },
-                                   trash: { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) })
+                                   trash: OortSystem.trash)
             } else {
                 status = .needsRebuild("This app's settings leave it without a cheats folder.")
             }

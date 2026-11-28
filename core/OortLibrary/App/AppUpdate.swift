@@ -327,7 +327,8 @@ public enum AppUpdate {
     }
 
     static func install(_ staged: URL, over current: URL, trashOld: Bool,
-                        fileManager fm: FileManager, io: BuildInstallIO) throws -> URL {
+                        fileManager fm: FileManager, io: BuildInstallIO,
+                        trash: (URL) throws -> Void = OortSystem.trash) throws -> URL {
         guard let previous = updateIdentity(current) else { throw InstallError.failed("The installed app is missing or unsafe.") }
         var template = Array(current.deletingLastPathComponent().appendingPathComponent(".arcane-update.XXXXXX").path.utf8CString)
         let work = try template.withUnsafeMutableBufferPointer { buffer -> URL in
@@ -360,7 +361,7 @@ public enum AppUpdate {
             }
         }
         if updateIdentity(incoming) == previous {
-            if trashOld { try? fm.trashItem(at: incoming, resultingItemURL: nil) }
+            if trashOld { try? trash(incoming) }
             else { try? fm.removeItem(at: incoming) }
         }
         clearQuarantine(current)

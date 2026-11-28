@@ -493,17 +493,18 @@ final class AppUpdateTests: XCTestCase {
         let installed = dir.appendingPathComponent("Applications")
         let current = try makeApp("Arcane.app", in: installed, marker: "current")
         let staged = try makeApp(in: dir.appendingPathComponent("download"), marker: "candidate")
-        let fm = UpdateTrashFailure()
-        XCTAssertEqual(try AppUpdate.install(staged, over: current, trashOld: true, fileManager: fm, io: BuildInstallIO()), current)
-        let retained = try XCTUnwrap(fm.retained)
+        let fm = FileManager.default, refusing = TrashRefusal()
+        XCTAssertEqual(try AppUpdate.install(staged, over: current, trashOld: true, fileManager: fm, io: BuildInstallIO(),
+                                             trash: refusing.trash), current)
+        let retained = try XCTUnwrap(refusing.retained)
         XCTAssertTrue(try String(contentsOf: retained.appendingPathComponent("Contents/MacOS/NXLibrary"), encoding: .utf8).contains("current"))
         XCTAssertEqual(retained.deletingLastPathComponent().deletingLastPathComponent().path, installed.path)
         XCTAssertTrue(try String(contentsOf: current.appendingPathComponent("Contents/MacOS/NXLibrary"), encoding: .utf8).contains("candidate"))
         XCTAssertEqual(try fm.attributesOfItem(atPath: retained.path)[.systemNumber] as? NSNumber,
                        try fm.attributesOfItem(atPath: current.path)[.systemNumber] as? NSNumber)
         let next = try makeApp(in: dir.appendingPathComponent("next-download"), marker: "next")
-        _ = try AppUpdate.install(next, over: current, trashOld: true, fileManager: fm, io: BuildInstallIO())
-        let second = try XCTUnwrap(fm.retained)
+        _ = try AppUpdate.install(next, over: current, trashOld: true, fileManager: fm, io: BuildInstallIO(), trash: refusing.trash)
+        let second = try XCTUnwrap(refusing.retained)
         XCTAssertNotEqual(second.deletingLastPathComponent(), retained.deletingLastPathComponent())
         XCTAssertTrue(try String(contentsOf: retained.appendingPathComponent("Contents/MacOS/NXLibrary"), encoding: .utf8).contains("current"))
         XCTAssertTrue(try String(contentsOf: second.appendingPathComponent("Contents/MacOS/NXLibrary"), encoding: .utf8).contains("candidate"))
@@ -556,9 +557,10 @@ private final class UpdateCopyFailure: FileManager, @unchecked Sendable {
     }
 }
 
-private final class UpdateTrashFailure: FileManager, @unchecked Sendable {
+/// A Trash that refuses every item and remembers the last one it was given.
+private final class TrashRefusal: @unchecked Sendable {
     var retained: URL?
-    override func trashItem(at url: URL, resultingItemURL: AutoreleasingUnsafeMutablePointer<NSURL?>?) throws {
+    func trash(_ url: URL) throws {
         retained = url
         throw CocoaError(.fileWriteNoPermission)
     }

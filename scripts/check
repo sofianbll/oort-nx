@@ -69,14 +69,19 @@ RULES = [
 ]
 
 
+def guarded(command):
+    """The command, run with a Trash of its own; it fails if the user's real Trash gains an entry."""
+    return [PY, "scripts/trash_guard.py", "--trash", str(Path.home() / ".Trash"), "--", *command]
+
+
 def heavy(name, arg):
     if name == "swift":
         home = tempfile.mkdtemp(prefix="oort-home-")
-        return [["swift", "test", "--jobs", "6"]], {"HOME": home, "CFFIXED_USER_HOME": home}
+        return [guarded(["swift", "test", "--jobs", "6"])], {"HOME": home, "CFFIXED_USER_HOME": home}
     if name == "app-build":
         return [["swift", "build", "--jobs", "6", "--product", names.APP]], {}
     if name == "app-probes" and arg:
-        return [script("ci_catalog_checks.py", arg)], {}
+        return [guarded(script("ci_catalog_checks.py", arg))], {}
     if name == "release-build":
         return [["swift", "build", "-c", "release", "--product", names.APP]], {}
     return None

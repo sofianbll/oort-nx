@@ -617,7 +617,7 @@ public final class SwitchGameMetadataService: @unchecked Sendable {
     }
 
     public func clearCache() {
-        clearCache { try fileManager.trashItem(at: $0, resultingItemURL: nil) }
+        clearCache { try OortSystem.trash($0) }
     }
     internal func clearCache(discard: (URL) throws -> Void) {
         try? discard(cacheDirectory)

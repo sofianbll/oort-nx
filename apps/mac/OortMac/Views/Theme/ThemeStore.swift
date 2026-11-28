@@ -72,7 +72,7 @@ final class ThemeStore: ObservableObject {
     /// Moves one of the player's own wallpapers or a download (Arcane's copy) to the Trash.
     func removeWallpaper(id: String) throws {
         guard Self.isRemovable(id), let wallpaper = wallpapers.first(where: { $0.id == id }) else { return }
-        try FileManager.default.trashItem(at: wallpaper.url, resultingItemURL: nil)
+        try OortSystem.trash(wallpaper.url)
         OnlineBackgroundService.forgetCredit(for: id)
         reloadWallpapers()
     }
