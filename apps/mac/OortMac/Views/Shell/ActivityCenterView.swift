@@ -66,6 +66,8 @@ struct ActivityCenterView: View {
                 Text(text("Activity center")).seleneFont(.heading, .semibold)
                     .accessibilityAddTraits(.isHeader)
                 // The list takes its own height up to the cap, then scrolls; the inset keeps focus glows unclipped.
+                // Keep the indentation below: run_cloud_screens.py, run_cloud_pause.py and run_profiles.py still patch
+                // it by regex, until they render through oortProbeRendersFlat like run_cloud_queue_pause.py.
                 if Self.rendersFlat {
                     sections(rows, focused: focused).padding(focusInset)
                 } else {

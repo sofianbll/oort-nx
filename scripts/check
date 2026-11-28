@@ -63,6 +63,10 @@ RULES = [
     ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible",
      lambda base: [script("check_probes.py")],
      "scripts/tests/RepoChecks/test_probes.py; the visibility self-test in apps/mac/Tests/CatalogAppChecks/ProbeRenderedText.swift"),
+    ("hooks", "", "Probe hooks (`oortProbe…`) stay inside #if DEBUG outside Tests folders; the Release build then "
+     "cannot hold them (scripts/check release-build also scans its binary)",
+     lambda base: [script("check_probe_hooks.py", "--source")],
+     "scripts/tests/CIChecks/test_probe_hooks.py"),
     ("python", "", "The Python tests of every check (each scripts/tests/*/test_*.py folder)",
      python_tests,
      "themselves"),

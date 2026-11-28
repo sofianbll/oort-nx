@@ -32,3 +32,26 @@ class ProbeHookTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SourceTests(unittest.TestCase):
+    def test_a_hook_inside_if_debug_passes(self):
+        self.assertEqual(check_probe_hooks.outside_debug(
+            "#if DEBUG\nextension M {\n    func oortProbeSet() {}\n}\n#endif\n"), [])
+
+    def test_a_hook_without_if_debug_fails(self):
+        self.assertEqual(check_probe_hooks.outside_debug("extension M {\n    func oortProbeSet() {}\n}\n"), [2])
+
+    def test_the_else_branch_of_debug_is_outside(self):
+        text = "#if DEBUG\nstatic var oortProbeFlat = false\n#else\nlet flat = oortProbeFlat\n#endif\n"
+        self.assertEqual(check_probe_hooks.outside_debug(text), [4])
+
+    def test_a_nested_condition_inside_debug_stays_inside(self):
+        text = "#if DEBUG\n#if os(macOS)\nfunc oortProbeA() {}\n#endif\n#endif\nfunc oortProbeB() {}\n"
+        self.assertEqual(check_probe_hooks.outside_debug(text), [6])
+
+    def test_a_comment_naming_a_hook_is_not_a_hook(self):
+        self.assertEqual(check_probe_hooks.outside_debug("// until they render through oortProbeRendersFlat\n"), [])
+
+    def test_the_repository_keeps_its_hooks_inside_debug(self):
+        self.assertEqual(check_probe_hooks.sources(ROOT), [])

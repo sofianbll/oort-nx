@@ -11,12 +11,13 @@ from screen_host import ICON, header, package_name, render
 
 FIXTURES = r'''
 extension CloudLibraryModel {
-    func installNextStepFixture() {
+    func installNextStepFixture() -> CloudGameArchive {
         let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
             preconditionFailure("The Details probe must not read cloud storage")
         }
-        oortProbeInstallArchives(CloudGameArchive(backend: fixture),
-                                 sources: CloudGameSources(backend: fixture, root: "Games/GameFiles"))
+        let archive = CloudGameArchive(backend: fixture)
+        oortProbeInstallArchives(archive, sources: CloudGameSources(backend: fixture, root: "Games/GameFiles"))
+        return archive
     }
 }
 
@@ -31,7 +32,10 @@ SCENARIOS = r'''
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
         let cloud = vm.cloudLibrary
-        cloud.installNextStepFixture()
+        // What the copied app's patches used to impose: a fresh profile, guided setup, no cloud library.
+        precondition(vm.firstRunSetup.page.isGuided)
+        precondition(cloud.preference.remote == nil && !cloud.preference.enabled)
+        let fixtureArchive = cloud.installNextStepFixture()
         let fr = AppLocale(language: .french, region: "FR")
         let game = PortedGame(name: "Observatoire lunaire", url: data.appendingPathComponent("Fixture.app"),
                               platform: .macApp, sizeBytes: 0, modificationDate: .now, titleId: "0100000000001000")
@@ -99,6 +103,7 @@ SCENARIOS = r'''
         try render("shared-active", output, status.environment(\.nxAppLocale, fr), size: .init(width: 330, height: 90))
         try render("shared-download", output, SelenePillButton(title: "Download", focused: true, downloadFill: 0.42) {}
             .environment(\.nxAppLocale, fr), size: .init(width: 330, height: 90))
+        precondition(cloud.archive === fixtureArchive, "The Details probe must keep its in-memory cloud")
         try checkNextStepText(output)
     }
 '''

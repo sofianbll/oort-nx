@@ -32,6 +32,9 @@ SCENARIO = r'''
 
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
+        // What the copied app's patches used to impose: a fresh profile, guided setup, no cloud library.
+        precondition(vm.firstRunSetup.page.isGuided)
+        precondition(vm.cloudLibrary.preference.remote == nil && !vm.cloudLibrary.preference.enabled)
         let fr = AppLocale(language: .french, region: "FR")
         L10n.setContext(fr)
         for (entry, name) in zip(entries, ["Observatoire lunaire", "Jardin orbital"]) {
