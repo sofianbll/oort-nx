@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 28 novembre 2026. Il repository versiona **1679 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1681 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -91,7 +91,8 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
 | [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
 | [NOTICE](../../NOTICE) | Conserva attribuzioni del motore al pin corrente, di rclone, dei componenti, dei loghi e delle altre risorse riutilizzate. |
-| [Package.swift](../../Package.swift) | Dichiara `OortCore` portabile, `OortLibrary`, il modulo `NxnativeAdapter`, l’app, i tre target di test e il deployment macOS minimo. |
+| [Package.swift](../../Package.swift) | Un solo pacchetto: il Core (`OortCore`, `OortLibrary`, i loro test) su ogni sistema; su Mac anche `NxnativeAdapter`, l’app e i loro test; dipendenza esatta da swift-crypto; deployment macOS minimo. |
+| [Package.resolved](../../Package.resolved) | Revisioni fissate di swift-crypto e swift-asn1. |
 | [README.md](../../README.md) | Presenta Arcane come libreria e launcher Mac, con guide d'uso (anche per la prima connessione cloud), requisiti e crediti. |
 | [engines/nxnative/runtime.lock](../../engines/nxnative/runtime.lock) | Fissa versioni, download e hash del runtime Python e degli strumenti inclusi nel bundle. |
 | [VERSION](../../VERSION) | Versione in sviluppo usata dal packaging e verificata dalla procedura di release. |
@@ -1259,6 +1260,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [engines/nxnative/Tests/NxnativeAdapterTests/SaveTestHome.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/SaveTestHome.swift) | Fixture condivisa che crea una home e un bundle sintetici in una directory temporanea dedicata. |
 | [engines/nxnative/Tests/NxnativeAdapterTests/SaveTransactionTests.swift](../../engines/nxnative/Tests/NxnativeAdapterTests/SaveTransactionTests.swift) | Sostituzioni, interruzioni, rollback, modifiche esterne e compatibilità dei journal precedenti. |
 | [core/Tests/OortLibraryTests/ScreenshotViewerStateTests.swift](../../core/Tests/OortLibraryTests/ScreenshotViewerStateTests.swift) | Indice, avanzamento e limiti del visualizzatore screenshot. |
+| [core/Tests/OortLibraryTests/SHA256DigestTests.swift](../../core/Tests/OortLibraryTests/SHA256DigestTests.swift) | Vettori NIST di SHA-256: le stesse impronte su ogni sistema. |
 | [core/Tests/OortLibraryTests/SeleneCanvasTests.swift](../../core/Tests/OortLibraryTests/SeleneCanvasTests.swift) | Scala, centratura e conversione delle unità del canvas. |
 | [core/Tests/OortLibraryTests/SeleneImporterTests.swift](../../core/Tests/OortLibraryTests/SeleneImporterTests.swift) | Copia delle risorse Selene e risoluzione dei cue sonori. |
 | [core/Tests/OortLibraryTests/SelenePaletteTests.swift](../../core/Tests/OortLibraryTests/SelenePaletteTests.swift) | Lettura delle 26 palette, valori RGB di Oort e blu, alternative Crystal/Flow, persistenza ID, ordine e fallback. |

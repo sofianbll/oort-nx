@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 
 /// Bounded, source-specific enrichment. Failures preserve disk cache; no catalog
 /// writes, credentials, game-content reads or Nintendo lookups.

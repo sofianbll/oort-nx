@@ -11,7 +11,7 @@ model {
   repo = repository "oort-nx" {
     summary "What main holds today"
     metadata {
-      files "AGENTS.md CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md DESIGN.md GLOSSARY.md LICENSE NOTICE PLAYER-GUIDE.fr.md PLAYER-GUIDE.md PRODUCT.md Package.swift README.fr.md README.md SECURITY.md VERSION .gitattributes .gitignore"
+      files "AGENTS.md CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md DESIGN.md GLOSSARY.md LICENSE NOTICE PLAYER-GUIDE.fr.md PLAYER-GUIDE.md PRODUCT.md Package.resolved Package.swift README.fr.md README.md SECURITY.md VERSION .gitattributes .gitignore"
       markdown "yes"
     }
 

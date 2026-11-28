@@ -13,37 +13,48 @@ let libraryTests = (name: "OortLibraryTests", path: "core/Tests/OortLibraryTests
 let nxnativeTests = (name: "NxnativeAdapterTests", path: "engines/nxnative/Tests/NxnativeAdapterTests")
 // END GENERATED NAMES
 
+// The core (its two modules and their tests) builds on every system; the Mac's targets are declared on a Mac
+// only, so that Linux and Windows build and test the core with this same manifest (R3).
+let coreTargets: [Target] = [
+    .target(name: core.name, path: core.path, swiftSettings: [.swiftLanguageMode(.v6)]),
+    .target(name: library.name,
+            dependencies: [.byName(name: core.name), .product(name: "Crypto", package: "swift-crypto")],
+            path: library.path, resources: [.process("Resources")], swiftSettings: [.swiftLanguageMode(.v6)]),
+    .testTarget(name: libraryTests.name, dependencies: [.byName(name: library.name)], path: libraryTests.path),
+    .testTarget(name: coreTests.name, dependencies: [.byName(name: core.name)], path: coreTests.path),
+]
+
+#if os(macOS)
+let macProducts: [Product] = [
+    .library(name: nxnative.name, targets: [nxnative.name]),
+    .executable(name: mac.name, targets: [mac.name]),
+]
+let macTargets: [Target] = [
+    .target(name: nxnative.name, dependencies: [.byName(name: library.name)], path: nxnative.path,
+            swiftSettings: [.swiftLanguageMode(.v6)]),
+    .executableTarget(
+        name: mac.name,
+        dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
+        path: mac.path
+    ),
+    .testTarget(
+        name: nxnativeTests.name,
+        dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
+        path: nxnativeTests.path
+    ),
+]
+#else
+let macProducts: [Product] = []
+let macTargets: [Target] = []
+#endif
+
 let package = Package(
     name: packageName,
     defaultLocalization: "en",
     platforms: [.macOS("26.0")],
-    products: [
-        .library(name: library.name, targets: [library.name]),
-        .library(name: nxnative.name, targets: [nxnative.name]),
-        .executable(name: mac.name, targets: [mac.name]),
-    ],
-    targets: [
-        .target(name: core.name, path: core.path, swiftSettings: [.swiftLanguageMode(.v6)]),
-        .target(name: library.name, dependencies: [.byName(name: core.name)], path: library.path,
-                resources: [.process("Resources")], swiftSettings: [.swiftLanguageMode(.v6)]),
-        .target(name: nxnative.name, dependencies: [.byName(name: library.name)], path: nxnative.path,
-                swiftSettings: [.swiftLanguageMode(.v6)]),
-        .executableTarget(
-            name: mac.name,
-            dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
-            path: mac.path
-        ),
-        .testTarget(
-            name: libraryTests.name,
-            dependencies: [.byName(name: library.name)],
-            path: libraryTests.path
-        ),
-        .testTarget(
-            name: nxnativeTests.name,
-            dependencies: [.byName(name: library.name), .byName(name: nxnative.name)],
-            path: nxnativeTests.path
-        ),
-        .testTarget(name: coreTests.name, dependencies: [.byName(name: core.name)], path: coreTests.path),
-    ],
+    products: [.library(name: library.name, targets: [library.name])] + macProducts,
+    // On Apple systems Crypto is CryptoKit; elsewhere it is the same API on BoringSSL.
+    dependencies: [.package(url: "https://github.com/apple/swift-crypto.git", exact: "3.15.1")],
+    targets: coreTargets + macTargets,
     swiftLanguageModes: [.v5]
 )

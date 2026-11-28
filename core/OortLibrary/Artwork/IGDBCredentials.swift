@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 
 /// The player's own Twitch application credentials; never bundled, logged or put in settings.
 public struct IGDBCredentials: Equatable, Codable, Sendable {

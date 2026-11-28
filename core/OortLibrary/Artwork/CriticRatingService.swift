@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 
 /// Keyless, on-demand enrichment for Details. Cache and failures never alter the catalog.
 public actor CriticRatingService {

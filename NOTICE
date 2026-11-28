@@ -199,6 +199,15 @@ Save layout facts for achievements (LinksAwakeningAchievements.swift) come from 
 docs/save-format.md. No code is included. MIT, Copyright (c) 2026 Peiikai.
 
 --------------------------------------------------------------------------------
+Swift Crypto 3.15.1
+https://github.com/apple/swift-crypto
+
+Copyright 2019 The SwiftCrypto Project. Licensed under the Apache License,
+version 2.0. The licence and the project's NOTICE are in
+ThirdPartyLicenses/swift-crypto-LICENSE.txt. On a Mac, Swift Crypto calls
+Apple's CryptoKit; on Windows and Linux it includes BoringSSL.
+
+--------------------------------------------------------------------------------
 The Sun's sound (OortSynth) is synthesized. Its design started from the solar
 vibrations recorded by SOHO (ESA/NASA), sonified by A. Kosovichev, Stanford
 Experimental Physics Lab: https://solar-center.stanford.edu/singing/index.html
@@ -258,6 +267,8 @@ Engine
 - FLIP, by NVIDIA. Compares images in the engine’s checks. BSD-3-Clause. In the engine, which is downloaded separately (Mac). https://github.com/NVlabs/flip
 
 Tools
+- Swift Crypto, by Apple. Cryptography. Apache-2.0. In the app (Mac, Windows, Linux). https://github.com/apple/swift-crypto
+  Includes BoringSSL.
 - CPython, by Python Software Foundation. Runs the engine’s build tools. PSF-2.0. In the app (Mac). https://www.python.org
   Includes bzip2, libffi, Expat, mpdecimal, libuuid, OpenSSL, SQLite, liblzma, zstd, Tcl/Tk, Itcl, Thread, LibTomMath, zlib.
 - python-build-standalone, by Astral. Runs the engine’s build tools. MPL-2.0. Used to make the app (Mac). https://github.com/astral-sh/python-build-standalone

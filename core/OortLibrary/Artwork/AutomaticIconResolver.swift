@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 import ImageIO
 
 /// Independently implemented from the site's HTML, without importing the GPL reference implementation.

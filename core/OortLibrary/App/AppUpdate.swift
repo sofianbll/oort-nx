@@ -2,7 +2,7 @@
 // Copyright (c) 2026 LNPANDY and NX2Apple contributors. See NOTICE.
 
 import Foundation
-import CryptoKit
+import Crypto
 import Darwin
 
 /// The rules of Arcane's self-update: which release, what may be installed, which copy may

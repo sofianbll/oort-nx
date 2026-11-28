@@ -79,6 +79,9 @@ def stage(package, ref=None, root=ROOT):
     layout = CURRENT if ref is None else layout_at(ref, root)
     if ref is None:
         shutil.copyfile(Path(root) / "Package.swift", package / "Package.swift")
+        # The pinned dependencies: SwiftPM resolves them from its shared cache, at the same revisions.
+        if (Path(root) / "Package.resolved").is_file():
+            shutil.copyfile(Path(root) / "Package.resolved", package / "Package.resolved")
         for relative in (module["path"] for module in layout.modules.values()):
             shutil.copytree(Path(root) / relative, package / relative)
     else:

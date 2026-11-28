@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 
 public enum DevelopmentProfileError: Error, LocalizedError {
     case invalidConfiguration, destinationExists, unsafeFile, invalidData, sourceChanged, preferencesUnavailable

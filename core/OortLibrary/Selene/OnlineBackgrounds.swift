@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 
 /// Where an online background comes from.
 public enum BackgroundSourceID: String, CaseIterable, Codable, Sendable {

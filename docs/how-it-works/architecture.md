@@ -41,7 +41,7 @@ Il [README](../../README.md) è la guida d'uso; la [guida di sviluppo](../workin
 
 Il [modello LikeC4](../../architecture/model.c4) descrive i sistemi, i confini di dominio e i livelli di importazione verificati in CI. Qui sono descritti i dettagli dell’app Mac.
 
-[Package.swift](../../Package.swift) dichiara sette target. La toolchain dell'app è quella di Xcode, con deployment minimo macOS 26 (`LSMinimumSystemVersion` 26.0 nell'app). *Perché:* è la versione più vecchia che il maintainer prova, e il porting chiede comunque macOS 26.6 per Xcode 27.2.
+[Package.swift](../../Package.swift) dichiara sette target: il Core (`OortCore`, `OortLibrary` e i loro test) su ogni sistema, gli altri solo su Mac (`#if os(macOS)`), così Linux e Windows costruiscono e provano il Core con lo stesso manifesto. `OortLibrary` usa `Crypto` di swift-crypto, versione esatta: su Mac è CryptoKit, altrove la stessa API su BoringSSL. La toolchain dell'app è quella di Xcode, con deployment minimo macOS 26 (`LSMinimumSystemVersion` 26.0 nell'app). *Perché:* è la versione più vecchia che il maintainer prova, e il porting chiede comunque macOS 26.6 per Xcode 27.2.
 
 | Target | Compito |
 |---|---|

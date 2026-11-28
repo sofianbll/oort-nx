@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit
+import Crypto
 import Darwin
 
 public enum CatalogStoreError: Error, Equatable {
