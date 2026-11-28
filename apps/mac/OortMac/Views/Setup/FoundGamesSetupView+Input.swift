@@ -24,17 +24,17 @@ extension FoundGamesSetupView {
     func activate(_ target: FirstRunSetup.Focus) {
         guard viewModel.showSetupCheck, viewModel.firstRunSetup.page == .found, NSApp.modalWindow == nil else { return }
         move(to: target)
-        switch target {
-        case .steamToggle where findings?.steamReadFailed == true:
+        switch (target, steam?.request) {
+        case (.steamToggle, .readSteamAgain):
             SoundEffectService.shared.play(.click)
             reader.start(steamRoot: steamRoot, appsFolder: viewModel.gameAppsFolder)
-        case .steamToggle where steamCount != nil:
-            viewModel.chooseSteamOnFound(!steamOn)
+        case (.steamToggle, .steam(let enabled)):
+            viewModel.chooseSteamOnFound(enabled)
             SoundEffectService.shared.play(.key)
-        case .portingCard:
+        case (.portingCard, _):
             SoundEffectService.shared.play(.click)
             viewModel.openPortingFromFound()
-        case .openLibrary:
+        case (.openLibrary, _):
             reader.cancel()
             SoundEffectService.shared.play(.click)
             onOpenLibrary(portedCount > 0)

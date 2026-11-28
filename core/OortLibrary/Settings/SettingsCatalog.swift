@@ -192,9 +192,7 @@ public enum SettingsCatalog {
         // Steam
         action("integrations", .sources, "All integrations", "See what each one reads, writes and sends."),
         action("macShortcutAdd", .sources, "Mac apps", "Add local Mac apps as library shortcuts."),
-        action("steamSource", .sources, "Steam", "Find installed native Mac games in your Steam libraries."),
-        action("steamRefresh", .sources, "Refresh Steam", "Check enabled Steam libraries without changing your game files."),
-        action("steamFolder", .sources, "Steam folder", "Choose the Steam folder containing steamapps."),
+    ] + SteamSourceEntries.searchRows + [
         row("steamInBackground", .sources, "Keep Steam in the background",
             "Steam starts quietly when possible and comes forward if it needs you.", \.steamInBackground),
 

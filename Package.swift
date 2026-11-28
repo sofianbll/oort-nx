@@ -36,7 +36,9 @@ let package = Package(
         .testTarget(
             name: libraryTests.name,
             dependencies: [.byName(name: library.name)],
-            path: libraryTests.path
+            path: libraryTests.path,
+            // The reviewed screens and reference tree, read by IntegrationScreenTests from their path.
+            exclude: ["Screens"]
         ),
         .testTarget(
             name: nxnativeTests.name,

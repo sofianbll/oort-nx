@@ -132,14 +132,13 @@ final class FoundHost {
     let reader = FindingsReader()
     let steamRoot = URL(fileURLWithPath: "/synthetic/Steam")
     var opened: [(ported: Bool, cancelled: Bool)] = []
-    var steamCount: Int? { findings?.steamGameCount }
     let steamEnabled: Bool
-    // STEAM_ON
+    // FOUND_STEAM_ROW
     var portedCount: Int { findings?.portedAppCount ?? 0 }
     var isReading: Bool { findings == nil }
     func onOpenLibrary(_ ported: Bool) { opened.append((ported, reader.cancellations > 0)) }
     // ACTIVATE_FOUND
-    var hasSteam: Bool { findings?.steamGameCount != nil || findings?.steamReadFailed == true }
+    // FOUND_HAS_STEAM
     init(_ viewModel: Host, steamEnabled: Bool = false) {
         self.viewModel = viewModel; self.steamEnabled = steamEnabled
     }
@@ -172,7 +171,8 @@ for savedPage in ["found", "requirements", "games"] {
             let model = Host()
             let sources = Sources(enabled: enabled, root: URL(fileURLWithPath: "/synthetic/Steam"))
             let page = FoundHost(model, steamEnabled: enabled)
-            require(page.steamOn == (oldChoice && enabled), "Legacy true reflects the configured source, legacy false stays off")
+            page.findings = FirstRunFindings(steamGameCount: 1, portedAppCount: 0)
+            require(page.steam?.checked == (oldChoice && enabled), "Legacy true reflects the configured source, legacy false stays off")
             model.finish()
             Shell(model: model, sources: sources).complete(true)
             require(sources.configuration.isEnabled == (oldChoice && enabled),
@@ -206,7 +206,8 @@ for enabled in [true, false] {
         let custom = URL(fileURLWithPath: "/synthetic/Custom Steam")
         let sources = Sources(enabled: enabled, root: custom)
         let page = FoundHost(model, steamEnabled: enabled)
-        require(page.steamOn == (choice ?? enabled), "The switch reflects the saved choice or existing source")
+        page.findings = FirstRunFindings(steamGameCount: 1, portedAppCount: 0)
+        require(page.steam?.checked == (choice ?? enabled), "The switch reflects the saved choice or existing source")
         let shell = Shell(model: model, sources: sources)
         shell.complete(false)
         require(sources.applied.isEmpty, "Incomplete setup does not apply the switch")
@@ -229,7 +230,7 @@ for count in [0, 2] {
         let shell = Shell(model: model, sources: sources)
         let completedRead = FirstRunFindings(steamGameCount: count, portedAppCount: 0)
         page.receive(completedRead)
-        require(!page.steamOn && model.firstRunSetup.steamChoice == nil, "Detection with \\(count) games never chooses Steam")
+        require(page.steam?.checked == false && model.firstRunSetup.steamChoice == nil, "Detection with \\(count) games never chooses Steam")
         require(page.focus == .openLibrary, "Detection does not steal the initial Open library focus")
         if optIn { page.activate(.steamToggle) }
         page.activate(.openLibrary)
@@ -290,7 +291,8 @@ host = host.replace('// SETUP', declaration('    @Published private(set) var fir
 host = host.replace('// MOVE', '@discardableResult ' + declaration('func moveOnboarding('))
 host = host.replace('// FINISH_TOUR', declaration('    func finishOnboarding('))
 host = host.replace('// FINDINGS_CHANGED', findings_changed)
-host = host.replace('// STEAM_ON', declaration('    var steamOn:', found))
+host = host.replace('// FOUND_STEAM_ROW', declaration('    var steam:', found))
+host = host.replace('// FOUND_HAS_STEAM', declaration('    var hasSteam:', found))
 host = host.replace('// FINISH', finish)
 host = host.replace('// RESTORE', restore).replace('// STARTUP_REQUESTS', startup_requests)
 host = host.replace('// ACCEPTED_BUILD', accepted)

@@ -1,0 +1,7028 @@
+{
+  "online-off" : [
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "sources",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Installed games, play through Steam"
+              },
+              "icon" : "steam",
+              "id" : "steam",
+              "kind" : "row",
+              "on" : true,
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Steam"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "macApps",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to local apps"
+              },
+              "icon" : "macApps",
+              "id" : "macApps",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Mac apps"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "prog",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to programs"
+              },
+              "icon" : "prog",
+              "id" : "prog",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Programs"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "drive",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Games and copies of your files"
+              },
+              "icon" : "drive",
+              "id" : "drive",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              },
+              "title" : {
+                "key" : "Google Drive"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Epic Games · GOG · Minecraft · CrossOver"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Sources"
+          }
+        },
+        {
+          "id" : "engines",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Build, play and keep saves"
+              },
+              "icon" : "switchGames",
+              "id" : "switchGames",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "nxnative"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Ryujinx-Nextendo"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Engines"
+          }
+        },
+        {
+          "id" : "services",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "nextendo",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Online play and friends"
+              },
+              "icon" : "nextendo",
+              "id" : "nextendo",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              },
+              "title" : {
+                "key" : "Nextendo"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "saves",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Copies of game saves"
+              },
+              "icon" : "saves",
+              "id" : "saves",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "iCloud saves"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "images",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Covers, icons and game scores"
+              },
+              "icon" : "images",
+              "id" : "images",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Artwork and scores"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "icon" : "online",
+              "id" : "online",
+              "kind" : "row",
+              "on" : false,
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Game information online"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              }
+            }
+          ],
+          "kind" : "section",
+          "title" : {
+            "key" : "Services"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "steam",
+        "macApps",
+        "prog",
+        "drive",
+        "switchGames",
+        "nextendo",
+        "saves",
+        "images",
+        "online"
+      ],
+      "id" : "integrations",
+      "initialFocus" : "steam",
+      "title" : {
+        "key" : "Integrations"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to Steam on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : true,
+              "title" : {
+                "key" : "Steam"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam source settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam source settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The games Steam installed, your play time and your achievements."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Oort NX library and the pictures it keeps; never Steam’s files."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steamGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch",
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.steam",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Find installed Mac games and open them in Steam."
+      },
+      "title" : {
+        "key" : "Steam"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Add a Mac app to begin."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Mac app settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Mac app settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The name, place and icon of the app you choose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "A shortcut in your library; the app itself does not change."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage"
+      ],
+      "id" : "integrations.macApps",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Add local Mac apps as library shortcuts."
+      },
+      "title" : {
+        "key" : "Mac apps"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the programs you added."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The chosen program’s name, location and icon."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The shortcut in this library, not the program."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "programs",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open programs"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open programs"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.prog",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Any program with its arguments, an emulator with a game for example. Sends nothing."
+      },
+      "title" : {
+        "key" : "Programs"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to your Google Drive."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The files you choose and your Drive folders. The shared library is only read."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Copies on this computer and in your own Drive library, never in the shared one."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud library settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud library settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.drive",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep copies of your built games and of the game files you choose. Not your saves."
+      },
+      "title" : {
+        "key" : "Google Drive"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the nxnative engine on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open engine settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open engine settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Engine up to date"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Switch keys selected"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Apple tools ready"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game files you choose, your Switch keys and the games already built."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The games it builds, its working files and a private copy of your keys. The games write their own saves."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Switch games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Switch games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.switchGames",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Build compatible Switch games for Mac and open games already built."
+      },
+      "title" : {
+        "key" : "nxnative"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Nextendo cannot be reached right now."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Nextendo account, your friends, their pictures and who is online."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your sign-in on this computer, and the friend changes you ask for."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Nextendo settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Nextendo settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.nextendo",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Play compatible nxnative games online and see your Nextendo friends."
+      },
+      "title" : {
+        "key" : "Nextendo"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the save folder you chose."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game saves on this computer and their copies in the folder you chose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The folder and each game’s choice; the games write the copies. A game can keep its own choice."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud save settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud save settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.saves",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep supported game saves in iCloud Drive or in a folder you choose."
+      },
+      "title" : {
+        "key" : "iCloud saves"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked with your SteamGridDB or IGDB key."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers and what the sites find."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your keys, kept private, your picture choices, and the pictures and scores it keeps."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch)."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open provider settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open provider settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.images",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites."
+      },
+      "title" : {
+        "key" : "Artwork and scores"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Turn it on to look for covers and game information."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : false,
+              "title" : {
+                "key" : "Game information online"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Covers and information, kept on this computer."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number, and your language, to the Steam store, Wikipedia and Wikidata."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch"
+      ],
+      "id" : "integrations.online",
+      "initialFocus" : "link.switch",
+      "lead" : {
+        "key" : "Covers and game information"
+      },
+      "title" : {
+        "key" : "Game information online"
+      }
+    }
+  ],
+  "online-on" : [
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "sources",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Installed games, play through Steam"
+              },
+              "icon" : "steam",
+              "id" : "steam",
+              "kind" : "row",
+              "on" : true,
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Steam"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "macApps",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to local apps"
+              },
+              "icon" : "macApps",
+              "id" : "macApps",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Mac apps"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "prog",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to programs"
+              },
+              "icon" : "prog",
+              "id" : "prog",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Programs"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "drive",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Games and copies of your files"
+              },
+              "icon" : "drive",
+              "id" : "drive",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              },
+              "title" : {
+                "key" : "Google Drive"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Epic Games · GOG · Minecraft · CrossOver"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Sources"
+          }
+        },
+        {
+          "id" : "engines",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Build, play and keep saves"
+              },
+              "icon" : "switchGames",
+              "id" : "switchGames",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "nxnative"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Ryujinx-Nextendo"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Engines"
+          }
+        },
+        {
+          "id" : "services",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "nextendo",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Online play and friends"
+              },
+              "icon" : "nextendo",
+              "id" : "nextendo",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              },
+              "title" : {
+                "key" : "Nextendo"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "saves",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Copies of game saves"
+              },
+              "icon" : "saves",
+              "id" : "saves",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "iCloud saves"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "images",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Covers, icons and game scores"
+              },
+              "icon" : "images",
+              "id" : "images",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Artwork and scores"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Covers and game information"
+              },
+              "icon" : "online",
+              "id" : "online",
+              "kind" : "row",
+              "on" : true,
+              "status" : {
+                "text" : {
+                  "key" : "On"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Game information online"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              }
+            }
+          ],
+          "kind" : "section",
+          "title" : {
+            "key" : "Services"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "steam",
+        "macApps",
+        "prog",
+        "drive",
+        "switchGames",
+        "nextendo",
+        "saves",
+        "images",
+        "online"
+      ],
+      "id" : "integrations",
+      "initialFocus" : "steam",
+      "title" : {
+        "key" : "Integrations"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to Steam on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : true,
+              "title" : {
+                "key" : "Steam"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam source settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam source settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The games Steam installed, your play time and your achievements."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Oort NX library and the pictures it keeps; never Steam’s files."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steamGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch",
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.steam",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Find installed Mac games and open them in Steam."
+      },
+      "title" : {
+        "key" : "Steam"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Add a Mac app to begin."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Mac app settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Mac app settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The name, place and icon of the app you choose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "A shortcut in your library; the app itself does not change."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage"
+      ],
+      "id" : "integrations.macApps",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Add local Mac apps as library shortcuts."
+      },
+      "title" : {
+        "key" : "Mac apps"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the programs you added."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The chosen program’s name, location and icon."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The shortcut in this library, not the program."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "programs",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open programs"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open programs"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.prog",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Any program with its arguments, an emulator with a game for example. Sends nothing."
+      },
+      "title" : {
+        "key" : "Programs"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to your Google Drive."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The files you choose and your Drive folders. The shared library is only read."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Copies on this computer and in your own Drive library, never in the shared one."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud library settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud library settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.drive",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep copies of your built games and of the game files you choose. Not your saves."
+      },
+      "title" : {
+        "key" : "Google Drive"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the nxnative engine on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open engine settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open engine settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Engine up to date"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Switch keys selected"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Apple tools ready"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game files you choose, your Switch keys and the games already built."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The games it builds, its working files and a private copy of your keys. The games write their own saves."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Switch games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Switch games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.switchGames",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Build compatible Switch games for Mac and open games already built."
+      },
+      "title" : {
+        "key" : "nxnative"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Nextendo cannot be reached right now."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Nextendo account, your friends, their pictures and who is online."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your sign-in on this computer, and the friend changes you ask for."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Nextendo settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Nextendo settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.nextendo",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Play compatible nxnative games online and see your Nextendo friends."
+      },
+      "title" : {
+        "key" : "Nextendo"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the save folder you chose."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game saves on this computer and their copies in the folder you chose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The folder and each game’s choice; the games write the copies. A game can keep its own choice."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud save settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud save settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.saves",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep supported game saves in iCloud Drive or in a folder you choose."
+      },
+      "title" : {
+        "key" : "iCloud saves"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked with your SteamGridDB or IGDB key."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers and what the sites find."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your keys, kept private, your picture choices, and the pictures and scores it keeps."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch)."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open provider settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open provider settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.images",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites."
+      },
+      "title" : {
+        "key" : "Artwork and scores"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the Steam store, Wikipedia and Wikidata."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : true,
+              "title" : {
+                "key" : "Game information online"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "On"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "count" : 2,
+                "key" : "%lld games known"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Covers and information, kept on this computer."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number, and your language, to the Steam store, Wikipedia and Wikidata."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "clearOnline",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Delete what was found online"
+                }
+              },
+              "id" : "verify.clear",
+              "kind" : "button",
+              "question" : {
+                "choices" : [
+                  {
+                    "role" : "cancel",
+                    "title" : {
+                      "key" : "Cancel"
+                    }
+                  },
+                  {
+                    "role" : "destructive",
+                    "title" : {
+                      "key" : "Delete"
+                    }
+                  }
+                ],
+                "focus" : 0,
+                "message" : {
+                  "key" : "Covers and descriptions found online leave this computer. Your own pictures stay.",
+                  "whole" : true
+                },
+                "title" : {
+                  "key" : "Delete what was found online?"
+                }
+              },
+              "title" : {
+                "key" : "Delete what was found online"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Nothing else to do here: it works on its own."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch",
+        "verify.clear"
+      ],
+      "id" : "integrations.online",
+      "initialFocus" : "link.switch",
+      "lead" : {
+        "key" : "Covers and game information"
+      },
+      "title" : {
+        "key" : "Game information online"
+      }
+    }
+  ],
+  "steam-missing" : [
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "sources",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Installed games, play through Steam"
+              },
+              "icon" : "steam",
+              "id" : "steam",
+              "kind" : "row",
+              "on" : true,
+              "status" : {
+                "text" : {
+                  "key" : "Not found"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Steam"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "macApps",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to local apps"
+              },
+              "icon" : "macApps",
+              "id" : "macApps",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Mac apps"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "prog",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to programs"
+              },
+              "icon" : "prog",
+              "id" : "prog",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Programs"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "drive",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Games and copies of your files"
+              },
+              "icon" : "drive",
+              "id" : "drive",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              },
+              "title" : {
+                "key" : "Google Drive"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Epic Games · GOG · Minecraft · CrossOver"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Sources"
+          }
+        },
+        {
+          "id" : "engines",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Build, play and keep saves"
+              },
+              "icon" : "switchGames",
+              "id" : "switchGames",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "nxnative"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Ryujinx-Nextendo"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Engines"
+          }
+        },
+        {
+          "id" : "services",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "nextendo",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Online play and friends"
+              },
+              "icon" : "nextendo",
+              "id" : "nextendo",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              },
+              "title" : {
+                "key" : "Nextendo"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "saves",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Copies of game saves"
+              },
+              "icon" : "saves",
+              "id" : "saves",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "iCloud saves"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "images",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Covers, icons and game scores"
+              },
+              "icon" : "images",
+              "id" : "images",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Artwork and scores"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "icon" : "online",
+              "id" : "online",
+              "kind" : "row",
+              "on" : false,
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Game information online"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              }
+            }
+          ],
+          "kind" : "section",
+          "title" : {
+            "key" : "Services"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "steam",
+        "macApps",
+        "prog",
+        "drive",
+        "switchGames",
+        "nextendo",
+        "saves",
+        "images",
+        "online"
+      ],
+      "id" : "integrations",
+      "initialFocus" : "steam",
+      "title" : {
+        "key" : "Integrations"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Steam was not found on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : true,
+              "title" : {
+                "key" : "Steam"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam source settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam source settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Not found"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The games Steam installed, your play time and your achievements."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Oort NX library and the pictures it keeps; never Steam’s files."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch",
+        "link.manage"
+      ],
+      "id" : "integrations.steam",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Find installed Mac games and open them in Steam."
+      },
+      "title" : {
+        "key" : "Steam"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Add a Mac app to begin."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Mac app settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Mac app settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The name, place and icon of the app you choose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "A shortcut in your library; the app itself does not change."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage"
+      ],
+      "id" : "integrations.macApps",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Add local Mac apps as library shortcuts."
+      },
+      "title" : {
+        "key" : "Mac apps"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the programs you added."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The chosen program’s name, location and icon."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The shortcut in this library, not the program."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "programs",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open programs"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open programs"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.prog",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Any program with its arguments, an emulator with a game for example. Sends nothing."
+      },
+      "title" : {
+        "key" : "Programs"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to your Google Drive."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The files you choose and your Drive folders. The shared library is only read."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Copies on this computer and in your own Drive library, never in the shared one."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud library settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud library settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.drive",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep copies of your built games and of the game files you choose. Not your saves."
+      },
+      "title" : {
+        "key" : "Google Drive"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the nxnative engine on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open engine settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open engine settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Engine up to date"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Switch keys selected"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Apple tools ready"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game files you choose, your Switch keys and the games already built."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The games it builds, its working files and a private copy of your keys. The games write their own saves."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Switch games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Switch games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.switchGames",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Build compatible Switch games for Mac and open games already built."
+      },
+      "title" : {
+        "key" : "nxnative"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Nextendo cannot be reached right now."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Nextendo account, your friends, their pictures and who is online."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your sign-in on this computer, and the friend changes you ask for."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Nextendo settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Nextendo settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.nextendo",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Play compatible nxnative games online and see your Nextendo friends."
+      },
+      "title" : {
+        "key" : "Nextendo"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the save folder you chose."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game saves on this computer and their copies in the folder you chose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The folder and each game’s choice; the games write the copies. A game can keep its own choice."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud save settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud save settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.saves",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep supported game saves in iCloud Drive or in a folder you choose."
+      },
+      "title" : {
+        "key" : "iCloud saves"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked with your SteamGridDB or IGDB key."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers and what the sites find."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your keys, kept private, your picture choices, and the pictures and scores it keeps."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch)."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open provider settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open provider settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.images",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites."
+      },
+      "title" : {
+        "key" : "Artwork and scores"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Turn it on to look for covers and game information."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : false,
+              "title" : {
+                "key" : "Game information online"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Covers and information, kept on this computer."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number, and your language, to the Steam store, Wikipedia and Wikidata."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch"
+      ],
+      "id" : "integrations.online",
+      "initialFocus" : "link.switch",
+      "lead" : {
+        "key" : "Covers and game information"
+      },
+      "title" : {
+        "key" : "Game information online"
+      }
+    }
+  ],
+  "steam-off" : [
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "sources",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Installed games, play through Steam"
+              },
+              "icon" : "steam",
+              "id" : "steam",
+              "kind" : "row",
+              "on" : false,
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Steam"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "macApps",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to local apps"
+              },
+              "icon" : "macApps",
+              "id" : "macApps",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Mac apps"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "prog",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to programs"
+              },
+              "icon" : "prog",
+              "id" : "prog",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Programs"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "drive",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Games and copies of your files"
+              },
+              "icon" : "drive",
+              "id" : "drive",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              },
+              "title" : {
+                "key" : "Google Drive"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Epic Games · GOG · Minecraft · CrossOver"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Sources"
+          }
+        },
+        {
+          "id" : "engines",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Build, play and keep saves"
+              },
+              "icon" : "switchGames",
+              "id" : "switchGames",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "nxnative"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Ryujinx-Nextendo"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Engines"
+          }
+        },
+        {
+          "id" : "services",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "nextendo",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Online play and friends"
+              },
+              "icon" : "nextendo",
+              "id" : "nextendo",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              },
+              "title" : {
+                "key" : "Nextendo"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "saves",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Copies of game saves"
+              },
+              "icon" : "saves",
+              "id" : "saves",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "iCloud saves"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "images",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Covers, icons and game scores"
+              },
+              "icon" : "images",
+              "id" : "images",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Artwork and scores"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "icon" : "online",
+              "id" : "online",
+              "kind" : "row",
+              "on" : false,
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Game information online"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              }
+            }
+          ],
+          "kind" : "section",
+          "title" : {
+            "key" : "Services"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "steam",
+        "macApps",
+        "prog",
+        "drive",
+        "switchGames",
+        "nextendo",
+        "saves",
+        "images",
+        "online"
+      ],
+      "id" : "integrations",
+      "initialFocus" : "steam",
+      "title" : {
+        "key" : "Integrations"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Turn on Steam to add the games it installed."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : false,
+              "title" : {
+                "key" : "Steam"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam source settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam source settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The games Steam installed, your play time and your achievements."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Oort NX library and the pictures it keeps; never Steam’s files."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch",
+        "link.manage"
+      ],
+      "id" : "integrations.steam",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Find installed Mac games and open them in Steam."
+      },
+      "title" : {
+        "key" : "Steam"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Add a Mac app to begin."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Mac app settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Mac app settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The name, place and icon of the app you choose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "A shortcut in your library; the app itself does not change."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage"
+      ],
+      "id" : "integrations.macApps",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Add local Mac apps as library shortcuts."
+      },
+      "title" : {
+        "key" : "Mac apps"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the programs you added."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The chosen program’s name, location and icon."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The shortcut in this library, not the program."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "programs",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open programs"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open programs"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.prog",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Any program with its arguments, an emulator with a game for example. Sends nothing."
+      },
+      "title" : {
+        "key" : "Programs"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to your Google Drive."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The files you choose and your Drive folders. The shared library is only read."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Copies on this computer and in your own Drive library, never in the shared one."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud library settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud library settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.drive",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep copies of your built games and of the game files you choose. Not your saves."
+      },
+      "title" : {
+        "key" : "Google Drive"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the nxnative engine on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open engine settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open engine settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Engine up to date"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Switch keys selected"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Apple tools ready"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game files you choose, your Switch keys and the games already built."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The games it builds, its working files and a private copy of your keys. The games write their own saves."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Switch games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Switch games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.switchGames",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Build compatible Switch games for Mac and open games already built."
+      },
+      "title" : {
+        "key" : "nxnative"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Nextendo cannot be reached right now."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Nextendo account, your friends, their pictures and who is online."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your sign-in on this computer, and the friend changes you ask for."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Nextendo settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Nextendo settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.nextendo",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Play compatible nxnative games online and see your Nextendo friends."
+      },
+      "title" : {
+        "key" : "Nextendo"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the save folder you chose."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game saves on this computer and their copies in the folder you chose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The folder and each game’s choice; the games write the copies. A game can keep its own choice."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud save settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud save settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.saves",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep supported game saves in iCloud Drive or in a folder you choose."
+      },
+      "title" : {
+        "key" : "iCloud saves"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked with your SteamGridDB or IGDB key."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers and what the sites find."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your keys, kept private, your picture choices, and the pictures and scores it keeps."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch)."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open provider settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open provider settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.images",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites."
+      },
+      "title" : {
+        "key" : "Artwork and scores"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Turn it on to look for covers and game information."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : false,
+              "title" : {
+                "key" : "Game information online"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Covers and information, kept on this computer."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number, and your language, to the Steam store, Wikipedia and Wikidata."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch"
+      ],
+      "id" : "integrations.online",
+      "initialFocus" : "link.switch",
+      "lead" : {
+        "key" : "Covers and game information"
+      },
+      "title" : {
+        "key" : "Game information online"
+      }
+    }
+  ],
+  "steam-on" : [
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "sources",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Installed games, play through Steam"
+              },
+              "icon" : "steam",
+              "id" : "steam",
+              "kind" : "row",
+              "on" : true,
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Steam"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "macApps",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to local apps"
+              },
+              "icon" : "macApps",
+              "id" : "macApps",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Mac apps"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "prog",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Shortcuts to programs"
+              },
+              "icon" : "prog",
+              "id" : "prog",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Programs"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "drive",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Games and copies of your files"
+              },
+              "icon" : "drive",
+              "id" : "drive",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              },
+              "title" : {
+                "key" : "Google Drive"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Epic Games · GOG · Minecraft · CrossOver"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Sources"
+          }
+        },
+        {
+          "id" : "engines",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Build, play and keep saves"
+              },
+              "icon" : "switchGames",
+              "id" : "switchGames",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "nxnative"
+              }
+            }
+          ],
+          "kind" : "section",
+          "note" : {
+            "args" : [
+              "Ryujinx-Nextendo"
+            ],
+            "key" : "Coming later: %@"
+          },
+          "title" : {
+            "key" : "Engines"
+          }
+        },
+        {
+          "id" : "services",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "nextendo",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Online play and friends"
+              },
+              "icon" : "nextendo",
+              "id" : "nextendo",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              },
+              "title" : {
+                "key" : "Nextendo"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "saves",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Copies of game saves"
+              },
+              "icon" : "saves",
+              "id" : "saves",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "iCloud saves"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "images",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Covers, icons and game scores"
+              },
+              "icon" : "images",
+              "id" : "images",
+              "kind" : "row",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Artwork and scores"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "open"
+                },
+                "title" : {
+                  "key" : "Open"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "icon" : "online",
+              "id" : "online",
+              "kind" : "row",
+              "on" : false,
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              },
+              "title" : {
+                "key" : "Game information online"
+              },
+              "x" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              }
+            }
+          ],
+          "kind" : "section",
+          "title" : {
+            "key" : "Services"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "steam",
+        "macApps",
+        "prog",
+        "drive",
+        "switchGames",
+        "nextendo",
+        "saves",
+        "images",
+        "online"
+      ],
+      "id" : "integrations",
+      "initialFocus" : "steam",
+      "title" : {
+        "key" : "Integrations"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to Steam on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steam",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn off"
+                }
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : true,
+              "title" : {
+                "key" : "Steam"
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam source settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam source settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The games Steam installed, your play time and your achievements."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Oort NX library and the pictures it keeps; never Steam’s files."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Play tells Steam on this computer which game to start. While you browse, Oort sends Steam each game’s number and your language to get its pictures, information and achievements."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "steamGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Steam games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Steam games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch",
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.steam",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Find installed Mac games and open them in Steam."
+      },
+      "title" : {
+        "key" : "Steam"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Add a Mac app to begin."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Mac app settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Mac app settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "No Mac shortcuts added"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The name, place and icon of the app you choose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "A shortcut in your library; the app itself does not change."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage"
+      ],
+      "id" : "integrations.macApps",
+      "initialFocus" : "link.manage",
+      "lead" : {
+        "key" : "Add local Mac apps as library shortcuts."
+      },
+      "title" : {
+        "key" : "Mac apps"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the programs you added."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Ready here"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The chosen program’s name, location and icon."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The shortcut in this library, not the program."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "programs",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open programs"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open programs"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.prog",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Any program with its arguments, an emulator with a game for example. Sends nothing."
+      },
+      "title" : {
+        "key" : "Programs"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to your Google Drive."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Drive transfer in progress"
+                },
+                "tone" : "working"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The files you choose and your Drive folders. The shared library is only read."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Copies on this computer and in your own Drive library, never in the shared one."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your files to your Google Drive, and your Google sign-in. A new connection asks for access to your whole Drive."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud library settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud library settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.drive",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep copies of your built games and of the game files you choose. Not your saves."
+      },
+      "title" : {
+        "key" : "Google Drive"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the nxnative engine on this computer."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open engine settings"
+                }
+              },
+              "id" : "link.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open engine settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Engine folder found"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Engine up to date"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Switch keys selected"
+              }
+            },
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Apple tools ready"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game files you choose, your Switch keys and the games already built."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The games it builds, its working files and a private copy of your keys. The games write their own saves."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Never your games or your keys. It only downloads its updates from GitHub and Apple’s tools from Apple."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "switchGames",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Switch games"
+                }
+              },
+              "id" : "next.browse",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Switch games"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.manage",
+        "next.browse"
+      ],
+      "id" : "integrations.switchGames",
+      "initialFocus" : "next.browse",
+      "lead" : {
+        "key" : "Build compatible Switch games for Mac and open games already built."
+      },
+      "title" : {
+        "key" : "nxnative"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Nextendo cannot be reached right now."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Nextendo unavailable"
+                },
+                "tone" : "attention"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your Nextendo account, your friends, their pictures and who is online."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your sign-in on this computer, and the friend changes you ask for."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "To Nextendo: your sign-in, your friend requests, that you are online in the app, and the game you play online. What your friends see depends on your settings."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open Nextendo settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open Nextendo settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.nextendo",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Play compatible nxnative games online and see your Nextendo friends."
+      },
+      "title" : {
+        "key" : "Nextendo"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked to the save folder you chose."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "iCloud Drive selected"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "The game saves on this computer and their copies in the folder you chose."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "The folder and each game’s choice; the games write the copies. A game can keep its own choice."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Nothing directly. iCloud Drive syncs with Apple; another folder, with its own app."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open cloud save settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open cloud save settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.saves",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Keep supported game saves in iCloud Drive or in a folder you choose."
+      },
+      "title" : {
+        "key" : "iCloud saves"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Linked with your SteamGridDB or IGDB key."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Both providers configured"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers and what the sites find."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Your keys, kept private, your picture choices, and the pictures and scores it keeps."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names or numbers to SteamGridDB, IGDB, Wikidata, Nlib, Nintendo, LaunchBox, GameTDB and Switch Icon Showdown, and your keys to the sites that need them (SteamGridDB, IGDB through Twitch)."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "settings",
+                  "intent" : "owner"
+                },
+                "title" : {
+                  "key" : "Open provider settings"
+                }
+              },
+              "id" : "next.manage",
+              "kind" : "button",
+              "title" : {
+                "key" : "Open provider settings"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "next.manage"
+      ],
+      "id" : "integrations.images",
+      "initialFocus" : "next.manage",
+      "lead" : {
+        "key" : "Add your SteamGridDB and IGDB keys. Icons and scores also come from public sites."
+      },
+      "title" : {
+        "key" : "Artwork and scores"
+      }
+    },
+    {
+      "back" : {
+        "intent" : {
+          "intent" : "back"
+        },
+        "title" : {
+          "key" : "Back"
+        }
+      },
+      "blocks" : [
+        {
+          "id" : "link",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Turn it on to look for covers and game information."
+              }
+            },
+            {
+              "a" : {
+                "intent" : {
+                  "id" : "online",
+                  "intent" : "toggle"
+                },
+                "title" : {
+                  "key" : "Turn on"
+                }
+              },
+              "about" : {
+                "key" : "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.",
+                "whole" : true
+              },
+              "id" : "link.switch",
+              "kind" : "toggle",
+              "on" : false,
+              "title" : {
+                "key" : "Game information online"
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Link"
+          }
+        },
+        {
+          "id" : "verify",
+          "items" : [
+            {
+              "kind" : "status",
+              "status" : {
+                "text" : {
+                  "key" : "Off"
+                },
+                "tone" : "neutral"
+              }
+            },
+            {
+              "kind" : "facts",
+              "texts" : [
+                {
+                  "key" : "Reads: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Writes: %@",
+                  "words" : [
+                    {
+                      "key" : "Covers and information, kept on this computer."
+                    }
+                  ]
+                },
+                {
+                  "key" : "Sends: %@",
+                  "words" : [
+                    {
+                      "key" : "Your game names, or their Steam number, and your language, to the Steam store, Wikipedia and Wikidata."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Verify"
+          }
+        },
+        {
+          "id" : "next",
+          "items" : [
+            {
+              "kind" : "text",
+              "text" : {
+                "key" : "Link it first to continue."
+              }
+            }
+          ],
+          "kind" : "box",
+          "title" : {
+            "key" : "Continue"
+          }
+        }
+      ],
+      "focusOrder" : [
+        "link.switch"
+      ],
+      "id" : "integrations.online",
+      "initialFocus" : "link.switch",
+      "lead" : {
+        "key" : "Covers and game information"
+      },
+      "title" : {
+        "key" : "Game information online"
+      }
+    }
+  ]
+}

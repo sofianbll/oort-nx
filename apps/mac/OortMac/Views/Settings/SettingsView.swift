@@ -394,7 +394,7 @@ struct SettingsView: View {
                         throw AppSettingsDraft.Failure.changedElsewhere
                     }
                 }
-                if changes.contains("steamSource"), let choice = settings.editingSettings.launcherChoices.steamSource,
+                if changes.contains(SteamSourceEntries.sourceID), let choice = settings.editingSettings.launcherChoices.steamSource,
                    try viewModel.catalogRepository.load().source(.steam)?.generation != choice.replaces {
                     throw AppSettingsDraft.Failure.changedElsewhere
                 }
@@ -631,8 +631,9 @@ struct SettingsView: View {
     private func pendingRows(in section: SettingsSection) -> [String: AppSettingsDraft.Change] {
         var rows: [String: AppSettingsDraft.Change] = [:]
         for change in settings.draft?.changes ?? [] {
-            rows[SettingsDraftFields.row(change.id, in: section)] = change
-            if change.id == "steamSource", section == .sources { rows["Steam folder"] = change }
+            let marked = change.id == SteamSourceEntries.sourceID && section == .sources ? SteamSourceEntries.draftRows
+                : [SettingsDraftFields.row(change.id, in: section)]
+            for row in marked { rows[row] = change }
         }
         return rows
     }

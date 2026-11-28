@@ -64,7 +64,7 @@ final class NoHardware: ControllerSource {
     func stop() {}
 }
 enum GameInboxView { static func keyAction(_ code: UInt16) -> GamepadAction? { nil } }
-enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? { nil } }
+enum ScreenView { static func keyAction(_ code: UInt16) -> GamepadAction? { nil } }
 
 @MainActor final class ShellProbe {
     let router = AppRouter()

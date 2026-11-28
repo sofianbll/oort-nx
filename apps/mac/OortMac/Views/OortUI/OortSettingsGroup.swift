@@ -9,6 +9,9 @@ extension ContainerValues {
 extension EnvironmentValues {
     /// A row inside an `OortSettingsGroup` draws no card and leaves its explanation to the page's help line.
     @Entry var oortGroupedRow = false
+    /// A row drawn flat inside a box: its text lines up with the box's sentences and buttons; its focus ring and dots
+    /// reach into the box's margin by a compact step.
+    @Entry var oortFlushRow = false
 }
 
 /// A settings heading; on light backdrops, use Selene's reading shade under the ink.
