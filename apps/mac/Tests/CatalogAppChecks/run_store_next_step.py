@@ -1,16 +1,31 @@
 #!/usr/bin/env python3
-"""Render the real Details header in French, with only in-memory cloud replies."""
-import os
+"""Render the real Details header in French, with only in-memory cloud replies, on the shared Debug app."""
 import re
-import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
-from probe_visible import install, text_render
-from run_cloud_screens import HOST, ROOT, build_probe, change
-import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
+from audit_probe_host import run_host
+from probe_visible import source, text_render
+from screen_host import ICON, header, package_name, render
+
+FIXTURES = r'''
+extension CloudLibraryModel {
+    func installNextStepFixture() {
+        let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            preconditionFailure("The Details probe must not read cloud storage")
+        }
+        oortProbeInstallArchives(CloudGameArchive(backend: fixture),
+                                 sources: CloudGameSources(backend: fixture, root: "Games/GameFiles"))
+    }
+}
+
+extension CloudArtifactStatus {
+    static func nextStepFixture(_ state: State) -> Self {
+        .init(state: state, hasLocalCopy: false, bytes: 100, uploadedAt: .now, skippedRoots: [], remoteFolder: nil)
+    }
+}
+'''
 
 SCENARIOS = r'''
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
@@ -92,51 +107,9 @@ SCENARIOS = r'''
 def main():
     output = Path(sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp(prefix="store-next-captures-")).resolve()
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="store-next-") as temp:
-        package = Path(temp)
-        home = package / "home"
-        (home / "Library/Preferences").mkdir(parents=True)
-        names.stage(package)
-        app = package / "apps/mac/OortMac"
-        change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
-        vm = app / "ViewModels/AppViewModel.swift"
-        change(vm, r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(vm, r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic", "    }\n\n    // MARK: - Dynamic")
-        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
-        change(profile, r"public static let profile = [^\n]*",
-               'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
-        change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        with (app / "ViewModels/AppViewModel+CloudLibrary.swift").open("a") as file:
-            file.write('''
-extension CloudLibraryModel {
-    func installNextStepFixture() {
-        let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
-            preconditionFailure("The Details probe must not read cloud storage")
-        }
-        archive = CloudGameArchive(backend: fixture)
-        sourceArchive = CloudGameSources(backend: fixture, root: "Games/GameFiles")
-    }
-}
-''')
-        with (package / "engines/nxnative/NxnativeAdapter/Library/CloudGameArchive.swift").open("a") as file:
-            file.write('''
-extension CloudArtifactStatus {
-    public static func nextStepFixture(_ state: State) -> Self {
-        .init(state: state, hasLocalCopy: false, bytes: 100, uploadedAt: .now, skippedRoots: [], remoteFolder: nil)
-    }
-}
-''')
-        render = re.search(r"    @MainActor static func render<V: View>.*", HOST, flags=re.S).group()
-        render = text_render(render, only='name.hasSuffix("-1120")')
-        text_checks = (Path(__file__).parent / "StoreNextStepText.swift").read_text()
-        (app / "StoreNextStepProbe.swift").write_text(
-            HOST.split("        // SCENARIO")[0] + SCENARIOS + render + text_checks)
-        install(app)
-        subprocess.run([str(build_probe(package)),
-                        str(output), str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                        str(ROOT / "design/Icons/AppIcon-Light.png")], check=True,
-                       env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
+    text_checks = (Path(__file__).parent / "StoreNextStepText.swift").read_text()
+    host = header() + SCENARIOS + text_render(render(), only='name.hasSuffix("-1120")') + text_checks + FIXTURES
+    run_host(host, source(), save_model=True, capture=output, resources=(ICON,), package_name=package_name())
 
 
 if __name__ == "__main__":

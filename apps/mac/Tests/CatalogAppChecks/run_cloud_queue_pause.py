@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""Check the pause snapshot and render its unchanged Activity rows, with no backend."""
-import shutil
-import subprocess
-import tempfile
-from pathlib import Path
-
-from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
-import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
+"""Check the pause snapshot and render its unchanged Activity rows, with no backend, on the shared Debug app."""
+from audit_probe_host import run_host
+from run_cloud_screens import capture_destination
+from screen_host import ICON, header, package_name, render
 
 SCENARIO = r'''
         let store = CloudTransferQueue()
@@ -58,39 +54,12 @@ SCENARIO = r'''
 def main():
     output = capture_destination("cloud-queue-pause-captures-")
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="queue-pause-") as temp:
-        package = Path(temp)
-        names.stage(package)
-        app = package / "apps/mac/OortMac"
-        change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
-        change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        isolate_startup(app)
-        isolate_cloud_init(app / "ViewModels/AppViewModel+CloudLibrary.swift",
-               '        preference = .init(storage: nil, enabled: false, sourcesRoot: nil)\n        chosenExecutable = nil\n')
-        # Like run_cloud_screens: ImageRenderer cannot draw the native scrolling container.
-        activity = app / "Views/Shell/ActivityCenterView.swift"
-        change(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
-        change(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")
-        change(activity, r"        LazyVStack\(", "        VStack(")
-        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
-        change(profile, r"public static let profile = [^\n]*",
-               'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
-        change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        header = HOST.split("        // SCENARIO")[0]
-        render = HOST[HOST.index("    @MainActor static func render<V: View>"):]
-        render = render.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
-        (app / "CloudScreenProbe.swift").write_text(header + SCENARIO + render)
-        executable = build_probe(package)
-        for paused, phase in enumerate(("avant", "apres")):
-            dest = output / phase
-            dest.mkdir(parents=True, exist_ok=True)
-            profile_home = package / phase
-            profile_home.mkdir()
-            subprocess.run([str(executable), str(dest),
-                            str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                            str(ROOT / "design/Icons/AppIcon-Light.png")], check=True,
-                           env=dict(isolated_home_env(profile_home), OORT_QUEUE_PAUSED=str(paused)))
+    # ImageRenderer draws neither the Activity list's ScrollView nor its lazy stack.
+    host = (header() + "        ActivityCenterView.oortProbeRendersFlat = true\n" + SCENARIO
+            + render().replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)"))
+    for paused, phase in enumerate(("avant", "apres")):
+        run_host(host, save_model=True, capture=output / phase, resources=(ICON,), package_name=package_name(),
+                 environment={"OORT_QUEUE_PAUSED": str(paused)})
     for name in ("activite-large-fr.png", "activite-etroite-fr.png"):
         assert (output / "avant" / name).read_bytes() == (output / "apres" / name).read_bytes(), name
     print("Pause snapshot reopens with its original identity; French Activity screenshots are unchanged.")

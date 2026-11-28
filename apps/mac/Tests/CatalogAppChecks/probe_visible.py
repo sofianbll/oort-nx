@@ -30,7 +30,11 @@ def text_render(render, only=None):
                         f"        {f'if {only} {{ {save} }}' if only else save}")
 
 
-def install(app):
+def source():
+    """ProbeRenderedText.swift with the contrast the charte requires, for an app copy or run_host's source_fixture."""
     text = (HERE / "ProbeRenderedText.swift").read_text()
-    (Path(app) / "ProbeRenderedText.swift").write_text(
-        text + f"\nlet probeMinimumContrast = {TEXT_CONTRAST} // scripts/generate_oort_tokens.py TEXT_CONTRAST\n")
+    return text + f"\nlet probeMinimumContrast = {TEXT_CONTRAST} // scripts/generate_oort_tokens.py TEXT_CONTRAST\n"
+
+
+def install(app):
+    (Path(app) / "ProbeRenderedText.swift").write_text(source())
