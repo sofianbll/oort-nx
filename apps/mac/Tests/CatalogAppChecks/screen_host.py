@@ -4,6 +4,7 @@ Same scenario code as a standalone probe, without copying the app: `@testable` i
 captures, font and icon live in the fixture home (run_host copies them there and the captures back), and the app's
 probe hooks (`oortProbe…`, Debug only) replace the source patches. No command-line argument reaches the host.
 """
+import os
 import re
 
 from run_cloud_screens import HOST, ROOT
@@ -36,6 +37,13 @@ def header():
     return head
 
 
-def render():
-    """HOST's render function and the end of its type."""
-    return HOST[HOST.index("    @MainActor static func render<V: View>"):]
+def render(start="    @MainActor static func render<V: View>"):
+    """HOST from one of its render functions to the end of its type."""
+    return HOST[HOST.index(start):]
+
+
+def rclone():
+    """The pinned rclone CI installs (OORT_PROBE_RCLONE), copied into the fixture home: the sandbox denies the real home,
+    where the runner keeps it. The host reads the variable relative to its home. Without it, the probe finds rclone."""
+    pinned = os.environ.get("OORT_PROBE_RCLONE")
+    return ((pinned,), {"OORT_PROBE_RCLONE": "rclone"}) if pinned else ((), {})

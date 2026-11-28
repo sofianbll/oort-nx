@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Exercise pause through the real view model and render the French Selene rows."""
-import os
-import shutil
-import subprocess
-import tempfile
-from pathlib import Path
+"""Exercise pause through the real view model and render the French Selene rows. On the shared Debug app, with the pinned local rclone (OORT_PROBE_RCLONE)."""
 
-from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
-import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
+from audit_probe_host import run_host
+from run_cloud_screens import capture_destination
+from screen_host import ICON, header, package_name, rclone, render
 
 SCENARIO = r'''
         let fm = FileManager.default
+        ActivityCenterView.oortProbeRendersFlat = true
+        // The cloud library the player chose, saved as the app saves it.
+        AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.enabledKey)
         let remote = data.appendingPathComponent("remote")
         let destination = data.appendingPathComponent("destination")
         for dir in [remote, destination] { try fm.createDirectory(at: dir, withIntermediateDirectories: true) }
@@ -26,7 +26,9 @@ SCENARIO = r'''
         }
         _ = try repository.mergeNXNative(scanned: games, enableSource: true)
         let rclone = try require(RcloneStorageBackend.findExecutable(
-            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) }),
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map {
+                $0.hasPrefix("/") ? URL(fileURLWithPath: $0) : URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent($0)
+            }),
             "Local rclone fixture unavailable")
         let config = data.appendingPathComponent("rclone.conf")
         try Data().write(to: config)
@@ -79,7 +81,9 @@ SCENARIO = r'''
             let catalog = try repository.load()
             let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
             vm.applyCatalog(catalog)
-            try vm.cloudLibrary.installPauseFixture(backend, scope: scope)
+            // What the copied app's patches imposed: the chosen library, the Drive tool still to choose.
+            precondition(vm.cloudLibrary.preference.storage == "fixture:Games" && vm.cloudLibrary.needsDriveToolChoice)
+            try vm.cloudLibrary.oortProbeInstallScope(backend, scope: scope)
             await vm.restoreActivity()
             vm.restoreCloudQueue()
             try await until("Restoring the queue") { vm.cloudLibrary.hasRestoredQueue && !vm.cloudLibrary.isRestoringQueue }
@@ -92,7 +96,7 @@ SCENARIO = r'''
             focus.selected = row
             let view = ActivityCenterView(viewModel: vm, porting: vm.porting, cloudLibrary: vm.cloudLibrary, focus: focus,
                 onFocus: { _ in }, onOpen: { vm.activateCloudActivityRow($0) }, onCancel: { _ in }, onBack: {}, onOutside: {})
-            precondition(view.pauseCommandForProbe(row) == command)
+            precondition(view.oortProbeConfirmCommand(row) == command)
             try render(name, output, view.environment(\.nxAppLocale, fr), size: .init(width: 1440, height: 820))
         }
         var vm = try await reopen()
@@ -108,11 +112,11 @@ SCENARIO = r'''
             "active=\(String(describing: model.active?.request.name)) phase=\(String(describing: model.states[a.id]?.progress?.phase)) copies=\(transport.withLock { $0.copies }) issue=\(String(describing: model.states[a.id]?.issue)) results=\(vm.activityResults.entries.map(\.outcome))"
         }) { model.canPause(head) && transport.withLock { $0.copies > initialCopies } }
         let livePanel = CloudLibraryPanel(viewModel: vm, model: model, game: a)
-        livePanel.requirePauseCommandForProbe("Pause")
+        precondition(livePanel.oortProbePrimaryCommand() == "Pause", livePanel.oortProbeDiagnostic())
         try activity("activite-telechargement-fr", vm, .cloud(head), command: "Pause")
         try render("fiche-telechargement-fr", output, livePanel.environment(\.nxAppLocale, fr),
                    size: .init(width: 1440, height: 920))
-        livePanel.activatePauseCommandForProbe()
+        livePanel.oortProbeConfirm()
         try await until("A paused") { model.active == nil && model.queue.first?.isUserPaused == true }
         let firstSnapshot = transport.withLock { $0.copies }
         let saved = model.queue.first!.entry
@@ -130,7 +134,7 @@ SCENARIO = r'''
                      transport.withLock { $0.copies } == firstSnapshot,
                      "A restored network must not resume a user-paused download")
         let pausedPanel = CloudLibraryPanel(viewModel: vm, model: model, game: a)
-        pausedPanel.requirePauseCommandForProbe("Resume")
+        precondition(pausedPanel.oortProbePrimaryCommand() == "Resume", pausedPanel.oortProbeDiagnostic())
         try render("fiche-en-pause-fr", output, pausedPanel.environment(\.nxAppLocale, fr),
                    size: .init(width: 1440, height: 920))
         try activity("activite-en-pause-fr", vm, .queuedCloud(head), command: "Resume")
@@ -146,25 +150,25 @@ SCENARIO = r'''
 
         let unapproved = RcloneStorageBackend(remote: ":local:", root: remote.path,
             executable: URL(fileURLWithPath: "/usr/bin/true")) { _, _, _ in preconditionFailure("Used unapproved tool") }
-        try model.installPauseFixture(unapproved, scope: scope)
+        try model.oortProbeInstallScope(unapproved, scope: scope)
         vm.resumeCloudTransfer(head)
         precondition(vm.settingsNotice != nil && model.active == nil && model.queue.first?.entry == saved)
         vm.settingsNotice = nil
         let changedScope = CloudDriveScope(remote: "fixture", account: "account-b", library: scope.library)
-        try model.installPauseFixture(backend, scope: changedScope)
+        try model.oortProbeInstallScope(backend, scope: changedScope)
         vm.resumeCloudTransfer(head)
         precondition(vm.settingsNotice != nil && model.active == nil && model.queue.first?.entry == saved)
         vm.settingsNotice = nil
-        try model.installPauseFixture(backend, scope: scope)
+        try model.oortProbeInstallScope(backend, scope: scope)
 
         // Simulate a Finder launch without launching a game or writing any game preferences.
-        RunningGameMonitor.pauseProbeRunning.withLock { $0 = a.bundleId }
+        RunningGameMonitor.oortProbeRunning.withLock { $0 = a.bundleId }
         vm.activateCloudActivityRow(.queuedCloud(head))
         try await until("A waiting to install") { model.states[a.id]?.progress?.phase == .readyToInstall }
         vm.pauseCloudTransfer(head)
         precondition(model.active?.request.isUserPaused == false && model.queue.map(\.token) == [next])
         try activity("activite-installation-fr", vm, .cloud(head), command: nil)
-        RunningGameMonitor.pauseProbeRunning.withLock { $0 = nil }
+        RunningGameMonitor.oortProbeRunning.withLock { $0 = nil }
         model.appInstallWake?.yield()
         try await until("Finish A then B") { model.active == nil && model.queue.isEmpty }
         precondition(fm.fileExists(atPath: a.url.path) && fm.fileExists(atPath: b.url.path))
@@ -228,79 +232,13 @@ SCENARIO = r'''
 def main():
     output = capture_destination("cloud-pause-captures-")
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="pause-command-") as temp:
-        package = Path(temp)
-        names.stage(package)
-        app = package / "apps/mac/OortMac"
-        change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
-        change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        isolate_startup(app)
-        model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
-        isolate_cloud_init(model,
-               '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
-               '        chosenExecutable = nil\n        needsDriveToolChoice = true\n')
-        with model.open("a") as swift:
-            swift.write(r'''
-extension CloudLibraryModel {
-    @MainActor func installPauseFixture(_ fixture: RcloneStorageBackend, scope: CloudDriveScope) throws {
-        scopeTask?.cancel()
-        scopeTask = nil
-        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)
-        AppData.preferences.set(true, forKey: CloudLibraryPreference.enabledKey)
-        AppData.preferences.set(try JSONEncoder().encode(scope), forKey: Self.scopeKey)
-        installScope(scope, backend: fixture)
-    }
-}
-''')
-        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
-        change(profile, r"public static let profile = [^\n]*",
-               'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
-        change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        activity = app / "Views/Shell/ActivityCenterView.swift"
-        change(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
-        change(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")
-        change(activity, r"        LazyVStack\(", "        VStack(")
-        with activity.open("a") as swift:
-            swift.write('''
-extension ActivityCenterView {
-    func pauseCommandForProbe(_ row: ActivityCenterFocus.Row) -> String? { hints(row).first { $0.button == .a }?.label }
-}
-''')
-        panel = app / "Views/Detail/CloudLibraryPanel.swift"
-        change(panel, r"        \.task\(id: ReadRequest.*?\n", "")
-        with panel.open("a") as swift:
-            swift.write('''
-extension CloudLibraryPanel {
-    func requirePauseCommandForProbe(_ expected: String) {
-        precondition(actionHints.first?.label == expected,
-                     "Expected \\(expected); hints: \\(actionHints.map(\\.label)); controls: \\(controls); availability: \\(String(describing: unavailable)); archive: \\(model.archive != nil); pausable: \\(String(describing: pausable)); action: \\(String(describing: state.action)); focus: \\(String(describing: focus))")
-    }
-    func activatePauseCommandForProbe() { handle(.confirm) }
-}
-''')
-        monitor = app / "Services/RunningGameMonitor.swift"
-        change(monitor, r"import AppKit", "import AppKit\nimport os")
-        change(monitor, r"    nonisolated static func runningApplication\(bundleID: String\).*?\n    }", '''
-    nonisolated static let pauseProbeRunning = OSAllocatedUnfairLock<String?>(initialState: nil)
-    nonisolated static func runningApplication(bundleID: String) -> NSRunningApplication? {
-        pauseProbeRunning.withLock { $0 == bundleID } ? .current : nil
-    }'''.lstrip("\n"))
-        change(app / "Views/Components/SwitchBoxArtCover.swift",
-               r"        \.task\(id: coverKey.*?\n        \.task\(id: game.id[^\n]*\n", "")
-        header = HOST.split("        // SCENARIO")[0].replace("import SwiftUI", "import SwiftUI\nimport os")
-        render = HOST[HOST.index("    @MainActor static func render<V: View>"):]
-        render = render.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
-        render = render.replace("height: 1000)) throws", "height: 1000), crop: CGRect? = nil) throws")
-        render = render.replace("guard let image = renderer.cgImage,", "guard let frame = renderer.cgImage,\n"
+    renderer = render().replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
+    renderer = renderer.replace("height: 1000)) throws", "height: 1000), crop: CGRect? = nil) throws")
+    renderer = renderer.replace("guard let image = renderer.cgImage,", "guard let frame = renderer.cgImage,\n"
                                 "              let image = crop.map({ frame.cropping(to: $0) }) ?? frame,")
-        (app / "CloudScreenProbe.swift").write_text(header + SCENARIO + render)
-        fixture_home = package / "profile"
-        fixture_home.mkdir()
-        subprocess.run([str(build_probe(package)), str(output),
-                        str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                        str(ROOT / "design/Icons/AppIcon-Light.png")], check=True,
-                       env=isolated_home_env(fixture_home))
+    resources, environment = rclone()
+    run_host(header().replace("import SwiftUI", "import SwiftUI\nimport os") + SCENARIO + renderer, save_model=True,
+             capture=output, resources=(ICON, *resources), environment=environment, package_name=package_name())
 
 
 if __name__ == "__main__":

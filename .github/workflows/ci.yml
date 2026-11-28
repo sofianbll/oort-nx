@@ -96,6 +96,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Install the pinned local-transport fixture (shared cloud probes)
+        run: |
+          dir="$RUNNER_TEMP/oort-rclone"
+          mkdir "$dir"
+          cd "$dir"
+          archive=rclone-v1.76.0-osx-arm64.zip
+          curl --fail --silent --show-error --location --retry 3 --output "$archive" \
+            "https://github.com/rclone/rclone/releases/download/v1.76.0/$archive"
+          echo "e72dc90b70f4947a7b72b61bde4a4fbba5777b2874fb448951ffdde67ebd0ab7  $archive" | shasum -a 256 -c
+          unzip -q "$archive"
+          echo "OORT_PROBE_RCLONE=$dir/${archive%.zip}/rclone" >> "$GITHUB_ENV"
       - name: Python tests on the Mac (release.sh needs macOS)
         run: python3 scripts/check python
       - name: Swift tests

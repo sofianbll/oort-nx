@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""Render and exercise the real personal-update flow, using two profiles and local-only storage."""
-import os
-import shutil
-import subprocess
-import tempfile
-from pathlib import Path
-
-from run_cloud_screens import HOST, ROOT, build_probe, capture_destination, change, isolate_cloud_init, isolate_startup
-import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
+"""Render and exercise the real personal-update flow, using two profiles and local-only storage. On the shared Debug app, with the pinned local rclone (OORT_PROBE_RCLONE)."""
+from audit_probe_host import run_host
+from run_cloud_screens import capture_destination
+from screen_host import ICON, header, package_name, rclone, render
 
 SCENARIO = r'''
         let fm = FileManager.default
+        // ImageRenderer runs onAppear and tasks: no cloud read from the panel, no reveal of the header.
+        CloudLibraryPanel.oortProbeSkipsRead = true
+        SpotlightGameInfoView.oortProbeAtRest = true
+        // The cloud library the player chose, saved as the app saves it.
+        AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.enabledKey)
         let remote = data.appendingPathComponent("personal-storage")
         try fm.createDirectory(at: remote, withIntermediateDirectories: true)
         let config = data.appendingPathComponent("empty-rclone.conf")
         try Data().write(to: config)
         let title = "FEDCBA9876543210", bundleID = "local.oort.personal-update-fixture"
         guard let rclone = RcloneStorageBackend.findExecutable(
-            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) }) else {
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map {
+                $0.hasPrefix("/") ? URL(fileURLWithPath: $0) : URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent($0)
+            }) else {
             throw CocoaError(.fileNoSuchFile, userInfo: [NSDebugDescriptionErrorKey: "rclone fixture tool is not available"])
         }
         let offline = OSAllocatedUnfairLock(initialState: false)
@@ -95,7 +98,9 @@ SCENARIO = r'''
             let catalog = try repository.mergeNXNative(scanned: [game], enableSource: true)
             let vm = AppViewModel(settingsStore: .init(fileURL: root.appendingPathComponent("settings.json")),
                                   catalog: catalog, repository: repository)
-            try vm.cloudLibrary.installPersonalProbe(backend, scope: scope, profile: root)
+            // What the copied app's patches imposed: the chosen library, the Drive tool still to choose.
+            precondition(vm.cloudLibrary.preference.storage == "fixture:Games" && vm.cloudLibrary.needsDriveToolChoice)
+            try vm.cloudLibrary.oortProbeInstallPersonal(backend, scope: scope, profile: root)
             return (vm, app)
         }
         func finish(_ vm: AppViewModel) async throws {
@@ -195,7 +200,7 @@ SCENARIO = r'''
         _ = await snapshot(receiver)
 
         func startWhileRunning() async throws {
-            RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
+            RunningGameMonitor.oortProbeRunning.withLock { $0 = bundleID }
             try approve()
             try require(model.active?.request.entry.storage == nil && model.active?.request.sourceReference == nil,
                         "Approval must remain personal and must not survive a restart")
@@ -204,7 +209,7 @@ SCENARIO = r'''
                         "An app was replaced while the game was running")
         }
         func closeFixtureGame() {
-            RunningGameMonitor.screenRunning.withLock { $0 = nil }
+            RunningGameMonitor.oortProbeRunning.withLock { $0 = nil }
             model.appInstallWake?.yield(())
         }
         try await startWhileRunning()
@@ -254,58 +259,13 @@ SCENARIO = r'''
 def main():
     output = capture_destination("personal-update-captures-")
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="personal-update-") as temporary:
-        package = Path(temporary)
-        names.stage(package)
-        app = package / "apps/mac/OortMac"
-        change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
-        vm = app / "ViewModels/AppViewModel.swift"
-        change(vm, r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(vm, r"let root = SystemDetector.shared.resolveRootDirectory\(\)", "let root = AppData.profile.home")
-        isolate_startup(app, keep_catalog=True)
-        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
-        change(profile, r"public static let profile = [^\n]*",
-               'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
-        change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
-        change(model, r"let personalAppReceipts = ", "var personalAppReceipts = ")
-        isolate_cloud_init(model,
-               '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
-               '        chosenExecutable = nil\n        needsDriveToolChoice = true\n')
-        with model.open("a") as swift:
-            swift.write(r'''
-extension CloudLibraryModel {
-    @MainActor func installPersonalProbe(_ fixture: RcloneStorageBackend, scope: CloudDriveScope, profile: URL) throws {
-        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)
-        AppData.preferences.set(preference.enabled, forKey: CloudLibraryPreference.enabledKey)
-        AppData.preferences.set(try JSONEncoder().encode(scope), forKey: Self.scopeKey)
-        installScope(scope, backend: fixture)
-        personalAppReceipts = .init(in: profile)
-    }
-}
-''')
-        monitor = app / "Services/RunningGameMonitor.swift"
-        change(monitor, r"import AppKit", "import AppKit\nimport os")
-        change(monitor, r"    nonisolated static func runningApplication\(bundleID: String\).*?\n    }", '''
-    nonisolated static let screenRunning = OSAllocatedUnfairLock<String?>(initialState: nil)
-    nonisolated static func runningApplication(bundleID: String) -> NSRunningApplication? {
-        screenRunning.withLock { $0 == bundleID } ? .current : nil
-    }'''.lstrip("\n"))
-        change(app / "Views/Detail/CloudLibraryPanel.swift", r"        \.task\(id: ReadRequest.*?\n", "")
-        change(app / "Views/Spotlight/SpotlightInfoView.swift",
-               r'        \.onAppear \{ reveal\(\) \}\n        \.onChange\(of: game.id\) \{ reveal\(\) \}\n', "")
-        preamble = HOST.split("        // SCENARIO", 1)[0].replace("import SwiftUI", "import SwiftUI\nimport os")
-        renderer = HOST[HOST.index("    @MainActor static func renderNotice"):]
-        renderer = renderer.replace("/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
-        renderer = renderer.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
-        renderer = renderer.replace("Color(red: 0.09, green: 0.13, blue: 0.20)", "SeleneTheme.baseGradient")
-        (app / "PersonalUpdateScreenProbe.swift").write_text(preamble + SCENARIO + renderer)
-        home = package / "fixture-home"
-        home.mkdir()
-        subprocess.run([str(build_probe(package)), str(output),
-                        str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"), str(ROOT / "design/Icons/AppIcon-Light.png")],
-                       check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
+    renderer = render("    @MainActor static func renderNotice")
+    renderer = renderer.replace("/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
+    renderer = renderer.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
+    renderer = renderer.replace("Color(red: 0.09, green: 0.13, blue: 0.20)", "SeleneTheme.baseGradient")
+    resources, environment = rclone()
+    run_host(header().replace("import SwiftUI", "import SwiftUI\nimport os") + SCENARIO + renderer, save_model=True,
+             capture=output, resources=(ICON, *resources), environment=environment, package_name=package_name())
 
 
 if __name__ == "__main__":
