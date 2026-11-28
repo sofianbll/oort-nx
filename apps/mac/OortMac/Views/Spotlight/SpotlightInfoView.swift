@@ -215,7 +215,15 @@ struct SpotlightGameInfoView: View {
     static let logoSlideDistance: CGFloat = -30
 
     /// Reduce motion keeps the fades and drops the slide.
+    #if DEBUG
+    /// Offscreen probes only: ImageRenderer runs onAppear; a probe renders the header at rest, without the reveal.
+    @MainActor static var oortProbeAtRest = false
+    #endif
+
     private func reveal() {
+        #if DEBUG
+        if Self.oortProbeAtRest { return }
+        #endif
         var reset = Transaction()
         reset.disablesAnimations = true
         withTransaction(reset) {

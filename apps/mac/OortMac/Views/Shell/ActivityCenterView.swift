@@ -423,6 +423,13 @@ private struct ActivityRow: View {
     }
 }
 
+#if DEBUG
+/// Probes only (run_cloud_pause.py): the command the A button runs on a row. Release builds do not contain it.
+extension ActivityCenterView {
+    func oortProbeConfirmCommand(_ row: ActivityCenterFocus.Row) -> String? { hints(row).first { $0.button == .a }?.label }
+}
+#endif
+
 /// The rows' stack: lazy in the app, plain when a probe renders offscreen.
 private struct RowStack<Content: View>: View {
     let flat: Bool

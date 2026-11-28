@@ -17,7 +17,21 @@ struct CloudLibraryPanel: View {
     @State private var focus: Control?
     @State private var refreshRevision = 0
     @State private var advanced = false
+    #if DEBUG
+    /// Offscreen probes only: ImageRenderer runs the panel's tasks, and a probe sets the cloud states itself.
+    @MainActor static var oortProbeSkipsRead = false
+    @State private var sheetSelection: CloudFreeSelection?
+    /// Probes only: the free-space selection held outside the view's state (oortProbeCancel).
+    private var oortProbeSelection: Binding<CloudFreeSelection?>? = nil
+    private var freeSelection: CloudFreeSelection? {
+        get { if let oortProbeSelection { return oortProbeSelection.wrappedValue }; return sheetSelection }
+        nonmutating set {
+            if let oortProbeSelection { oortProbeSelection.wrappedValue = newValue } else { sheetSelection = newValue }
+        }
+    }
+    #else
     @State private var freeSelection: CloudFreeSelection?
+    #endif
     @State private var freeFocus: FreeControl = .cancel
 
     private struct ReadRequest: Equatable {
@@ -63,7 +77,12 @@ struct CloudLibraryPanel: View {
             .seleneOverlayOwnership(freeSelection == nil)
             if let freeSelection { freeDialog(freeSelection) }
         }
-        .task(id: ReadRequest(game: game, revision: refreshRevision)) { await viewModel.refreshCloudLibrary(game) }
+        .task(id: ReadRequest(game: game, revision: refreshRevision)) {
+            #if DEBUG
+            if Self.oortProbeSkipsRead { return }
+            #endif
+            await viewModel.refreshCloudLibrary(game)
+        }
         .onChange(of: controls) { _, controls in
             if let focus, controls.contains(focus) { return }
             focus = startControl
@@ -550,6 +569,37 @@ struct CloudLibraryPanel: View {
     private func close() { viewModel.cloudLibraryGameID = nil }
     private func text(_ key: String) -> String { L10n.text(key, context: localization) }
 }
+
+#if DEBUG
+/// Probes only (apps/mac/Tests/CatalogAppChecks/run_cloud_free_space.py): the free-space dialog in a chosen state and
+/// its Cancel, without UI events. Nothing in the app calls them; Release builds do not contain them.
+extension CloudLibraryPanel {
+    func oortProbeFree(_ selection: CloudFreeSelection) -> Self {
+        var panel = self
+        panel._sheetSelection = State(initialValue: selection)
+        return panel
+    }
+    /// The selection left after confirming on the dialog's initial focus, Cancel.
+    func oortProbeCancel(_ selection: CloudFreeSelection) -> CloudFreeSelection? {
+        var current: CloudFreeSelection? = selection
+        var panel = self
+        panel.oortProbeSelection = Binding(get: { current }, set: { current = $0 })
+        panel.handle(.confirm)
+        return current
+    }
+    func oortProbeOffersFree() -> Bool { controls.contains(.free) }
+    func oortProbeCanCancelDownload() -> Bool { artifactControl(.app) == .cancel }
+
+    // run_cloud_pause.py: the panel's first command, why, and pressing it.
+    func oortProbePrimaryCommand() -> String? { actionHints.first?.label }
+    func oortProbeDiagnostic() -> String {
+        "hints: \(actionHints.map(\.label)); controls: \(controls); availability: \(String(describing: unavailable)); "
+            + "archive: \(model.archive != nil); pausable: \(String(describing: pausable)); "
+            + "action: \(String(describing: state.action)); focus: \(String(describing: focus))"
+    }
+    func oortProbeConfirm() { handle(.confirm) }
+}
+#endif
 
 /// Shared status for Spotlight, where a visible cover can carry the progress.
 struct CloudGameStatus: View {

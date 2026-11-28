@@ -1,4 +1,7 @@
 import AppKit
+#if DEBUG
+import os
+#endif
 import Combine
 import OortLibrary
 import NxnativeAdapter
@@ -173,8 +176,17 @@ final class RunningGameMonitor: ObservableObject {
         return runningApplication(bundleID: bundleID)
     }
 
+    #if DEBUG
+    /// Probes only (run_cloud_pause.py): the bundle ID a probe pretends is running, as this process; nil, the real
+    /// lookup. Release builds do not contain it.
+    nonisolated static let oortProbeRunning = OSAllocatedUnfairLock<String?>(initialState: nil)
+    #endif
+
     nonisolated static func runningApplication(bundleID: String) -> NSRunningApplication? {
-        NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first { !$0.isTerminated }
+        #if DEBUG
+        if let running = oortProbeRunning.withLock({ $0 }) { return running == bundleID ? .current : nil }
+        #endif
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first { !$0.isTerminated }
     }
 
     /// Activates an app with cooperative activation.

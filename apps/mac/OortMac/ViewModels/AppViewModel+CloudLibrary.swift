@@ -456,7 +456,12 @@ final class CloudLibraryModel: ObservableObject {
     @Published var libraryMove: LibraryMoveActivity?
     var libraryMoveTask: Task<Void, Never>?
     let moveJournal = LibraryMoveJournal(in: AppData.supportRoot)
+    #if DEBUG
+    /// A probe gives each of its profiles its own witnesses (oortProbeInstallPersonal).
+    private(set) var personalAppReceipts = PersonalAppReceipt.Store()
+    #else
     let personalAppReceipts = PersonalAppReceipt.Store()
+    #endif
     private(set) var pendingMove: LibraryMoveJournal.Pending?
     private(set) var moveJournalUnreadable = false
     var hasPendingMove: Bool { pendingMove != nil || moveJournalUnreadable }
@@ -2974,9 +2979,28 @@ extension AppViewModel {
 extension CloudLibraryModel {
     /// Probes only (apps/mac/Tests/CatalogAppChecks): cloud archives over a backend the probe supplies, which answers
     /// nothing from the network. Nothing in the app calls it; Release builds do not contain it.
-    func oortProbeInstallArchives(_ archive: CloudGameArchive, sources: CloudGameSources) {
+    func oortProbeInstallArchives(_ archive: CloudGameArchive, sources: CloudGameSources? = nil) {
         self.archive = archive
         sourceArchive = sources
+    }
+
+    /// Probes only (run_cloud_pause.py): a Drive scope over the probe's local transport, saved as the app saves one.
+    @MainActor func oortProbeInstallScope(_ backend: RcloneStorageBackend, scope: CloudDriveScope) throws {
+        scopeTask?.cancel()
+        scopeTask = nil
+        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.enabledKey)
+        AppData.preferences.set(try JSONEncoder().encode(scope), forKey: Self.scopeKey)
+        installScope(scope, backend: backend)
+    }
+
+    /// Probes only (run_cloud_personal_update.py): the same, with this profile's own witnesses of personal apps.
+    @MainActor func oortProbeInstallPersonal(_ backend: RcloneStorageBackend, scope: CloudDriveScope, profile: URL) throws {
+        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)
+        AppData.preferences.set(preference.enabled, forKey: CloudLibraryPreference.enabledKey)
+        AppData.preferences.set(try JSONEncoder().encode(scope), forKey: Self.scopeKey)
+        installScope(scope, backend: backend)
+        personalAppReceipts = .init(in: profile)
     }
 }
 #endif
