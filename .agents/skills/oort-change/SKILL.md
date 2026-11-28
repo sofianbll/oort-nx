@@ -17,15 +17,20 @@ description: Start here for any change to Oort NX, before writing code. Decides 
 
    | The diff touches | Skill |
    |---|---|
-   | `apps/mac/OortMac/Views`, a string of the catalog, an icon, a sound, a token, a menu, a hint, `desktop/ui`, `android/.../ui`, `mobile` screens | [oort-visual-change](../oort-visual-change/SKILL.md) |
-   | `OortCore`, `OortLibrary`, `NxnativeAdapter`, a model or a service, a file format, the network, an engine call, a script that ships | [oort-core-change](../oort-core-change/SKILL.md) |
+   | `apps/mac/` screens, a catalog string, an icon, a sound, a token, a menu, a hint, or a screen on a platform branch | [oort-visual-change](../oort-visual-change/SKILL.md) |
+   | `core/`, `engines/`, a model or a service, a file format, the network, an engine call, a script that ships | [oort-core-change](../oort-core-change/SKILL.md) |
    | A rule a player sees the effect of: an order, a filter, a default, an error message, a name | both |
 
 3. Read G1–G10 in [change-criteria](../../../docs/working-on-it/change-criteria.md), then the rows of the skill. A row is met, not concerned with its reason, or a gap with its reason. Never blank.
-4. Run the base before the change: `scripts/check` and the tests of the area. Keep the output.
+4. Run the base before the change: `scripts/check` and the relevant groups or heavy steps from `scripts/check --list`. For Swift and Mac probes, follow **Test isolation** below. Keep the output.
 5. Make the change with the skill open. Two repairs per problem at most, then stop and report.
 6. Run the same commands after, with `scripts/check --base <base>`: debt lists only shrink.
 7. Fill the checklist below in the pull request.
+
+### Test isolation
+
+- Use `scripts/check swift` and `scripts/check app-probes BATCH` with synthetic data. Verify the checked-out wrapper calls `scripts/trash_guard.py`: revisions with the Trash fix set a temporary `OORT_TRASH` and fail if the real Trash gains an entry.
+- On a revision without the guard, skip tests and probes that can touch the real Trash unless an isolated test account is available. A temporary `HOME` alone is not proof. Do not bypass the guarded steps with raw `swift test` or direct probes.
 
 ## Proof
 
