@@ -1044,6 +1044,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/check_structure.py](../../scripts/check_structure.py) | R1: rifiuta un file della radice o una cartella di primo o secondo livello non dichiarati, e una dichiarazione senza file. |
 | [scripts/check_docs.py](../../scripts/check_docs.py) | R8: `.md` solo nelle cartelle di documentazione, link relativi risolti, nessun marcatore privato nuovo. |
 | [scripts/private-markers.json](../../scripts/private-markers.json) | Marcatori privati vietati nei `.md` e file che li contengono già; l'elenco può solo ridursi. |
+| [scripts/check_probe_hooks.py](../../scripts/check_probe_hooks.py) | Rifiuta un binario Release che contiene ancora un aggancio di sonda `oortProbe…` (solo `#if DEBUG`); eseguito da `scripts/check release-build`. |
 | [scripts/check_probes.py](../../scripts/check_probes.py) | R13: una sonda che legge il testo reso deve provarne la visibilità con `assertVisible`. |
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |
@@ -1354,6 +1355,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [run_onscreen_keyboard.py](../../apps/mac/Tests/CatalogAppChecks/run_onscreen_keyboard.py) | Avvia la prova della tastiera a schermo su una home isolata. |
 | [run_update_wait.py](../../apps/mac/Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../apps/mac/Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
+| [screen_host.py](../../apps/mac/Tests/CatalogAppChecks/screen_host.py) | L'host delle schermate cloud (`run_cloud_screens.HOST`) per una sonda sulla build Debug condivisa: import `@testable`, catture, font e icona nella home della fixture. |
 | [audit_probe_host.py](../../apps/mac/Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug; home temporanea, dominio delle preferenze proprio a ogni sonda e rimosso dopo, sandbox salvo la fixture locale di LaunchServices. |
 | [run_native_play.py](../../apps/mac/Tests/CatalogAppChecks/run_native_play.py) | Costruisce un'app accessoria muta e prova il riaggancio in concorrenza nel percorso Play reale. |
 | [NativePlayFixture.swift](../../apps/mac/Tests/CatalogAppChecks/NativePlayFixture.swift) | Témoin AppKit senza finestre o dati di gioco. |
