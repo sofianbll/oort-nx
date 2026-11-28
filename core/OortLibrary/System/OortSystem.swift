@@ -1,8 +1,7 @@
 import Foundation
 import Synchronization
 
-/// The calls that differ from one system to the next, in one place. For now, where removed files go: the app run
-/// from its bundle uses the system's Trash, any test or probe a folder of its own (lot 3 adds the other calls here).
+/// Where removed files go: the app run from its bundle uses the system's Trash; tests and probes use their own.
 public enum OortSystem {
     /// The system has no equivalent of this operation yet.
     public struct Unsupported: Error, Equatable, Sendable {
@@ -15,7 +14,7 @@ public enum OortSystem {
     public struct Trash: Sendable {
         /// Moves a file or folder there.
         public let put: @Sendable (URL) throws -> Void
-        /// The folder a file of this volume can be renamed into.
+        /// The Trash folder. With a fixture, the caller still checks that it is on the source volume before renaming.
         public let folder: @Sendable (URL) throws -> URL
         /// The folder of a test or probe Trash; nil for the system's.
         public let root: URL?
@@ -28,7 +27,7 @@ public enum OortSystem {
         }
 
         /// The user's Trash.
-        public static let system = Trash(put: { url in
+        static let system = Trash(put: { url in
             #if canImport(Darwin)
             try FileManager.default.trashItem(at: url, resultingItemURL: nil)
             #else
@@ -71,29 +70,47 @@ public enum OortSystem {
 
     private static let chosenTrash = Mutex<Trash?>(nil)
 
-    /// The Trash this process uses: `OORT_TRASH`; the system's for the app run from its bundle; else a folder of its own.
-    public static var currentTrash: Trash {
+    /// The Trash this process uses: a valid `OORT_TRASH`; the system's for a normal app launch; else its own folder.
+    static var currentTrash: Trash {
         chosenTrash.withLock { chosen in
             if let chosen { return chosen }
             let trash: Trash
-            if let path = ProcessInfo.processInfo.environment["OORT_TRASH"], !path.isEmpty {
-                trash = .folder(at: URL(fileURLWithPath: path, isDirectory: true))
-            } else if isBundledApp && !isTestProcess {
+            let environment = ProcessInfo.processInfo.environment
+            let temporary = FileManager.default.temporaryDirectory
+            if let path = environment["OORT_TRASH"], let root = fixtureTrashRoot(path, in: temporary) {
+                trash = .folder(at: root)
+            } else if environment["OORT_TRASH"] == nil && isBundledApp && !isTestProcess && !isFixtureProcess {
                 trash = .system
             } else {
-                trash = .folder(at: FileManager.default.temporaryDirectory
-                    .appendingPathComponent("oort-trash-\(ProcessInfo.processInfo.processIdentifier)", isDirectory: true))
+                trash = .folder(at: temporary.appendingPathComponent("oort-trash-\(UUID())", isDirectory: true))
             }
             chosen = trash
             return trash
         }
     }
 
-    /// Replaces the Trash of this process (a test that checks how a failing Trash is handled).
-    public static func useTrash(_ trash: Trash) { chosenTrash.withLock { $0 = trash } }
+    /// A runner must give us an existing directory beneath the system's temporary directory.
+    /// Check the resolved path so a link outside that tree is not accepted.
+    static func fixtureTrashRoot(_ path: String, in temporary: URL) -> URL? {
+        guard (path as NSString).isAbsolutePath else { return nil }
+        let root = URL(fileURLWithPath: path, isDirectory: true).resolvingSymlinksInPath().standardizedFileURL
+        let parent = temporary.resolvingSymlinksInPath().standardizedFileURL.path
+        guard root.path.hasPrefix(parent + "/"),
+              !root.pathComponents.contains(where: { [".trash", ".trashes"].contains($0.lowercased()) }),
+              (try? root.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else { return nil }
+        return root
+    }
 
-    /// The app as players run it: from an `.app` bundle (probes and tests run bare executables or test bundles).
     private static var isBundledApp: Bool { Bundle.main.bundleURL.pathExtension == "app" }
+
+    private static var isFixtureProcess: Bool {
+        if ProcessInfo.processInfo.environment["OORT_HEADLESS_INPUT"] == "1" { return true }
+        #if DEBUG
+        return AppData.integrationFixtureHome != nil
+        #else
+        return false
+        #endif
+    }
 
     private static var isTestProcess: Bool {
         if NSClassFromString("XCTestCase") != nil { return true }

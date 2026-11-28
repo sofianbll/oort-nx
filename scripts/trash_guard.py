@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a command so that it cannot use the user's Trash, and fail if it did anyway.
+"""Give a command a private Trash and check that the watched Trash gains no entry.
 
 The command gets a Trash of its own (OORT_TRASH, a new temporary folder that OortSystem.currentTrash reads). The
 user's Trash (~/.Trash, or --trash) is listed before and after: an entry that appears meanwhile fails the run, and
@@ -17,10 +17,11 @@ import tempfile
 
 
 def entries(folder):
-    """(name, inode) of each entry; an unreadable or missing Trash is an empty one."""
+    """(name, inode) of each entry; only an absent Trash counts as empty."""
     try:
-        return {(entry.name, entry.inode()) for entry in os.scandir(folder)}
-    except OSError:
+        with os.scandir(folder) as contents:
+            return {(entry.name, entry.inode()) for entry in contents}
+    except FileNotFoundError:
         return set()
 
 
@@ -32,16 +33,25 @@ def main(argv=None):
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     if not command:
         parser.error("no command")
-    before = entries(args.trash)
+    try:
+        before = entries(args.trash)
+    except OSError as error:
+        print(f"trash_guard: cannot observe Trash before the command: {error}", file=sys.stderr)
+        return 1
     own = tempfile.mkdtemp(prefix="oort-trash-")
     try:
         status = subprocess.run(command, env=dict(os.environ, OORT_TRASH=own)).returncode
     finally:
         shutil.rmtree(own, ignore_errors=True)
-    added = sorted(name for name, _ in entries(args.trash) - before)
-    for name in added:
-        print(f"trash_guard: {args.trash} gained {name!r}; a test or a probe used the user's Trash", file=sys.stderr)
-    return 1 if added else status
+    try:
+        added = entries(args.trash) - before
+    except OSError as error:
+        print(f"trash_guard: cannot observe Trash after the command: {error}", file=sys.stderr)
+        return 1
+    if added:
+        print(f"trash_guard: {len(added)} new entry or entries in the watched Trash", file=sys.stderr)
+        return 1
+    return status
 
 
 if __name__ == "__main__":

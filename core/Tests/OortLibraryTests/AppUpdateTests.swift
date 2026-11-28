@@ -558,7 +558,7 @@ private final class UpdateCopyFailure: FileManager, @unchecked Sendable {
 }
 
 /// A Trash that refuses every item and remembers the last one it was given.
-private final class TrashRefusal: @unchecked Sendable {
+private final class TrashRefusal {
     var retained: URL?
     func trash(_ url: URL) throws {
         retained = url

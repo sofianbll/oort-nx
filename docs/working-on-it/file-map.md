@@ -234,7 +234,7 @@ Cartella `core/OortCore/`, senza risorse né dipendenze.
 
 ## Core · sistema
 
-Cartella `core/OortLibrary/System/`: le chiamate che cambiano da un sistema all'altro (il lotto 3 vi porta le altre).
+Cartella `core/OortLibrary/System/`: il Cestino di sistema e il suo equivalente isolato.
 
 | File | Responsabilità |
 |---|---|
@@ -1062,7 +1062,7 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [scripts/check_structure.py](../../scripts/check_structure.py) | R1: rifiuta un file della radice o una cartella di primo o secondo livello non dichiarati, e una dichiarazione senza file. |
 | [scripts/check_docs.py](../../scripts/check_docs.py) | R8: `.md` solo nelle cartelle di documentazione, link relativi risolti, nessun marcatore privato nuovo. |
 | [scripts/private-markers.json](../../scripts/private-markers.json) | Marcatori privati vietati nei `.md` e file che li contengono già; l'elenco può solo ridursi. |
-| [scripts/trash_guard.py](../../scripts/trash_guard.py) | Lancia test e sonde con un Cestino proprio (`OORT_TRASH`) e fallisce se il vero `~/.Trash` riceve un elemento; non tocca mai ciò che c'è già. |
+| [scripts/trash_guard.py](../../scripts/trash_guard.py) | Lancia test e sonde con un Cestino proprio (`OORT_TRASH`) e fallisce se il vero `~/.Trash` riceve un elemento o non è leggibile; non tocca mai ciò che c'è già. |
 | [scripts/check_probes.py](../../scripts/check_probes.py) | R13: una sonda che legge il testo reso deve provarne la visibilità con `assertVisible`. |
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
 | [scripts/ci_catalog_checks.py](../../scripts/ci_catalog_checks.py) | Divide le sonde tra build Debug condivisa e gruppi autonomi di due, esegue ciascuna con home isolata e ne registra l'esito e il tempo. |

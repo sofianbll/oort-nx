@@ -19,8 +19,25 @@ class TrashGuardTests(unittest.TestCase):
             Path(trash, "kept").write_text("already there")
             result = self.run_guard(trash, f"open({str(Path(trash, 'leak.app'))!r}, 'w').close()")
             self.assertEqual(result.returncode, 1)
-            self.assertIn("gained 'leak.app'", result.stderr)
+            self.assertIn("1 new entry", result.stderr)
             self.assertTrue(Path(trash, "kept").exists(), "the guard never touches what was there")
+
+    def test_an_unobservable_trash_blocks_the_command(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            parent = Path(scratch, "not-a-directory")
+            parent.touch()
+            marker = Path(scratch, "ran")
+            result = self.run_guard(str(parent / "Trash"), f"open({str(marker)!r}, 'w').close()")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("cannot observe Trash before", result.stderr)
+            self.assertFalse(marker.exists())
+
+    def test_an_absent_trash_is_empty_then_still_watched(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            trash = Path(scratch, "absent")
+            result = self.run_guard(str(trash), f"import os; os.makedirs({str(trash)!r}); open({str(trash / 'new')!r}, 'w').close()")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("1 new entry", result.stderr)
 
     def test_the_command_gets_a_trash_of_its_own(self):
         with tempfile.TemporaryDirectory() as trash:
