@@ -1459,7 +1459,7 @@ package enum CloudWriteFault {
                r'        \.task\(id: ReadRequest.*?\n', "")
         if not before:
             change(app / "Views/Settings/CloudReferenceDialog.swift",
-                   r'                TextField\(.*?\.onExitCommand\(perform: onClose\)',
+                   r'TextField\(.*?\.onExitCommand\(perform: onClose\)',
                    '                Text(text("Google Drive folder link or ID"))\n'
                    '                    .frame(maxWidth: .infinity, alignment: .leading)')
         assistant = app / "Views/Settings/CloudSetupAssistant.swift"

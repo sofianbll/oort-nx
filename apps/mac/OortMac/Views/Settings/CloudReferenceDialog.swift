@@ -22,11 +22,7 @@ struct CloudReferenceDialog: View {
                 message: text("You follow this folder in read-only mode. Your library is not shared in return. Readers can download apps, caches and game files that Google Drive lets them see.\n\nWhen sharing, use a dedicated folder without keys or saves."),
                 confirmTitle: "Save", confirmEnabled: folder != nil, focus: buttonFocus,
                 onCancel: onClose, onConfirm: save) {
-                TextField(text("Google Drive folder link or ID"), text: $draft)
-                    .textFieldStyle(.plain)
-                    .focused($fieldFocused)
-                    .onSubmit(save)
-                    .onExitCommand(perform: onClose)
+                field
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(canvas.u(SeleneTokens.Space.medium))
@@ -40,6 +36,9 @@ struct CloudReferenceDialog: View {
             }
         }
         .onAppear {
+            #if DEBUG
+            if Self.oortProbeStill { return }
+            #endif
             draft = viewModel.cloudLibrary.preference.referenceFolder ?? ""
             fieldFocused = true
         }
@@ -56,6 +55,28 @@ struct CloudReferenceDialog: View {
         }
     }
 
+    @ViewBuilder private var field: some View {
+        #if DEBUG
+        if Self.oortProbeStill {
+            // ImageRenderer cannot draw the AppKit text field: the same text, laid out in its place.
+            Text(draft.isEmpty ? text("Google Drive folder link or ID") : draft)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            textField
+        }
+        #else
+        textField
+        #endif
+    }
+
+    private var textField: some View {
+        TextField(text("Google Drive folder link or ID"), text: $draft)
+            .textFieldStyle(.plain)
+            .focused($fieldFocused)
+            .onSubmit(save)
+            .onExitCommand(perform: onClose)
+    }
+
     private func save() {
         guard let folder, viewModel.canConfigureCloudLibrary else { return }
         viewModel.followCloudReference(folder)
@@ -64,3 +85,15 @@ struct CloudReferenceDialog: View {
 
     private func text(_ key: String) -> String { L10n.text(key, context: localization) }
 }
+
+#if DEBUG
+/// Probes only (run_cloud_reference.py): the dialog offscreen, with a typed draft. Release builds do not contain them.
+extension CloudReferenceDialog {
+    @MainActor static var oortProbeStill = false
+    func oortProbeDraft(_ draft: String) -> Self {
+        var copy = self
+        copy._draft = State(initialValue: draft)
+        return copy
+    }
+}
+#endif

@@ -197,7 +197,12 @@ struct CloudSetupAssistant: View {
             SeleneTheme.scrim45.ignoresSafeArea().contentShape(Rectangle()).onTapGesture(perform: cancel)
             if let question { asked(question) } else { panel }
         }
-        .onAppear { inspect(); installAssistantKeys() }
+        .onAppear {
+            #if DEBUG
+            if Self.oortProbeStill { return }
+            #endif
+            inspect(); installAssistantKeys()
+        }
         .onDisappear { work?.task.cancel(); looking?.cancel(); removeAssistantKeys(); secret = ""; replacement = nil }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             work?.task.cancel()
@@ -401,3 +406,30 @@ struct CloudSetupAssistant: View {
     func text(_ key: String) -> String { L10n.text(key, context: localization) }
     func format(_ key: String, _ arguments: [CVarArg]) -> String { L10n.format(key, arguments, context: localization) }
 }
+
+#if DEBUG
+/// Probes only (run_cloud_shelf.py): the assistant offscreen, without inspecting Drive or watching keys, in a chosen
+/// state. Release builds do not contain them.
+extension CloudSetupAssistant {
+    @MainActor static var oortProbeStill = false
+    func oortProbeAssistant(plan: CloudDriveFolders.MovePlan? = nil, failure: String? = nil,
+                            paused: Bool = false, verified: Bool = false) -> Self {
+        var view = self
+        view._browsing = State(initialValue: nil)
+        if plan != nil || paused || verified {
+            var draft = CloudSetupAssistantDraft()
+            draft.chooseAccount("fixture")
+            draft.browse("New Library")
+            if plan != nil || paused { draft.toggleMove() }
+            precondition(draft.useFolder())
+            draft.acceptAccessCheck(draft.ticket)
+            view._draft = State(initialValue: draft)
+            view._movePlan = State(initialValue: plan)
+            view._confirmingMove = State(initialValue: plan != nil)
+        }
+        view._moveFailure = State(initialValue: failure)
+        if paused { view._issue = State(initialValue: "Move paused. Close this window and choose Retry in Activity.") }
+        return view
+    }
+}
+#endif

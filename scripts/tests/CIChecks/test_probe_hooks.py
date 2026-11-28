@@ -55,3 +55,13 @@ class SourceTests(unittest.TestCase):
 
     def test_the_repository_keeps_its_hooks_inside_debug(self):
         self.assertEqual(check_probe_hooks.sources(ROOT), [])
+
+
+class CapitalTests(unittest.TestCase):
+    def test_a_type_named_oort_probe_counts_too(self):
+        self.assertEqual(check_probe_hooks.outside_debug("@MainActor enum OortProbeObserver {}\n"), [1])
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        binary = Path(folder.name) / "app"
+        binary.write_bytes(b"\x00$s4Demo17OortProbeObserverO\x00")
+        self.assertEqual(check_probe_hooks.hooks(binary), ["OortProbeObserverO"])

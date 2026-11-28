@@ -341,6 +341,9 @@ final class CloudLibraryModel: ObservableObject {
         didSet { AppData.preferences.set(keptConnection, forKey: CloudLibraryPreference.keptConnectionKey) }
     }
     var resolvedDriveTool: URL? {
+        #if DEBUG
+        if Self.oortProbeNoDriveTool.withLock({ $0 }) { return nil }
+        #endif
         if let chosenExecutable, RcloneStorageBackend.isExecutable(chosenExecutable),
            canChooseDriveTool(chosenExecutable) { return chosenExecutable }
         if let owned = driveTool.installedExecutable { return owned }
@@ -3001,6 +3004,27 @@ extension CloudLibraryModel {
         AppData.preferences.set(try JSONEncoder().encode(scope), forKey: Self.scopeKey)
         installScope(scope, backend: backend)
         personalAppReceipts = .init(in: profile)
+    }
+}
+#endif
+
+#if DEBUG
+extension AppViewModel {
+    /// Probes only (run_cloud_reference.py): the reference import, as the app runs it after following a folder.
+    @MainActor func oortProbeImportReference(archive: CloudGameArchive) async -> (added: Bool, warnings: [String]) {
+        await importCloudReference(archive: archive)
+    }
+}
+
+extension CloudLibraryModel {
+    /// Probes only (run_cloud_shelf.py): no Drive tool, whatever this Mac has installed.
+    static let oortProbeNoDriveTool = OSAllocatedUnfairLock(initialState: false)
+
+    /// Probes only (run_cloud_reference.py): a followed reference folder over the probe's fake Drive.
+    @MainActor func oortProbeInstallReference(_ backend: RcloneStorageBackend, folder: String) {
+        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil, referenceFolder: folder)
+        archive = CloudGameArchive(backend: backend)
+        referenceArchive = CloudGameArchive(backend: backend.reference(folderID: folder)!)
     }
 }
 #endif

@@ -129,7 +129,7 @@ extension {name} {{
 }}
 """)
     assistant = settings / "CloudSetupAssistant.swift"
-    replace(assistant, r'        \.onAppear \{ inspect\(\); installAssistantKeys\(\) \}\n', '')
+    replace(assistant, r'        \.onAppear \{\s*.*?installAssistantKeys\(\)(?: \}|\n        })\n', '')
     append(porting / "Library/CloudDriveFolders.swift", """
 extension CloudDriveFolders.Listing {
     public static var screenFixture: Self { .init(ticket: UUID(), names: ["Nintendo", "Switch"]) }

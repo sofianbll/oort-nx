@@ -544,9 +544,17 @@ struct MoonlightStill: View {
         GeometryReader { geometry in
             let w = Int(geometry.size.width * scale), h = Int(geometry.size.height * scale)
             ZStack {
+                #if DEBUG
+                // An offscreen probe draws once, now: ImageRenderer does not wait for the task below.
+                if let image = image ?? (Self.oortProbeSynchronous
+                    ? engine.snapshot(width: max(w, 1), height: max(h, 1), colors: colors) : nil) {
+                    Image(decorative: image, scale: scale).resizable()
+                }
+                #else
                 if let image {
                     Image(decorative: image, scale: scale).resizable()
                 }
+                #endif
             }
             .task(id: Key(width: w, height: h, colors: colors)) {
                 // Keep the last frame while resizing. A cancelled request never
@@ -561,3 +569,10 @@ struct MoonlightStill: View {
         }
     }
 }
+
+#if DEBUG
+extension MoonlightStill {
+    /// Offscreen probes only (run_cloud_shelf.py). Release builds do not contain it.
+    @MainActor static var oortProbeSynchronous = false
+}
+#endif

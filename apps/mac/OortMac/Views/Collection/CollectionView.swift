@@ -485,3 +485,12 @@ struct CollectionInfoView: View {
         }
     }
 }
+
+#if DEBUG
+/// Probes only (run_cloud_shelf.py): whether the hints offer Add game, and the empty shelf's text. Release builds do not
+/// contain them.
+extension CollectionView {
+    var oortProbeShowsLocalImportHint: Bool { contextHints(nil, record: nil).contains { $0.button == .a } }
+    var oortProbeShelfKey: String? { cloudEmptyKey }
+}
+#endif

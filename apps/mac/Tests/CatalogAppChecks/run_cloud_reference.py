@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Check reference-library copy and controls on the real Selene views with a fake Drive."""
-import os
-import pwd
-import subprocess
-import sys
-import tempfile
-from pathlib import Path
+"""Check reference-library copy and controls on the real Selene views with a fake Drive, on the shared Debug app.
 
-from run_cloud_screens import ROOT, HOST, build_probe, capture_destination, change, cloud_settings_fixture, isolate_startup
-import names  # noqa: E402  architecture/names.json (on sys.path from run_cloud_screens)
+cloud_reference_baseline.py runs the same check on a past revision, where it must fail."""
+from audit_probe_host import run_host
+from run_cloud_screens import ROOT, capture_destination, cloud_settings_fixture
+from screen_host import ICON, header, package_name, render
 
 SCENARIO = r'''
         let fr = AppLocale(language: .french, region: "FR")
         L10n.setContext(fr)
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
+        // Offscreen: the dialog's text field drawn as text, and what the action bar and the status dot draw.
+        CloudReferenceDialog.oortProbeStill = true
+        OortProbeObserver.actionKey = { title, focused, enabled in if title == "Save" { measuredSave = (focused, enabled) } }
+        OortProbeObserver.statusText = { labels.append($0) }
         var failures: [String] = []
         let title = "0100000000008000"
         let folder = "FixtureFolderID"
@@ -26,7 +26,11 @@ SCENARIO = r'''
             }
             throw CocoaError(.fileReadUnknown)
         }
-        let warning = await vm.referenceProbe(fixture, folder: folder)
+        vm.cloudLibrary.oortProbeInstallReference(fixture, folder: folder)
+        let (added, warnings) = await vm.oortProbeImportReference(archive: vm.cloudLibrary.archive!)
+        precondition(!added && vm.cloudLibrary.referenceCheck?.incomplete == true && warnings.count == 1)
+        vm.showSettingsNotice(title: "Reference library", message: warnings[0])
+        let warning = warnings[0]
         if !warning.contains(title) || !warning.contains("pas été ajoutés") { failures.append("Unreadable game: \(warning)") }
         for width in [1280.0, 720.0] {
             let size = CGSize(width: width, height: 1000)
@@ -35,7 +39,7 @@ SCENARIO = r'''
                                   ("editor-valid", folder)] {
                 measuredSave = nil
                 try render("reference-\(name)\(suffix)", output, CloudReferenceDialog(viewModel: vm, onClose: {})
-                    .probeDraft(draft).environment(\.nxAppLocale, fr), size: size)
+                    .oortProbeDraft(draft).environment(\.nxAppLocale, fr), size: size)
                 if measuredSave?.focused != (name == "editor-valid") || measuredSave?.enabled != (name == "editor-valid") {
                     failures.append("\(name)\(suffix): incorrect Save focus or availability")
                 }
@@ -71,81 +75,13 @@ SCENARIO = r'''
     }
 '''
 
-FIXTURE = r'''
-extension AppViewModel {
-    @MainActor func referenceProbe(_ backend: RcloneStorageBackend, folder: String) async -> String {
-        cloudLibrary.installReferenceProbe(backend, folder: folder)
-        let (added, warnings) = await importCloudReference(archive: cloudLibrary.archive!)
-        precondition(!added && cloudLibrary.referenceCheck?.incomplete == true && warnings.count == 1)
-        showSettingsNotice(title: "Reference library", message: warnings[0])
-        return warnings[0]
-    }
-}
-
-extension CloudLibraryModel {
-    @MainActor func installReferenceProbe(_ backend: RcloneStorageBackend, folder: String) {
-        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil, referenceFolder: folder)
-        archive = CloudGameArchive(backend: backend)
-        referenceArchive = CloudGameArchive(backend: backend.reference(folderID: folder)!)
-    }
-}
-'''
-
 
 def main():
     output = capture_destination("cloud-reference-captures-")
-    baseline = sys.argv[2] if len(sys.argv) == 3 else None
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="reference-probe-", dir=output.parent) as temp:
-        package = Path(temp)
-        names.stage(package, baseline)
-        app = package / "apps/mac/OortMac"
-        change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
-        change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        isolate_startup(app)
-        profile = package / "core/OortLibrary/App/AppDataProfile.swift"
-        change(profile, r'public static let profile = [^\n]*',
-               'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
-        change(profile, r'public static var preferences: UserDefaults \{ [^\n]+ \}',
-               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        with (app / "ViewModels/AppViewModel+CloudLibrary.swift").open("a") as file:
-            file.write(FIXTURE)
-        dialog = app / "Views/Settings/CloudReferenceDialog.swift"
-        # ImageRenderer cannot draw the AppKit text field. Keep the actual field's layout and model.
-        change(dialog, r'                TextField\(.*?\.onExitCommand\(perform: onClose\)',
-               '                Text(draft.isEmpty ? text("Google Drive folder link or ID") : draft)\n'
-               '                    .frame(maxWidth: .infinity, alignment: .leading)')
-        change(dialog, r'        \.onAppear \{.*?\n        }\n', "")
-        with dialog.open("a") as file:
-            file.write("\nextension CloudReferenceDialog {\n"
-                       "    func probeDraft(_ draft: String) -> Self {\n"
-                       "        var copy = self\n"
-                       "        copy._draft = State(initialValue: draft)\n"
-                       "        return copy\n"
-                       "    }\n}\n")
-        change(app / "Views/OortUI/OortActionBar.swift", r'focused: focused == action\.id,',
-               r'focused: CloudScreenProbe.measure(action.title, focused == action.id, action.enabled),')
-        change(app / "Views/Settings/SettingsCloudLibrarySection.swift",
-               r'(SeleneRow\(model.referenceCheck.*?SeleneStatusDot\(text: )(.*?), color:',
-               lambda match: match[1] + f"CloudScreenProbe.measureLabel({match[2]}), color:")
-        helper = HOST[HOST.index("    @MainActor static func renderNotice"):].replace(
-            "/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
-        host = HOST.split("        // SCENARIO")[0] + SCENARIO + helper
-        (app / "ReferenceProbe.swift").write_text(cloud_settings_fixture(app, host))
-        executable = build_probe(package)
-        home = package / "home"
-        (home / "Library" / "Preferences").mkdir(parents=True)
-        sandbox = ('(version 1) (allow default) (deny network*) '
-                   '(deny file-read-data file-write* (subpath (param "REAL_LIBRARY")) (subpath "/Volumes")) '
-                   '(deny file-write* (subpath "/Applications"))')
-        real_library = Path(pwd.getpwuid(os.getuid()).pw_dir) / "Library"
-        result = subprocess.run(["sandbox-exec", "-D", f"REAL_LIBRARY={real_library}", "-p", sandbox,
-                                 str(executable), str(output),
-                                 str(ROOT / "design/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                                 str(ROOT / "design/Icons/AppIcon-Light.png")],
-                                env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
-        if result.returncode or baseline:
-            raise SystemExit(result.returncode or "The baseline unexpectedly passed.")
+    helper = render("    @MainActor static func renderNotice").replace("/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
+    host = cloud_settings_fixture(ROOT / "apps/mac/OortMac", header() + SCENARIO + helper)
+    run_host(host, save_model=True, capture=output, resources=(ICON,), package_name=package_name())
 
 
 if __name__ == "__main__":

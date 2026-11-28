@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 27 novembre 2026. Il repository versiona **1695 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 28 novembre 2026. Il repository versiona **1701 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `NxnativeAdapter`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1393,6 +1393,8 @@ Cartelle `engines/nxnative/NxnativeAdapter/Mods/` e `NxnativeAdapter/Mods/GameBa
 | [run_cloud_pause.py](../../apps/mac/Tests/CatalogAppChecks/run_cloud_pause.py) | Verifica la pausa e la ripresa esplicita dopo riavvio, ordine e controlli in Cloud e Attività con un backend sintetico. |
 | [run_cloud_shelf.py](../../apps/mac/Tests/CatalogAppChecks/run_cloud_shelf.py) | Rende lo scaffale Cloud in francese e verifica gli stati vuoti, i titoli importati e il recupero nell’assistente con fixture. |
 | [run_cloud_reference.py](../../apps/mac/Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
+| [cloud_reference_baseline.py](../../apps/mac/Tests/CatalogAppChecks/cloud_reference_baseline.py), [cloud_shelf_baseline.py](../../apps/mac/Tests/CatalogAppChecks/cloud_shelf_baseline.py) | Compilano una revisione precedente per il confronto; non fanno parte delle sonde CI. |
+| [OortProbeObserver.swift](../../apps/mac/OortMac/Views/OortUI/OortProbeObserver.swift) | Solo Debug: la sonda osserva il focus e la disponibilità di un’azione e il testo di stato disegnato. |
 | [run_cloud_free_space.py](../../apps/mac/Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. Identifica il PNG se Vision non riesce a leggerlo. |
 | [run_store_next_step.py](../../apps/mac/Tests/CatalogAppChecks/run_store_next_step.py) | Rende le prossime azioni e gli stati passivi di Details in francese su dati sintetici. |
 | [StoreNextStepText.swift](../../apps/mac/Tests/CatalogAppChecks/StoreNextStepText.swift) | Legge il testo del PDF della sonda Details, verifica testi, origine e assenze, e prova con `assertVisible` che i testi attesi si vedono. |

@@ -34,7 +34,14 @@ struct SeleneArtBackground: View {
             // rises it keeps moving, so nothing shows through still.
             backdrop.still(art != nil && reveal == .shown).modsTint(modsTint)
             // A crossfade is not movement: it stays under reduce motion (spec §8).
+            #if DEBUG
+            // ImageRenderer draws a warning for the art layer's AppKit surface: an offscreen probe leaves it out.
+            if !Self.oortProbeNoArtLayer {
+                SeleneArtLayer(image: art, key: art == nil ? "none" : imageKey, crossfade: crossfade, reveal: reveal)
+            }
+            #else
             SeleneArtLayer(image: art, key: art == nil ? "none" : imageKey, crossfade: crossfade, reveal: reveal)
+            #endif
             SeleneShades(shade: shade)
         }
         .allowsHitTesting(false)
@@ -246,3 +253,10 @@ final class SeleneArtLayerView: NSView {
         CATransaction.commit()
     }
 }
+
+#if DEBUG
+extension SeleneArtBackground {
+    /// Offscreen probes only (run_cloud_shelf.py). Release builds do not contain it.
+    @MainActor static var oortProbeNoArtLayer = false
+}
+#endif

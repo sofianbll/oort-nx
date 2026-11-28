@@ -215,7 +215,7 @@ struct MoonlightBackdrop: View {
         let colors = MoonlightColors(accent: accent, ink: ink, tint: tint, presence: presence,
                                      surface: surface)
         if let engine = MoonlightEngine.shared {
-            if asImage {
+            if asImage || Self.drawsStill {
                 MoonlightStill(engine: engine, colors: colors)
             } else {
                 MoonlightMetalView(engine: engine, colors: colors, moving: moving)
@@ -245,4 +245,14 @@ struct MoonlightBackdrop: View {
                       with: .radialGradient(Gradient(colors: [light.opacity(strength), light.opacity(0)]),
                                             center: .zero, startRadius: 0, endRadius: radius))
     }
+}
+
+extension MoonlightBackdrop {
+    /// Offscreen probes draw the still moonlight: ImageRenderer cannot draw the Metal view.
+    #if DEBUG
+    @MainActor static var oortProbeStill = false
+    @MainActor fileprivate static var drawsStill: Bool { oortProbeStill }
+    #else
+    fileprivate static let drawsStill = false
+    #endif
 }

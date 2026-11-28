@@ -18,7 +18,7 @@ from repo_model import tracked
 
 ROOT = Path(__file__).resolve().parents[1]
 
-MARKER = b"oortProbe"
+MARKER = b"ortProbe"  # oortProbe… and OortProbe…
 
 
 def hooks(binary):
@@ -26,7 +26,10 @@ def hooks(binary):
     data = Path(binary).read_bytes()
     found, start = set(), data.find(MARKER)
     while start != -1:
-        end = start + len(MARKER)
+        if start == 0 or data[start - 1] not in b"oO":
+            start = data.find(MARKER, start + 1)
+            continue
+        start, end = start - 1, start + len(MARKER)
         while end < len(data) and (chr(data[end]).isalnum() or data[end] == ord("_")):
             end += 1
         found.add(data[start:end].decode("ascii", "replace"))
@@ -50,7 +53,7 @@ def outside_debug(text):
             elif keyword == "endif" and stack:
                 stack.pop()
             continue
-        if "oortProbe" in line.split("//")[0] and not any(stack):
+        if re.search(r"[oO]ortProbe", line.split("//")[0]) and not any(stack):
             lines.append(number)
     return lines
 

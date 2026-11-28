@@ -170,7 +170,7 @@ extension SettingsCloudLibrarySection {
 """)
         assistant = views / "CloudSetupAssistant.swift"
         change(assistant, r'    let onClose: \(\) -> Void\n', '    let onClose: () -> Void\n    var still = false\n')
-        change(assistant, r'\.onAppear \{ inspect\(\); installAssistantKeys\(\) \}', '.onAppear { if !still { inspect() } }')
+        change(assistant, r'\.onAppear \{\s*.*?installAssistantKeys\(\)(?: \}|\n        })', '.onAppear { if !still { inspect() } }')
         change(assistant, r'    var body: some View \{\n        ZStack', '    var body: some View {\n        let _ = (CloudAssistantProbe.mounted = self)\n        ZStack')
         # Where each target is, for a pointer.
         text = assistant.read_text()

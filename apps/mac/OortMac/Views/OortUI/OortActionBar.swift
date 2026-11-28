@@ -79,7 +79,10 @@ struct OortActionBar: View {
     }
 
     private func key(_ action: Action, fills: Bool = false) -> some View {
-        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+        #if DEBUG
+        OortProbeObserver.actionKey?(action.title, focused == action.id, action.enabled)
+        #endif
+        return VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
                        state: action.enabled ? .ready : .blocked, preset: preset, fillsWidth: fills,
                        tone: action.role == .destructive ? .destructive : .normal,

@@ -5,6 +5,14 @@ import SwiftUI
 
 /// Porting → Cloud library: a locally recognised connection is not a network check.
 struct SettingsCloudLibrarySection: View {
+    /// The status text as drawn; a probe may see it (OortProbeObserver, Debug only).
+    private static func drawn(_ status: String) -> String {
+        #if DEBUG
+        OortProbeObserver.statusText?(status)
+        #endif
+        return status
+    }
+
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var model: CloudLibraryModel
     @ObservedObject var settings: SettingsEditor
@@ -270,7 +278,7 @@ struct SettingsCloudLibrarySection: View {
                 let failed = model.referenceCheck?.failure != nil
                 SeleneRow(model.referenceCheck?.name ?? "\(text("Folder")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
                           subtitle: referenceStatus, verbatimTitle: true, verbatimSubtitle: true) {
-                    SeleneStatusDot(text: text(failed ? "No access" : "Read only"), color: failed
+                    SeleneStatusDot(text: Self.drawn(text(failed ? "No access" : "Read only")), color: failed
                         ? CloudLibraryStatus.failed.color : model.referenceCheck == nil
                          ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
                          ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
