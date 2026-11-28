@@ -54,9 +54,10 @@ def prepare(package):
     replace(model, r'SteamGridDBKey\(\)\.load\(\) != nil', "false")
     replace(model, r'        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic',
             "    }\n\n    // MARK: - Dynamic")
-    # Direct row actions (without a mounted SwiftUI tree) read EnvironmentKey.defaultValue.
+    # Direct row actions read EnvironmentKey.defaultValue. Patch the Debug fallback, not the Release value.
     replace(app / "Views/Theme/AppLocaleEnvironment.swift",
-            r'defaultValue = AppLocale\(language: \.english, region: "US"\)', 'defaultValue = L10n.context')
+            r'(AppLocaleDefault\.oortProbeLocale\.withLock \{ \$0 \} \?\? )AppLocale\(language: \.english, region: "US"\)',
+            lambda match: match[1] + 'L10n.context')
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
