@@ -150,7 +150,7 @@ public final class CloudGameSources: @unchecked Sendable {
     public convenience init(backend: RcloneStorageBackend, root: String, usesDefaultRoot: Bool = false,
                             allowsIndependentRoot: Bool = false) {
         self.init(backend: backend, root: root, usesDefaultRoot: usesDefaultRoot, allowsIndependentRoot: allowsIndependentRoot) {
-            try FileManager.default.trashItem(at: $0, resultingItemURL: nil)
+            try OortSystem.trash($0)
         }
     }
 

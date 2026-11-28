@@ -301,7 +301,7 @@ public struct SoundPackLibrary: Sendable {
     public func remove(_ key: String) throws {
         guard key.hasPrefix("custom.") else { throw SoundPackError.unavailable }
         let url = try customURL(String(key.dropFirst(7)))
-        try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+        try OortSystem.trash(url)
     }
 
     private func customURL(_ id: String) throws -> URL {

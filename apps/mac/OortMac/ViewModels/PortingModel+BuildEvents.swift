@@ -163,7 +163,7 @@ extension PortingModel {
                        !games.contains(where: { $0.id != gameID &&
                            $0.buildCachePath.map { URL(fileURLWithPath: $0).resolvingSymlinksInPath().path == old.resolvingSymlinksInPath().path } == true
                        }) {
-                        try FileManager.default.trashItem(at: old, resultingItemURL: nil)
+                        try OortSystem.trash(old)
                     }
                 }
             }

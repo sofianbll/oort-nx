@@ -186,9 +186,8 @@ public struct RcloneDownload: Sendable {
     }
 
     public func moveInstalledCopyToTrash() throws {
-        let files = FileManager.default
         guard installedExecutable != nil else { throw Failure.installation }
-        do { try files.trashItem(at: directory, resultingItemURL: nil) }
+        do { try OortSystem.trash(directory) }
         catch { throw Failure.installation }
     }
 

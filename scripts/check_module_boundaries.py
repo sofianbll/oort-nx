@@ -15,6 +15,8 @@ Rules:
    imports the framework is also reported, so the entry gets removed.
 4. Only the engine adapter reads checkout HEAD, bundle stamps or managed key status.
 5. Play adapters can be admitted only through PlayEngine; views cannot resume native apps directly.
+7. Only core/OortLibrary/System/ reaches the Trash (`trashItem`, `.trashDirectory`): everything else calls
+   OortSystem.trash, so that tests and probes get a Trash of their own.
 6. In an app, only its entry point (`entry` in names.json) imports a module of kind "engine"
    (docs/adr/0002-engine-adapters-at-the-entry-point.md). The files that do so today are listed in
    ENGINE_DEBT; the list can only shrink: a listed file that no longer imports the engine is reported,
@@ -48,6 +50,8 @@ ENGINE_READ = re.compile(r'"DMCommit"|"rev-parse"\s*,\s*"HEAD"|"--format=%h %s"|
 GIT_STATUS = re.compile(r'"status"\s*,\s*"--porcelain"')
 LEGACY_PLAY = re.compile(r"\b(?:GamePlay|PlayConnector|NXNativePlayConnector|playRouter|playNXNative)\b")
 NATIVE_PLAY = re.compile(r"\bNSWorkspace\.shared\.openApplication\s*\(")
+TRASH = re.compile(r"\btrashItem\s*\(|\.trashDirectory\b")
+TRASH_OWNER = "core/OortLibrary/System/"
 NATIVE_PLAY_ADAPTERS = {
     "engines/nxnative/NxnativeAdapter/Launch/LaunchService.swift",
     "apps/mac/OortMac/Services/MacShortcutAdapter.swift",
@@ -139,6 +143,10 @@ def check(root, base=None):
         text = file.read_text(encoding="utf-8")
         for match in LEGACY_PLAY.finditer(text):
             violations.append(f"{relative}:{text.count(chr(10), 0, match.start()) + 1}: use engine.play, not {match[0]}")
+        if not relative.startswith(TRASH_OWNER):
+            for match in TRASH.finditer(text):
+                line = text.count("\n", 0, match.start()) + 1
+                violations.append(f"{relative}:{line}: reach the Trash through OortSystem.trash")
         if relative not in NATIVE_PLAY_ADAPTERS and NATIVE_PLAY.search(text):
             violations.append(f"{relative}: native Play opens belong to the adapter")
         if relative.startswith("apps/mac/OortMac/Views/") and re.search(r"\brunningGames\.resume\s*\(", text):
