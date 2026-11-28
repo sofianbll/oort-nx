@@ -28,7 +28,7 @@ struct SpotlightView: View {
     @ObservedObject var gameInbox: GameInboxModel
     var router: AppRouter
     var settings: AppSettingsStore
-    @ObservedObject var playSessions: PlaySessionStore
+    var playSessions: PlaySessionStore
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @ObservedObject var runningGames: RunningGameMonitor

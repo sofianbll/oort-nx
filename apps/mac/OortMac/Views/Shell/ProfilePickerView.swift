@@ -45,7 +45,7 @@ struct ProfilePortrait: View {
 }
 
 struct ProfilePickerView: View {
-    @ObservedObject var profiles: LocalProfileStore
+    var profiles: LocalProfileStore
     let initialSelection: UUID?
     let canClose: Bool
     var isOverlay = false

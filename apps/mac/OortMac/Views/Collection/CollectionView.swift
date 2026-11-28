@@ -15,7 +15,7 @@ struct CollectionView: View {
     @ObservedObject var store: StoreMetadataModel
     var router: AppRouter
     var settings: AppSettingsStore
-    @ObservedObject var playSessions: PlaySessionStore
+    var playSessions: PlaySessionStore
     @ObservedObject var artwork: ArtworkStore
     @ObservedObject var cloud: CloudLibraryModel
 

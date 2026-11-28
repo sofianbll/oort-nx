@@ -35,6 +35,31 @@ final class ObservedStoresTests: XCTestCase {
         let picks = MetadataPicks(directory: directory)
         XCTAssertTrue(try notifies({ _ = picks.revision }, when: { try picks.set("A game", titleID: "0100", field: .description) }))
     }
+
+    func testAProfileChangeAndAGuestAreSeen() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("profiles-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = LocalProfileStore(directory: directory, settings: AppSettings(), name: "First")
+        var renamed = try XCTUnwrap(store.active)
+        renamed.name = "Renamed"
+        XCTAssertTrue(notifies({ _ = store.profiles }, when: { _ = store.update(renamed) }))
+        let guest = LocalProfile(name: "Guest", look: LocalProfile.Look(AppSettings()))
+        XCTAssertTrue(notifies({ _ = store.active }, when: { _ = store.beginGuest(guest) }))
+    }
+
+    func testAStartIsSeenAndAnnouncedOnce() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("sessions-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let store = PlaySessionStore(fileURL: folder.appendingPathComponent("play-sessions.json"))
+        var started: [UUID] = []
+        store.onStart = { started.append($0) }
+        let game = UUID()
+        XCTAssertTrue(notifies({ _ = store.sessions }, when: { store.start(gameID: game, sourceID: "steam-440") }))
+        store.start(gameID: game, sourceID: "steam-440")
+        XCTAssertEqual(started, [game])
+    }
 }
 
 private final class LockedFlag: @unchecked Sendable {

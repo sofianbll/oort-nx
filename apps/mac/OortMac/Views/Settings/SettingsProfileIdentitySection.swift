@@ -2,7 +2,7 @@ import SwiftUI
 import OortLibrary
 
 struct SettingsProfileIdentitySection: View {
-    @ObservedObject var profiles: LocalProfileStore
+    var profiles: LocalProfileStore
     let viewModel: AppViewModel
     let onEditName: () -> Void
     let onActions: ([SettingsRowAction]) -> Void

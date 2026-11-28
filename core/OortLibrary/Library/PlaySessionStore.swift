@@ -1,10 +1,11 @@
 import Foundation
-import Combine
+import Observation
 
-public final class PlaySessionStore: ObservableObject, PlayHistory {
+@Observable
+public final class PlaySessionStore: PlayHistory {
     /// Recent sessions, at most `maxSessions` (running sessions are never dropped).
-    @Published private var history: [PlaySession] = []
-    @Published public var profileID: UUID?
+    private var history: [PlaySession] = []
+    public var profileID: UUID?
     public var sessions: [PlaySession] { history.filter { $0.profileID == profileID } }
     public func hasScopedSessions(for gameIDs: Set<UUID>) -> Bool {
         history.contains { $0.profileID != nil && gameIDs.contains($0.gameID) }
@@ -12,18 +13,18 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
     }
     /// Play time and last start of sessions trimmed from `sessions`, per game,
     /// so totals and last-played survive trimming.
-    @Published private var archive: [UUID?: [UUID: CarriedPlaytime]] = [:]
+    private var archive: [UUID?: [UUID: CarriedPlaytime]] = [:]
     public var carried: [UUID: CarriedPlaytime] { archive[profileID] ?? [:] }
     /// Another launcher's own total for a game (Steam's), with when it was seen. Not persisted here.
-    @Published private var legacyExternal: [UUID: ExternalPlaytime] = [:]
+    private var legacyExternal: [UUID: ExternalPlaytime] = [:]
     public var external: [UUID: ExternalPlaytime] { profileID == nil ? legacyExternal : [:] }
     /// When each game's external value was seen, kept while its total is hidden (source off, another
     /// account, launch), so trimming still keeps the part after it.
-    public private(set) var trimReferences: [UUID: Date] = [:]
-    public static let maxSessions = 200
-    /// Each game whose session just started (not a duplicate start).
-    public let starts = PassthroughSubject<UUID, Never>()
-    public private(set) var loadError: String?
+    @ObservationIgnored public private(set) var trimReferences: [UUID: Date] = [:]
+    @ObservationIgnored public static let maxSessions = 200
+    /// Called with each game whose session just started (not a duplicate start), on the thread that started it.
+    @ObservationIgnored public var onStart: ((UUID) -> Void)?
+    @ObservationIgnored public private(set) var loadError: String?
 
     /// Legacy recent sessions, read only when no unified state exists.
     public let fileURL: URL
@@ -38,8 +39,8 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
     }
     private let fileManager: FileManager
     private let now: () -> Date
-    private var historyReadFailed = false
-    private var launchOwners: [UUID: UUID?] = [:]
+    @ObservationIgnored private var historyReadFailed = false
+    @ObservationIgnored private var launchOwners: [UUID: UUID?] = [:]
 
     public init(fileURL: URL = PlaySessionStore.defaultURL(),
                 fileManager: FileManager = .default,
@@ -58,7 +59,7 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
     /// A session for a game of any integration. `sourceID` is the source's identity (a Switch title ID, or a
     /// qualified one such as "steam-570", never a made-up Nintendo title ID); `bundleID` is the app that runs it, when
     /// there is one. A restart closes an open session at its last heartbeat. A game found already running when its
-    /// owner starts watching is not a new start: `announces: false` keeps it off `starts`.
+    /// owner starts watching is not a new start: `announces: false` keeps it off `onStart`.
     @discardableResult
     public func start(gameID: UUID, sourceID: String, bundleID: String? = nil, announces: Bool = true) -> Bool {
         if isRunning(gameID: gameID) { return false }
@@ -68,7 +69,7 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
                                    startedAt: date, lastHeartbeatAt: date, profileID: owner))
         trim()
         save()
-        if announces && owner == profileID { starts.send(gameID) }
+        if announces && owner == profileID { onStart?(gameID) }
         return true
     }
 

@@ -7,7 +7,7 @@ struct SettingsStartUpSection: View {
     let onChooseLanguage: () -> Void
     let onChooseRegion: () -> Void
     let onOpenOnboarding: () -> Void
-    @ObservedObject var profiles: LocalProfileStore
+    var profiles: LocalProfileStore
     @Environment(\.seleneCanvas) private var canvas
 
     private var startOnTitle: String {
@@ -100,7 +100,7 @@ struct SettingsStartUpSection: View {
 }
 
 struct SettingsProfileCardsSection: View {
-    @ObservedObject var profiles: LocalProfileStore
+    var profiles: LocalProfileStore
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.seleneCanvas) private var canvas

@@ -13,7 +13,7 @@ extension Notification.Name {
 struct FindGameView: View {
     var router: AppRouter
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var playSessions: PlaySessionStore
+    var playSessions: PlaySessionStore
     let artwork: ArtworkStore
 
     @Environment(\.seleneCanvas) private var canvas

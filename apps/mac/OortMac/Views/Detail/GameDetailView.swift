@@ -22,7 +22,7 @@ struct GameDetailView: View {
     @ObservedObject var store: StoreMetadataModel
     var router: AppRouter
     var settings: AppSettingsStore
-    @ObservedObject var playSessions: PlaySessionStore
+    var playSessions: PlaySessionStore
     @ObservedObject var runningGames: RunningGameMonitor
     @ObservedObject var artwork: ArtworkStore
     let game: PortedGame

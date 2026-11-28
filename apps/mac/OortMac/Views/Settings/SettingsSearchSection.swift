@@ -40,7 +40,7 @@ struct SettingsChangedSection: View {
     /// The engine folder (`SetupModel`), so the Changed list follows it.
     @ObservedObject var setup: SetupModel
     @ObservedObject var cloudLibrary: CloudLibraryModel
-    @ObservedObject var profiles: LocalProfileStore
+    var profiles: LocalProfileStore
     @ObservedObject private var controller = GameControllerService.shared
     let supportsNextendo: Bool
     let hasProfileAccount: Bool

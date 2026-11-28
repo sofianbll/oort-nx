@@ -95,7 +95,6 @@ struct SettingsView: View {
     @ObservedObject private var nextendo: NextendoSettings
     private let hasProfileAccount: Bool
     private let profiles: LocalProfileStore?
-    @State private var profileRevision = false
     @State private var nextendoRemovalFocus: SeleneConfirmButton = .cancel
     @State private var nextendoEngine: EngineSelection?
     private struct EngineSelection: Equatable {
@@ -131,7 +130,8 @@ struct SettingsView: View {
     }
 
     private var layout: some View {
-        let _ = profileRevision
+        // What the profile cards show: the page redraws when a profile, the active one or the guest changes.
+        let _ = (profiles?.profiles, profiles?.active, profiles?.failed)
         return VStack(spacing: 0) {
             OortSettingsShell(title: page.title(in: localization), onBack: navigation.canGoBack ? handleBack : nil) {
                 SettingsSidebar(selection: navigation.root, isFocused: focusArea == .sidebar, query: $searchQuery,
@@ -165,9 +165,6 @@ struct SettingsView: View {
                     cloudEnabled: viewModel.cloudLibrary.preference.enabled, editor: editor))
             }
             installKeyMonitor()
-        }
-        .onReceive(profiles?.objectWillChange.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { _ in
-            profileRevision.toggle()
         }
         .onChange(of: profiles?.active?.id) {
             cancelPIN()

@@ -14,7 +14,7 @@ struct ProfilePage: View {
 
     let profile: LocalProfile
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var history: PlaySessionStore
+    var history: PlaySessionStore
     let artwork: ArtworkStore
     let nextendo: NextendoSettings?
     var router: AppRouter

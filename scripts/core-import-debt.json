@@ -6,8 +6,6 @@
   "core/OortLibrary/Artwork/AutomaticIconResolver.swift",
   "core/OortLibrary/Artwork/WikipediaDescription.swift",
   "core/OortLibrary/Catalog/CatalogSourcesModel.swift",
-  "core/OortLibrary/Library/LocalProfileStore.swift",
-  "core/OortLibrary/Library/PlaySessionStore.swift",
   "core/OortLibrary/Library/RcloneConfiguration.swift",
   "core/OortLibrary/Library/RcloneDownload.swift",
   "core/OortLibrary/Selene/OortAmbiance.swift",

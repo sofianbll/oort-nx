@@ -15,8 +15,8 @@ struct AppShellView: View {
     @ObservedObject var store: StoreMetadataModel
     @State var router: AppRouter
     @State var settings: AppSettingsStore
-    @StateObject var playSessions = PlaySessionStore()
-    @ObservedObject var profiles: LocalProfileStore
+    @State var playSessions = PlaySessionStore()
+    var profiles: LocalProfileStore
     @State var profileFlow: ProfileFlow?
     @State var profilePageFocus: ProfilePage.Focus?
     @State var steamBlocksIdlePresence = false
@@ -56,7 +56,7 @@ struct AppShellView: View {
         _setup = ObservedObject(wrappedValue: state.viewModel.setup)
         _store = ObservedObject(wrappedValue: state.viewModel.store)
         _router = State(initialValue: state.router)
-        _profiles = ObservedObject(wrappedValue: state.profiles)
+        profiles = state.profiles
         igdb = state.igdb
         _profileFlow = State(initialValue: state.viewModel.profileOwnsInput
             ? ProfileFlow(page: .picker, selected: state.profiles.startupSelection(state.settings.settings.profileStartup), atStartup: true) : nil)

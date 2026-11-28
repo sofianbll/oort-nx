@@ -15,6 +15,12 @@ extension AppShellView {
         presentLegacyNotice()
         askToMoveIfTranslocated()
         viewModel.playSessionStore = playSessions
+        playSessions.onStart = { [viewModel, settings] gameID in
+            // A game that starts leads the Spotlight row, as on a console's home; a move in progress is left alone.
+            guard viewModel.spotlight.lift == nil else { return }
+            let order = SpotlightRow.playing(gameID, previousOrder: settings.settings.spotlightOrder)
+            if order != settings.settings.spotlightOrder { settings.settings.spotlightOrder = order }
+        }
         playSessions.profileID = profiles.active?.id == profiles.originalID ? nil : profiles.active?.id
         viewModel.settingsStore = settings
         if let profile = profiles.active, settings.settings.launcherChoices.gamepadLayout != profile.gamepadLayout {

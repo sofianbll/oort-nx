@@ -1,6 +1,6 @@
-import Combine
 import Crypto
 import Foundation
+import Observation
 
 public enum ProfileStartup: Codable, Equatable, Sendable {
     case ask, last, profile(UUID)
@@ -84,17 +84,18 @@ public struct LocalProfile: Codable, Equatable, Identifiable, Sendable {
 }
 
 /// The first profile inherits the existing catalog favorites and play history without rewriting either file.
-public final class LocalProfileStore: ObservableObject {
-    public static let maximumPortraitBytes = 4_000_000
+@Observable
+public final class LocalProfileStore {
+    @ObservationIgnored public static let maximumPortraitBytes = 4_000_000
     private struct Document: Codable {
         let originalID: UUID
         var activeID: UUID
         var profiles: [LocalProfile]
     }
 
-    @Published private var document: Document?
-    @Published public private(set) var guest: LocalProfile?
-    @Published public private(set) var failed = false
+    private var document: Document?
+    public private(set) var guest: LocalProfile?
+    public private(set) var failed = false
     private let url: URL
     private let selectionURL: URL
 
