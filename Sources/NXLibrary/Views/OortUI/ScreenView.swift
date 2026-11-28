@@ -22,6 +22,7 @@ struct ScreenView: View {
     @Environment(\.nxAppLocale) private var locale
     @Environment(\.seleneCanvas) private var canvas
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: String?
+    @Environment(\.oortRenderedAsImage) private var image
     let screen: Screen
     /// The stored focus; nil or a vanished identity is the screen's initial focus.
     @Binding var focus: String?
@@ -149,7 +150,7 @@ struct ScreenView: View {
         case .button:
             AnyView(OortButton(title: say(node.title), focused: focused == node.id, preset: .compact,
                                tone: node.question == nil ? .normal : .destructive) { press(.a, at: node.id, clicked: true) }
-                .accessibilityFocused($accessibilityFocus, equals: node.id)
+                .modifier(VoiceOverFocus(focus: $accessibilityFocus, id: node.id, image: image))
                 .id(node.id))
         case .text: AnyView(OortReadout(text: say(node.text)))
         case .quiet: AnyView(OortReadout(text: say(node.text), preset: .quiet))
@@ -171,7 +172,7 @@ struct ScreenView: View {
                                aboutIsBody: node.about.map { ScreenTree.aboutRole($0) == .body } ?? false, status: node.status.map { say($0.text) }, focused: focused == id, tone: Self.tone(node.status?.tone),
                                isOn: isOn, preset: preset)
             .id(id)
-            .accessibilityFocused($accessibilityFocus, equals: id)
+            .modifier(VoiceOverFocus(focus: $accessibilityFocus, id: id, image: image))
             .accessibilityActions {
                 // A named action is no click: it sounds as X does.
                 if let x = node.x { Button(say(x.title)) { press(.x, at: id) } }
@@ -188,7 +189,7 @@ struct ScreenView: View {
             .environment(\.oortGroupedRow, true)
             .environment(\.oortFlushRow, true)
             .id(id)
-            .accessibilityFocused($accessibilityFocus, equals: id))
+            .modifier(VoiceOverFocus(focus: $accessibilityFocus, id: id, image: image)))
     }
 
     private func dialog(_ asking: Screen.Question) -> some View {
@@ -206,6 +207,18 @@ struct ScreenView: View {
         case .working?: .working
         case .neutral?, nil: .neutral
         }
+    }
+}
+
+/// VoiceOver's focus follows the screen's. Drawn into an image there is none to follow (OortPage's
+/// `oortRenderedAsImage`).
+private struct VoiceOverFocus: ViewModifier {
+    var focus: AccessibilityFocusState<String?>.Binding
+    let id: String?
+    let image: Bool
+
+    func body(content: Content) -> some View {
+        if image { content } else { content.accessibilityFocused(focus, equals: id) }
     }
 }
 

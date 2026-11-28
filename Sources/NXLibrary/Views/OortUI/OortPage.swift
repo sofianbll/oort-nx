@@ -2,16 +2,17 @@ import SwiftUI
 import NXLibraryCore
 
 extension EnvironmentValues {
-    /// A probe draws the whole page at once, without its scroll view: ImageRenderer paints no scroll view's content,
-    /// and its PDF is what assertVisible reads. Off in the app.
-    @Entry var oortPageUnscrolled = false
+    /// A probe draws the screen into an image (ImageRenderer, whose PDF and pixels assertVisible reads). ImageRenderer
+    /// paints no scroll view's content, and on macOS 27.0.1 nothing of a view bound to an accessibility focus: the page
+    /// is drawn whole without its scroll view, and nodes without their VoiceOver focus, which has no pixels. Off in the app.
+    @Entry var oortRenderedAsImage = false
 }
 
 struct OortPage<ID: Hashable, Content: View>: View {
     enum Preset { case standard, legacyBackdrop }
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
-    @Environment(\.oortPageUnscrolled) private var unscrolled
+    @Environment(\.oortRenderedAsImage) private var unscrolled
     @Environment(\.screenTrace) private var trace
     let title: String
     var preset: Preset = .standard

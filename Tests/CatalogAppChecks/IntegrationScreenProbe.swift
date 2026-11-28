@@ -22,7 +22,7 @@ import ArcanePorting
         view
             .frame(width: size.width, height: height)
             .environment(\.screenTrace, trace)
-            .environment(\.oortPageUnscrolled, !trace)
+            .environment(\.oortRenderedAsImage, !trace)
             .onPreferenceChange(ScreenTraceKey.self) { pieces in MainActor.assumeIsolated { box?.pieces = pieces } }
             .environment(\.seleneCanvas, SeleneCanvas(size: size))
             .environment(\.nxAppLocale, locale)
