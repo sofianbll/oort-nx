@@ -1,0 +1,553 @@
+import SwiftUI
+import OortLibrary
+import NxnativeAdapter
+
+struct SettingsEngineSection: View {
+    @ObservedObject var viewModel: AppViewModel
+    /// Engine, upstream and Newest engine (`SetupModel`), observed on their own.
+    @ObservedObject var setup: SetupModel
+    @ObservedObject var settings: SettingsEditor
+    let onActions: ([SettingsRowAction]) -> Void
+
+    @Environment(\.seleneFocusedRowID) private var focusedRowTitle
+    @Environment(\.seleneFocusedButton) private var focusedButton
+    @Environment(\.passiveSettingsArrival) private var passiveArrival
+    private var configurationLocked: Bool { viewModel.isBuilding || viewModel.isUpdatingApp }
+    private var enginePath: String { settings.settings.launcherChoices.enginePath ?? setup.nxnativePath }
+    private func chooseEnginePath() {
+        setup.selectNxnativeFolder(startingAt: enginePath.isEmpty ? nil : URL(fileURLWithPath: enginePath)) { url in
+            settings.settings.launcherChoices.enginePath = url.path == setup.nxnativePath
+                ? settings.store.settings.launcherChoices.enginePath : url.path
+        }
+    }
+
+    var body: some View {
+        OortSettingsGroup {
+            SeleneRow("Engine repository",
+                      subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
+                HStack(spacing: SeleneTokens.Space.gap) {
+                    Text(enginePath.isEmpty ? L10n.text("Not selected") : enginePath)
+                        .seleneFont(.text, .medium)
+                        .foregroundColor(SeleneTheme.ink75)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .frame(maxWidth: 300, alignment: .trailing)
+                    Button(L10n.text("Change"), action: chooseEnginePath)
+                        .buttonStyle(OortPressStyle())
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.glyph)
+                        .seleneKeyRing(focusedRowTitle == "Engine repository" && focusedButton == 0 && setup.isNxnativeValid)
+                        .disabled(configurationLocked)
+                    Button(L10n.text("Reveal"), action: revealEngine)
+                    .buttonStyle(OortPressStyle())
+                    .seleneFont(.text, .semibold)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .seleneKeyRing(focusedRowTitle == "Engine repository" && focusedButton == 1)
+                    .disabled(!setup.isNxnativeValid)
+                }
+            }
+
+            SeleneValueRow("Pinned commit", value: seleneShort(setup.versions.reference))
+            SeleneValueRow("Current commit", value: seleneShort(setup.versions.selected.value))
+
+            SelenePanel(L10n.text("Compatibility"),
+                        info: L10n.text("Audits the local engine commit, working tree cleanliness, installed Metal compiler, and required CLI flags against the certified toolchain lock."), infoRow: "Compatibility") {
+                HStack(spacing: SeleneTokens.Space.compact) {
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 8, height: 8)
+                    Text(statusText)
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(statusColor)
+                    Spacer()
+                    Button(L10n.text("Re-check"), action: recheck)
+                        .buttonStyle(OortPressStyle())
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.glyph)
+                        .disabled(configurationLocked)
+                }
+
+                if let message = setup.toolchainGateSummary?.message {
+                    Text(message)
+                        .seleneFont(.text)
+                        .foregroundColor(statusColor)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if let report = setup.compatibilityReport {
+                    ForEach(report.checks, id: \.id) { check in
+                        checkRow(title: check.title, status: check.status, detail: detail(for: check),
+                                 metal: check.id == "metal" ? report.metal : nil)
+                    }
+                } else if setup.isCheckingEnvironment {
+                    HStack(spacing: SeleneTokens.Space.compact) {
+                        ProgressView().controlSize(.small)
+                        Text(L10n.text("Running the compatibility check..."))
+                            .seleneFont(.text)
+                            .foregroundColor(SeleneTheme.ink60)
+                    }
+                }
+
+                if let environment = setup.environmentStatus {
+                    Divider().overlay(SeleneTheme.ink15)
+                    buildRow("Xcode", ok: environment.xcodeVersion != nil,
+                             detail: environment.xcodeVersion ?? L10n.text("not found"))
+                    buildRow("Metal compiler", ok: environment.metalVersion != nil,
+                             detail: environment.metalVersion ?? L10n.text("not found"))
+                    buildRow(L10n.text("Python and build tools"), ok: environment.pythonURL != nil,
+                             detail: runtimeDetail(environment))
+                    ForEach(environment.tools) { tool in
+                        buildRow(tool.name, ok: tool.ok, detail: tool.detail)
+                    }
+
+                    if !environment.issues.isEmpty {
+                        Text(environment.issues.joined(separator: " · "))
+                            .seleneFont(.badge, .regular, design: .monospaced)
+                            .foregroundColor(SeleneTheme.untested)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            .seleneRowFocus(focusedRowTitle == "Compatibility", radius: SeleneTheme.cardRadius)
+
+            SeleneToggleRow("Check engine at launch",
+                            subtitle: "Verify the pinned engine commit and toolchain when the app starts.",
+                            info: "Checks the nxnative checkout against the certified engine commit and confirms your installed Metal compiler matches the lock file before builds are attempted.",
+                            isOn: $settings.settings.checkEngineAtLaunch)
+
+            SeleneRow("Untested toolchain override",
+                      subtitle: overrideSubtitle,
+                      info: "Permits building games when the toolchain differs from the certified engine and Metal combination shown above. Passes --allow-other-metal to nxnative. Builds are recorded as unverified.") {
+                Toggle("", isOn: overrideBinding)
+                    .labelsHidden()
+                    .toggleStyle(SeleneToggleStyle())
+                    .disabled(!canChangeOverride)
+                    .accessibilityValue(proposedOverride ? L10n.text("On") : L10n.text("Off"))
+            }
+
+            SeleneButtonRow("Upstream",
+                            subtitle: upstreamSubtitle,
+                            buttonTitle: upstreamButtonTitle) {
+                setup.checkUpstreamChangelog()
+            }
+
+            if setup.usesNewestEngine || setup.newestEngineOffer != nil {
+                newestEngineRow
+            }
+
+            if case .loaded(let status) = setup.upstreamState {
+                upstreamCommitsPanel(status)
+
+                SeleneButtonRow("Compare",
+                                subtitle: status.isUpToDate
+                                    ? "The pinned commit matches upstream main."
+                                    : "Open the commit comparison on GitHub.",
+                                buttonTitle: "Open GitHub") {
+                    setup.openUpstreamCompare()
+                }
+            }
+
+            SeleneButtonRow("Setup",
+                            subtitle: "Open the Setup check: what Arcane needs and what is ready.",
+                            buttonTitle: "Open Setup") {
+                viewModel.reopenSetup()
+            }
+            .disabled(configurationLocked)
+        }
+        .onAppear {
+            if !passiveArrival { setup.prepareBuildEnvironmentIfNeeded() }
+            publishActions()
+        }
+        .onChange(of: proposedOverride) { publishActions() }
+        .onChange(of: setup.compatibilityReport?.ok) { publishActions() }
+        .onChange(of: setup.upstreamState) { publishActions() }
+        .onChange(of: setup.newestEngineChoice) { publishActions() }
+        .onChange(of: setup.newestEngineReadiness) { publishActions() }
+        .onChange(of: setup.isSwitchingEngine) { publishActions() }
+        .onChange(of: viewModel.isBuilding) { publishActions() }
+        .onChange(of: viewModel.isUpdatingApp) { publishActions() }
+    }
+
+    private func revealEngine() { viewModel.revealInFinder(url: URL(fileURLWithPath: setup.nxnativePath)) }
+
+    private func recheck() {
+        if passiveArrival { setup.refreshCompatibility() }
+        else { setup.detectEnvironment() }
+    }
+
+    private var proposedOverride: Bool { setup.usesNewestEngine || (settings.settings.toolchainOverride ?? setup.legacyToolchainOverride) }
+
+    private func stageOverride(_ enabled: Bool) {
+        guard canChangeOverride, enabled != proposedOverride else { return }
+        settings.settings.toolchainOverride = settings.store.settings.toolchainOverride == nil
+            && enabled == setup.legacyToolchainOverride ? nil : enabled
+    }
+
+    private var overrideBinding: Binding<Bool> {
+        Binding(
+            get: { proposedOverride },
+            set: stageOverride
+        )
+    }
+
+    private var canChangeOverride: Bool {
+        ToolchainGateCopy.canChangeOverride(certified: setup.compatibilityReport?.ok,
+            overrideOn: proposedOverride, locked: configurationLocked,
+            newest: setup.usesNewestEngine)
+    }
+
+    private var overrideSubtitle: String {
+        if setup.usesNewestEngine { return L10n.text("On while you use the newest engine.") }
+        guard let report = setup.compatibilityReport else {
+            return L10n.text("Available when the compatibility gate blocks a build.")
+        }
+        if report.ok {
+            return L10n.text("Not needed: the current toolchain is certified.")
+        }
+        if setup.toolchainGateSummary?.tone == .info {
+            return L10n.text("Recommended for your newer Metal compiler: builds are recorded as untested.")
+        }
+        return L10n.text("Build anyway, recorded as untested. Corrupted graphics are a known risk.")
+    }
+
+    private var statusText: String {
+        setup.toolchainGateSummary?.label ?? L10n.text(setup.isCheckingEnvironment ? "Checking" : "Unknown")
+    }
+
+    private var statusColor: Color {
+        guard let summary = setup.toolchainGateSummary else { return SeleneTheme.ink60 }
+        switch summary.tone {
+        case .certified: return SeleneTheme.success
+        case .info: return SeleneTheme.glyph
+        case .warning, .override, .newest: return SeleneTheme.untested
+        case .blocked: return SeleneTheme.danger
+        }
+    }
+
+    private var upstreamSubtitle: String {
+        switch setup.upstreamState {
+        case .idle:
+            return L10n.text("See how this version's engine compares with seedds/nxnative main.")
+        case .checking:
+            return L10n.text("Asking GitHub for the latest commits...")
+        case .loaded(let status):
+            if viewModel.engineOverride != nil, status.newCommitsCount == 0 {
+                return L10n.text("See how this version's engine compares with seedds/nxnative main.")
+            }
+            return UpstreamCopy.subtitle(upToDate: status.isUpToDate, newCommits: status.newCommitsCount)
+        case .failed(let message):
+            return message
+        }
+    }
+
+    // MARK: - Newest engine
+
+    /// The player's way to build with nxnative main before Arcane has tested it: an orange dot and one
+    /// sentence, no alarm. Setup's engine card says the same.
+    private var newestEngineRow: some View {
+        SeleneRow("Newest engine", subtitle: newestSubtitle, info: NewestEngineCopy.info) {
+            HStack(spacing: SeleneTokens.Space.gap) {
+                if setup.usesNewestEngine {
+                    Circle()
+                        .fill(SeleneTheme.untested)
+                        .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
+                    Text(L10n.text("In use"))
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.untested)
+                }
+                if setup.isSwitchingEngine {
+                    Text(L10n.text("Switching…"))
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.ink60)
+                } else {
+                    let actions = setup.newestEngineActions
+                    ForEach(Array(actions.enumerated()), id: \.element) { index, action in
+                        // With two buttons, the one Left and Right put the focus on carries the focus ring.
+                        let focused = actions.count > 1 && setup.canSwitchEngine
+                            && focusedRowTitle == "Newest engine" && focusedButton == index
+                        Button(L10n.text(newestTitle(action))) { newestAction(action) }
+                            .buttonStyle(OortPressStyle())
+                            .seleneFont(.text, .semibold)
+                            .foregroundColor(setup.canSwitchEngine ? SeleneTheme.glyph : SeleneTheme.ink60)
+                            .padding(.horizontal, SeleneTokens.Space.gap)
+                            .padding(.vertical, SeleneTokens.Space.chipBottom)
+                            .overlay {
+                                Capsule()
+                                    .strokeBorder(SeleneTheme.focus, lineWidth: SeleneTokens.Space.focusStroke)
+                                    .opacity(focused ? 1 : 0)
+                            }
+                            .animation(SeleneTheme.focusIn, value: focused)
+                            .disabled(!setup.canSwitchEngine)
+                    }
+                }
+            }
+        }
+    }
+
+    private var newestNeedsNewerApp: String? {
+        if case .needsNewerApp(let metal) = setup.newestEngineReadiness { return metal }
+        return nil
+    }
+
+    private var newestSubtitle: String {
+        if setup.isSwitchingEngine { return L10n.text("Switching the engine…") }
+        if let choice = setup.newestEngineChoice {
+            var base = L10n.format("%@ In use: %@, ", [String(describing: NewestEngineCopy.note), String(describing: choice.shortCommit)])
+                + L10n.format("%@ of the tested %@.", [String(describing: NewestEngineCopy.ahead(choice.aheadBy)), String(describing: seleneShort(setup.versions.reference))])
+            if setup.newestEngineActions.contains(.update), let offer = setup.newestEngineOffer {
+                base += " " + NewestEngineCopy.update(choice: choice, main: offer.targetSHA,
+                                                      aheadBy: offer.newCommitsCount)
+            } else if let metal = newestNeedsNewerApp {
+                base += " " + NewestEngineCopy.needsNewerApp(metal: metal)
+            }
+            return setup.newestEngineProblem.map { "\(base) \($0)" } ?? base
+        }
+        if let metal = newestNeedsNewerApp { return NewestEngineCopy.needsNewerApp(metal: metal) }
+        if let problem = setup.newestEngineProblem { return problem }
+        guard let offer = setup.newestEngineOffer else { return NewestEngineCopy.note }
+        return NewestEngineCopy.offer(commit: offer.targetSHA, aheadBy: offer.newCommitsCount)
+    }
+
+    private func newestTitle(_ action: NewestEngineAction) -> String {
+        switch action {
+        case .useNewest: return "Use newest"
+        case .update: return "Update"
+        case .backToTested: return "Back to tested"
+        }
+    }
+
+    private func newestAction(_ action: NewestEngineAction) {
+        guard setup.canSwitchEngine, setup.newestEngineActions.contains(action) else { return }
+        let path = setup.nxnativePath
+        let reviewed = setup.newestEngineOffer
+        let target = action == .backToTested ? setup.versions.reference : reviewed?.targetSHA
+        guard let target else { return }
+        let message = action == .backToTested
+            ? "Future builds will use the tested engine (%@), but installed games will stay as they are."
+            : "Future builds will use the untested engine (%@), but installed games will stay as they are."
+        viewModel.confirmSetting("Newest engine", message: L10n.format(message, [seleneShort(target)]) +
+                                 "\n\n" + L10n.format("Engine folder: %@", [path]),
+                                 action: newestTitle(action)) {
+            guard setup.canSwitchEngine, setup.nxnativePath == path, setup.newestEngineActions.contains(action) else { return }
+            switch action {
+            case .useNewest, .update:
+                guard setup.newestEngineOffer?.revision == reviewed?.revision else { return }
+                setup.useNewestEngine()
+            case .backToTested: setup.useTestedEngine()
+            }
+        }
+    }
+
+    private var upstreamButtonTitle: String {
+        if case .checking = setup.upstreamState { return L10n.text("Checking...") }
+        return L10n.text("Check")
+    }
+
+    /// Ten commits, or down to the one in use when it is further down, so its tag is always on screen.
+    private func shownCommitCount(_ status: UpstreamReview, marks: [String: UpstreamCommitMark]) -> Int {
+        guard let index = status.commits.firstIndex(where: { marks[$0.sha] == .inUse }) else { return 10 }
+        return max(10, index + 1)
+    }
+
+    /// In use (green) on the commit the newest engine is at, New (orange) on the commits above it.
+    private func commitMark(_ mark: UpstreamCommitMark) -> some View {
+        let color = mark == .inUse ? SeleneTheme.success : SeleneTheme.untested
+        return OortTag(text: mark == .inUse ? L10n.text("In use") : L10n.text("New"), tone: color)
+            .padding(.bottom, SeleneTokens.Space.seam)
+    }
+
+    @ViewBuilder
+    private func upstreamCommitsPanel(_ status: UpstreamReview) -> some View {
+        if !status.commits.isEmpty {
+            let marks = NewestEngine.marks(status.commits, inUse: setup.newestEngineChoice?.commit)
+            let shown = shownCommitCount(status, marks: marks)
+            SelenePanel(L10n.format("Upstream Commits (%@ newer)", [String(describing: status.newCommitsCount)])) {
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.gap) {
+                    ForEach(status.commits.prefix(shown)) { commit in
+                        HStack(alignment: .top, spacing: SeleneTokens.Space.gap) {
+                            OortTag(text: commit.shortSha, tone: SeleneTheme.glyph, monospaced: true)
+
+                            VStack(alignment: .leading, spacing: SeleneTokens.Space.seam) {
+                                if let mark = marks[commit.sha] {
+                                    commitMark(mark)
+                                }
+                                Text(commit.subject)
+                                    .seleneFont(.text, .medium)
+                                    .foregroundColor(SeleneTheme.ink)
+                                    .lineLimit(2)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                HStack(spacing: SeleneTokens.Space.tight) {
+                                    Text(commit.author)
+                                        .seleneFont(.badge)
+                                        .foregroundColor(SeleneTheme.ink60)
+                                    if !commit.date.isEmpty {
+                                        Text("·")
+                                            .seleneFont(.badge)
+                                            .foregroundColor(SeleneTheme.ink60.opacity(SeleneTokens.Alpha.half))
+                                        Text(formattedCommitDate(commit.date))
+                                            .seleneFont(.badge)
+                                            .foregroundColor(SeleneTheme.ink60)
+                                    }
+                                }
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        if commit.id != status.commits.prefix(shown).last?.id {
+                            Divider()
+                                .background(SeleneTheme.ink15)
+                        }
+                    }
+
+                    if status.commits.count > shown {
+                        HStack {
+                            Text(L10n.format("+ %@ more commits upstream", [String(describing: status.commits.count - shown)]))
+                                .seleneFont(.text, .medium)
+                                .foregroundColor(SeleneTheme.ink60)
+                            Spacer()
+                            Button(L10n.text("View all on GitHub")) {
+                                setup.openUpstreamCompare()
+                            }
+                            .buttonStyle(OortPressStyle())
+                            .seleneFont(.text, .semibold)
+                            .foregroundColor(SeleneTheme.glyph)
+                        }
+                        .padding(.top, SeleneTokens.Space.hairline)
+                    }
+                }
+            }
+            .seleneRowFocus(focusedRowTitle == "Upstream Commits", radius: SeleneTheme.cardRadius)
+        }
+    }
+
+    private func formattedCommitDate(_ raw: String) -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        guard let date = isoFormatter.date(from: raw) else { return raw }
+        let relative = RelativeDateTimeFormatter()
+        relative.unitsStyle = .abbreviated
+        return relative.localizedString(for: date, relativeTo: Date())
+    }
+
+    private func detail(for check: CompatibilityCheck) -> String {
+        if check.id == "metal" {
+            let installed = setup.installedMetalVersion ?? "unknown"
+            let required = setup.requiredMetalVersion ?? "unknown"
+            return L10n.format("installed %@ · required %@", [String(describing: installed), String(describing: required)])
+        }
+        return check.detail
+    }
+
+    /// `metal` (the Metal row only): a newer compiler reads as information, an older one as a warning, not as BLOCK.
+    private func checkRow(title: String, status: CheckStatus, detail: String, metal: MetalStanding? = nil) -> some View {
+        let look = rowLook(status: status, metal: metal)
+        return HStack(alignment: .top, spacing: SeleneTokens.Space.compact) {
+            Image(systemName: look.icon)
+                .seleneFont(.text, .bold)
+                .foregroundColor(look.color)
+                .frame(width: 14)
+            Text(title)
+                .seleneFont(.text, .semibold)
+                .foregroundColor(SeleneTheme.ink)
+                .frame(width: 96, alignment: .leading)
+            Text(detail)
+                .seleneFont(.badge, .regular, design: .monospaced)
+                .foregroundColor(SeleneTheme.ink60)
+                .lineLimit(2)
+                .textSelection(.enabled)
+            Spacer(minLength: 0)
+            Text(look.badge)
+                .seleneFont(.badge, .bold, design: .monospaced)
+                .foregroundColor(look.color)
+        }
+    }
+
+    private func rowLook(status: CheckStatus, metal: MetalStanding?) -> (icon: String, color: Color, badge: String) {
+        switch metal {
+        case .newer: return ("info.circle.fill", SeleneTheme.glyph, L10n.text("NEWER"))
+        case .older: return ("exclamationmark.triangle.fill", SeleneTheme.untested, L10n.text("OLDER"))
+        default: return (icon(for: status), color(for: status), status.rawValue.uppercased())
+        }
+    }
+
+    private func runtimeDetail(_ environment: EnvironmentStatus) -> String {
+        guard let python = environment.pythonURL else { return "missing" }
+        if setup.engineToolchain.isBundled {
+            return BundledRuntime.locate()?.versionSummary() ?? L10n.text("Included in Arcane")
+        }
+        return L10n.format("Developer build: %@", [String(describing: python.path)])
+    }
+
+    private func buildRow(_ title: String, ok: Bool, detail: String) -> some View {
+        HStack(spacing: SeleneTokens.Space.compact) {
+            Image(systemName: ok ? "checkmark.circle.fill" : "xmark.octagon.fill")
+                .seleneFont(.badge, .bold)
+                .foregroundColor(ok ? SeleneTheme.success : SeleneTheme.danger)
+                .frame(width: 13)
+            Text(title)
+                .seleneFont(.text, .semibold)
+                .foregroundColor(SeleneTheme.ink)
+                .frame(width: 116, alignment: .leading)
+            Text(detail)
+                .seleneFont(.badge, .regular, design: .monospaced)
+                .foregroundColor(SeleneTheme.ink60)
+                .lineLimit(1)
+                .truncationMode(.middle)
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func icon(for status: CheckStatus) -> String {
+        switch status {
+        case .pass: return "checkmark.circle.fill"
+        case .warn: return "exclamationmark.triangle.fill"
+        case .block: return "xmark.octagon.fill"
+        }
+    }
+
+    private func color(for status: CheckStatus) -> Color {
+        switch status {
+        case .pass: return SeleneTheme.success
+        case .warn: return SeleneTheme.untested
+        case .block: return SeleneTheme.danger
+        }
+    }
+
+    private func publishActions() {
+        var actions: [SettingsRowAction] = [
+            .init(id: "repo", title: "Engine repository", isEnabled: !configurationLocked,
+                  secondary: setup.isNxnativeValid ? ("Reveal", revealEngine) : nil) {
+                chooseEnginePath()
+            },
+            .init(id: "recheck", title: "Compatibility", isEnabled: !configurationLocked, activate: recheck),
+            .init(id: "engineAtLaunch", title: "Check engine at launch") {
+                settings.settings.checkEngineAtLaunch.toggle()
+            },
+            .init(id: "override", title: "Untested toolchain override",
+                  isEnabled: canChangeOverride) {
+                stageOverride(!proposedOverride)
+            },
+            .init(id: "upstream", title: "Upstream") {
+                setup.checkUpstreamChangelog()
+            }
+        ]
+        // Keyboard and controller: the row's first button (Update once main has moved on) is in focus first; Right moves
+        // to the second (Back to tested), and A or Return presses the one in focus.
+        if let pad = NewestEngine.controller(setup.newestEngineActions) {
+            let secondary = pad.secondary.map { action in (title: newestTitle(action), activate: { newestAction(action) }) }
+            actions.append(.init(id: "newest", title: "Newest engine", isEnabled: setup.canSwitchEngine,
+                                 secondary: secondary) {
+                newestAction(pad.primary)
+            })
+        }
+        if case .loaded = setup.upstreamState {
+            actions.append(.init(id: "compare", title: "Compare") {
+                setup.openUpstreamCompare()
+            })
+        }
+        actions.append(.init(id: "setup", title: "Setup", isEnabled: !configurationLocked) {
+            viewModel.reopenSetup()
+        })
+        onActions(actions)
+    }
+}

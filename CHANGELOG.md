@@ -532,7 +532,7 @@ First public alpha for Apple-silicon Macs, with a DMG for installation and a ZIP
 - Managed key replacement preserves the existing file on failure and enforces private `0600` permissions. Key values are never included in diagnostics.
 - Cheat title IDs and downloaded background filenames are validated. Custom cheat destinations require confirmation.
 - .NET installer downloads verify their expected hash and restrict download hosts and redirects.
-- App updates and save operations exclude each other. Publication checks reject recognised private/game-content paths and secret patterns; bundled runtime metadata is checked against `runtime.lock` before packaging.
+- App updates and save operations exclude each other. Publication checks reject recognised private/game-content paths and secret patterns; bundled runtime metadata is checked against `engines/nxnative/runtime.lock` before packaging.
 
 Verification details and remaining distribution checks are recorded in the [development guide](docs/working-on-it/development.md). Automated checks do not certify game compatibility, visual behaviour or a first installation on another Mac.
 

@@ -19,6 +19,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = sys.executable
+sys.path.insert(0, str(ROOT / "scripts"))
+import names  # noqa: E402  architecture/names.json
 
 
 def script(name, *args):
@@ -26,7 +28,7 @@ def script(name, *args):
 
 
 def python_tests(_base):
-    folders = sorted({path.parent for path in ROOT.glob("Tests/*/test_*.py")})
+    folders = sorted({path.parent for path in ROOT.glob("scripts/tests/*/test_*.py")})
     return [[PY, "-m", "unittest", "discover", "-s", folder.relative_to(ROOT).as_posix()] for folder in folders]
 
 
@@ -34,30 +36,34 @@ def python_tests(_base):
 RULES = [
     ("structure", "R1", "Every root file and first- and second-level folder is declared in architecture/structure.c4",
      lambda base: [script("check_structure.py")],
-     "Tests/RepoChecks/test_structure.py"),
-    ("boundaries", "R2", "Swift modules import only lower layers (architecture/model.c4)",
-     lambda base: [script("check_module_boundaries.py")],
-     "Tests/ModuleChecks"),
+     "scripts/tests/RepoChecks/test_structure.py"),
+    ("boundaries", "R2", "Swift modules import only lower layers, and only an app's entry point imports an engine "
+     "(architecture/names.json, ADR 0002); the engine-import debt only shrinks",
+     lambda base: [script("check_module_boundaries.py", *(["--base", base] if base else []))],
+     "scripts/tests/ModuleChecks"),
+    ("names", "R4", "Technical names are written once (architecture/names.json); players' frozen values stay",
+     lambda base: [script("check_names.py", *(["--base", base] if base else []))],
+     "scripts/tests/RepoChecks/test_names.py"),
     ("generated", "R4", "Every generated file matches its source (scripts/generate --check)",
      lambda base: [script("generate", "--check")],
-     "Tests/PublicationChecks/test_oort_tokens.py, test_credits.py; Tests/RepoChecks/test_check.py"),
+     "scripts/tests/PublicationChecks/test_oort_tokens.py, test_credits.py; scripts/tests/RepoChecks/test_check.py"),
     ("strings", "R5", "Translations are complete and every system keeps the shared vocabulary",
      lambda base: [script("check_localizations.py"), script("check_vocabulary.py")],
-     "Tests/PublicationChecks/test_localizations.py, test_vocabulary.py"),
+     "scripts/tests/PublicationChecks/test_localizations.py, test_vocabulary.py"),
     ("interface", "", "Measurable interface rules and Selene tokens; their debt lists only shrink",
      lambda base: [script("check_ui_rules.py"), script("check_selene_tokens.py")]
      + ([script("check_ui_rules.py", "--base", base), script("check_selene_tokens.py", "--base", base)] if base else []),
-     "Tests/UIRulesChecks, Tests/PublicationChecks/test_selene_tokens.py"),
+     "scripts/tests/UIRulesChecks, scripts/tests/PublicationChecks/test_selene_tokens.py"),
     ("docs", "R8", "Docs only in documentation folders, links resolve, no private marker; player guides",
      lambda base: [script("check_docs.py", *(["--base", base] if base else [])), script("check_guides.py")],
-     "Tests/RepoChecks/test_docs.py, Tests/PublicationChecks/test_check_guides.py, Tests/SkillChecks"),
+     "scripts/tests/RepoChecks/test_docs.py, scripts/tests/PublicationChecks/test_check_guides.py, scripts/tests/SkillChecks"),
     ("publication", "R10", "No private or game file, no secret; LICENSE keeps its reviewed digest",
      lambda base: [script("check_publication.py")],
-     "Tests/PublicationChecks/test_publication.py"),
+     "scripts/tests/PublicationChecks/test_publication.py"),
     ("probes", "R13", "A probe that reads rendered text proves it visible with assertVisible",
      lambda base: [script("check_probes.py")],
-     "Tests/RepoChecks/test_probes.py; the visibility self-test in Tests/CatalogAppChecks/ProbeRenderedText.swift"),
-    ("python", "", "The Python tests of every check (each Tests/*/test_*.py folder)",
+     "scripts/tests/RepoChecks/test_probes.py; the visibility self-test in apps/mac/Tests/CatalogAppChecks/ProbeRenderedText.swift"),
+    ("python", "", "The Python tests of every check (each scripts/tests/*/test_*.py folder)",
      python_tests,
      "themselves"),
 ]
@@ -68,11 +74,11 @@ def heavy(name, arg):
         home = tempfile.mkdtemp(prefix="oort-home-")
         return [["swift", "test", "--jobs", "6"]], {"HOME": home, "CFFIXED_USER_HOME": home}
     if name == "app-build":
-        return [["swift", "build", "--jobs", "6", "--product", "NXLibrary"]], {}
+        return [["swift", "build", "--jobs", "6", "--product", names.APP]], {}
     if name == "app-probes" and arg:
         return [script("ci_catalog_checks.py", arg)], {}
     if name == "release-build":
-        return [["swift", "build", "-c", "release", "--product", "NXLibrary"]], {}
+        return [["swift", "build", "-c", "release", "--product", names.APP]], {}
     return None
 
 

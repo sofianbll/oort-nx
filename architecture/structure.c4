@@ -11,51 +11,46 @@ model {
   repo = repository "oort-nx" {
     summary "What main holds today"
     metadata {
-      files "AGENTS.md CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md DESIGN.md GLOSSARY.md LICENSE NOTICE PLAYER-GUIDE.fr.md PLAYER-GUIDE.md PRODUCT.md Package.swift README.fr.md README.md SECURITY.md VERSION runtime.lock .gitattributes .gitignore"
+      files "AGENTS.md CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md DESIGN.md GLOSSARY.md LICENSE NOTICE PLAYER-GUIDE.fr.md PLAYER-GUIDE.md PRODUCT.md Package.swift README.fr.md README.md SECURITY.md VERSION .gitattributes .gitignore"
       markdown "yes"
     }
 
-    sources = folder "Sources/" {
-      summary "Swift modules (Package.swift)"
-      metadata { path "Sources" }
-      srcOortCore = folder "OortCore/" { metadata { path "Sources/OortCore" } }
-      srcLibraryCore = folder "NXLibraryCore/" { metadata { path "Sources/NXLibraryCore" } }
-      srcPorting = folder "ArcanePorting/" { metadata { path "Sources/ArcanePorting" } }
-      srcMac = folder "NXLibrary/" { metadata { path "Sources/NXLibrary" } }
+
+    core = folder "core/" {
+      summary "The core: states, rules and screen descriptions, in Swift"
+      metadata { path "core" }
+      coreOortCore = folder "OortCore/" { metadata { path "core/OortCore" } }
+      coreLibrary = folder "OortLibrary/" { metadata { path "core/OortLibrary" } }
+      coreTests = folder "Tests/" { metadata { path "core/Tests" } }
     }
 
-    tests = folder "Tests/" {
-      summary "Swift tests, app probes, Python checks"
-      metadata { path "Tests" }
-      testOortCore = folder "OortCoreTests/" { metadata { path "Tests/OortCoreTests" } }
-      testLibraryCore = folder "NXLibraryCoreTests/" { metadata { path "Tests/NXLibraryCoreTests" } }
-      testPorting = folder "ArcanePortingTests/" { metadata { path "Tests/ArcanePortingTests" } }
-      testProbes = folder "CatalogAppChecks/" { metadata { path "Tests/CatalogAppChecks" } }
-      testCI = folder "CIChecks/" { metadata { path "Tests/CIChecks" } }
-      testModules = folder "ModuleChecks/" { metadata { path "Tests/ModuleChecks" } }
-      testPublication = folder "PublicationChecks/" { metadata { path "Tests/PublicationChecks" } }
-      testRepo = folder "RepoChecks/" { metadata { path "Tests/RepoChecks" } }
-      testSkills = folder "SkillChecks/" { metadata { path "Tests/SkillChecks" } }
-      testUIRules = folder "UIRulesChecks/" { metadata { path "Tests/UIRulesChecks" } }
+    engines = folder "engines/" {
+      summary "One adapter per engine, behind the engine interface of the core"
+      metadata { path "engines" }
+      engineNxnative = folder "nxnative/" { metadata { path "engines/nxnative" } }
     }
 
-    resources = folder "Resources/" {
-      summary "Icons, brands, Selene media, sounds, third-party licences"
-      metadata {
-        path "Resources"
-        markdown "yes"
-      }
-      resIcon = folder "AppIcon.icon/" { metadata { path "Resources/AppIcon.icon" } }
-      resIconParticles = folder "AppIconParticles.icon/" { metadata { path "Resources/AppIconParticles.icon" } }
-      resBrands = folder "Brands/" { metadata { path "Resources/Brands" } }
-      resSelene = folder "Selene/" { metadata { path "Resources/Selene" } }
-      resSounds = folder "SoundPacks/" { metadata { path "Resources/SoundPacks" } }
-      resLicences = folder "ThirdPartyLicenses/" { metadata { path "Resources/ThirdPartyLicenses" } }
+    apps = folder "apps/" {
+      summary "The apps: the shell of each system"
+      metadata { path "apps" }
+      appMac = folder "mac/" { metadata { path "apps/mac" } }
     }
+
+
 
     design = folder "design/" {
-      summary "Tokens, vocabulary, credits"
+      summary "Shared design sources: tokens, vocabulary, credits, brands, Selene media, sounds, icons, licences"
       metadata { path "design" }
+      designBrands = folder "Brands/" { metadata { path "design/Brands" } }
+      designSelene = folder "Selene/" { metadata { path "design/Selene" } }
+      designSounds = folder "SoundPacks/" { metadata { path "design/SoundPacks" } }
+      designLicences = folder "ThirdPartyLicenses/" { metadata { path "design/ThirdPartyLicenses" } }
+      designIcons = folder "Icons/" {
+        metadata {
+          path "design/Icons"
+          markdown "yes"
+        }
+      }
     }
 
     docs = folder "docs/" {
@@ -80,6 +75,7 @@ model {
     scripts = folder "scripts/" {
       summary "check, generate and the scripts they run"
       metadata { path "scripts" }
+      scriptTests = folder "tests/" { metadata { path "scripts/tests" } }
     }
 
     github = folder ".github/" {

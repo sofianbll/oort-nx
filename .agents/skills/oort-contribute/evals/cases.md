@@ -16,6 +16,6 @@ Expected: the skill stops and says the pin is the maintainer's decision. It cite
 
 ### Case 3: a small fix ready for review
 
-Input: a one-line fix in `Sources/NXLibraryCore/` with a unit test, requested as a pull request.
+Input: a one-line fix in `core/OortLibrary/` with a unit test, requested as a pull request.
 
 Expected: the skill runs the CONTRIBUTING checks, reports each result with its command, adds the **Unreleased** CHANGELOG entry, fills the pull request template, and waits for the maintainer before pushing or opening the pull request.

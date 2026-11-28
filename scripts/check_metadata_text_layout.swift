@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 // Offscreen geometry regression check. No UI automation or snapshots.
-// xcrun swiftc Sources/NXLibrary/Views/Components/SeleneExpandableText.swift \
+// xcrun swiftc apps/mac/OortMac/Views/Components/SeleneExpandableText.swift \
 //   scripts/check_metadata_text_layout.swift -o /tmp/nxlibrary-text-layout
 // /tmp/nxlibrary-text-layout
 @main

@@ -1,6 +1,6 @@
 import Foundation
-import NXLibraryCore
-import ArcanePorting
+import OortLibrary
+import NxnativeAdapter
 
 guard CommandLine.arguments.count == 3 else {
     FileHandle.standardError.write(Data("usage: install_built_app <staged.app> <destination.app>\n".utf8))

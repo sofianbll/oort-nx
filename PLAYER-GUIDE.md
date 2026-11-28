@@ -56,7 +56,7 @@ bash scripts/build_app.sh
 open "$HOME/Applications/Oort NX Dev.app"
 ~~~
 
-Run `bundle_runtime.sh` once, and again when `runtime.lock` changes. `build_app.sh` prepares, signs and verifies the app before installing it atomically in `~/Applications`.
+Run `bundle_runtime.sh` once, and again when `engines/nxnative/runtime.lock` changes. `build_app.sh` prepares, signs and verifies the app before installing it atomically in `~/Applications`.
 
 Build options, runtime dependencies, debug builds and release packaging are documented in the [development guide](docs/working-on-it/development.md).
 
@@ -312,9 +312,9 @@ Oort NX builds on [Arcane by Bium23](https://github.com/Bium23/NxLibrary).
 
 Arcane is MIT licensed. It uses upstream [nxnative](https://github.com/seedds/nxnative). It began from the MIT nxnative_Launcher codebase, which has been rewritten since; that repository is no longer available and its notice stays in [NOTICE](NOTICE). Adaptations from [NX2Apple](https://github.com/LNPANDY/NX2Apple) cover key checks, failure explanations, diagnostics and updates.
 
-The interface draws from the MIT [Selene](https://github.com/mattxslv/Selene) theme. Bundled fonts, sounds, palettes and runtime components retain their own licences; see [NOTICE](NOTICE), [media notices](Resources/Selene/NOTICE.txt) and [palette notices](Resources/Selene/NOTICE-palettes.txt).
+The interface draws from the MIT [Selene](https://github.com/mattxslv/Selene) theme. Bundled fonts, sounds, palettes and runtime components retain their own licences; see [NOTICE](NOTICE), [media notices](design/Selene/NOTICE.txt) and [palette notices](design/Selene/NOTICE-palettes.txt).
 
-The app icon uses original artwork. See the [generation notes](Resources/IconArtwork.md).
+The app icon uses original artwork. See the [generation notes](design/Icons/IconArtwork.md).
 
 ## Legal and third-party notices
 

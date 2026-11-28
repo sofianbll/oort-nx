@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def settings(app, background):
     return {
         "files": [str(app)], "symlinks": {"Applications": "/Applications"},
-        "icon": str(ROOT / "Resources/AppIcon.icns"), "background": str(background),
+        "icon": str(ROOT / "apps/mac/AppIcon.icns"), "background": str(background),
         "format": "UDZO", "filesystem": "HFS+",
         "window_rect": ((200, 140), (WIDTH, HEIGHT + 32)), "default_view": "icon-view",
         "show_status_bar": False, "show_tab_view": False, "show_toolbar": False, "show_pathbar": False, "show_sidebar": False,

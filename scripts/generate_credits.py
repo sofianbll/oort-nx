@@ -15,15 +15,18 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import names as package_names  # noqa: E402  architecture/names.json
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "design/credits.json"
-ART = "Resources/Brands/Credits"
+ART = "design/Brands/Credits"
 CARDS = ROOT / "design/credits.css"
 TOKENS = ROOT / "design/oort-tokens.css"
 # The views that draw the cards; what each may not write itself is in style().
-CARD_VIEWS = ("Sources/NXLibrary/Views/OortUI/OortCreditCard.swift", "mobile/Sources/OortMobile/CreditCards.swift",
+CARD_VIEWS = ("apps/mac/OortMac/Views/OortUI/OortCreditCard.swift", "mobile/Sources/OortMobile/CreditCards.swift",
               "android/app/src/main/kotlin/io/github/sofianbll/oortnx/ui/CreditCards.kt")
-CARD_SCREENS = ("Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift",)
+CARD_SCREENS = ("apps/mac/OortMac/Views/Settings/SettingsAboutSection.swift",)
 LANGUAGES = ("en", "fr", "de", "es", "it", "pt-BR", "zh-Hans")
 SYSTEMS = {"mac": "Mac", "windows": "Windows", "linux": "Linux", "ios": "iPhone and iPad", "android": "Android", "site": "site"}
 USES = {"adapted": "code adapted", "shipped": "in the app", "engine": "in the engine, which is downloaded separately",
@@ -129,14 +132,14 @@ def dependencies():
         found.setdefault(key, where)
 
     names = tracked()
-    if text := read(ROOT / "runtime.lock"):
+    if text := read(ROOT / "engines/nxnative/runtime.lock"):
         lock = json.loads(text)
-        add("python:cpython", "runtime.lock")
-        add("python:standalone", "runtime.lock")
+        add("python:cpython", "engines/nxnative/runtime.lock")
+        add("python:standalone", "engines/nxnative/runtime.lock")
         for wheel in lock["wheels"]:
-            add("wheel:" + wheel["name"].lower(), "runtime.lock")
+            add("wheel:" + wheel["name"].lower(), "engines/nxnative/runtime.lock")
         for item in lock["brew"]:
-            add("brew:" + item["formula"], "runtime.lock")
+            add("brew:" + item["formula"], "engines/nxnative/runtime.lock")
         # The libraries those two tools load, copied beside them by bundle_runtime.sh.
         bundled = read(ROOT / "scripts/bundle_runtime.sh") + read(ROOT / "scripts/relink_macho.py")
         if bundled:
@@ -180,15 +183,15 @@ def dependencies():
         path = Path(name)
         if path.suffix.lower() in (".ttf", ".otf", ".woff", ".woff2"):
             add("font:" + path.name, name)
-        if name.startswith("Resources/ThirdPartyLicenses/") and "wheel" not in name:
+        if name.startswith("design/ThirdPartyLicenses/") and "wheel" not in name:
             add("dir:ThirdPartyLicenses/" + path.name.split("-")[0], name)
-        if name.startswith("Resources/Selene/"):
-            add("dir:Resources/Selene", name)
-        if name.startswith("Resources/SoundPacks/"):
-            add("dir:Resources/SoundPacks", name)
-        if name.startswith("Resources/Brands/Platforms/"):
-            add("dir:Resources/Brands/Platforms", name)
-        if "Sources/NXLibraryCore/Resources/crystal-" in name:
+        if name.startswith("design/Selene/"):
+            add("dir:design/Selene", name)
+        if name.startswith("design/SoundPacks/"):
+            add("dir:design/SoundPacks", name)
+        if name.startswith("design/Brands/Platforms/"):
+            add("dir:design/Brands/Platforms", name)
+        if "core/OortLibrary/Resources/crystal-" in name:
             add("media:crystal", name)
     for name, entry in json.loads(read(ROOT / "scripts/bundle-licences.json") or "{}").items():
         if isinstance(entry, dict):
@@ -196,13 +199,15 @@ def dependencies():
             add("mark:" + ("simple-icons" if "simple-icons" in source else "wikimedia" if "wikimedia" in source
                            else "codeweavers" if "codeweavers" in source else source), name)
     families = ("selene", "catppuccin", "everforest", "flexoki", "gruvbox", "kanagawa", "nord", "rose-pine", "tokyo-night")
-    for palette in json.loads(read(ROOT / "Resources/Selene/palettes.json") or "[]"):
+    for palette in json.loads(read(ROOT / "design/Selene/palettes.json") or "[]"):
         for family in families:
             if palette["id"].startswith(family):
-                add("palette:" + family, "Resources/Selene/palettes.json")
+                add("palette:" + family, "design/Selene/palettes.json")
     if (ROOT / "LICENSE").is_file():
         add("file:LICENSE", "LICENSE")
-    code = [n for n in names if re.match(r"(Sources|mobile/Sources|mobile/App|android/app/src/main|desktop/src-tauri/src|desktop/ui)/", n)
+    modules = tuple(module["path"] + "/" for module in package_names.MODULES.values())
+    code = [n for n in names if (n.startswith(modules)
+                                 or re.match(r"(mobile/Sources|mobile/App|android/app/src/main|desktop/src-tauri/src|desktop/ui)/", n))
             and n.endswith((".swift", ".kt", ".rs", ".js", ".m", ".h")) and "/gen/" not in n]
     for name in code:
         text = read(ROOT / name)
@@ -224,8 +229,8 @@ def dependencies():
     for name in ("scripts/bundle_runtime.sh", "scripts/relink_macho.py"):
         if "LumaNX" in read(ROOT / name):
             add("source:LumaNX", name)
-    if list(ROOT.glob("Resources/Selene/Sounds/*.wav")):
-        add("sound:Selene", "Resources/Selene/Sounds")
+    if list(ROOT.glob("design/Selene/Sounds/*.wav")):
+        add("sound:Selene", "design/Selene/Sounds")
     return found
 
 
@@ -317,7 +322,7 @@ def copies(data):
     out, block = {}, notice_block(data)
     data = display_data(data)
     text = compact(data).encode()
-    for folder, reader in (("Sources/NXLibraryCore/Resources", "Sources/NXLibraryCore/App/Credits+Bundled.swift"),
+    for folder, reader in (("core/OortLibrary/Resources", "core/OortLibrary/App/Credits+Bundled.swift"),
                            ("mobile/Sources/OortMobile/Resources", "mobile"), ("android/app/src/main/assets", "android")):
         if (ROOT / reader).exists():
             out[f"{folder}/credits.json"] = text
@@ -345,7 +350,7 @@ def manifest(data):
     if not path.is_file():
         return None
     listed = json.loads(path.read_text(encoding="utf-8"))
-    listed.update({f"{ART.removeprefix('Resources/')}/{n}.png": hashlib.sha256((ROOT / ART / f"{n}.png").read_bytes()).hexdigest() for n in arts(data)})
+    listed.update({f"{ART.removeprefix('design/')}/{n}.png": hashlib.sha256((ROOT / ART / f"{n}.png").read_bytes()).hexdigest() for n in arts(data)})
     return json.dumps(dict(sorted(listed.items())), indent=2, ensure_ascii=False) + "\n"
 
 
@@ -488,7 +493,7 @@ def main(argv=None):
         if shown.returncode or shown.stdout != SOURCE.read_bytes():
             issues.append(f"{ref} does not have the same design/credits.json")
         # What that branch's own apps were given: Mac, iOS, Android, Windows and Linux.
-        for name, text in (("Sources/NXLibraryCore/Resources/credits.json", compact(data)), ("mobile/Sources/OortMobile/Resources/credits.json", compact(data)),
+        for name, text in (("core/OortLibrary/Resources/credits.json", compact(data)), ("mobile/Sources/OortMobile/Resources/credits.json", compact(data)),
                            ("android/app/src/main/assets/credits.json", compact(data)), ("desktop/ui/gen/credits.js", desktop_script(data)),
                            ("desktop/ui/gen/credits.css", sheet(data).decode())):
             if name.endswith(".css") and not CARDS.is_file():

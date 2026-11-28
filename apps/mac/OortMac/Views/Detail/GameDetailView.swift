@@ -1,0 +1,486 @@
+import SwiftUI
+import AppKit
+import OortLibrary
+import NxnativeAdapter
+
+/// The latest render's model. The key monitor and the input handlers run
+/// outside `body`, so they read it from here instead of recomputing it per key.
+final class DetailsModelCache {
+    var model: GameDetailView.Model?
+}
+
+/// The Details page (spec §5.4, Selene GameDetails + DetailsStage). The top
+/// block sits on the stage; Down glides the page up into the bands, which
+/// are Screenshots (720), Details, Mods (for a game
+/// with a title ID) and More like this, one band pitch (230) apart. A band below the one in focus peeks in, blurred, until
+/// it is focused. Input lives in GameDetailView+Input.swift.
+struct GameDetailView: View {
+    @ObservedObject var viewModel: AppViewModel
+    /// The Setup (`SetupModel`): Rebuild follows the Metal gate.
+    @ObservedObject var setup: SetupModel
+    /// The Nintendo store's data (`StoreMetadataModel`): descriptions, screenshots and names shown here.
+    @ObservedObject var store: StoreMetadataModel
+    @ObservedObject var router: AppRouter
+    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var playSessions: PlaySessionStore
+    @ObservedObject var runningGames: RunningGameMonitor
+    @ObservedObject var artwork: ArtworkStore
+    let game: PortedGame
+    @ObservedObject private var cloud: CloudLibraryModel
+
+    init(viewModel: AppViewModel, setup: SetupModel, store: StoreMetadataModel, router: AppRouter,
+         settings: AppSettingsStore, playSessions: PlaySessionStore,
+         runningGames: RunningGameMonitor, artwork: ArtworkStore, game: PortedGame) {
+        self.viewModel = viewModel
+        self.setup = setup
+        self.store = store
+        self.router = router
+        self.settings = settings
+        self.playSessions = playSessions
+        self.runningGames = runningGames
+        self.artwork = artwork
+        self.game = game
+        cloud = viewModel.cloudLibrary
+    }
+
+    @Environment(\.seleneCanvas) var canvas
+    @Environment(\.controllerHomeAvailable) private var controllerHomeAvailable
+    @Environment(\.seleneReduceMotion) var reduceMotion
+
+    @StateObject var art = SeleneHeroArt()
+    /// Art the player picks redraws the hero and logo (their task keys carry its revision).
+    @ObservedObject var picks = ArtworkPicks.shared
+    @State var focus = DetailsFocus()
+    /// The open screenshot viewer (the game's titleID, its urls and the paging state).
+    @State var viewer: ViewerContext?
+    /// "Read more" is open: the description scrolls, and the wheel scrolls it rather than the bands.
+    @State var expanded = false
+    /// Up from the buttons reaches Read more, when the description has more.
+    @State var readMoreFocused = false
+    /// Wikipedia's introduction when the store text is in another language (`WikipediaAbout`).
+    @State var wikipediaAbout: WikipediaAbout?
+    @State var keyMonitor: Any?
+    @State var rail = RailScroll()
+    @State var wheel = DetailsWheel()
+    @State var cache = DetailsModelCache()
+    /// "Cheats on" under the title, read from the app's files where they can change (`reloadCheats`), never per draw.
+    @State var cheatsOn = false
+    /// The latest `reloadCheats()`: a newer one cancels it, so a slower answer for the previous game never lands.
+    @State var cheatsReload: Task<Void, Never>?
+    /// The Mods band: the game's mods (read when the page appears and when Game options or the app comes back),
+    /// GameBanana's, and their panels. Shared with Spotlight's page.
+    @StateObject var modsHost = ModsBandHost()
+
+    struct ViewerContext: Equatable {
+        var titleID: String
+        var urls: [URL]
+        var state: ScreenshotViewerState
+    }
+
+    // MARK: - Model
+
+    /// Everything one render needs, computed once per body.
+    struct Model {
+        let presentation: GameDetailPresentation
+        let facts: [DetailsFact]
+        let links: [DetailsLink]
+        /// The description has more to read.
+        let readsMore: Bool
+        let screenshots: [URL]
+        let screenshotsKnown: Bool
+        let more: [PortedGame]
+        let mods: [LocalMod]?
+        let bands: DetailsFocus.Bands
+        /// The Metal gate refuses new builds (a known report that does not pass, without the override).
+        let buildBlocked: Bool
+        /// Play, or Build when it can run; otherwise the pill looks dim.
+        let primaryEnabled: Bool
+    }
+
+    /// The last render's model (falls back to a fresh one before the first render).
+    var currentModel: Model { cache.model ?? model }
+
+    var model: Model {
+        let p = presentation
+        let urls = Array((metadata?.screenshotURLs ?? []).prefix(SpotlightScreenshotStrip.maxCount))
+        let more = moreGames
+        let blocked = toolchainBlocked
+        let about = p.aboutDescription(wikipedia: wikipediaAbout?.matching(aboutLookup(p)), language: L10n.context.language)
+        let links = DetailsLink.links(app: game.url, store: p.storeURL, hltb: p.hltbURL,
+                                      wikipedia: about.preview == nil || expanded ? about.wikipediaPage : nil, viewModel: viewModel,
+                                      cloudGame: cloudManagementPlacement == .detailsLink ? game : nil)
+        let facts = DetailsFacts.switchGame(game, metadata: metadata, folderName: DetailsLink.folderName(of: game.url),
+                                            engine: viewModel.engineDetail(for: game))
+        return Model(presentation: p, facts: facts, links: links, readsMore: DetailsTopBlock.readsMore(about), screenshots: urls,
+                     screenshotsKnown: screenshotsKnown,
+                     more: more,
+                     mods: modsHost.localMods,
+                     bands: DetailsFocus.Bands(screenshots: urls.count, mods: modsHost.tiles.count,
+                                               actions: links.count, more: more.count),
+                     buildBlocked: blocked,
+                     primaryEnabled: p.canPlay || ((p.canRebuild || viewModel.canCheckCloudSources(for: game)) && !blocked))
+    }
+
+    var metadata: NintendoStoreMetadata? { store.storeMetadata[game.id] }
+
+    /// Blocked only once the compatibility report is known and does not pass;
+    /// before it loads the build is not dimmed (the build path still explains a refusal).
+    var toolchainBlocked: Bool {
+        setup.compatibilityReport != nil && !setup.canPassToolchainGate
+    }
+
+    var presentation: GameDetailPresentation {
+        let library = viewModel.libraryGames
+        let playtimes = Dictionary(library.map { ($0.id, playSessions.totalDuration(for: $0.id)) },
+                                   uniquingKeysWith: { first, _ in first })
+        return GameDetailPresentation(
+            game: game,
+            metadata: metadata,
+            totalPlaytime: playSessions.totalDuration(for: game.id),
+            lastPlayed: playSessions.lastPlayed(for: game.id),
+            sessions: playSessions.sessions,
+            libraryGames: library,
+            playtimeByGame: playtimes
+        )
+    }
+
+    /// Other games from the library, most alike first (`MoreLikeThis`); nothing without metadata.
+    var moreGames: [PortedGame] {
+        let ids = MoreLikeThis.pick(for: game, in: viewModel.libraryGames,
+                                    metadata: { store.storeMetadata[$0] }, limit: 6)
+        let byID = Dictionary(viewModel.libraryGames.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        return ids.compactMap { byID[$0] }
+    }
+
+    /// "No screenshots" only once the answer is final: not before the first request
+    /// starts, nor while a stale empty cache entry is being refetched.
+    var screenshotsKnown: Bool {
+        if store.storeMetadataLoading.contains(game.id) || store.screenshotLookups.contains(game.id) { return false }
+        guard let titleId = game.titleId, !titleId.isEmpty else { return true }
+        return metadata != nil || store.storeMetadataErrors[game.id] != nil
+    }
+
+    // MARK: - Body
+
+    var body: some View {
+        let model = self.model
+        cache.model = model
+        return ZStack(alignment: .topLeading) {
+            DetailsBackground(image: art.image, imageKey: art.key,
+                              fallback: GameIconProvider.icon(for: game),
+                              shade: settings.settings.backgroundShade)
+            SeleneBottomScrim()
+            stage(model)
+                .frame(width: canvas.stageSize.width, height: canvas.stageSize.height, alignment: .topLeading)
+                .clipped()
+                .offset(x: canvas.stageOrigin.x, y: canvas.stageOrigin.y)
+                .frame(width: canvas.size.width, height: canvas.size.height, alignment: .topLeading)
+                .mask(pageMask)
+                .contentShape(Path(CGRect(x: 0, y: 0, width: canvas.size.width,
+                                          height: max(0, canvas.size.height - canvas.u(SeleneBottomScrim.contentClearance)))))
+            // Anchor to the window, like Settings and Home, rather than the centred 16:9 stage.
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                SeleneHintsBar(left: detailHints,
+                               right: [.browsingOptions(GamepadLayout(settings.settings), "Options",
+                                                        hasHome: controllerHomeAvailable)] + confirmHint,
+                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
+            }
+            .seleneOverlaidHints(router.overlayHasHints(viewModel))
+        }
+        .overlay(viewerOverlay)
+        .overlay(ModsBandOverlay(host: modsHost, find: modsHost.find, game: game))
+        .animation(Motion.viewer(reduceMotion), value: viewer != nil)
+        .frame(width: canvas.size.width, height: canvas.size.height, alignment: .topLeading)
+        .clipped()
+        .onAppear(perform: appear)
+        .onAppear { focus.setPillLimit(pillCount) }
+        .onChange(of: pillCount) { _, count in focus.setPillLimit(count) }
+        .onDisappear {
+            modsHost.stop()
+            removeKeyMonitor()
+            router.isScreenshotViewerOpen = false
+        }
+        .onChange(of: viewer != nil) { router.isScreenshotViewerOpen = $1 }
+        .onChange(of: model.bands) { settleFocus(model.bands) }
+        // Game options (its Mods or Cheats panel) closing, or Arcane coming back from Finder, re-reads mods and cheats.
+        .onChange(of: !viewModel.isGameOptionsOpen) { _, closed in if closed { reloadMods(); reloadCheats() } }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            reloadMods()
+            reloadCheats()
+        }
+        // The key monitor captures this view's value: reinstall it when the game changes.
+        .onChange(of: game) {
+            removeKeyMonitor()
+            installKeyMonitor()
+            reloadMods()
+            reloadCheats()
+            startGameBanana()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nxDetailGamepadAction)) { note in
+            guard viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return }
+            if let action = note.object as? GamepadAction { handle(action) }
+        }
+        .task(id: art.heroTaskKey(game, metadata: metadata)) {
+            await art.loadHero(game: game, current: { game.id }, metadata: metadata, artwork: artwork, personalizations: viewModel.personalizations)
+        }
+        .task(id: art.logoTaskKey(game, metadata: metadata)) {
+            await art.loadLogo(game: game, metadata: metadata, artwork: artwork, personalizations: viewModel.personalizations)
+        }
+        .task(id: viewModel.cloudLibrary.selectionCheck(for: game)) { await viewModel.prefetchCloudLibrary(game) }
+    }
+
+    private var detailHints: [HintItem] {
+        let layout = GamepadLayout(settings.settings)
+        var hints = [HintItem(.b, "Back", action: router.back)]
+        if let search = layout.tap(.browseSearch) {
+            var hint = HintItem(search.prompt, "Search") { handle(.browseSearch) }
+            hint.controllerOnly = true
+            hints.append(hint)
+        }
+        if let center = layout.tap(.controlCenter), controllerHomeAvailable {
+            var hint = HintItem(center.prompt, "Control center", hold: "Hold: Settings") { router.isMenuPresented = true }
+            hint.controllerOnly = true
+            hints.append(hint)
+        }
+        return hints
+    }
+
+    private var cloudManagementPlacement: CloudGameManagementPlacement? {
+        guard viewModel.showsCloudLibrary(game) else { return nil }
+        return .init(nextToPlay: settings.settings.showsCloudPlayIcon, detailsLink: settings.settings.showsCloudDetailsLink,
+                     cloudEnabled: cloud.archive != nil)
+    }
+
+    var showsCloudPill: Bool { cloudManagementPlacement == .primaryActions }
+    var downloadItem: CloudLibraryItem? {
+        runningGames.isRunning(game) ? nil : cloud.downloadItem(for: game)
+    }
+    var pillSet: PortingPills { viewModel.portingPills(game).detailsPresentation(cloudOnly: downloadItem != nil) }
+    private var pillCount: Int { pillSet.count + (showsCloudPill ? 1 : 0) }
+
+    private var downloadAllowed: Bool {
+        downloadItem.map { viewModel.canChangeCloudLibrary($0.downloadAction, for: game) } == true
+    }
+
+    private var confirmHint: [HintItem] {
+        if focus.zone == DetailsFocus.topZone, !readMoreFocused {
+            if pillSet.cancelsQueuedBuild(at: focus.pill) { return [HintItem(.a, "Cancel")] }
+            if focus.pill == 0, downloadItem != nil, pillSet != .porting, !pillSet.isFailed,
+               !DetailsTopBlock.canDownload(downloadAllowed, state: cloud.states[game.id]) { return [] }
+        }
+        return [HintItem(.a, "Select")]
+    }
+
+    // MARK: - Stage
+
+    private func stage(_ model: Model) -> some View {
+        page(model)
+            // Art arriving during the glide rides it with the rest (`GlideGroup`).
+            .modifier(GlideGroup())
+            .offset(y: canvas.u(pageShift))
+            // The glide is movement: reduce motion makes it instant.
+            .animation(Motion.detailBand(reduceMotion), value: pageShift)
+    }
+
+    private var pageMask: some View {
+        VStack(spacing: 0) {
+            SeleneTheme.artShade
+            LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                .frame(height: canvas.u(16))
+            Color.clear.frame(height: canvas.u(SeleneBottomScrim.contentClearance))
+        }
+    }
+
+    /// Selene's band pitch (230), and 100 more for the tall last band so its covers clear the hints. The Mods band,
+    /// when there is one, sits between Details and More like this and pushes More like this one pitch down,
+    /// plus one tile row for each row of its grid after the first.
+    var pageShift: CGFloat {
+        let mods = modsBandShift
+        // These fixed band positions were laid out for a 16-unit footer inset. Move a focused band up
+        // by the same amount as the hints, retaining its gap above them and the spacing between bands.
+        let footerLift = max(0, SeleneBottomScrim.hintsBottom - 16)
+        switch focus.zone {
+        case DetailsFocus.screenshotsZone: return -footerLift
+        case DetailsFocus.actionsZone: return -230 - footerLift
+        case DetailsFocus.modsZone:
+            // Fit as much of the grid as possible without scrolling its title off the stage on entry.
+            // If the focused row lies farther down, lift it to the same line as a single row.
+            let firstRow = -460 - footerLift
+            let showTitle = max(firstRow - modsGridExtra, -Self.modsBandTop)
+            let focusedRow = DetailsModsBand.extraHeight(tileCount: min(focus.mod + 1, currentModel.bands.mods))
+            return min(showTitle, firstRow - focusedRow)
+        case DetailsFocus.moreZone: return -560 - mods - footerLift
+        default: return 0
+        }
+    }
+
+    var modsBandShift: CGFloat { currentModel.mods == nil ? 0 : 230 + modsGridExtra }
+
+    var modsGridExtra: CGFloat { DetailsModsBand.extraHeight(tileCount: currentModel.bands.mods) }
+
+    private static let modsBandTop: CGFloat = 1200
+
+    private func aboutLookup(_ presentation: GameDetailPresentation) -> WikipediaAboutLookup? {
+        WikipediaAboutLookup(presentation: presentation, query: CriticRatingQuery(game: game, name: metadata?.name))
+    }
+
+    private func page(_ model: Model) -> some View {
+        ZStack(alignment: .topLeading) {
+            DetailsTopBlock(game: game, logo: art.logo(for: game),
+                            presentation: model.presentation,
+                            isRunning: runningGames.isRunning(game),
+                            cheatsOn: cheatsOn,
+                            focusedPill: focus.zone == DetailsFocus.topZone && !readMoreFocused ? focus.pill : nil,
+                            primaryEnabled: model.primaryEnabled,
+                            expanded: $expanded,
+                            readMoreFocused: readMoreFocused,
+                            wikipedia: wikipediaAbout?.matching(aboutLookup(model.presentation)),
+                            onPrimary: { pressPill(0) },
+                            onSecondary: { pressPill(1) },
+                            onFavorite: { pressPill(pillCount - 1) },
+                            onHoverPill: { hoverPill($0) },
+                            pillSet: pillSet,
+                            etaText: viewModel.portingETAText,
+                            cloud: cloud,
+                            showsCloudPill: showsCloudPill,
+                            downloadEnabled: downloadAllowed,
+                            canCheckCloudSources: viewModel.canCheckCloudSources(for: game),
+                            onPill: { pressPill($0) },
+                            onOpenLog: { viewModel.revealLog(for: game) })
+                .offset(x: canvas.u(110), y: canvas.u(96))
+                .task(id: aboutLookup(model.presentation)) {
+                    guard let lookup = aboutLookup(model.presentation), let found = await lookup.load() else { return }
+                    wikipediaAbout = WikipediaAbout(lookup: lookup, description: found)
+                }
+
+            band(zone: DetailsFocus.screenshotsZone) {
+                DetailsScreenshotsBand(
+                    titleID: viewModel.personalizationKey(for: game),
+                    urls: model.screenshots,
+                    source: metadata?.screenshotSource,
+                    known: model.screenshotsKnown,
+                    focusedIndex: focus.zone == DetailsFocus.screenshotsZone ? focus.shot : nil,
+                    artwork: artwork,
+                    onFocus: { focusPointer(zone: DetailsFocus.screenshotsZone, index: $0, bands: model.bands) },
+                    onOpen: { index in
+                        focusPointer(zone: DetailsFocus.screenshotsZone, index: index, bands: model.bands)
+                        openViewer(at: index)
+                    })
+            }
+            .offset(x: canvas.u(110), y: canvas.u(740))
+
+            if let mods = model.mods {
+                band(zone: DetailsFocus.modsZone) {
+                    DetailsModsBand(
+                        mods: mods,
+                        records: modsHost.records,
+                        gameBanana: modsHost.gameBanana,
+                        focusedIndex: focus.zone == DetailsFocus.modsZone ? focus.mod : nil,
+                        onFocus: { focusPointer(zone: DetailsFocus.modsZone, index: $0, bands: model.bands) },
+                        onOpen: { index in
+                            focusPointer(zone: DetailsFocus.modsZone, index: index, bands: model.bands)
+                            activateModsTile(index)
+                        })
+                }
+                .offset(x: canvas.u(110), y: canvas.u(Self.modsBandTop))
+            }
+
+            band(zone: DetailsFocus.actionsZone) {
+                HStack(alignment: .top, spacing: 0) {
+                    DetailsPanel(
+                        facts: model.facts,
+                        links: model.links,
+                        focusedLink: focus.zone == DetailsFocus.actionsZone ? focus.action : nil,
+                        onHoverLink: { hoverRow($0) },
+                        onPressLink: { pressRow($0) },
+                        width: DetailsPanel.wideWidth,
+                        ratingQuery: CriticRatingQuery(game: game, name: metadata?.name),
+                        onlineTitleID: game.titleId)
+                    Spacer(minLength: 0)
+                }
+                .frame(width: canvas.u(1700), alignment: .topLeading)
+            }
+            .offset(x: canvas.u(110), y: canvas.u(970))
+
+            if !model.more.isEmpty {
+                band(zone: DetailsFocus.moreZone) {
+                    DetailsMoreBand(
+                        games: model.more.map(CatalogGame.init(nxnative:)),
+                        focusedIndex: focus.zone == DetailsFocus.moreZone ? focus.more : nil,
+                        artwork: artwork,
+                        boxArt: viewModel.boxArt,
+                        boxArtIndexVersion: viewModel.boxArtIndexVersion,
+                        officialName: { store.storeMetadata[$0.id]?.name },
+                        onFocus: { focusPointer(zone: DetailsFocus.moreZone, index: $0, bands: model.bands) },
+                        onOpen: { index in
+                            focusPointer(zone: DetailsFocus.moreZone, index: index, bands: model.bands)
+                            selectOnSpotlight(model.more[index])
+                        })
+                }
+                .offset(x: canvas.u(110), y: canvas.u(Self.modsBandTop + modsBandShift))
+            }
+        }
+    }
+
+    /// A band's look (Selene's DetailsStage.Blur): the band in focus, and the
+    /// first band while the top block has focus, are sharp; every band below
+    /// that one peeks, blurred and faded. Bands above keep full opacity.
+    private func band<Content: View>(zone: Int, @ViewBuilder _ content: () -> Content) -> some View {
+        let shown = max(focus.zone, DetailsFocus.screenshotsZone)
+        let below = zone > shown
+        return content()
+            .blur(radius: below ? canvas.u(SeleneTokens.Effect.bandBlur) : 0)
+            .opacity(below ? SeleneTokens.Effect.bandOpacity : 1)
+            .animation(Motion.detailBand(reduceMotion), value: shown)
+    }
+
+    // MARK: - Viewer
+
+    @ViewBuilder
+    private var viewerOverlay: some View {
+        if let viewer {
+            ScreenshotViewer(titleID: viewer.titleID, urls: viewer.urls, state: viewer.state,
+                             artwork: artwork, onClose: closeViewer, onAction: handleViewer)
+                .transition(.opacity)
+        }
+    }
+
+    // MARK: - Lifecycle
+
+    private func appear() {
+        installKeyMonitor()
+        router.isSearchPresented = false
+        store.loadStoreMetadata(for: game)
+        reloadMods()
+        reloadCheats()
+        startGameBanana()
+        focus = DetailsFocus()
+        settleFocus(model.bands)
+    }
+
+    func settleFocus(_ bands: DetailsFocus.Bands) {
+        var next = focus
+        next.settle(in: bands)
+        if next != focus { focus = next }
+    }
+}
+
+/// Wheel steps for the bands: one step per 0.4 s of scrolling, so a flick moves a band, not three.
+struct DetailsWheel: Equatable {
+    private var accumulated: CGFloat = 0
+    private var lastEvent: TimeInterval = 0
+    private var lastStep: TimeInterval = 0
+
+    /// Scroll down (content up) is Down. A gap of 0.25 s starts a new gesture.
+    /// `threshold` is how far a gesture must travel: small for line-based mouse wheels, large for trackpads.
+    mutating func feed(_ delta: CGFloat, at time: TimeInterval, threshold: CGFloat) -> GamepadAction? {
+        if time - lastEvent > 0.25 { accumulated = 0 }
+        lastEvent = time
+        accumulated += delta
+        guard abs(accumulated) >= threshold, time - lastStep >= 0.4 else { return nil }
+        accumulated = 0
+        lastStep = time
+        return delta < 0 ? .navigateDown : .navigateUp
+    }
+}

@@ -5,10 +5,10 @@ This guide covers building Oort NX itself. For app setup, game preparation and d
 ## Development prerequisites
 
 - An Apple-silicon Mac running macOS 26 or later.
-- Full Xcode selected for the build. The current game toolchain requires Xcode 27.2 or later and the Metal compiler certified for the pinned engine. `Package.swift` declares Swift tools 6.0 (`OortCore`, `NXLibraryCore` and `ArcanePorting` build in the Swift 6 language mode, the app and the tests in Swift 5; in Swift 6 a block written inside a main-actor method stops the app when another queue runs it, so write such a block in a `nonisolated` helper) and macOS 26 as package minimums; those values do not certify an engine/compiler combination.
+- Full Xcode selected for the build. The current game toolchain requires Xcode 27.2 or later and the Metal compiler certified for the pinned engine. `Package.swift` declares Swift tools 6.0 (`OortCore`, `OortLibrary` and `NxnativeAdapter` build in the Swift 6 language mode, the app and the tests in Swift 5; in Swift 6 a block written inside a main-actor method stops the app when another queue runs it, so write such a block in a `nonisolated` helper) and macOS 26 as package minimums; those values do not certify an engine/compiler combination.
 - Git and the command-line tools supplied with Xcode.
 - Python 3 for the publication checks and packaging helpers.
-- Homebrew's `zstd` and `glslang`, at the versions recorded in [runtime.lock](../../runtime.lock), when preparing the bundled runtime. The script checks installed versions; it does not install or silently upgrade them.
+- Homebrew's `zstd` and `glslang`, at the versions recorded in [engines/nxnative/runtime.lock](../../engines/nxnative/runtime.lock), when preparing the bundled runtime. The script checks installed versions; it does not install or silently upgrade them.
 
 Building the frontend alone does not need games or keys. Running the game's build workflow also needs the pinned nxnative checkout (its tools are native executables since 641636e2, so no .NET) and the user's own authorised sources and keys. Setup explains and prepares the supported prerequisites.
 
@@ -29,7 +29,7 @@ A development copy carries the version in progress from the `VERSION` file at th
 An alternate destination can be supplied without replacing the installed development copy:
 
 ~~~sh
-bash scripts/build_app.sh /tmp/NXLibrary-Review.app
+bash scripts/build_app.sh /tmp/Oort-NX-Review.app
 ~~~
 
 A plain development app uses bundle ID `local.nxlibrary.development`, takes its version from `VERSION` and has no release marker. It never installs its own updates.
@@ -49,7 +49,7 @@ The managed path is `<profile support>/DriveTools/rclone-<version>/rclone`; only
 
 ### Bundled runtime
 
-`bundle_runtime.sh` prepares `work/Runtime/` from the exact downloads and hashes in `runtime.lock`. It includes Python, capstone, lz4, fontTools, zbic (Nintendo's zstd variant, read by the engine for system 22.0.0+ code), nsz with its dependencies (NSZ / XCZ inputs), `zstd` and `glslangValidator`, their required non-system libraries and licence notices. zbic is GPLv2, so its source archive ships in `Runtime/sources/`. `EngineRuntimeRequirementsTests` fails when the pinned engine's README or `.github/requirements/tools.txt` asks for a Python package that `runtime.lock` lacks. It relinks the native libraries for the bundle, signs them and checks that the tools run without Homebrew on `PATH`.
+`bundle_runtime.sh` prepares `work/Runtime/` from the exact downloads and hashes in `engines/nxnative/runtime.lock`. It includes Python, capstone, lz4, fontTools, zbic (Nintendo's zstd variant, read by the engine for system 22.0.0+ code), nsz with its dependencies (NSZ / XCZ inputs), `zstd` and `glslangValidator`, their required non-system libraries and licence notices. zbic is GPLv2, so its source archive ships in `Runtime/sources/`. `EngineRuntimeRequirementsTests` fails when the pinned engine's README or `.github/requirements/tools.txt` asks for a Python package that `engines/nxnative/runtime.lock` lacks. It relinks the native libraries for the bundle, signs them and checks that the tools run without Homebrew on `PATH`.
 
 For a complete Dev trial, prepare that same runtime before building and check Setup in an isolated home. The runtime does not include rclone. The bundler removes Python's upstream build-user path from sysconfig metadata; Python computes the current user's base at runtime.
 
@@ -62,7 +62,7 @@ texts and source files whenever an input changes; update the checked hashes
 only after that review. To check an existing release bundle without building it:
 
 ~~~sh
-python3 scripts/check_publication.py --app /path/to/NXLibrary.app
+python3 scripts/check_publication.py --app /path/to/Oort\ NX.app
 ~~~
 
 Passing this check establishes presence and byte identity of the reviewed files,
@@ -75,7 +75,7 @@ Generated `.build/`, `work/` and `dist/` content stays outside version control. 
 ### Debug configuration
 
 ~~~sh
-NX_BUILD_CONFIG=debug bash scripts/build_app.sh /tmp/NXLibrary-Debug.app
+NX_BUILD_CONFIG=debug bash scripts/build_app.sh /tmp/Oort-NX-Debug.app
 ~~~
 
 Debug builds recognise `--show-setup` and `--preview-build` for manual inspection of Setup and the simulated porting presentation. These flags are compiled out of Release builds. The preview is UI development data, not evidence that a real game builds or launches.
@@ -100,7 +100,7 @@ offscreen in French and German on Oort, Catppuccin Latte and Vantablack.
 Compare the matching PNGs against a recorded run at the same size; use a
 tolerant comparison across OS versions and inspect flagged differences.
 
-From the checkout root, run `.build/debug/NXLibrary --render-file-picker /absolute/output`
+From the checkout root, run `.build/debug/OortMac --render-file-picker /absolute/output`
 to list synthetic folders and capture the real picker in French at two widths
 over a bright fixture wallpaper. The probe never displays a window.
 
@@ -139,11 +139,11 @@ The nested-bundle check creates tiny Mach-O fixtures with signed data bundles an
 
 The artwork-return check compiles the real tile views, loading tasks and retained Mods host with generated images and isolated preferences. It records which image the first body selects after view recreation, without rendering or opening a window, and checks pick removal, Steam app updates, Mods badges after external removal and changed GameBanana matches. Network is forbidden in the Mods fixture.
 
-For the optional Mac shortcut handoff check, set `OORT_MAC_SHORTCUT_PROBE=1` for `Tests/CatalogAppChecks/run_profiles.py` and pass a fresh output directory. The probe renders Sources, Spotlight, Collection and the shortcut dialogs in English and French at two sizes, and hands only its own temporary, compiled fixture to Launch Services.
+For the optional Mac shortcut handoff check, set `OORT_MAC_SHORTCUT_PROBE=1` for `apps/mac/Tests/CatalogAppChecks/run_profiles.py` and pass a fresh output directory. The probe renders Sources, Spotlight, Collection and the shortcut dialogs in English and French at two sizes, and hands only its own temporary, compiled fixture to Launch Services.
 
-After building Debug, `python3 Tests/CatalogAppChecks/run_platform_cards.py /absolute/new-output` renders Spotlight in French at two sizes on a bright synthetic wallpaper. It exercises the card through the screen's controller action receiver without opening a window or running games; with ffmpeg it also saves a silent clip.
+After building Debug, `python3 apps/mac/Tests/CatalogAppChecks/run_platform_cards.py /absolute/new-output` renders Spotlight in French at two sizes on a bright synthetic wallpaper. It exercises the card through the screen's controller action receiver without opening a window or running games; with ffmpeg it also saves a silent clip.
 
-After building Debug, `python3 Tests/CatalogAppChecks/run_credits.py /absolute/new-output` renders Settings › About in French, English and German and checks that every credit is within the controller's reach. A new dependency, service, font or symbol needs its entry in `design/credits.json`; run `python3 scripts/generate_credits.py` (add `--engine <checkout>` and `--site <folder>` to check them too).
+After building Debug, `python3 apps/mac/Tests/CatalogAppChecks/run_credits.py /absolute/new-output` renders Settings › About in French, English and German and checks that every credit is within the controller's reach. A new dependency, service, font or symbol needs its entry in `design/credits.json`; run `python3 scripts/generate_credits.py` (add `--engine <checkout>` and `--site <folder>` to check them too).
 
 Passing checks do not establish that an interactive update or a game works. See the [test catalog](file-map.md#test-e-fixture).
 
@@ -199,9 +199,9 @@ bash scripts/release.sh 0.1.2
 
 The script builds a release-marked app, verifies its version and signature, and produces a ZIP and DMG in `work/release/`. Without `--publish`, it does not push a tag or create a GitHub release. Version `0.1.0` is the first public alpha; use an unused version for later releases.
 
-To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/NXLibrary.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
+To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/Oort NX.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
 
-Platform SVGs, generic Lucide fallbacks and notices live in `Resources/Brands/Platforms`.
+Platform SVGs, generic Lucide fallbacks and notices live in `design/Brands/Platforms`.
 Publication checks verify reviewed hashes and reject extra brand files. Only the two Switch platform symbols are an exception to the Nintendo artwork rule.
 
 Publishing requires an explicit maintainer decision and the script's `--publish --notes <file>` options. Prepare reviewed notes from [CHANGELOG.md](../../CHANGELOG.md), then date the version when it is actually published. The script adds engine/Xcode requirement metadata to release notes for the updater. Never publish automatically as part of an agent's verification.
@@ -262,13 +262,14 @@ These are distribution decisions. Do not bypass the dirty-tree check, change the
 
 | Path | Responsibility |
 |---|---|
-| `Sources/NXLibraryCore/` | Models, rules and services without SwiftUI, one folder per area (`App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`); nothing Switch. |
-| `Sources/ArcanePorting/` | The `ArcanePorting` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `NXLibraryCore`. |
-| `Sources/NXLibrary/` | App entry, coordination, SwiftUI screens, theme and macOS integration. |
-| `Tests/NXLibraryCoreTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `NXLibraryCore`. |
-| `Tests/ArcanePortingTests/` | Automated regressions of every file that uses the `ArcanePorting` module. |
-| `Tests/PublicationChecks/` | Publication-guard regressions. |
-| `Resources/` | App icon, fonts, interface media and their notices. |
+| `core/OortLibrary/` | Models, rules and services without SwiftUI, one folder per area (`App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`); nothing Switch. |
+| `engines/nxnative/NxnativeAdapter/` | The `NxnativeAdapter` target: everything Switch (Setup, build, launch, game settings, cheats, Nintendo store, saves, RomFS mods and GameBanana, the nxnative part of catalog and library), one folder per part; it depends on `OortLibrary`. |
+| `apps/mac/OortMac/` | App entry, coordination, SwiftUI screens, theme and macOS integration. |
+| `core/Tests/OortLibraryTests/` | Automated regressions of the base and synthetic fixtures; the target depends only on `OortLibrary`. |
+| `engines/nxnative/Tests/NxnativeAdapterTests/` | Automated regressions of every file that uses the `NxnativeAdapter` module. |
+| `scripts/tests/PublicationChecks/` | Publication-guard regressions. |
+| `design/` | Tokens, vocabulary and credits; the app icon sources (`Icons/`), fonts and interface media (`Selene/`, `SoundPacks/`, `Brands/`), third-party licence texts, and their notices. |
+| `apps/mac/AppIcon.icns` | The Mac's ICNS fallback icon. |
 | `scripts/` | Runtime preparation, app packaging, installation helpers, release packaging and publication checks. |
 | `docs/` | Current guides, audits, dated designs and engine-adoption evidence. |
 
@@ -276,7 +277,7 @@ For component interactions, read the [architecture guide](../how-it-works/archit
 
 ### Localization resources
 
-SwiftPM processes the shared string catalog into `NXLibrary_NXLibraryCore.bundle`. `build_app.sh` requires and copies that bundle into `Contents/Resources`, declares the seven supported app languages and validates the compiled strings/plurals before signing. `scripts/check_localizations.py --app <path.app>` verifies the same resources independently. Missing resources or placeholder mismatches fail packaging. Locale selection is independent from each game's DM_LANG setting.
+SwiftPM processes the shared string catalog into `OortNX_OortLibrary.bundle` (`<package>_<library>`, from `architecture/names.json`). `build_app.sh` requires and copies that bundle into `Contents/Resources`, declares the seven supported app languages and validates the compiled strings/plurals before signing. `scripts/check_localizations.py --app <path.app>` verifies the same resources independently. Missing resources or placeholder mismatches fail packaging. Locale selection is independent from each game's DM_LANG setting.
 
 ### Isolated launcher-development data
 

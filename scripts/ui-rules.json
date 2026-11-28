@@ -192,15 +192,15 @@
   "Oort NX"
  ],
  "keyboard_paths": {
-  "Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift": {
+  "apps/mac/OortMac/Views/Components/SeleneHomeChrome.swift": {
    "hints": 3,
    "keys": "⌘F for search, ⌘K for the control center"
   },
-  "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+  "apps/mac/OortMac/Views/Shell/MenuOverlayView.swift": {
    "hints": 2,
    "keys": "Esc closes, ⌘, opens Settings"
   },
-  "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+  "apps/mac/OortMac/Views/Detail/GameDetailView.swift": {
    "hints": 1,
    "keys": "⌘K for the control center; search has none, so it stays in the debt"
   }
@@ -208,41 +208,41 @@
  "unmeasured": {
   "button-order": "rows built from data beyond the declared ones; role sorting and focus also have Swift and screen tests",
   "keyboard-path": "screens outside Settings beyond the declared actions: only the manual matrix and probes cover them",
-  "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift::OortTabs": "The player's own tabs: four by default (library-tabs), six possible.",
-  "Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift::OortTabs": "Categories come from the wallpaper service.",
-  "Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift::OortSettingsSidebar": "Drawn from GameSettingsCategory (game-settings).",
-  "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift::OortSettingsSidebar": "Drawn from MetadataField (metadata-fields).",
-  "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift::Picker": "The languages an engine offers, a list of values.",
+  "apps/mac/OortMac/Views/Spotlight/SpotlightTopBar.swift::OortTabs": "The player's own tabs: four by default (library-tabs), six possible.",
+  "apps/mac/OortMac/Views/Theme/OnlineBrowsePanel.swift::OortTabs": "Categories come from the wallpaper service.",
+  "apps/mac/OortMac/Views/GameOptions/GameSettingsScreen.swift::OortSettingsSidebar": "Drawn from GameSettingsCategory (game-settings).",
+  "apps/mac/OortMac/Views/GameOptions/ChangeMetadataView.swift::OortSettingsSidebar": "Drawn from MetadataField (metadata-fields).",
+  "apps/mac/OortMac/Views/Settings/SettingsGamesSection.swift::Picker": "The languages an engine offers, a list of values.",
   "Integrations page": "Seven rows in two groups, three game sources and four services: counted by hand on bf0c3410.",
   "View menu": "Four commands added to the system's own menu: counted by hand on bf0c3410.",
-  "desktop/": "The Windows and Linux page draws the lists OortCore sends; only their Swift source is counted."
+  "desktop/": "The Windows and Linux page draws the lists the core module sends; only their Swift source is counted."
  },
  "allowed": {
   "a11y-tap": {
-   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameView.swift": {
     "onTapGesture {click(row)}": 1
    },
-   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+   "apps/mac/OortMac/Views/Setup/SetupCheckView.swift": {
     "onTapGesture {move(to:.card(index));activate()}": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+   "apps/mac/OortMac/Views/Spotlight/AchievementsScreen.swift": {
     "onTapGesture {onFocus(index)}": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightCardInfoView.swift": {
     "onTapGesture {onTopGame(index)}": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightScreenshotStrip.swift": {
     "onTapGesture {onActivate(index)}": 1,
     "onTapGesture {onSelect(index)}": 1
    }
   },
   "measure": {
-   "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameRows.swift": {
     "canvas.u(13)": 1,
     "canvas.u(14)": 1,
     "canvas.u(320)": 1
    },
-   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameStepThreeView.swift": {
     "canvas.u(12)": 1,
     "canvas.u(22)": 2,
     "canvas.u(220)": 2,
@@ -251,23 +251,23 @@
     "canvas.u(40)": 1,
     "canvas.u(46)": 1
    },
-   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameView.swift": {
     "canvas.u(10)": 1,
     "canvas.u(1040)": 1,
     "canvas.u(28)": 1,
     "canvas.u(34)": 1,
     "canvas.u(4)": 2
    },
-   "Sources/NXLibrary/Views/Catalog/CatalogNativeArtwork.swift": {
+   "apps/mac/OortMac/Views/Catalog/CatalogNativeArtwork.swift": {
     "varcornerRadius:CGFloat=12": 1
    },
-   "Sources/NXLibrary/Views/Catalog/CatalogSteamInfo.swift": {
+   "apps/mac/OortMac/Views/Catalog/CatalogSteamInfo.swift": {
     "canvas.u(900)": 1
    },
-   "Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift": {
+   "apps/mac/OortMac/Views/Collection/CollectionCoverRow.swift": {
     "letstartInset:CGFloat=80": 1
    },
-   "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
+   "apps/mac/OortMac/Views/Collection/CollectionView.swift": {
     "canvas.u(1080)": 1,
     "canvas.u(110)": 3,
     "canvas.u(1100)": 3,
@@ -277,7 +277,7 @@
     "duration:0.3": 1,
     "letslideDistance:CGFloat=-24": 1
    },
-   "Sources/NXLibrary/Views/Components/GameLogoArea.swift": {
+   "apps/mac/OortMac/Views/Components/GameLogoArea.swift": {
     "canvas.u(195)": 1,
     "canvas.u(220)": 1,
     "canvas.u(240)": 2,
@@ -285,36 +285,36 @@
     "canvas.u(700)": 2,
     "canvas.u(900)": 1
    },
-   "Sources/NXLibrary/Views/Components/GamePrimaryActions.swift": {
+   "apps/mac/OortMac/Views/Components/GamePrimaryActions.swift": {
     "canvas.u(60)": 1,
     "height:52": 3,
     "minWidth:52": 1
    },
-   "Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift": {
+   "apps/mac/OortMac/Views/Components/IGDBCredentialsDialog.swift": {
     "canvas.u(17)": 1,
     "canvas.u(18)": 1
    },
-   "Sources/NXLibrary/Views/Components/PortingArtLook.swift": {
+   "apps/mac/OortMac/Views/Components/PortingArtLook.swift": {
     "letdownloadMarkLift:CGFloat=0.055": 1,
     "letdownloadMarkSize:CGFloat=0.18": 1,
     "letdownloadWordDrop:CGFloat=0.1": 1
    },
-   "Sources/NXLibrary/Views/Components/SeleneBottomScrim.swift": {
+   "apps/mac/OortMac/Views/Components/SeleneBottomScrim.swift": {
     "canvas.u(260)": 1,
     "lethintsBottom:CGFloat=32": 1
    },
-   "Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift": {
+   "apps/mac/OortMac/Views/Components/SeleneHomeChrome.swift": {
     "canvas.u(12)": 1
    },
-   "Sources/NXLibrary/Views/Components/SeleneReveal.swift": {
+   "apps/mac/OortMac/Views/Components/SeleneReveal.swift": {
     "varrise:CGFloat=16": 1
    },
-   "Sources/NXLibrary/Views/Components/SeleneSwitch.swift": {
+   "apps/mac/OortMac/Views/Components/SeleneSwitch.swift": {
     "canvas.u(24)": 2,
     "canvas.u(30)": 1,
     "canvas.u(56)": 1
    },
-   "Sources/NXLibrary/Views/Components/SessionCard.swift": {
+   "apps/mac/OortMac/Views/Components/SessionCard.swift": {
     "canvas.u(1)": 1,
     "canvas.u(128)": 3,
     "canvas.u(170)": 1,
@@ -322,10 +322,10 @@
     "canvas.u(640)": 4,
     "canvas.u(88)": 1
    },
-   "Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift": {
+   "apps/mac/OortMac/Views/Components/SteamGridDBKeyDialog.swift": {
     "canvas.u(17)": 1
    },
-   "Sources/NXLibrary/Views/Console/ConsoleView.swift": {
+   "apps/mac/OortMac/Views/Console/ConsoleView.swift": {
     "canvas.u(1240)": 1,
     "canvas.u(14)": 2,
     "canvas.u(18)": 2,
@@ -336,10 +336,10 @@
     "canvas.u(64)": 1,
     "canvas.u(7)": 2
    },
-   "Sources/NXLibrary/Views/ControlsView.swift": {
+   "apps/mac/OortMac/Views/ControlsView.swift": {
     "canvas.u(1120)": 1
    },
-   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/CloudLibraryPanel.swift": {
     "canvas.u(44)": 2,
     "height:36": 1,
     "height:44": 1,
@@ -349,22 +349,22 @@
     "minWidth:96": 1,
     "width:920": 1
    },
-   "Sources/NXLibrary/Views/Detail/CloudPersonalAppUpdateRow.swift": {
+   "apps/mac/OortMac/Views/Detail/CloudPersonalAppUpdateRow.swift": {
     "height:22": 1,
     "height:40": 1
    },
-   "Sources/NXLibrary/Views/Detail/DetailsAchievementsCard.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsAchievementsCard.swift": {
     "canvas.u(1)": 1,
     "canvas.u(5)": 2,
     "canvas.u(76)": 2,
     "duration:0.45": 1,
     "height:5": 1
    },
-   "Sources/NXLibrary/Views/Detail/DetailsBackground.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsBackground.swift": {
     "canvas.u(34)": 1,
     "letartWidth:CGFloat=0.72": 1
    },
-   "Sources/NXLibrary/Views/Detail/DetailsBands.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsBands.swift": {
     "canvas.u(14)": 2,
     "canvas.u(1700)": 1,
     "canvas.u(18)": 1,
@@ -375,7 +375,7 @@
     "letwidth:CGFloat=173": 1,
     "varsize:CGFloat=21": 1
    },
-   "Sources/NXLibrary/Views/Detail/DetailsPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsPanel.swift": {
     "canvas.u(1)": 2,
     "canvas.u(18)": 1,
     "canvas.u(182)": 1,
@@ -386,7 +386,7 @@
     "letnarrowWidth:CGFloat=520": 1,
     "letwideWidth:CGFloat=1100": 1
    },
-   "Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsTopBlock.swift": {
     "canvas.u(1034)": 1,
     "canvas.u(1060)": 3,
     "canvas.u(130)": 2,
@@ -399,14 +399,14 @@
     "minWidth:200": 6,
     "minWidth:52": 1
    },
-   "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/GameBananaFindPanel.swift": {
     "canvas.u(40)": 4,
     "canvas.u(820)": 2
    },
-   "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift": {
+   "apps/mac/OortMac/Views/Detail/GameDetailView+Input.swift": {
     "canvas.u(48)": 1
    },
-   "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+   "apps/mac/OortMac/Views/Detail/GameDetailView.swift": {
     "canvas.u(110)": 5,
     "canvas.u(16)": 1,
     "canvas.u(1700)": 1,
@@ -415,7 +415,7 @@
     "canvas.u(970)": 1,
     "letmodsBandTop:CGFloat=1200": 1
    },
-   "Sources/NXLibrary/Views/Detail/ModDetailPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/ModDetailPanel.swift": {
     "canvas.u(100)": 1,
     "canvas.u(16)": 1,
     "canvas.u(178)": 1,
@@ -430,11 +430,11 @@
     "letpadding:CGFloat=40": 1,
     "letpanelHeight:CGFloat=980": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
+   "apps/mac/OortMac/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
     "canvas.u(12)": 1,
     "canvas.u(18)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
+   "apps/mac/OortMac/Views/GameOptions/ChangeArtworkView.swift": {
     "canvas.u(1240)": 1,
     "canvas.u(22)": 1,
     "canvas.u(560)": 1,
@@ -445,79 +445,79 @@
     "width:180": 1,
     "width:352": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift": {
+   "apps/mac/OortMac/Views/GameOptions/ChangeMetadataView.swift": {
     "canvas.u(200)": 1,
     "canvas.u(420)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
+   "apps/mac/OortMac/Views/GameOptions/GameOptionsView+Rows.swift": {
     "canvas.u(1040)": 1,
     "canvas.u(24)": 1,
     "canvas.u(680)": 1,
     "canvas.u(8)": 1,
     "canvas.u(96)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
+   "apps/mac/OortMac/Views/GameOptions/ModsPanel.swift": {
     "canvas.u(8)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift": {
+   "apps/mac/OortMac/Views/GameOptions/MoreSettingsPanel.swift": {
     "canvas.u(1040)": 1,
     "canvas.u(680)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift": {
+   "apps/mac/OortMac/Views/GameOptions/SaveImportDetails.swift": {
     "canvas.u(2)": 1,
     "canvas.u(28)": 1,
     "canvas.u(3)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
+   "apps/mac/OortMac/Views/GameOptions/SavesPanel.swift": {
     "canvas.u(20)": 2,
     "canvas.u(24)": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/SteamOptionsView.swift": {
+   "apps/mac/OortMac/Views/GameOptions/SteamOptionsView.swift": {
     "canvas.u(1040)": 1
    },
-   "Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift": {
+   "apps/mac/OortMac/Views/Launch/DowngradeWarningView.swift": {
     "canvas.u(880)": 1
    },
-   "Sources/NXLibrary/Views/Launch/LaunchMotion.swift": {
+   "apps/mac/OortMac/Views/Launch/LaunchMotion.swift": {
     "letartFrom:CGFloat=1.04": 1,
     "letartTo:CGFloat=1.12": 1,
     "letriseDistance:CGFloat=30": 1
    },
-   "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
+   "apps/mac/OortMac/Views/Launch/LaunchScreenView.swift": {
     "canvas.u(18)": 2,
     "canvas.u(410)": 1,
     "canvas.u(960)": 1
    },
-   "Sources/NXLibrary/Views/Players/PlayersScreen.swift": {
+   "apps/mac/OortMac/Views/Players/PlayersScreen.swift": {
     "width:320": 1
    },
-   "Sources/NXLibrary/Views/Porting/GameInboxView.swift": {
+   "apps/mac/OortMac/Views/Porting/GameInboxView.swift": {
     "canvas.u(1270)": 1,
     "canvas.u(6)": 1,
     "canvas.u(8)": 1
    },
-   "Sources/NXLibrary/Views/Search/FindGameView.swift": {
+   "apps/mac/OortMac/Views/Search/FindGameView.swift": {
     "canvas.u(160)": 5
    },
-   "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
+   "apps/mac/OortMac/Views/Settings/LocalePicker.swift": {
     "canvas.u(12)": 1,
     "canvas.u(420)": 1,
     "canvas.u(800)": 1
    },
-   "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsAPISection.swift": {
     "canvas.u(195)": 1,
     "canvas.u(200)": 1,
     "canvas.u(7)": 1,
     "canvas.u(8)": 2
    },
-   "Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsCloudLibrarySection.swift": {
     "height:34": 3,
     "minWidth:96": 3
    },
-   "Sources/NXLibrary/Views/Settings/SettingsControllersSection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsControllersSection.swift": {
     "width:360": 1
    },
-   "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsEngineSection.swift": {
     "height:8": 2,
     "maxWidth:300": 1,
     "width:116": 1,
@@ -526,29 +526,29 @@
     "width:8": 2,
     "width:96": 1
    },
-   "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsGamesSection.swift": {
     "width:170": 1,
     "width:180": 1,
     "width:20": 1,
     "width:36": 1
    },
-   "Sources/NXLibrary/Views/Settings/SettingsLibrarySection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsLibrarySection.swift": {
     "maxWidth:320": 2
    },
-   "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
+   "apps/mac/OortMac/Views/Setup/ArcaneWelcomeView.swift": {
     "canvas.u(-20)": 1,
     "canvas.u(900)": 1,
     "height:50": 2,
     "minWidth:120": 2,
     "minWidth:220": 1
    },
-   "Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift": {
+   "apps/mac/OortMac/Views/Setup/FoundGamesSetupView.swift": {
     "canvas.u(-20)": 1,
     "canvas.u(960)": 1,
     "height:84": 1,
     "minWidth:220": 1
    },
-   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+   "apps/mac/OortMac/Views/Setup/SetupCheckView.swift": {
     "canvas.u(-20)": 1,
     "canvas.u(156)": 1,
     "canvas.u(176)": 1,
@@ -562,7 +562,7 @@
     "letgap:CGFloat=18": 1,
     "width:240": 1
    },
-   "Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift": {
+   "apps/mac/OortMac/Views/Setup/YourGamesSetupView.swift": {
     "canvas.u(-20)": 1,
     "canvas.u(1)": 1,
     "canvas.u(24)": 2,
@@ -571,7 +571,7 @@
     "height:44": 1,
     "minWidth:220": 1
    },
-   "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {
+   "apps/mac/OortMac/Views/Shell/ActivityCenterView.swift": {
     "canvas.u(12)": 2,
     "canvas.u(24)": 2,
     "canvas.u(44)": 1,
@@ -579,15 +579,15 @@
     "height:44": 3,
     "width:920": 1
    },
-   "Sources/NXLibrary/Views/Shell/AppShellView+Layers.swift": {
+   "apps/mac/OortMac/Views/Shell/AppShellView+Layers.swift": {
     "canvas.u(22)": 2,
     "minHeight:700": 1,
     "minWidth:1100": 1
    },
-   "Sources/NXLibrary/Views/Shell/IntegrationsView.swift": {
+   "apps/mac/OortMac/Views/Shell/IntegrationsView.swift": {
     "canvas.u(385)": 1
    },
-   "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+   "apps/mac/OortMac/Views/Shell/MenuOverlayView.swift": {
     "canvas.u(24)": 1,
     "canvas.u(6)": 1,
     "canvas.u(9)": 2,
@@ -602,12 +602,12 @@
     "width:240": 1,
     "width:320": 1
    },
-   "Sources/NXLibrary/Views/Shell/ProfileAvatar.swift": {
+   "apps/mac/OortMac/Views/Shell/ProfileAvatar.swift": {
     "varx:CGFloat=0.5": 1,
     "vary:CGFloat=0.5": 1,
     "varzoom:CGFloat=1": 1
    },
-   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+   "apps/mac/OortMac/Views/Shell/ProfileEditorView.swift": {
     "canvas.u(112)": 1,
     "canvas.u(176)": 2,
     "canvas.u(198)": 1,
@@ -621,18 +621,18 @@
     "width:150": 1,
     "width:220": 1
    },
-   "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+   "apps/mac/OortMac/Views/Shell/ProfilePickerView.swift": {
     "canvas.u(170)": 3,
     "canvas.u(9)": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/AchievementDetail.swift": {
+   "apps/mac/OortMac/Views/Spotlight/AchievementDetail.swift": {
     "canvas.u(1)": 1,
     "canvas.u(80)": 1,
     "letbadge:CGFloat=64": 1,
     "leticon:CGFloat=200": 1,
     "letwidth:CGFloat=720": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+   "apps/mac/OortMac/Views/Spotlight/AchievementsScreen.swift": {
     "canvas.u(1)": 1,
     "canvas.u(128)": 2,
     "canvas.u(130)": 1,
@@ -655,10 +655,10 @@
     "lettrophy:CGFloat=64": 1,
     "lettrophySpacing:CGFloat=26": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/ArcaneOrbVideo.swift": {
+   "apps/mac/OortMac/Views/Spotlight/ArcaneOrbVideo.swift": {
     "letgrow:CGFloat=1.06": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightCardInfoView.swift": {
     "canvas.u(1)": 2,
     "canvas.u(22)": 1,
     "canvas.u(36)": 1,
@@ -667,7 +667,7 @@
     "canvas.u(80)": 1,
     "canvas.u(900)": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightInfoView.swift": {
     "canvas.u(1)": 1,
     "canvas.u(12)": 1,
     "canvas.u(18)": 2,
@@ -682,7 +682,7 @@
     "height:52": 2,
     "letlogoSlideDistance:CGFloat=-30": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightPageSections.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightPageSections.swift": {
     "canvas.u(11)": 1,
     "canvas.u(14)": 1,
     "canvas.u(15)": 1,
@@ -697,7 +697,7 @@
     "canvas.u(9)": 3,
     "letwidth:CGFloat=1100": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightRowView.swift": {
     "canvas.u(1)": 6,
     "canvas.u(160)": 1,
     "canvas.u(260)": 1,
@@ -707,7 +707,7 @@
     "canvas.u(9)": 1,
     "delay:0.23": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightScreenshotStrip.swift": {
     "letclipWidth:CGFloat=1788": 1,
     "varfocusScale:CGFloat=1.03": 1,
     "vargap:CGFloat=22": 1,
@@ -715,48 +715,48 @@
     "vartileHeight:CGFloat=252": 1,
     "vartileWidth:CGFloat=448": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightTopBar.swift": {
     "canvas.u(110)": 1,
     "canvas.u(12)": 2,
     "canvas.u(2)": 2,
     "height:26": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightView+Entrance.swift": {
     "varouterScale:CGFloat=1": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightView+Input.swift": {
     "canvas.u(48)": 4,
     "canvas.u(90)": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Mods.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightView+Mods.swift": {
     "canvas.u(150)": 1,
     "canvas.u(420)": 1,
     "canvas.u(90)": 1,
     "duration:0.55": 1,
     "letstoreGap:CGFloat=56": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageContent.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightView+PageContent.swift": {
     "canvas.u(16)": 1,
     "canvas.u(1700)": 1,
     "delay:0.6": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageLayout.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightView+PageLayout.swift": {
     "canvas.u(150)": 2,
     "canvas.u(420)": 1,
     "canvas.u(44)": 1,
     "letmoreGap:CGFloat=72": 1,
     "letpageTravel:CGFloat=324": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightView+Stage.swift": {
     "canvas.u(1)": 1,
     "canvas.u(130)": 1,
     "canvas.u(420)": 1,
     "canvas.u(80)": 1
    },
-   "Sources/NXLibrary/Views/Store/GameBananaBlur.swift": {
+   "apps/mac/OortMac/Views/Store/GameBananaBlur.swift": {
     "letbannerRadius:CGFloat=8": 1
    },
-   "Sources/NXLibrary/Views/Store/ModStorePage.swift": {
+   "apps/mac/OortMac/Views/Store/ModStorePage.swift": {
     "canvas.u(1700)": 4,
     "canvas.u(349)": 1,
     "canvas.u(40)": 1,
@@ -778,174 +778,174 @@
    }
   },
   "menu-size": {
-   "Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift": {
+   "apps/mac/OortMac/Views/GameOptions/GameSettingsScreen.swift": {
     "game-settings": 7
    },
-   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
+   "apps/mac/OortMac/Views/GameOptions/SavesPanel.swift": {
     "saves-actions": 2
    },
-   "Sources/NXLibraryCore/Catalog/CatalogGameOptions.swift": {
+   "core/OortLibrary/Catalog/CatalogGameOptions.swift": {
     "steam-options": 2
    },
-   "Sources/NXLibraryCore/Details/GameOptionsPresentation.swift": {
+   "core/OortLibrary/Details/GameOptionsPresentation.swift": {
     "game-quick-panel": 4
    },
-   "Sources/NXLibraryCore/Selene/SpotlightRow.swift": {
+   "core/OortLibrary/Selene/SpotlightRow.swift": {
     "home-cards": 1
    }
   },
   "pad-only": {
-   "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+   "apps/mac/OortMac/Views/Detail/GameDetailView.swift": {
     "controllerOnly": 1
    }
   },
   "pointer-only": {
-   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameStepThreeView.swift": {
     "PortingLogBox": 1
    },
-   "Sources/NXLibrary/Views/Components/WikipediaAbout.swift": {
+   "apps/mac/OortMac/Views/Components/WikipediaAbout.swift": {
     "WikipediaCredit": 1
    }
   },
   "shape": {
-   "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameRows.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.content),style:.continuous).fill": 1,
     "RoundedRectangle(cornerRadius:radius,style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameStepThreeView.swift": {
     "RoundedRectangle(cornerRadius:SeleneTheme.rowRadius,style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
+   "apps/mac/OortMac/Views/AddGame/AddGameView.swift": {
     "Capsule().fill": 1,
     "Circle().fill": 1
    },
-   "Sources/NXLibrary/Views/Components/DownloadCloudOverlay.swift": {
+   "apps/mac/OortMac/Views/Components/DownloadCloudOverlay.swift": {
     "RoundedRectangle(cornerRadius:radius,style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/Components/PortingArtLook.swift": {
+   "apps/mac/OortMac/Views/Components/PortingArtLook.swift": {
     "Capsule().fill": 3,
     "Rectangle().fill": 2
    },
-   "Sources/NXLibrary/Views/Components/SeleneSwitch.swift": {
+   "apps/mac/OortMac/Views/Components/SeleneSwitch.swift": {
     "Capsule().fill": 1,
     "Circle().fill": 2
    },
-   "Sources/NXLibrary/Views/Components/SessionCard.swift": {
+   "apps/mac/OortMac/Views/Components/SessionCard.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge)).strokeBorder": 1,
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge),style:.continuous).strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Components/TileMotionLayers.swift": {
+   "apps/mac/OortMac/Views/Components/TileMotionLayers.swift": {
     "RoundedRectangle(cornerRadius:style.cornerRadius,style:.continuous).strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Console/ConsoleView.swift": {
+   "apps/mac/OortMac/Views/Console/ConsoleView.swift": {
     "Capsule().fill": 1,
     "Circle().fill": 1
    },
-   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/CloudLibraryPanel.swift": {
     "Circle().fill": 1
    },
-   "Sources/NXLibrary/Views/Detail/DetailsBackground.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsBackground.swift": {
     "Rectangle().fill": 3
    },
-   "Sources/NXLibrary/Views/Detail/DetailsPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/DetailsPanel.swift": {
     "Rectangle().fill": 2
    },
-   "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/GameBananaFindPanel.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.content),style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/Detail/ModDetailPanel.swift": {
+   "apps/mac/OortMac/Views/Detail/ModDetailPanel.swift": {
     "Capsule().fill": 1,
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.content),style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
+   "apps/mac/OortMac/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
     "Circle().fill": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift": {
+   "apps/mac/OortMac/Views/GameOptions/CheatsPanel.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.card),style:.continuous).stroke": 1
    },
-   "Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift": {
+   "apps/mac/OortMac/Views/GameOptions/SaveImportDetails.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.row),style:.continuous).strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Porting/GameInboxView.swift": {
+   "apps/mac/OortMac/Views/Porting/GameInboxView.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.card)).strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsAPISection.swift": {
     "Capsule().strokeBorder": 1,
     "Circle().fill": 1,
     "Circle().strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
+   "apps/mac/OortMac/Views/Settings/SettingsEngineSection.swift": {
     "Capsule().strokeBorder": 1,
     "Circle().fill": 2
    },
-   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+   "apps/mac/OortMac/Views/Setup/SetupCheckView.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTheme.cardRadius),style:.continuous).strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift": {
+   "apps/mac/OortMac/Views/Setup/YourGamesSetupView.swift": {
     "Capsule().fill": 1,
     "Circle().fill": 1
    },
-   "Sources/NXLibrary/Views/Shell/AppShellView+Layers.swift": {
+   "apps/mac/OortMac/Views/Shell/AppShellView+Layers.swift": {
     "Circle().stroke": 1
    },
-   "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+   "apps/mac/OortMac/Views/Shell/MenuOverlayView.swift": {
     "Circle().fill": 2,
     "Circle().strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+   "apps/mac/OortMac/Views/Shell/ProfileEditorView.swift": {
     "Circle().fill": 2,
     "Rectangle().fill": 1
    },
-   "Sources/NXLibrary/Views/Shell/ProfilePage.swift": {
+   "apps/mac/OortMac/Views/Shell/ProfilePage.swift": {
     "Circle().strokeBorder": 1,
     "Rectangle().fill": 1,
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.cover)).fill": 1,
     "RoundedRectangle(cornerRadius:radius).strokeBorder": 2
    },
-   "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+   "apps/mac/OortMac/Views/Shell/ProfilePickerView.swift": {
     "Circle().fill": 2,
     "Circle().strokeBorder": 3
    },
-   "Sources/NXLibrary/Views/Spotlight/AchievementDetail.swift": {
+   "apps/mac/OortMac/Views/Spotlight/AchievementDetail.swift": {
     "Rectangle().fill": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+   "apps/mac/OortMac/Views/Spotlight/AchievementsScreen.swift": {
     "Rectangle().fill": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SeleneArtBackground.swift": {
     "Rectangle().fill": 3
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightCardInfoView.swift": {
     "Rectangle().fill": 1,
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge),style:.continuous).fill": 1,
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.cover),style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightInfoView.swift": {
     "Circle().fill": 2,
     "Rectangle().fill": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightRowView.swift": {
     "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge),style:.continuous).fill": 1
    },
-   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
+   "apps/mac/OortMac/Views/Spotlight/SpotlightTopBar.swift": {
     "Circle().fill": 1,
     "Circle().strokeBorder": 1
    },
-   "Sources/NXLibrary/Views/Store/ModStorePage.swift": {
+   "apps/mac/OortMac/Views/Store/ModStorePage.swift": {
     "Capsule().fill": 1
    }
   },
   "untranslated": {
-   "Sources/ArcanePorting/Library/CloudGameArchive.swift": {
+   "engines/nxnative/NxnativeAdapter/Library/CloudGameArchive.swift": {
     "Send both the app and the build cache to create a complete cloud copy.": 1
    },
-   "Sources/NXLibrary/NXLibraryApp.swift": {
+   "apps/mac/OortMac/NXLibraryApp.swift": {
     "Game": 1
    },
-   "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift": {
+   "apps/mac/OortMac/ViewModels/AppViewModel+CloudLibrary.swift": {
     "Could not save the personal app receipt.": 1
    },
-   "Sources/NXLibrary/ViewModels/SetupModel.swift": {
+   "apps/mac/OortMac/ViewModels/SetupModel.swift": {
     "Choose your prod.keys file. It stays on this Mac.": 1
    }
   }
@@ -953,7 +953,7 @@
  "button_rows": [
   {
    "id": "confirm-dialog",
-   "file": "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift",
+   "file": "apps/mac/OortMac/Views/OortUI/SeleneConfirmDialog.swift",
    "scope": "enum SeleneConfirmButton",
    "order": [
     "= Self\\.cancel",
@@ -963,7 +963,7 @@
   },
   {
    "id": "action-bar",
-   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "file": "core/OortLibrary/Selene/ActionBarOrder.swift",
    "scope": "enum ActionBarRole",
    "order": [
     "\\bdestructive\\b",
@@ -975,7 +975,7 @@
   },
   {
    "id": "binary-destructive-order",
-   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "file": "core/OortLibrary/Selene/ActionBarOrder.swift",
    "scope": "static func sorted",
    "order": [
     "items\\.count == 2",
@@ -985,7 +985,7 @@
   },
   {
    "id": "vertical-dialog-order",
-   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "file": "core/OortLibrary/Selene/ActionBarOrder.swift",
    "scope": "static func stacked",
    "order": [
     "\\.primary: 0",
@@ -997,7 +997,7 @@
   },
   {
    "id": "choice-dialog-layout",
-   "file": "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift",
+   "file": "apps/mac/OortMac/Views/OortUI/SeleneConfirmDialog.swift",
    "scope": "struct SeleneChoiceDialog",
    "order": [
     "OortActionBar\\(actions: keys",
@@ -1007,7 +1007,7 @@
   },
   {
    "id": "destructive-group",
-   "file": "Sources/NXLibrary/Views/OortUI/OortActionBar.swift",
+   "file": "apps/mac/OortMac/Views/OortUI/OortActionBar.swift",
    "scope": "func row",
    "order": [
     "ActionBarOrder\\.separatesDestructive\\(",
@@ -1018,7 +1018,7 @@
   },
   {
    "id": "file-picker-foot",
-   "file": "Sources/NXLibrary/Views/OortUI/OortFilePicker.swift",
+   "file": "apps/mac/OortMac/Views/OortUI/OortFilePicker.swift",
    "scope": "var actions:",
    "order": [
     "\"Cancel\"",
@@ -1028,7 +1028,7 @@
   },
   {
    "id": "cloud-panel-foot",
-   "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
+   "file": "apps/mac/OortMac/Views/Detail/CloudLibraryPanel.swift",
    "scope": "var foot:",
    "order": [
     "\\.free\\b",
@@ -1040,7 +1040,7 @@
   },
   {
    "id": "free-space-walk",
-   "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
+   "file": "apps/mac/OortMac/Views/Detail/CloudLibraryPanel.swift",
    "scope": "func handleFree",
    "order": [
     "\\[\\.cancel\\]",
@@ -1050,7 +1050,7 @@
   },
   {
    "id": "guided-setup-walk",
-   "file": "Sources/NXLibrary/Views/Setup/OnboardingView.swift",
+   "file": "apps/mac/OortMac/Views/Setup/OnboardingView.swift",
    "scope": "func move\\(_",
    "order": [
     "\"back\"",
@@ -1060,7 +1060,7 @@
   },
   {
    "id": "downgrade-warning",
-   "file": "Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift",
+   "file": "apps/mac/OortMac/Views/Launch/DowngradeWarningView.swift",
    "scope": "var choices:",
    "order": [
     "\\.quit",
@@ -1070,7 +1070,7 @@
   },
   {
    "id": "library-unavailable",
-   "file": "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift",
+   "file": "apps/mac/OortMac/Views/Launch/DevelopmentStartupView.swift",
    "scope": "var foot:",
    "order": [
     "\\.close\\b",
@@ -1082,18 +1082,18 @@
   }
  ],
  "safe_focus": {
-  "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift::download": "downloads the cloud cache and keeps this Mac's cache as a backup",
-  "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift::without": "rebuilds without the cloud cache; removes nothing"
+  "apps/mac/OortMac/ViewModels/AppViewModel+CloudLibrary.swift::download": "downloads the cloud cache and keeps this Mac's cache as a backup",
+  "apps/mac/OortMac/ViewModels/AppViewModel+CloudLibrary.swift::without": "rebuilds without the cloud cache; removes nothing"
  },
  "action_paths": [
   {
    "id": "details-read-more",
    "click": [
-    "Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift",
+    "apps/mac/OortMac/Views/Detail/DetailsTopBlock.swift",
     "\"Show less\""
    ],
    "key": [
-    "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift",
+    "apps/mac/OortMac/Views/Detail/GameDetailView+Input.swift",
     "expanded\\.toggle|expanded\\s*=[^=]"
    ],
    "why": "Read more has no key on Details"
@@ -1101,25 +1101,25 @@
   {
    "id": "details-wikipedia",
    "click": [
-    "Sources/NXLibrary/Views/Components/WikipediaAbout.swift",
+    "apps/mac/OortMac/Views/Components/WikipediaAbout.swift",
     "\"From Wikipedia, CC BY-SA\\.\""
    ],
    "key": [
-    "Sources/NXLibrary/Views/Detail/DetailsPanel.swift",
+    "apps/mac/OortMac/Views/Detail/DetailsPanel.swift",
     "DetailsLink\\(id: wikipedia|id: .wikipedia|wikipedia \\{|let wikipedia"
    ],
    "why": "the Wikipedia page is one of the links the arrows reach"
   }
  ],
  "mouse_paths": {
-  "Sources/NXLibrary/Views/OortUI/ScreenView.swift": {
+  "apps/mac/OortMac/Views/OortUI/ScreenView.swift": {
    "PromptButton(rawValue:key.rawValue) say(gesture.title)": "each gesture of a node is also its click: A the row or the button, X the row's switch; B stays for the mouse (SeleneHintsBar.mouseBack)"
   },
-  "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
+  "apps/mac/OortMac/Views/Collection/CollectionView.swift": {
    "lb Previous": "the tabs are clickable",
    "rb Next": "the tabs are clickable"
   },
-  "Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift": {
+  "apps/mac/OortMac/Views/Components/SeleneHomeChrome.swift": {
    "menu.prompt Menu": "the macOS menu bar › Menu (⇧⌘K)",
    "menu Menu": "the macOS menu bar › Menu (⇧⌘K)",
    "center.prompt Control center": "the macOS menu bar › Menu (⇧⌘K)",
@@ -1130,100 +1130,100 @@
    "layout.tap(.profiles)?.prompt??.home Profiles": "the portrait in the top bar",
    "binding?.prompt label": "a right click on the tile, or the macOS menu bar › Game Options (⌘O)"
   },
-  "Sources/NXLibrary/Views/ControlsView.swift": {
+  "apps/mac/OortMac/Views/ControlsView.swift": {
    "lb Library": "the segments are clickable",
    "rb In game": "the segments are clickable",
    "x Other controller": "the controller segments are clickable"
   },
-  "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+  "apps/mac/OortMac/Views/Detail/GameDetailView.swift": {
    "search.prompt Search": "the macOS menu bar › Search everywhere (⌘K)",
    "center.prompt Control center": "the macOS menu bar › Menu (⇧⌘K)"
   },
-  "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
+  "apps/mac/OortMac/Views/GameOptions/ChangeArtworkView.swift": {
    "lb Previous": "the tabs are clickable",
    "rb Next": "the tabs are clickable",
    "x Open page": "the key above the grid"
   },
-  "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift": {
+  "apps/mac/OortMac/Views/GameOptions/ChangeMetadataView.swift": {
    "lb Previous": "the field list is clickable",
    "rb Next": "the field list is clickable",
    "rt Read more": "the wheel scrolls the text"
   },
-  "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
+  "apps/mac/OortMac/Views/GameOptions/GameOptionsView+Rows.swift": {
    "y Hide info": "the row's help button"
   },
-  "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
+  "apps/mac/OortMac/Views/Launch/LaunchScreenView.swift": {
    "nil Click to close": "a click anywhere"
   },
-  "Sources/NXLibrary/Views/Search/FindGameView.swift": {
+  "apps/mac/OortMac/Views/Search/FindGameView.swift": {
    "y Search everywhere": "the macOS menu bar › Search everywhere (⌘K)"
   },
-  "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
+  "apps/mac/OortMac/Views/Settings/SettingsView.swift": {
    "lb Previous": "the sidebar is clickable",
    "rb Next": "the sidebar is clickable",
    "x Reset this setting": "the hint is a button and stays visible while the focused setting differs from its default",
    "y Save": "the hints stay shown while changes wait",
    "x Reset group": "the page's last row"
   },
-  "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {
+  "apps/mac/OortMac/Views/Shell/ActivityCenterView.swift": {
    "lb Previous": "the control center icons are clickable",
    "rb Next": "the control center icons are clickable",
    "x Clear": "the row's Clear button",
    "x Cancel": "the row's round Cancel button"
   },
-  "Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift": {
+  "apps/mac/OortMac/Views/Shell/AppShellView+Profiles.swift": {
    "x Erase": "the keypad key",
    "menu Validate": "the keypad key",
    "y Touch ID": "the Touch ID button"
   },
-  "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+  "apps/mac/OortMac/Views/Shell/MenuOverlayView.swift": {
    "center.prompt Close": "a click outside",
    "fallback.prompt Hold: Close": "a click outside",
    "lb Previous": "the icons are clickable",
    "rb Next": "the icons are clickable"
   },
-  "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+  "apps/mac/OortMac/Views/Shell/ProfileEditorView.swift": {
    "menu menuLabel": "a click on a tile, or the keyboard's Done key",
    "nil Cancel": "Back, which stays shown with the hints off",
    "lb Zoom out": "the Zoom slider",
    "rb Zoom in": "the Zoom slider"
   },
-  "Sources/NXLibrary/Views/Shell/ProfilePage.swift": {
+  "apps/mac/OortMac/Views/Shell/ProfilePage.swift": {
    "lb Previous": "a click on the card",
    "rb Next": "a click on the card",
    "y Edit profile": "the Edit profile pill",
    "menu Menu": "the macOS menu bar › Menu (⇧⌘K)"
   },
-  "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+  "apps/mac/OortMac/Views/Spotlight/AchievementsScreen.swift": {
    "lb Previous": "the shoulder buttons",
    "rb Next": "the shoulder buttons",
    "y Self.title(state.order)": "the key beside the filters"
   },
-  "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+  "apps/mac/OortMac/Views/Shell/ProfilePickerView.swift": {
    "menu Add": "the Add tile",
    "x Delete": "the key under the portraits, and the right click",
    "y Edit profile": "the key under the portraits, and the right click"
   },
-  "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
+  "apps/mac/OortMac/Views/GameOptions/ModsPanel.swift": {
    "y Delete": "the bin on the row and the right click"
   },
-  "Sources/NXLibrary/Views/Players/PlayersScreen+Input.swift": {
+  "apps/mac/OortMac/Views/Players/PlayersScreen+Input.swift": {
    "x Move": "the keys under the grid, and the right click on a place",
    "x Reset players": "the keys under the grid, and the right click on a place",
    "y Free this place": "the keys under the grid, and the right click on a place",
    "rs title": "the keys under the grid, and the right click on a place",
    "rt Give all controllers": "the keys under the grid, and the right click on a place"
   },
-  "Sources/NXLibrary/Views/Search/CommandPaletteView.swift": {
+  "apps/mac/OortMac/Views/Search/CommandPaletteView.swift": {
    "y secondary": "the right click on the row"
   },
-  "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
+  "apps/mac/OortMac/Views/Spotlight/SpotlightTopBar.swift": {
    "rs Sort and filter": "the button beside the tabs"
   },
-  "Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift": {
+  "apps/mac/OortMac/Views/Spotlight/SpotlightView+Hints.swift": {
    "x Hide builds": "the key on the Activity card"
   },
-  "Sources/NXLibrary/Views/Theme/ThemePickerView.swift": {
+  "apps/mac/OortMac/Views/Theme/ThemePickerView.swift": {
    "x Open page": "the key under the preview",
    "y Delete": "the key under the preview"
   }

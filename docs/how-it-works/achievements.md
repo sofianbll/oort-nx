@@ -32,9 +32,9 @@ Non si distribuiscono salvataggi Nintendo. [TrophyNX](https://github.com/Imp3r1u
 ## Aggiungere un titolo
 
 1. Identificare Title ID base e versione esatta del bundle. Documentare formato,
-   provenienza e licenza. Aggiungere sotto `ArcanePorting/Saves` un lettore che
+   provenienza e licenza. Aggiungere sotto `NxnativeAdapter/Saves` un lettore che
    restituisce metriche tipizzate o nessun dato, con letture limitate e soli file confermati.
-2. Aggiungere in `NXLibraryCore/Resources` un pack JSON: `schemaVersion`, `titleID`,
+2. Aggiungere in `OortLibrary/Resources` un pack JSON: `schemaVersion`, `titleID`,
    `gameVersion` e `reader`. Ogni record include `id` stabile, `title` e `description`
    (`en`, `it`, `fr`, `de`, `es`, `pt-BR`, `zh-Hans`), `icon` (SF Symbol) e `rule`
    (`metric`, `op: "gte"`, `threshold`). Registrare il pack e la dispatch del lettore.
