@@ -388,7 +388,7 @@ contenere anche i titoli e i messaggi su più righe.
   - Cache di sette giorni (un giorno per le assenze e il ripiego di lingua), pause tra le richieste e un solo nuovo tentativo per timeout o errore server. Un errore non rende fresca una cache precedente. Details e Spotlight indicano la fonte e l'eventuale lingua di ripiego.
   - `metadataLocaleGeneration` impedisce a una risposta vecchia di ripopolare la UI dopo un cambio di lingua. Screenshot e artwork restano condivisi.
 
-**Controlli.** SwiftPM compila le risorse e `build_app.sh` le include prima della firma. `check_localizations.py` verifica copertura delle sette lingue, segnaposto, plurali e risorse compilate; `release.sh` ripete il controllo sullo ZIP estratto. Le traduzioni sono bozze dell'agente, non revisioni di madrelingua.
+**Controlli.** Il catalogo `Localizable.xcstrings` è copiato così com'è nel bundle delle risorse e `L10n` lo legge da sé su ogni sistema (SwiftPM compila un catalogo solo sui sistemi Apple): un testo per lingua o le forme `one`/`other`, scelte con le regole CLDR (0 e 1 sono `one` in francese e portoghese brasiliano). Sul Mac, `L10nAgainstBundleTests` confronta ogni chiave, nelle sette lingue e con più numeri, con il catalogo compilato da Apple. La lettura costa circa 40 ms una volta, al primo testo. `build_app.sh` include il bundle prima della firma. `check_localizations.py` verifica copertura delle sette lingue, segnaposto, plurali e che l'app porti il catalogo sorgente identico; `release.sh` ripete il controllo sullo ZIP estratto. Le traduzioni sono bozze dell'agente, non revisioni di madrelingua.
 
 ## Setup, engine e compatibilità
 

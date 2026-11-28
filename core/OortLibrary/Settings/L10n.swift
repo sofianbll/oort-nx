@@ -15,29 +15,29 @@ public enum L10n {
         return app == nil ? Bundle.module : nil
     }
 
-    private static func languageBundle(_ language: AppLanguage, in resources: Bundle) -> Bundle? {
-        guard let path = resources.path(forResource: language.rawValue, ofType: "lproj") else { return nil }
-        return Bundle(path: path)
+    /// The app's catalogue, read once from its resources.
+    private static let defaultCatalog: Catalog? = resources().flatMap(Catalog.init(in:))
+    /// Catalogues of explicit test or import bundles, each read once and never mixed with the app's.
+    private static let injected = Mutex<[URL: Catalog]>([:])
+
+    private static func catalog(_ bundle: Bundle?) -> Catalog? {
+        guard let bundle else { return defaultCatalog }
+        return injected.withLock { known in
+            if let found = known[bundle.bundleURL] { return found }
+            let read = Catalog(in: bundle)
+            if let read { known[bundle.bundleURL] = read }
+            return read
+        }
     }
 
-    /// At most one retained bundle per supported language; never cache interpolated user data or mutable copy.
-    private static let defaultLanguageBundles: [AppLanguage: Bundle] = {
-        guard let resources = resources() else { return [:] }
-        var bundles: [AppLanguage: Bundle] = [:]
-        for language in AppLanguage.allCases where language != .automatic {
-            bundles[language] = languageBundle(language, in: resources)
-        }
-        return bundles
-    }()
-
     public static func text(_ key: String, context: AppLocale? = nil, bundle: Bundle? = nil) -> String {
-        let context = context ?? Self.context
-        // Explicit test/import bundles must never reuse another bundle's resources.
-        let localized: Bundle?
-        if let bundle { localized = languageBundle(context.language, in: bundle) }
-        else { localized = defaultLanguageBundles[context.language] }
-        let value = localized?.localizedString(forKey: key, value: key, table: "Localizable") ?? key
-        return displayCopy(value, key: key)
+        displayCopy(value(key, language: (context ?? Self.context).language, bundle: bundle), key: key)
+    }
+
+    /// The catalogue's text for `key` in `language`, the form for `count` when it varies by plural; the key itself
+    /// when the catalogue has none (as `Bundle` did with the compiled catalogue).
+    package static func value(_ key: String, language: AppLanguage, count: Int? = nil, bundle: Bundle? = nil) -> String {
+        catalog(bundle)?.text(key, language: language, count: count) ?? key
     }
 
     private static func displayCopy(_ value: String, key: String) -> String {
@@ -53,8 +53,70 @@ public enum L10n {
 
     public static func count(_ key: String, _ count: Int, arguments: [CVarArg] = [], context: AppLocale? = nil) -> String {
         let context = context ?? Self.context
-        let value = String(format: text(key, context: context), locale: context.formatLocale, arguments: [count] + arguments)
+        let form = value(key, language: context.language, count: count)
+        let value = String(format: form, locale: context.formatLocale, arguments: [count] + arguments)
         // shortcut: branded plurals only interpolate the count; if one needs other arguments, brand the variant before interpolation.
         return arguments.isEmpty ? displayCopy(value, key: key) : value
+    }
+
+    /// `Localizable.xcstrings`, read as it is written, on every system: SwiftPM compiles a string catalogue only on
+    /// Apple systems. Each key holds a text per language, or plural forms (`one`, `other`).
+    struct Catalog: Sendable {
+        enum Entry: Sendable {
+            case text(String)
+            case plural(one: String?, other: String)
+        }
+
+        let entries: [String: [String: Entry]]
+
+        init?(in bundle: Bundle) {
+            guard let url = bundle.url(forResource: "Localizable", withExtension: "xcstrings"),
+                  let data = try? Data(contentsOf: url) else { return nil }
+            self.init(data: data)
+        }
+
+        init?(data: Data) {
+            guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let strings = root["strings"] as? [String: Any] else { return nil }
+            func unit(_ node: Any?) -> String? {
+                ((node as? [String: Any])?["stringUnit"] as? [String: Any])?["value"] as? String
+            }
+            var entries: [String: [String: Entry]] = [:]
+            entries.reserveCapacity(strings.count)
+            for (key, node) in strings {
+                guard let localizations = (node as? [String: Any])?["localizations"] as? [String: Any] else { continue }
+                var languages: [String: Entry] = [:]
+                for (language, localization) in localizations {
+                    let plural = ((localization as? [String: Any])?["variations"] as? [String: Any])?["plural"] as? [String: Any]
+                    if let plural, let other = unit(plural["other"]) {
+                        languages[language] = .plural(one: unit(plural["one"]), other: other)
+                    } else if let text = unit(localization) {
+                        languages[language] = .text(text)
+                    }
+                }
+                entries[key] = languages
+            }
+            self.entries = entries
+        }
+
+        func text(_ key: String, language: AppLanguage, count: Int?) -> String? {
+            switch entries[key]?[language.rawValue] {
+            case .text(let text): return text
+            case .plural(let one, let other):
+                guard let count, Self.isOne(count, language) else { return other }
+                return one ?? other
+            case nil: return nil
+            }
+        }
+
+        /// CLDR's integer rule for `one` in the app's languages: 0 and 1 in French and Brazilian Portuguese, 1
+        /// elsewhere, never in Chinese. Every other category falls back to `other`, as Apple's catalogue does.
+        static func isOne(_ count: Int, _ language: AppLanguage) -> Bool {
+            switch language {
+            case .french, .portugueseBrazil: return count.magnitude <= 1
+            case .chineseSimplified: return false
+            default: return count.magnitude == 1
+            }
+        }
     }
 }

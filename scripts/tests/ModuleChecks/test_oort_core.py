@@ -68,6 +68,20 @@ class PortableCoreTests(unittest.TestCase):
         self.assertIn("uses NSImage", found)
         self.assertIn("uses NSImage", self.problems(f"{LIBRARY}/Call.swift", 'import Foundation\nlet a = NSImage("x")\n'))
 
+    def test_the_core_is_a_folder_except_a_resource_it_copies_as_written(self):
+        library = names.MODULES["library"]
+        def targets(**library_target):
+            return [{"name": names.CORE, "type": "regular", "path": names.path("core"), "dependencies": [],
+                     "settings": [{"kind": {"swiftLanguageMode": {"_0": "6"}}}]},
+                    {"name": library["name"], "type": "regular", "path": library["path"],
+                     "dependencies": [{"byName": [names.CORE, None]}],
+                     "settings": [{"kind": {"swiftLanguageMode": {"_0": "6"}}}], **library_target}]
+        copy = [{"path": "Resources/Strings.xcstrings", "rule": {"copy": {}}}, {"path": "Resources", "rule": {"process": {}}}]
+        self.assertEqual(core.check_targets(targets(exclude=["Resources/Strings.xcstrings"], resources=copy)), [])
+        refused = f"Package.swift: {library['name']} lists files; the core is a folder"
+        self.assertEqual(core.check_targets(targets(exclude=["Legacy/Old.swift"], resources=copy)), [refused])
+        self.assertEqual(core.check_targets(targets(sources=["A.swift"])), [refused])
+
     def test_foundation_networking_is_the_only_conditional_import(self):
         text = "import Foundation\n#if canImport(FoundationNetworking)\nimport FoundationNetworking\n#endif\n"
         self.assertEqual(self.problems(f"{LIBRARY}/Net.swift", text), [])

@@ -105,7 +105,12 @@ def scan(root):
 
 def check_manifest(root):
     manifest = json.loads(subprocess.check_output(["swift", "package", "--disable-sandbox", "dump-package"], cwd=root))
-    targets = {target["name"]: target for target in manifest["targets"]}
+    return check_targets(manifest["targets"])
+
+
+def check_targets(manifest_targets):
+    """What the manifest's targets (swift package dump-package) break of R3."""
+    targets = {target["name"]: target for target in manifest_targets}
     own = {name for name, _, _ in core_modules()}
     violations = []
     for name, path, _ in core_modules():
@@ -113,7 +118,9 @@ def check_manifest(root):
         if target is None or target["type"] != "regular" or target.get("path") != path:
             violations.append(f"Package.swift: {name} must be a regular target at {path}")
             continue
-        if any(target.get(key) for key in ("sources", "exclude")):
+        # An exclusion only takes a resource the target copies as written out of a processed folder.
+        copied = {resource["path"] for resource in target.get("resources", []) if "copy" in resource.get("rule", {})}
+        if target.get("sources") or not set(target.get("exclude") or []) <= copied:
             violations.append(f"Package.swift: {name} lists files; the core is a folder")
         if [setting["kind"] for setting in target.get("settings", [])] != [{"swiftLanguageMode": {"_0": "6"}}]:
             violations.append(f"Package.swift: {name} has only the Swift 6 language mode as a setting")

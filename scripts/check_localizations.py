@@ -79,18 +79,8 @@ def check_sources(root):
     return errors
 
 
-def read_compiled_plist(path):
-    data = path.read_bytes()
-    # Xcode emits UTF-16 XML strings with an UTF-8 declaration. Foundation accepts this;
-    # normalize the BOM encoding before handing the XML to Python's stricter parser.
-    if data.startswith((b'\xff\xfe', b'\xfe\xff')):
-        text = data.decode('utf-16')
-        text = re.sub(r'encoding="[^"]+"', 'encoding="UTF-8"', text, count=1)
-        data = text.encode('utf-8')
-    return plistlib.loads(data)
-
-
-def check_app(app):
+def check_app(app, catalog):
+    """The app declares every language and carries the catalogue it was built with, as written: L10n reads it."""
     errors = []
     try:
         info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
@@ -98,18 +88,11 @@ def check_app(app):
         return ['App Info.plist missing or invalid']
     if not set(LANGUAGES).issubset(info.get('CFBundleLocalizations', [])):
         errors.append('App Info.plist does not declare every interface language')
-    resources = app / 'Contents/Resources' / BUNDLE / 'Contents/Resources'
-    if not resources.is_dir():
-        return errors + ['Compiled localization bundle missing']
-    for language in LANGUAGES:
-        folder = resources / f'{language}.lproj'
-        for name in ('Localizable.strings', 'Localizable.stringsdict'):
-            try:
-                value = read_compiled_plist(folder / name)
-                if not value:
-                    errors.append(f'{language}: empty {name}')
-            except (OSError, ValueError, plistlib.InvalidFileException, ExpatError, UnicodeError):
-                errors.append(f'{language}: missing or invalid compiled {name}')
+    shipped = app / 'Contents/Resources' / BUNDLE / 'Contents/Resources/Localizable.xcstrings'
+    if not shipped.is_file():
+        return errors + ['String catalogue missing from the app bundle']
+    if shipped.read_bytes() != catalog.read_bytes():
+        errors.append('The app bundle carries another string catalogue than its source')
     return errors
 
 
@@ -125,7 +108,7 @@ def main():
     for folder in sources:
         errors += check_sources(folder) + check_achievements(folder)
     if args.app:
-        errors += check_app(args.app)
+        errors += check_app(args.app, args.catalog)
     if errors:
         for error in errors:
             print(error)

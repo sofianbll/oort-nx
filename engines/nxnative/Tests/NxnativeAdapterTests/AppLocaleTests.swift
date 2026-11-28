@@ -48,11 +48,10 @@ final class AppLocaleTests: XCTestCase {
     func testLanguageBundleReuseKeepsInjectedResourcesIsolated() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("NXLocalization-\(UUID()).bundle")
         defer { try? FileManager.default.removeItem(at: root) }
-        let folder = root.appendingPathComponent("it.lproj")
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let strings = ["Games": "INJECTED_TEST_VALUE"]
-        try PropertyListSerialization.data(fromPropertyList: strings, format: .xml, options: 0)
-            .write(to: folder.appendingPathComponent("Localizable.strings"))
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let catalogue: [String: Any] = ["sourceLanguage": "en", "version": "1.0", "strings": [
+            "Games": ["localizations": ["it": ["stringUnit": ["state": "translated", "value": "INJECTED_TEST_VALUE"]]]]]]
+        try JSONSerialization.data(withJSONObject: catalogue).write(to: root.appendingPathComponent("Localizable.xcstrings"))
         let bundle = try XCTUnwrap(Bundle(url: root))
         let italian = AppLocale(language: .italian, region: "IT")
         XCTAssertEqual(L10n.text("Games", context: italian), "Giochi")

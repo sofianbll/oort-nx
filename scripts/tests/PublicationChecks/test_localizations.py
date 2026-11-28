@@ -69,21 +69,26 @@ class LocalizationChecks(unittest.TestCase):
     def test_empty_or_incomplete_bundle_is_rejected(self):
         module = self.module()
         with tempfile.TemporaryDirectory() as root:
-            errors = module.check_app(Path(root) / 'Missing.app')
+            catalog = Path(root) / 'Localizable.xcstrings'
+            catalog.write_text('{"sourceLanguage": "en", "strings": {}}')
+            errors = module.check_app(Path(root) / 'Missing.app', catalog)
             self.assertTrue(errors)
             self.assertTrue(any('bundle' in error.lower() or 'plist' in error.lower() for error in errors))
 
-    def test_utf16_compiled_xml_with_utf8_declaration_is_accepted(self):
+    def test_the_app_carries_its_source_catalogue_as_written(self):
         module = self.module()
         with tempfile.TemporaryDirectory() as root:
+            catalog = Path(root) / 'Localizable.xcstrings'
+            catalog.write_text('{"sourceLanguage": "en", "strings": {}}')
             app = Path(root) / 'Game.app'
             info = app / 'Contents/Info.plist'
             info.parent.mkdir(parents=True)
             info.write_bytes(plistlib.dumps({'CFBundleLocalizations': list(module.LANGUAGES)}))
-            for language in module.LANGUAGES:
-                folder = app / 'Contents/Resources' / module.BUNDLE / 'Contents/Resources' / (language + '.lproj')
-                folder.mkdir(parents=True)
-                for name in ('Localizable.strings', 'Localizable.stringsdict'):
-                    xml = plistlib.dumps({'test': 'translated'}).decode('utf-8').encode('utf-16')
-                    (folder / name).write_bytes(xml)
-            self.assertEqual(module.check_app(app), [])
+            shipped = app / 'Contents/Resources' / module.BUNDLE / 'Contents/Resources/Localizable.xcstrings'
+            self.assertEqual(module.check_app(app, catalog), ['String catalogue missing from the app bundle'])
+            shipped.parent.mkdir(parents=True)
+            shipped.write_text('{"sourceLanguage": "en", "strings": {"Old": {}}}')
+            self.assertEqual(module.check_app(app, catalog),
+                             ['The app bundle carries another string catalogue than its source'])
+            shipped.write_bytes(catalog.read_bytes())
+            self.assertEqual(module.check_app(app, catalog), [])

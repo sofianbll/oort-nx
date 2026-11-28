@@ -76,7 +76,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 cp "$BIN" "$APP/Contents/MacOS/Oort NX"
 LOCALIZATION_BUNDLE="$ROOT/.build/$CONFIG/$RESOURCE_BUNDLE"
-[ -d "$LOCALIZATION_BUNDLE" ] || { echo "error: compiled localization bundle missing" >&2; exit 1; }
+[ -d "$LOCALIZATION_BUNDLE" ] || { echo "error: resource bundle (string catalogue) missing" >&2; exit 1; }
 cp -R "$LOCALIZATION_BUNDLE" "$APP/Contents/Resources/"
 
 if [ -f "$ROOT/apps/mac/AppIcon.icns" ]; then

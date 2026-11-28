@@ -20,7 +20,12 @@ let coreTargets: [Target] = [
     .target(name: core.name, path: core.path, swiftSettings: [.swiftLanguageMode(.v6)]),
     .target(name: library.name,
             dependencies: [.byName(name: core.name), .product(name: "Crypto", package: "swift-crypto")],
-            path: library.path, resources: [.process("Resources")], swiftSettings: [.swiftLanguageMode(.v6)]),
+            path: library.path,
+            // The string catalogue is copied as written (L10n.Catalog reads it): SwiftPM compiles one only on Apple
+            // systems. The exclusion only takes it out of the processed folder.
+            exclude: ["Resources/Localizable.xcstrings"],
+            resources: [.copy("Resources/Localizable.xcstrings"), .process("Resources")],
+            swiftSettings: [.swiftLanguageMode(.v6)]),
     .testTarget(name: libraryTests.name, dependencies: [.byName(name: library.name)], path: libraryTests.path),
     .testTarget(name: coreTests.name, dependencies: [.byName(name: core.name)], path: coreTests.path),
 ]
